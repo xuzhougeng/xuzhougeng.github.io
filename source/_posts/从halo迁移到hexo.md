@@ -48,6 +48,6 @@ for file in md_file:
 ```bash
 hexo generate
 git add *
-git commmit -m "从halo迁移到hexo"
+git commit -m "从halo迁移到hexo"
 git push -u origin main
 ```
