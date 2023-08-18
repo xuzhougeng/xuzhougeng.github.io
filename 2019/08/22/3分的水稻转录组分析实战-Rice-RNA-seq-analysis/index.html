@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>3分的水稻转录组分析实战 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="水稻转录组分析实战文章标题: Genes, pathways and transcription factors involved in seedling stage chilling stress tolerance in indica rice through RNA-Seq analysis  该文章发表在BMC plant biology，植物科学2区SCI，近四年IF稳定在3分左右。这篇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3分的水稻转录组分析实战">
+<meta property="og:url" content="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="水稻转录组分析实战文章标题: Genes, pathways and transcription factors involved in seedling stage chilling stress tolerance in indica rice through RNA-Seq analysis  该文章发表在BMC plant biology，植物科学2区SCI，近四年IF稳定在3分左右。这篇">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice_pca-e000a342aec6400f969c460fdc71c44c.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice-volcano-65deaa78f62b4972a72e0d5129840cdd.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice-dotplo-01f5f8e8d85d4d72bf093d13f1cef0e6.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/riceheatplot-94d1fc4441444f0da0fa52d092e9bc03.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/kegg_classfication-538b7daab9234c40a588baa915533b1d.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/kegg_classfication-2-99ebb8d178e042debb6dc6cd4f2e706d.png">
+<meta property="article:published_time" content="2019-08-22T19:54:49.801Z">
+<meta property="article:modified_time" content="2019-08-24T18:02:01.129Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="水稻 | 转录组">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice_pca-e000a342aec6400f969c460fdc71c44c.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-3分的水稻转录组分析实战-Rice-RNA-seq-analysis" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" class="article-date">
+  <time class="dt-published" datetime="2019-08-22T19:54:49.801Z" itemprop="datePublished">2019-08-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      3分的水稻转录组分析实战
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="水稻转录组分析实战"><a href="#水稻转录组分析实战" class="headerlink" title="水稻转录组分析实战"></a>水稻转录组分析实战</h1><p>文章标题: Genes, pathways and transcription factors involved in seedling stage chilling stress tolerance in indica rice through RNA-Seq analysis </p>
+<p>该文章发表在BMC plant biology，植物科学2区SCI，近四年IF稳定在3分左右。这篇文章的核心部分就是测了好几个转录组，然后做了一点实验验证。</p>
+<h2 id="文章简介"><a href="#文章简介" class="headerlink" title="文章简介"></a>文章简介</h2><p>本部分内容由我的一位师弟完成</p>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>世界50％以上的人口将稻米作为饮食中碳水化合物的主要来源。这是因为水稻的种植范围很广，从山地到平原地区均有种植。正因如此，水稻的一生会面临多种生物胁迫（如病原菌，昆虫等）和非生物胁迫（如寒冷，高温，盐碱等），因此解析水稻的抗逆机制，培育具有多种抗逆性状的水稻具有很大的应用价值。而本文的作者是印度人，印度大部分地区的气候具有明显的旱雨两季，旱季的水稻在苗期易受冷（寒）害的影响。随着RNA-seq手段越来越成熟，在比较不同转录组的差异中发挥了重要作用，这对做基因功能的实验室来讲无疑是巨大的福音。作者就想利用RNA-seq的手段，寻找耐寒品种（Geetanjali）和冷敏感品种（Shahabhagidhan）在转录组水平的差异表达的基因，以期在水稻耐寒过程中鉴定到新颖的转录本，并能获得对基因不同表达水平的认识。</p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>总体思路，对耐寒和冷敏感的品种在冷处理过程中的不同时间点取样，并进行转录组分析，分析完成后，用qRT-PCR来验证表达上调和下调的基因，进一步confirm分析结果。</p>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>基于低温胁迫处理的5个不同时间点的比较转录组分析显示：在冷敏感品种中有更多的下调基因，在耐寒品种中有更多上调的基因。 在冷敏感品种（CSV）中检测到总计13930个差异基因，而在耐寒品种（CTV）中检测到10599个差异基因，且随时间的延长，差异基因的数目也增加。GO富集分析揭示了18个CSV项和28个CTV项显著参与到molecular function, cellular component and biological process。GO分类揭示了耐寒过程中的差异基因显著参与转录调控，活性氧爆发，脂质结合，催化和水解酶活性的作用。KEGG注释通路揭示了更多数量的基因在耐寒过程中调节不同的通路来发挥作用。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>结论真的是简单到吐血，真的是简单到吐血，真的是简单到吐血。就一句话：通过对耐寒品种的转录组分析，我们检测到了涉及到抗逆过程的基因，通路和转录因子。</p>
+<h2 id="转录组分析重现"><a href="#转录组分析重现" class="headerlink" title="转录组分析重现"></a>转录组分析重现</h2><blockquote>
+<p>转录组分析环境的搭建和一个分析流程全过程可以哔哩哔哩上搜索”徐洲更”, 即可看我录制的视频。对于学习过程中出现的问题，可以参加我们的付费答疑群，活动见<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/w47Hc2BmRCLpQMlRZ4rCCw">https://mp.weixin.qq.com/s/w47Hc2BmRCLpQMlRZ4rCCw</a>。</p>
+</blockquote>
+<p>本次文章重现涉及到的软件如下:</p>
+<ul>
+<li>命令行：prefetch, fasterq-dump, hisat2, samtools, featureCounts, gffread</li>
+<li>R：DESeq2, clusterProfiler</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda create -n rna-seq sra-tools fastqc fastp  hisat2  samtools subread  gffread multiqc</span><br><span class="line">conda activate rna-seq</span><br></pre></td></tr></table></figure>
+
+<h3 id="数据下载"><a href="#数据下载" class="headerlink" title="数据下载"></a>数据下载</h3><p>文章用到的RNA-seq数据编号，PRJNA288892， 一共有12个样本。我以这个项目编号新建一个文件夹，开始本次的分析</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p PRJNA288892 &amp;&amp; <span class="built_in">cd</span> PRJNA288892</span><br></pre></td></tr></table></figure>
+
+<p>接下来是下载文章用到的数据，编号存在SRR_Acc_List.txt</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SRR2089751</span><br><span class="line">SRR2089753</span><br><span class="line">SRR2089756</span><br><span class="line">SRR2093937</span><br><span class="line">SRR2093938</span><br><span class="line">SRR2093939</span><br><span class="line">SRR2093948</span><br><span class="line">SRR2093955</span><br><span class="line">SRR2093959</span><br><span class="line">SRR2093960</span><br><span class="line">SRR2093961</span><br><span class="line">SRR2089754</span><br></pre></td></tr></table></figure>
+
+<p>建立一个sra文件夹，使用prefetch将数据下载到该文件夹下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> sra</span><br><span class="line"><span class="built_in">cat</span> SRR_Acc_List.txt | <span class="keyword">while</span> <span class="built_in">read</span> <span class="built_in">id</span>; <span class="keyword">do</span> prefetch -O sra <span class="variable">$id</span> ; <span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>然后将sra文件转成fastq格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p 00-raw-data</span><br><span class="line"><span class="built_in">cat</span> SRR_Acc_List.txt | <span class="keyword">while</span> <span class="built_in">read</span> <span class="built_in">id</span>; <span class="keyword">do</span> fasterq-dump -p -3 -O 00-raw-data sra/<span class="variable">$id</span>.sra ; <span class="keyword">done</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<h3 id="原始数据质控"><a href="#原始数据质控" class="headerlink" title="原始数据质控"></a>原始数据质控</h3><p>原文只说了High quality (QV &gt; 25) 的read用于比对，并没有提到具体的质控的软件。我们这里用fastp做质控，因为fastp跑完之后也会输出一个网页，所以我也就懒得用FastQC再跑一次</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p 01-clean-data</span><br><span class="line"><span class="built_in">mkdir</span> -p qc</span><br><span class="line"><span class="built_in">cat</span> SRR_Acc_List.txt | <span class="keyword">while</span> <span class="built_in">read</span> <span class="built_in">id</span>; <span class="keyword">do</span> fastp -w 4 -i 00-raw-data/<span class="variable">$id</span>.sra_1.fastq -I 00-raw-data/<span class="variable">$id</span>.sra_2.fastq -o 01-clean-data/<span class="variable">$id</span>.sra_1.fastq.gz -O 01-clean-data/<span class="variable">$id</span>.sra_2.fastq.gz --html qc/<span class="variable">$id</span>.html --json qc/<span class="variable">$id</span>.json ; <span class="keyword">done</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>重申一个观点，对于<strong>普通</strong>转录组，由于测序质量过关，比对软件也能处理开头的接头序列，我基本不做质控。</p>
+</blockquote>
+<h3 id="建立索引"><a href="#建立索引" class="headerlink" title="建立索引"></a>建立索引</h3><p>文章说它用到水稻参考基因组和注释文件下载自<a href="ftp://ftp.plantbiology.msu.edu/pub/data/EukaryoticProjects/osativa/annotationdbs/pseudomolecules/version_7.0/all.dir/">ftp://ftp.plantbiology.msu.edu/pub/data/EukaryoticProjects/osativa/annotationdbs/pseudomolecules/version_7.0/all.dir/</a>, 而有趣的是这个链接我打不开，目前可用的下载地址其实是: <a target="_blank" rel="noopener" href="http://rice.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_7.0/all.dir/">http://rice.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_7.0/all.dir/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> reference &amp;&amp; <span class="built_in">cd</span> reference</span><br><span class="line"><span class="comment"># 参考基因组</span></span><br><span class="line">wget http://rice.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_7.0/all.dir/all.con</span><br><span class="line"><span class="comment"># 注释文件</span></span><br><span class="line">wget http://rice.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_7.0/all.dir/all.gff3</span><br></pre></td></tr></table></figure>
+
+<p>此外文章用的是TopHat v1.3.3和Bowtie v0.12.9  默认参数做的比对，我对此不作任何评价。我们这里用HISAT2建立索引</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hhisat2-build -p 10 reference/all.con reference/Osativa</span><br></pre></td></tr></table></figure>
+
+<h3 id="序列比对"><a href="#序列比对" class="headerlink" title="序列比对"></a>序列比对</h3><p>用HISAT2将过滤后的fastq文件和参考基因组进行比对，得到下游分析所需要的BAM文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p 02-read-align</span><br><span class="line"><span class="built_in">cat</span> SRR_Acc_List.txt | <span class="keyword">while</span> <span class="built_in">read</span> <span class="built_in">id</span>; <span class="keyword">do</span> hisat2 -p 10 -x reference/Osativa -1 01-clean-data/<span class="variable">$id</span>.sra_1.fastq.gz -2 01-clean-data/<span class="variable">$id</span>.sra_2.fastq.gz --new-summary --summary-file qc/<span class="variable">$id</span>.ht2.txt | samtools <span class="built_in">sort</span> -@ 4 &gt; 02-read-align/<span class="variable">$id</span>.bam ; <span class="keyword">done</span> &amp;</span><br></pre></td></tr></table></figure>
+
+<h3 id="表达量定量"><a href="#表达量定量" class="headerlink" title="表达量定量"></a>表达量定量</h3><p>文章使用的Cufflinks v1.3.0对基因的表达量进行定量，使用FPKM进行了标准化。我这里也不做评价，我们用featureCounts进行表达量定量</p>
+<p>先将GFF3转成GTF格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gffread reference/all.gff3 -T -o reference/Osativa.gtf</span><br></pre></td></tr></table></figure>
+
+<p>然后用featureCoutns</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p 03-gene-count</span><br><span class="line">featureCounts -a reference/Osativa.gtf -o 03-gene-count/gene_counts 02-read-align/*.bam -T 10 -g gene_id</span><br><span class="line"><span class="built_in">mv</span> 03-gene-count/gene_counts.summary qc/gene_counts.summary</span><br></pre></td></tr></table></figure>
+
+<p>最终的结果，就可以读取到R语言里面进行分析了</p>
+<h3 id="MultiQC"><a href="#MultiQC" class="headerlink" title="MultiQC"></a>MultiQC</h3><p>上面每一步的中间文件都被我放到了qc文件夹里，因此可以用multiqc进行整合</p>
+<h3 id="差异分析"><a href="#差异分析" class="headerlink" title="差异分析"></a>差异分析</h3><blockquote>
+<p>由于前面几步的运算时间比较久，我这里直接准备了表达量矩阵，下载方式为百度网盘链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1c_mdGlDggV2DH79H-X7J_g">https://pan.baidu.com/s/1c_mdGlDggV2DH79H-X7J_g</a> 提取码：jmi5 </p>
+</blockquote>
+<p>差异表达分析用但是精确检验(exact test)。</p>
+<p>之前的SRR编号在分析的时候最好转成实际的样本编号，方便分析的时候查看</p>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>品种</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRR2089751.sra</td>
+<td>Sahabhagidhan</td>
+<td>0h control（易感品种对照）</td>
+</tr>
+<tr>
+<td>SRR2089753.sra</td>
+<td>Sahabhagidhan</td>
+<td>6h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2089754.sra</td>
+<td>Sahabhagidhan</td>
+<td>12h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2089756.sra</td>
+<td>Sahabhagidhan</td>
+<td>24h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093937.sra</td>
+<td>Sahabhagidhan</td>
+<td>48h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093938.sra</td>
+<td>Sahabhagidhan</td>
+<td>48h冷害处理后又24h恢复</td>
+</tr>
+<tr>
+<td>SRR2093939.sra</td>
+<td>Geetanjali</td>
+<td>0h conrol</td>
+</tr>
+<tr>
+<td>SRR2093948.sra</td>
+<td>Geetanjali</td>
+<td>6h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093955.sra</td>
+<td>Geetanjali</td>
+<td>12h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093959.sra</td>
+<td>Geetanjali</td>
+<td>24h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093960.sra</td>
+<td>Geetanjali</td>
+<td>48h冷害处理</td>
+</tr>
+<tr>
+<td>SRR2093961.sra</td>
+<td>Geetanjali</td>
+<td>48h冷害处理后又24h恢复</td>
+</tr>
+</tbody></table>
+<p>Sahabhagidhan是不耐冷的品种(cold susceptible variety, CSV) ,而Geetanjali则是耐冷品种 (CTV, cold tolerant variety) 。</p>
+<p>我们这里分析的时候把两个物种在6, 12, 24, 48时间点的样本作为重复，仅仅比较不同物种在冷害处理后的差异基因，而不分析冷害处理后随时间点变化的基因。</p>
+<p>加载数据:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df &lt;- read.table(&quot;gene_counts&quot;, header = T,</span><br><span class="line">                 sep = &quot;\t&quot;,</span><br><span class="line">                 stringsAsFactors = F)</span><br><span class="line">expr_df &lt;- df[,c(1,8,9,10,11,14,15,16,17)]</span><br><span class="line">colnames(expr_df) &lt;- c(&quot;geneid&quot;,</span><br><span class="line">                       &quot;CSV_1&quot;,&quot;CSV_2&quot;,&quot;CSV_3&quot;,&quot;CSV_4&quot;,</span><br><span class="line">                       &quot;CTV_1&quot;,&quot;CTV_2&quot;,&quot;CTV_3&quot;,&quot;CTV_4&quot;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>DESeq2差异分析</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">library(DESeq2)</span><br><span class="line">coldata &lt;- data.frame(condition=factor(c(&quot;CSV&quot;,&quot;CSV&quot;,&quot;CSV&quot;,&quot;CSV&quot;,</span><br><span class="line">                      &quot;CTV&quot;,&quot;CTV&quot;,&quot;CTV&quot;,&quot;CTV&quot;)))</span><br><span class="line">dds &lt;- DESeqDataSetFromMatrix(expr_df,</span><br><span class="line">                       colData = coldata,</span><br><span class="line">                       design = ~ condition,</span><br><span class="line">                       tidy = TRUE)</span><br><span class="line">dds &lt;- DESeq(dds)</span><br></pre></td></tr></table></figure>
+
+<p>PCA比较下组内差异是不是比组间差异小</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rld &lt;- rlog(dds)</span><br><span class="line">plotPCA(rld)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice_pca-e000a342aec6400f969c460fdc71c44c.png" alt="PCA"></p>
+<p>DESeq2的差异表达分析，只需要一行代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">res &lt;- results(dds)</span><br></pre></td></tr></table></figure>
+
+<p>用ggplot2画个火山图,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">plot_df &lt;- data.frame(res)</span><br><span class="line">plot_df &lt;- cbind(geneid=row.names(plot_df),</span><br><span class="line">                        plot_df)</span><br><span class="line"></span><br><span class="line">plot_df &lt;- plot_df[!is.na(plot_df$padj), ]</span><br><span class="line"></span><br><span class="line">ggplot(data=plot_df, aes(x=log2FoldChange, </span><br><span class="line">                      y =-log10(padj))) +</span><br><span class="line">  geom_point(alpha=0.8, size=1.2)+</span><br><span class="line">  labs(title=&quot;Volcanoplot&quot;, x=&quot;log2 (fold change)&quot;,y=&quot;-log10 (q-value)&quot;)+</span><br><span class="line">  theme(plot.title = element_text(hjust = 0.4))+</span><br><span class="line">  geom_hline(yintercept = -log10(0.05),lty=4,color=&quot;red&quot;)+</span><br><span class="line">  geom_hline(yintercept = -log10(0.01),lty=4,color=&quot;blue&quot;)+</span><br><span class="line">  geom_vline(xintercept = c(1,-1),lty=4,alpha=0.8,color=&quot;blue&quot;)+</span><br><span class="line">  geom_vline(xintercept = c(2,-2),lty=4,alpha=0.8,color=&quot;red&quot;)+</span><br><span class="line">  theme_bw()+</span><br><span class="line">  theme(panel.border = element_blank(),</span><br><span class="line">        panel.grid.major = element_blank(),</span><br><span class="line">        panel.grid.minor = element_blank(),</span><br><span class="line">        axis.line = element_line(colour = &quot;black&quot;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice-volcano-65deaa78f62b4972a72e0d5129840cdd.png" alt="火山图"></p>
+<p>火山图的作用，一是检查你的差异分析是否合理，也就是大部分基因都是没有变化，只有一部分是差异基因，第二个是可以帮你确定阈值。</p>
+<p>我发现即便是LogFoldChange &gt; 2（相差4倍）, p.adj &lt; 0.01，依旧是有很多差异基因。所以我这里以这个为标准进行筛选，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">res_sub &lt;- subset(res, abs(log2FoldChange) &gt; 2 &amp; padj &lt;0.01)</span><br><span class="line">gene_up &lt;- row.names(res_sub[res_sub$log2FoldChange &gt; 0, ])</span><br><span class="line">length(gene_up) # 1024</span><br><span class="line">gene_down &lt;- row.names(res_sub[res_sub$log2FoldChange &lt; 0, ])</span><br><span class="line">length(gene_down) # 702</span><br></pre></td></tr></table></figure>
+
+<p>其实这个时候你会有一个问题，所谓的基因上调和下调是谁相对于谁呢？很简单，直接把差异的基因的标准化矩阵提取出来即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gene_counts &lt;- counts(dds, normalized = TRUE)</span><br><span class="line">gene_counts &lt;- gene_counts[row.names(res_sub), ]</span><br><span class="line">head(gene_counts)</span><br></pre></td></tr></table></figure>
+
+<p>当你看到具体的数值时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">                    CSV_1     CSV_2      CSV_3      CSV_4     CTV_1</span><br><span class="line">LOC_Os01g01430   1.739379   0.00000   5.971535   8.188634  31.70621</span><br><span class="line">                   CTV_2     CTV_3    CTV_4</span><br><span class="line">LOC_Os01g01430  29.60817  17.19996  10.9967</span><br></pre></td></tr></table></figure>
+
+<p>你自然就知道了CTV vs CSV里，CSV是作为分母，而CTV是分子。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">log2 fold change (MLE): condition CTV vs CSV </span><br><span class="line">Wald test p-value: condition CTV vs CSV </span><br><span class="line">DataFrame with 6 rows and 6 columns</span><br><span class="line">                       baseMean    log2FoldChange             lfcSE</span><br><span class="line">                      &lt;numeric&gt;         &lt;numeric&gt;         &lt;numeric&gt;</span><br><span class="line">LOC_Os01g01430 13.1763234817146  2.57839743463268 0.925763093663462</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="使用clusterProfiler做GO-KEGG富集分析"><a href="#使用clusterProfiler做GO-KEGG富集分析" class="headerlink" title="使用clusterProfiler做GO&#x2F;KEGG富集分析"></a>使用clusterProfiler做GO&#x2F;KEGG富集分析</h3><p>文章用agriGo对DEG进行分类，用singular enrichment analysis (SEA) 做GO富集分析，进一步的注释用Web Gene Ontology Annotation Plot (WEGO) 进行画图。做KEGG富集分析时，用的是KEGG GENES database KAAS (KEGG Automatic Annotation Server) 对差异基因进行功能注释.</p>
+<p>这里我也不做评价，我们此处用Y叔的clusterProfiler做GO&#x2F;KEGG富集分析。</p>
+<p>在做GO富集分析的时候，我遇到了一个难题，我发现Bioconductor上并没有水稻的物种注释包。解决这个问题有两种方法，</p>
+<ul>
+<li>一种是利用AnnotationHub在线检索抓取OrgDb, 但是这些包都是用ENTREZID，你需要先将RAP-DB或者MSU转为ENTREZID才行</li>
+<li>另一种则是我构建好一个物种注释包，你们只要安装就可以继续使用<code>enrichGO</code>， 参考<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/org.Osativa.eg.db">https://github.com/xuzhougeng/org.Osativa.eg.db</a></li>
+</ul>
+<p>参考我的GitHub页面安装，<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/org.Osativa.eg.db">https://github.com/xuzhougeng/org.Osativa.eg.db</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">install.packages(&quot;https://github.com/xuzhougeng/org.Osativa.eg.db/releases/download/v0.01/org.Osativa.eg.db.tar.gz&quot;, </span><br><span class="line">    repos = NULL, </span><br><span class="line">    type=&quot;source&quot;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>目前这个物种包比较简单，就只能做GO富集分析，以及MSU和RAP-DB之间的ID转换</p>
+</blockquote>
+<p>然后进行GO富集分析</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">library(clusterProfiler)</span><br><span class="line">library(org.Osativa.eg.db)</span><br><span class="line"></span><br><span class="line">org &lt;- org.Osativa.eg.db</span><br><span class="line">ego_up &lt;- enrichGO(gene_up,</span><br><span class="line">                OrgDb = org,</span><br><span class="line">                keyType = &quot;GID&quot;,</span><br><span class="line">                pAdjustMethod = &quot;none&quot;,</span><br><span class="line">                ont=&quot;BP&quot;)</span><br><span class="line">p1 &lt;- dotplot(ego_up)</span><br><span class="line"></span><br><span class="line">ego_down &lt;- enrichGO(gene_down,</span><br><span class="line">                OrgDb = org,</span><br><span class="line">                keyType = &quot;GID&quot;,</span><br><span class="line">                pAdjustMethod = &quot;none&quot;,</span><br><span class="line">                ont=&quot;BP&quot;)</span><br><span class="line">p2 &lt;- dotplot(ego_down)</span><br><span class="line"></span><br><span class="line">library(cowplot)</span><br><span class="line">plot_grid(p1,p2)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/rice-dotplo-01f5f8e8d85d4d72bf093d13f1cef0e6.png" alt="dotplot"></p>
+<p>除了点图，我们还可以用clusterProfiler画下面这个图，展现每个基因在不同GO通路的倍数变化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fc &lt;- plot_df$log2FoldChange</span><br><span class="line">names(fc) &lt;-  plot_df$geneid</span><br><span class="line"></span><br><span class="line">heatplot(ego_down, foldChange = fc)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/riceheatplot-94d1fc4441444f0da0fa52d092e9bc03.png" alt="heatplot"></p>
+<blockquote>
+<p>讲真，GO富集分析给的信息真的是少，我以为是我的分析出现了问题，所以我去看了文章里GO分析中BP部分，发现信息是一样的少。</p>
+</blockquote>
+<p>GO富集分析做完之后，KEGG富集分析怎么做呢？参考我之前的这篇<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/UnUPVoaMpfJWCQEpkmdTWA">https://mp.weixin.qq.com/s/UnUPVoaMpfJWCQEpkmdTWA</a></p>
+<p>因为KEGG要求的输入编号是RAP-DB，所以我们需要进行一次ID转换，在编号中加上”-01”，将编号中的”g”改成”t”, 就可以做KEGG富集分析了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rap_id &lt;- mapIds(x = org, </span><br><span class="line">                 keys = gene_up, </span><br><span class="line">                 column = &quot;RAP&quot;,</span><br><span class="line">                 &quot;GID&quot;)</span><br><span class="line">rap_id &lt;- paste0(rap_id[!is.na(rap_id)], &quot;-01&quot;)</span><br><span class="line">rap_id &lt;- gsub(&quot;g&quot;,&quot;t&quot;,rap_id)</span><br><span class="line">ekegg &lt;- enrichKEGG(rap_id, organism = &quot;dosa&quot;, pAdjustMethod = &quot;none&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>没成想，KEGG的分析结果中只得到了一个结果, 所以也懒得放气泡图了。也难怪文章只是将差异基因按照KEGG进行了分类，而没有做富集。我这里也用Y叔的包对上调差异基因按照KEGG归类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">rice_kegg &lt;- clusterProfiler::download_KEGG(&quot;dosa&quot;)</span><br><span class="line"></span><br><span class="line">kegg_df &lt;- rice_kegg$KEGGPATHID2EXTID</span><br><span class="line">kegg_df &lt;- kegg_df[kegg_df$to %in% rap_id,]</span><br><span class="line">kegg_df &lt;- merge(kegg_df, rice_kegg$KEGGPATHID2NAME,</span><br><span class="line">                 by.x=&quot;from&quot;,by.y=&quot;from&quot;)</span><br><span class="line"></span><br><span class="line">kegg_class &lt;- as.data.frame(sort(table(kegg_df$to.y), decreasing = T)[1:10])</span><br><span class="line">colnames(kegg_class) &lt;- c(&quot;pathway&quot;,&quot;times&quot;)</span><br><span class="line">ggplot(kegg_class,aes(x=pathway, y = times)) +</span><br><span class="line">  geom_bar(fill=&quot;#ca0020&quot;,stat=&quot;identity&quot;) + coord_flip() +</span><br><span class="line">  theme_bw() + geom_text(aes(y = times+1, label = times))</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/kegg_classfication-538b7daab9234c40a588baa915533b1d.png" alt="KEGG分类1"></p>
+<p>当然上下调一起展示也不难，就是代码会长一点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">rice_kegg &lt;- clusterProfiler::download_KEGG(&quot;dosa&quot;)</span><br><span class="line"># 获取上调的KEGG PATHWAY</span><br><span class="line">up_rap_id &lt;- mapIds(x = org, </span><br><span class="line">                 keys = gene_up, </span><br><span class="line">                 column = &quot;RAP&quot;,</span><br><span class="line">                 &quot;GID&quot;)</span><br><span class="line">up_rap_id &lt;- paste0(up_rap_id[!is.na(up_rap_id)], &quot;-01&quot;)</span><br><span class="line"></span><br><span class="line">up_rap_id &lt;- gsub(&quot;g&quot;,&quot;t&quot;,up_rap_id)</span><br><span class="line"></span><br><span class="line">up_df &lt;- rice_kegg$KEGGPATHID2EXTID</span><br><span class="line">up_df &lt;- kegg_df[kegg_df$to %in% up_rap_id,]</span><br><span class="line">up_df &lt;- merge(kegg_df, rice_kegg$KEGGPATHID2NAME,</span><br><span class="line">                 by.x=&quot;from&quot;,by.y=&quot;from&quot;)</span><br><span class="line"></span><br><span class="line"># 获取下调的KEGG PATHWAY</span><br><span class="line">down_rap_id &lt;- mapIds(x = org, </span><br><span class="line">                    keys = gene_down, </span><br><span class="line">                    column = &quot;RAP&quot;,</span><br><span class="line">                    &quot;GID&quot;)</span><br><span class="line">down_rap_id &lt;- paste0(down_rap_id[!is.na(down_rap_id)], &quot;-01&quot;)</span><br><span class="line">down_rap_id &lt;- gsub(&quot;g&quot;,&quot;t&quot;,down_rap_id)</span><br><span class="line">down_df &lt;- rice_kegg$KEGGPATHID2EXTID</span><br><span class="line">down_df &lt;- down_df[down_df$to %in% down_rap_id,]</span><br><span class="line">down_df &lt;- merge(down_df, rice_kegg$KEGGPATHID2NAME,</span><br><span class="line">               by.x=&quot;from&quot;,by.y=&quot;from&quot;)</span><br><span class="line"></span><br><span class="line"># 统计</span><br><span class="line">kegg_class_up &lt;- as.data.frame(sort(table(up_df$to.y), </span><br><span class="line">                                 decreasing = T)[1:10])</span><br><span class="line">kegg_class_down &lt;- as.data.frame(sort(table(down_df$to.y), </span><br><span class="line">                                    decreasing = T)[1:10])</span><br><span class="line">#合并</span><br><span class="line">kegg_class &lt;- rbind(kegg_class_up, kegg_class_down)</span><br><span class="line">colnames(kegg_class) &lt;- c(&quot;pathway&quot;,&quot;times&quot;)</span><br><span class="line">kegg_class$source &lt;- rep(c(&quot;up&quot;,&quot;down&quot;),</span><br><span class="line">                         times=c(nrow(kegg_class_up),nrow(kegg_class_down)))</span><br><span class="line">#画图</span><br><span class="line">ggplot(kegg_class,aes(x=pathway, y = times)) +</span><br><span class="line">  geom_bar(aes(fill=source),stat=&quot;identity&quot;,position = &quot;dodge&quot;) + </span><br><span class="line">  scale_fill_manual(values = c(up=&quot;#ca0020&quot;,down=&quot;#2b83ba&quot;)) +</span><br><span class="line">  coord_flip() +</span><br><span class="line">  theme_bw()</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/kegg_classfication-2-99ebb8d178e042debb6dc6cd4f2e706d.png" alt="KEGG分类2"></p>
+<p>这里这展示了代码，具体如何讲故事，如何调整参数，其实就靠作者自由发挥了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>水稻两大权威注释组织</p>
+<ul>
+<li>RAP-DB: <a target="_blank" rel="noopener" href="https://rapdb.dna.affrc.go.jp/">https://rapdb.dna.affrc.go.jp/</a></li>
+<li>RGAP: <a target="_blank" rel="noopener" href="http://rice.plantbiology.msu.edu/">http://rice.plantbiology.msu.edu/</a></li>
+<li>clusterPrifiler文档: <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html">https://bioconductor.org/packages/release/bioc/vignettes/clusterProfiler/inst/doc/clusterProfiler.html</a></li>
+<li>DESeq2文档: <a target="_blank" rel="noopener" href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" data-id="cllg90xyy000aeqp2f1ez8mv6" data-title="3分的水稻转录组分析实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          如何安装perl模块
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/22/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84GitHub%E8%83%BD%E8%A2%AB%E5%BC%95%E7%94%A8-How-to-citate-my-GitHub-repository/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">如何让你的GitHub能被引用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

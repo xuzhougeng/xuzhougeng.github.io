@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>从零开始学CIRCOS绘制圈图(二) | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="在从零开始学CIRCOS绘制圈图(一)， 我们已经绘制出一个比较丑的circos图，这一部分是讲解一些细节。 这一部分会从上一步的两个文件开始，分别是 karyotype.tair10.txt 12345chr - chr1 chr1 0 30427617 chr1chr - chr2 chr2 0 19698289 chr2chr - chr3 chr3 0 23459830 chr3chr -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始学CIRCOS绘制圈图(二)">
+<meta property="og:url" content="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="在从零开始学CIRCOS绘制圈图(一)， 我们已经绘制出一个比较丑的circos图，这一部分是讲解一些细节。 这一部分会从上一步的两个文件开始，分别是 karyotype.tair10.txt 12345chr - chr1 chr1 0 30427617 chr1chr - chr2 chr2 0 19698289 chr2chr - chr3 chr3 0 23459830 chr3chr -">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-colors-88bba063fa264c9f9825a9b9fd3baad0.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-small-label-8fa0fec44a434954be54e07f8ce85ba8.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-large-label-3f6597855c3641b7baf918b7cc5fd558.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-ticks-c284af9cff484548983579dcee75c154.png">
+<meta property="article:published_time" content="2019-07-30T10:52:23.083Z">
+<meta property="article:modified_time" content="2019-09-02T12:59:45.903Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="可视化 | CIRCOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-colors-88bba063fa264c9f9825a9b9fd3baad0.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-从零开始学CIRCOS绘制圈图(二)-从零开始学CIRCOS绘制圈图(二)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)/" class="article-date">
+  <time class="dt-published" datetime="2019-07-30T10:52:23.083Z" itemprop="datePublished">2019-07-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      从零开始学CIRCOS绘制圈图(二)
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在<a href="/archives/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)">从零开始学CIRCOS绘制圈图(一)</a>， 我们已经绘制出一个比较丑的circos图，这一部分是讲解一些细节。</p>
+<p>这一部分会从上一步的两个文件开始，分别是</p>
+<p><code>karyotype.tair10.txt</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">chr - chr1 chr1 0 30427617 chr1</span><br><span class="line">chr - chr2 chr2 0 19698289 chr2</span><br><span class="line">chr - chr3 chr3 0 23459830 chr3</span><br><span class="line">chr - chr4 chr4 0 18585056 chr4</span><br><span class="line">chr - chr5 chr5 0 26975502 chr5</span><br></pre></td></tr></table></figure>
+
+<p><code>circos.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">karyotype = karyotype.tair10.txt</span><br><span class="line"></span><br><span class="line">&lt;ideogram&gt;</span><br><span class="line">&lt;spacing&gt;</span><br><span class="line">default = 0.005r</span><br><span class="line">&lt;/spacing&gt;</span><br><span class="line">radius           = 0.90r</span><br><span class="line">thickness        = 20p</span><br><span class="line">fill             = <span class="built_in">yes</span></span><br><span class="line">stroke_color     = dgrey</span><br><span class="line">stroke_thickness = 2p</span><br><span class="line">&lt;/ideogram&gt;</span><br><span class="line"></span><br><span class="line">&lt;image&gt;</span><br><span class="line">&lt;&lt;<span class="string">include etc/image.conf&gt;&gt;</span></span><br><span class="line"><span class="string">&lt;/image&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;&lt;include</span> etc/colors_fonts_patterns.conf&gt;&gt;</span><br><span class="line">&lt;&lt;<span class="string">include etc/housekeeping.conf&gt;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="配色"><a href="#配色" class="headerlink" title="配色"></a>配色</h2><p>第一个要解决的问题是配色问题，其实上一部分的配色定义依旧有点丑。如果不想重新打开文件修改的话，其实除了在karyotype文件里定义颜色外，我们还可以直接在circos.conf文件定义颜色.</p>
+<p>举个例子，在<code>karyotype = karyotype.tair10.txt</code>后加一行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chromosomes_color = chr1=rdylbu-11-div-1,chr2=rdylbu-11-div-3,chr3=rdylbu-11-div-5,chr4=rdylbu-11-div-7,chr5=rdylbu-11-div-9</span><br></pre></td></tr></table></figure>
+
+<p>问题是，我们怎们知道这些名字后所代表的颜色呢？</p>
+<p>Circos中颜色的命名格式为<code>PALETTE-NUMCOLORS-TYPE-IDX</code>:</p>
+<ul>
+<li>PALETTE:调色版名，如rdylbu</li>
+<li>NUMCOLORS: 颜色数目,  11</li>
+<li>调色版类型: div(diverging), seq(sequential), qual(qualitative)</li>
+<li>IDX: 调色版中的颜色索引</li>
+</ul>
+<p>而Circos颜色来自于<a target="_blank" rel="noopener" href="http://colorbrewer2.org/">http://colorbrewer2.org</a></p>
+<p>因此，<code>gnbu-9-seq</code>对应的是就是下图的<code>9-class GnBu</code></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-colors-88bba063fa264c9f9825a9b9fd3baad0.png" alt="颜色"></p>
+<p>配色不仅仅用在karyotype中，在后续的热图和柱状图等还会涉及到它，毕竟一张好看的图，配色占了很大的比例。</p>
+<h2 id="显示标签"><a href="#显示标签" class="headerlink" title="显示标签"></a>显示标签</h2><p>默认输出图片是没有染色体名字的标签，需要在<code>&lt;ideogram&gt;</code>里添加和<code>label</code>有关的参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;/spacing&gt;</span><br><span class="line">...</span><br><span class="line">show_label     = <span class="built_in">yes</span> <span class="comment">#展示label</span></span><br><span class="line">label_font     = default <span class="comment"># 字体</span></span><br><span class="line">label_radius   = dims(ideogram,radius) + 0.05r <span class="comment">#位置</span></span><br><span class="line">label_size     = 16 <span class="comment"># 字体大小</span></span><br><span class="line">label_parallel = <span class="built_in">yes</span> <span class="comment"># 是否平行</span></span><br><span class="line"></span><br><span class="line">label_format   = <span class="built_in">eval</span>(sprintf(<span class="string">&quot;%s&quot;</span>,var(chr))) <span class="comment"># 格式</span></span><br><span class="line">&lt;/ideogram&gt;</span><br></pre></td></tr></table></figure>
+
+<p>关于标签(label)， 更详细的介绍在<a target="_blank" rel="noopener" href="http://circos.ca/documentation/tutorials/ideograms/labels/">http://circos.ca/documentation/tutorials/ideograms/labels/</a></p>
+<p>重新运行之后，发现字相对而言太小了。有两种结局方案，一种是调整<code>label_size</code>，比如说48，另一种是调整图片整体大小。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-small-label-8fa0fec44a434954be54e07f8ce85ba8.png" alt="显示标签"></p>
+<h2 id="输出设置"><a href="#输出设置" class="headerlink" title="输出设置"></a>输出设置</h2><p>默认情况下，输出图片的 半径是1500p, 所以设置的<code>label_size=16</code>就会显得特别小。我们可以在配置文件中调整图片的班级，以及其他设置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;image&gt;</span><br><span class="line"><span class="built_in">dir</span>*    = .    <span class="comment"># 输出文件夹</span></span><br><span class="line">radius* = 500p <span class="comment"># 图片半径</span></span><br><span class="line">svg*    = no   <span class="comment"># 是否输出svg</span></span><br><span class="line">&lt;&lt;<span class="string">include etc/image.conf&gt;&gt;</span></span><br><span class="line"><span class="string">&lt;/image&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注</strong>: 在参数后加一个<code>*</code>表示覆盖已有的设置，比如说<code>svg*=no</code>就是覆盖已有的<code>svg=yes</code>。</p>
+<p>运行结果如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-large-label-3f6597855c3641b7baf918b7cc5fd558.png" alt="修改输出图片大小"></p>
+<h2 id="刻度-ticks"><a href="#刻度-ticks" class="headerlink" title="刻度(ticks)"></a>刻度(ticks)</h2><p>大部分的circos还会有刻度来展示染色体的大小。由于ticks的定制比较复杂，所以一般会单独搞一个配置文件，<code>ticks.conf</code>存放ticks相关的参数设置.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">chromosomes_units = 1000000</span><br><span class="line">show_ticks          = <span class="built_in">yes</span></span><br><span class="line">show_tick_labels    = <span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line">&lt;ticks&gt;</span><br><span class="line"></span><br><span class="line">radius           = 1r</span><br><span class="line">color            = black</span><br><span class="line">thickness        = 2p</span><br><span class="line"></span><br><span class="line">multiplier       = 1e-6 <span class="comment">#输出的标签为实际长度与其相乘</span></span><br><span class="line"></span><br><span class="line">format           = %d <span class="comment"># %d表示显示整数</span></span><br><span class="line"></span><br><span class="line">&lt;tick&gt;</span><br><span class="line">spacing        = 1u</span><br><span class="line">size           = 5p</span><br><span class="line">&lt;/tick&gt;</span><br><span class="line"></span><br><span class="line">&lt;tick&gt;</span><br><span class="line">spacing        = 5u</span><br><span class="line">size           = 10p</span><br><span class="line">show_label     = <span class="built_in">yes</span></span><br><span class="line">label_size     = 10p</span><br><span class="line">label_offset   = 10p</span><br><span class="line">format         = %d</span><br><span class="line">&lt;/tick&gt;</span><br><span class="line"></span><br><span class="line">&lt;/ticks&gt;</span><br></pre></td></tr></table></figure>
+
+<p>用 <code>show_ticks</code>和 <code>show_tick_labels</code>控制是否展示刻度，以及刻度对应的标签。</p>
+<p><code>&lt;ticks</code>与<code>&lt;/ticks&gt;</code>里控制刻度的全局参数，例如位置为1r(radius&#x3D;1r), 颜色为黑色(color&#x3D;black), 厚度为2p(thickness&#x3D;2p),   由于默认直接展示染色体的实际位置，因此会显示1000000这种结果，所以定义<code>multiplier=1e-6</code>,  实际显示结果为 1000000 * 1e-6 &#x3D; 1。</p>
+<p>后面就可以通过<code>&lt;tick&gt;</code>和 <code>&lt;/tick&gt;</code>来分别绘制不同类型的tick，重要的参数如下：</p>
+<ul>
+<li><code>spacing</code>表示刻度之间的距离，1u表示一个长度单位，需要在<code>circos.conf</code>文件里通过<code>chromosome_unit</code>来定义，通常都是<code>chromosome_unit=1000000</code>。</li>
+<li><code>size</code>表示tick的长度</li>
+<li><code>show_label</code>: 控制是否展示标签，默认不展示。</li>
+<li><code>label_offset</code>: 则是让label往外在偏移一点距离</li>
+</ul>
+<p><code>circos -conf circos.conf</code>运行结果如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/circos-ticks-c284af9cff484548983579dcee75c154.png" alt="增加刻度"></p>
+<p>我们发现有些刻度的标签和染色体标签发生了重叠，这个可以通过<code>label_radius</code>进行调整。</p>
+<h2 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h2><p>上面出现了控制图形不同元素大小的三个单位，p,r,u。p(pixels), 表示绝对大小， r(relative), 相对大小， u(chromosome unit)。 如果使用p作为单位，需要考虑最终输出图形<code>&lt;image&gt;</code>定义的radius。 而r是相对大小，会随着最终图形大小而发生变换。u一般在显示刻度时使用。</p>
+<hr>
+<p>这一部分是在原来简陋的输出上进行了美化，没有用到除了染色体长度以外的信息。下一部分介绍如何展示基因密度等信息。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)/" data-id="cllg90y3e009leqp2367ug3tp" data-title="从零开始学CIRCOS绘制圈图(二)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          从零开始学CIRCOS绘制圈图(三)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/29/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq-%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">如何高效地从BAM文件中提取fastq</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

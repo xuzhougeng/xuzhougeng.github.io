@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/13/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-Klib之khash学习笔记-klib-khash" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" class="article-date">
+  <time class="dt-published" datetime="2020-01-27T21:01:13.666Z" itemprop="datePublished">2020-01-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/">Klib之khash学习笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>散列表（Hash table，也叫哈希表），是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。<br>给定表M，存在函数f(key)，对任意给定的关键字值key，代入函数后若能得到包含该关键字的记录在表中的地址，则称表M为哈希(Hash）表，函数f(key)为哈希(Hash) 函数。 –来源:百度百科</p>
+</blockquote>
+<p>klib提供的khash.h的初始化方法分为两种数据结构，分别是SET和MAP。SET只有键，且键唯一，MAP有键和值，键唯一，而值不唯一。</p>
+<p>SET和MAP分别有三种初始化方法，对应键的类型分别为<code>INT</code>,<code>INT64</code>和<code>STR</code>，而哈希算法也分为数值和字符串两类</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SET</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_SET_INIT_INT(name)										\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, khint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_SET_INIT_INT64(name)										\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, khint64_t, char, 0, kh_int64_hash_func, kh_int64_hash_equal)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_SET_INIT_STR(name)										\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, kh_cstr_t, char, 0, kh_str_hash_func, kh_str_hash_equal)</span></span><br><span class="line"><span class="comment">//MAP</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_MAP_INIT_INT(name, khval_t)								\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, khint32_t, khval_t, 1, kh_int_hash_func, kh_int_hash_equal)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_MAP_INIT_INT64(name, khval_t)								\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, khint64_t, khval_t, 1, kh_int64_hash_func, kh_int64_hash_equal)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_MAP_INIT_STR(name, khval_t)								\</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, kh_cstr_t, khval_t, 1, kh_str_hash_func, kh_str_hash_equal)</span></span><br></pre></td></tr></table></figure>
+
+<p>键值对中的<code>kint32_t</code>和<code>khin64_t</code>和系统有关，用于定义一个很大的取值范围。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> UINT_MAX == 0xffffffffu</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">unsigned</span> <span class="type">int</span> <span class="type">khint32_t</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> ULONG_MAX == 0xffffffffu</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">unsigned</span> <span class="type">long</span> <span class="type">khint32_t</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> ULONG_MAX == ULLONG_MAX</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">unsigned</span> <span class="type">long</span> <span class="type">khint64_t</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> <span class="type">khint64_t</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p><code>kh_cstr_t</code>的定义是<code>typedef const char *kh_cstr_t;</code>, 是一个不会变的字符串。</p>
+<p>这两种类型用于设置<code>KHASH_INIT</code>的参数<code>khkey_t</code>和<code>khval_t</code>, 用于初始化哈希表的结构定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> __KHASH_TYPE(name, khkey_t, khval_t) \</span></span><br><span class="line"><span class="meta">	typedef struct kh_##name##_s &#123; \</span></span><br><span class="line"><span class="meta">	  <span class="comment">//桶的数目, 哈希表大小, 占用数, 上限</span></span></span><br><span class="line">		<span class="type">khint_t</span> n_buckets, size, n_occupied, upper_bound; \</span><br><span class="line">		<span class="type">khint32_t</span> *flags; \ <span class="comment">//记录当前位置是否被使用</span></span><br><span class="line">		<span class="type">khkey_t</span> *keys; \  <span class="comment">//键的类型</span></span><br><span class="line">		<span class="type">khval_t</span> *vals; \ <span class="comment">//值的类型</span></span><br><span class="line">	&#125; kh_#<span class="meta">#name##_t;</span></span><br></pre></td></tr></table></figure>
+
+<p>和哈希表操作有关的函数如下</p>
+<ul>
+<li><code>kh_init(name)</code>: 初始化哈希表</li>
+<li><code>kh_destroy(name, h)</code>; 删除哈希表</li>
+<li><code>kh_clear(name, h)</code>: 保持哈希表大小不变，清空内容</li>
+<li><code>kh_resize(name, h, s)</code>: 调整哈希表大小,  运行时它会被自动调用，用于扩容</li>
+<li><code>kh_put(name, h, k, r)</code>: 将key放在哈希表中，并获取key的位置</li>
+<li><code>kh_get(name, h, k)</code>: 获取key对应的位置</li>
+<li><code>kh_del(name, h, k)</code>: 删除哈希表元素</li>
+<li><code>kh_exist(h, x)</code>:  检查哈希表位置上是否有内容</li>
+<li><code>kh_key(h, x)</code>: 获取哈希表中x对应的key</li>
+<li><code>kh_value(h,x)</code>: 获取哈希表中键x的值</li>
+<li><code>kh_begin(h)</code>: 获取哈希表的起始key</li>
+<li><code>kh_end(h)</code>: 获取哈希表的最后key</li>
+<li><code>kh_size(h)</code>: 获取哈希表的大小</li>
+<li><code>kh_n_buckets(h)</code>: 哈希表中桶的数目</li>
+<li><code>kh_foreach(h, kvar, vvar, code)</code>: 遍历哈希表，其中键赋值给kvar, 值赋值给vvar，运行code的代码</li>
+<li><code>kh_foreach_value(h, vvar, code)</code>: 遍历哈希表，其中值赋予给vvar，运行code的代码</li>
+</ul>
+<p>为了达到类似于Python的字典操作，例如<code>d = &#123;&quot;abc&quot;: &quot;aaa&quot;&#125;</code>和<code>d[&quot;abc&quot;]</code>，所需要写的代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;klib/khash.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">KHASH_MAP_INIT_STR(dict, <span class="type">char</span>*)</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	<span class="type">khiter_t</span> k;</span><br><span class="line"></span><br><span class="line">	<span class="type">khash_t</span>(dict) *h = kh_init(dict);</span><br><span class="line"></span><br><span class="line">	<span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">	k = kh_put(dict, h, <span class="string">&quot;abc&quot;</span>, &amp;ret);</span><br><span class="line">	kh_key(h, k) = strdup(<span class="string">&quot;abc&quot;</span>);</span><br><span class="line">	kh_value(h,k) = strdup(<span class="string">&quot;aaa&quot;</span>);</span><br><span class="line"></span><br><span class="line">	k = kh_put(dict, h, <span class="string">&quot;efg&quot;</span>, &amp;ret);</span><br><span class="line">	kh_key(h, k) = strdup(<span class="string">&quot;efg&quot;</span>);</span><br><span class="line">	kh_value(h,k) = strdup(<span class="string">&quot;bbb&quot;</span>);</span><br><span class="line"></span><br><span class="line">	k = kh_get(dict, h, <span class="string">&quot;abc&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, kh_value(h,k));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> ( k = kh_begin(h); k != kh_end(h) ; k++)&#123;</span><br><span class="line">		<span class="keyword">if</span> (kh_exist(h,k))&#123;</span><br><span class="line">			<span class="built_in">free</span>((<span class="type">char</span>*)kh_key(h, k));</span><br><span class="line">			<span class="built_in">free</span>((<span class="type">char</span>*)kh_value(h, k));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	kh_destroy(dict, h);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于字符串，哈希表结构中的<code>keys</code>和<code>vals</code>并不存放实际的值，而是存放字符串的地址，因此如果没有专门内存用于存放键值对对字符串，那么用<code>strdup</code>在内存中获取字符串新的地址。 如果用一个字符串数组存放键值对字符串的地址，代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;klib/khash.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">KHASH_MAP_INIT_STR(dict, <span class="type">char</span>*)</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	<span class="type">khiter_t</span> k;</span><br><span class="line"></span><br><span class="line">	<span class="type">khash_t</span>(dict) *h = kh_init(dict);</span><br><span class="line"></span><br><span class="line">	<span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> *key[] = &#123;<span class="string">&quot;abc&quot;</span>, <span class="string">&quot;efg&quot;</span>&#125;;</span><br><span class="line">	<span class="type">char</span> *value[] = &#123;<span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;bbb&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// h = &#123;&quot;abc&quot;:&quot;efg&quot;&#125;</span></span><br><span class="line">	k = kh_put(dict, h, <span class="string">&quot;abc&quot;</span>, &amp;ret);</span><br><span class="line">	kh_key(h, k) = key[<span class="number">0</span>];</span><br><span class="line">	kh_value(h,k) = value[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// h[&quot;efg&quot;] = &quot;bbb&quot;</span></span><br><span class="line">	k = kh_put(dict, h, <span class="string">&quot;efg&quot;</span>, &amp;ret);</span><br><span class="line">	kh_key(h, k) = key[<span class="number">1</span>];</span><br><span class="line">	kh_value(h,k) = value[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// h[&quot;abc&quot;]</span></span><br><span class="line">	k = kh_get(dict, h, <span class="string">&quot;abc&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, kh_value(h,k));</span><br><span class="line">	kh_destroy(dict, h);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>推荐阅读</p>
+<ul>
+<li><a href="/archives/c-practice-learn-klib">C语言实战课-klib库学习</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" data-id="cllg90xzk001jeqp28un93rqb" data-title="Klib之khash学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-数据结构之堆(heap)-algo-heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" class="article-date">
+  <time class="dt-published" datetime="2020-01-27T12:18:30.020Z" itemprop="datePublished">2020-01-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/">数据结构之堆(heap)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>极客时间的「数据结构与算法之美」的学习笔记，图片来源于「28 | 堆和堆排序：为什么说堆排序没有快速排序快？」</p>
+</blockquote>
+<p>堆满足两个要求:</p>
+<ol>
+<li>完全二叉树</li>
+<li>父节点的元素大于(或小于)子节点的元素</li>
+</ol>
+<h2 id="堆的实现"><a href="#堆的实现" class="headerlink" title="堆的实现"></a>堆的实现</h2><p>为了实现一个堆，我们需要创造一个堆的数据结构，以及实现堆的插入和删除等操作函数。</p>
+<h3 id="堆的存储"><a href="#堆的存储" class="headerlink" title="堆的存储"></a>堆的存储</h3><p>由于堆是完全二叉树，因此可以用数组存放堆。第i个节点就放在数组的第i个位置上。它的左子节点是 2i, 它的右子节点是2i+1, 它的父节点是i&#x2F;2.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-24de3d11bfb446c58360328bf9f3febe.png" alt="堆的存放"></p>
+<p>这里定义了一个堆的结构，包含三个元素</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">heap</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> *heap; <span class="comment">//指向存放堆对数组</span></span><br><span class="line">    <span class="type">int</span> n; <span class="comment">//堆的大小</span></span><br><span class="line">    <span class="type">int</span> count; <span class="comment">//堆目前的元素</span></span><br><span class="line">&#125; heap;</span><br></pre></td></tr></table></figure>
+
+<p>创建堆的函数一开始写的代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">heap*</span><br><span class="line"><span class="title function_">createHeap</span><span class="params">(<span class="type">int</span> n)</span>&#123;</span><br><span class="line"></span><br><span class="line">    heap *h;</span><br><span class="line">    h-&gt;heap = (<span class="type">int</span>*)<span class="built_in">malloc</span>( <span class="keyword">sizeof</span>(<span class="type">int</span>) * (n+<span class="number">1</span>));</span><br><span class="line">    h-&gt;n = n;</span><br><span class="line">    h-&gt;count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码运行会出错，因为<code>heap *h</code>只是声明了一个变量，并没有分配一个内存空间用于构造一个heap结构，同时将h指向这个内存地址。 因此应该加一句,<code>h = (heap*)malloc( sizeof(heap) );</code>. 也就是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">heap*</span><br><span class="line"><span class="title function_">createHeap</span><span class="params">(<span class="type">int</span> n)</span>&#123;</span><br><span class="line"></span><br><span class="line">	heap *h;</span><br><span class="line">	h = (heap*)<span class="built_in">malloc</span>( <span class="keyword">sizeof</span>(heap) );</span><br><span class="line">	h-&gt;heap = (<span class="type">int</span>*)<span class="built_in">malloc</span>( <span class="keyword">sizeof</span>(<span class="type">int</span>) * (n+<span class="number">1</span>));</span><br><span class="line">	h-&gt;n = n;</span><br><span class="line">	h-&gt;count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="堆的操作"><a href="#堆的操作" class="headerlink" title="堆的操作"></a>堆的操作</h3><p>堆有两个最常用堆操作，插入元素和删除顶部元素。无论是何种操作，都需要保证操作之后的数据依旧满足堆的两个特性，也就是堆化(heapify)。</p>
+<p>每次往堆里加入一个元素，其实是放在数据的最后一个位置，然后让加入元素继续满足堆的性质。 </p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-8e3289db51ba4034ae4ad9e3189a253d.png" alt="堆的插入"></p>
+<p>最开始写的插入代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">insertElement</span><span class="params">(heap *h, <span class="type">int</span> e)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (h-&gt;n &gt;= h-&gt;count) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在数组最后加入新的元素</span></span><br><span class="line">    <span class="type">int</span> *heap = h-&gt;heap;</span><br><span class="line">    <span class="type">int</span> count = h-&gt;count;</span><br><span class="line">    heap[++count] = e;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Insert %d at %d\n&quot;</span>, e,count+<span class="number">1</span>);</span><br><span class="line">    h-&gt;count = count;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> i = count;<span class="comment">// 数组索引</span></span><br><span class="line">    <span class="comment">//堆化,</span></span><br><span class="line">    <span class="keyword">while</span>( (i/<span class="number">2</span>) &gt; <span class="number">0</span> &amp;&amp; heap[i] &gt; heap[i/<span class="number">2</span>] )&#123;</span><br><span class="line">        swap(heap, i, i /<span class="number">2</span>); <span class="comment">//交换父子节点</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码在调试的时候发现，函数没有输出”Insert %d at %d\n”这一不会显示，也就是说前面的<code>if</code>语句就无法顺利运行。仔细检查发现是逻辑语句写反了, 应该是<code>(h-&gt;count &gt;= h-&gt;n)</code>。更改此处错误之后，发现堆化依旧失败，原因是<code>while</code>语句中，每次循环中缺少一句<code>i=i/2</code>，导致循环之后结果不正确。</p>
+<p>删除堆顶元素有两种方式。一种是直接删除第一个元素，然后开始堆化，但是写代码比较复杂，很可能产生一个非完全二叉树。第二个方式是删除第一个元素，并用最后一个元素替换。然后至上而下进行堆化</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-2f4d66f35567444993c49ccc33487e62.png" alt="堆的删除操作"></p>
+<p>代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">removeTop</span><span class="params">(heap *h)</span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (h-&gt;count &lt; <span class="number">1</span>) <span class="keyword">return</span> ;</span><br><span class="line"></span><br><span class="line">	<span class="type">int</span> count = h-&gt;count;</span><br><span class="line">	<span class="type">int</span> *heap = h-&gt;heap;</span><br><span class="line">	<span class="comment">//用最后一个元素替代第一个元素</span></span><br><span class="line">	heap[<span class="number">1</span>] = heap[count];</span><br><span class="line">	<span class="comment">//删除最后一个元素</span></span><br><span class="line">	h-&gt;count = --count;</span><br><span class="line">	<span class="comment">// 自上而下堆化</span></span><br><span class="line">	<span class="type">int</span> i = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> ( <span class="literal">true</span> )&#123;</span><br><span class="line">	    <span class="type">int</span> max_pos = i;</span><br><span class="line">		<span class="keyword">if</span> ( i*<span class="number">2</span> &lt;=count &amp;&amp; heap[i] &lt; heap[i*<span class="number">2</span>]) max_pos = i*<span class="number">2</span>; <span class="comment">//和左子节点比较</span></span><br><span class="line">		<span class="keyword">if</span> ( i*<span class="number">2</span>+<span class="number">1</span>&lt;=count &amp;&amp; heap[i] &lt; heap[i*<span class="number">2</span>+<span class="number">1</span>]) max_pos = i*<span class="number">2</span>+<span class="number">1</span>; <span class="comment">//和右子节点比较</span></span><br><span class="line">		<span class="keyword">if</span> (max_pos == i) <span class="keyword">break</span>; <span class="comment">// 不再发生交换, 当前位置就是最大位置</span></span><br><span class="line">		swap(heap, i, max_pos); <span class="comment">//将当前节点和子节点进行交换</span></span><br><span class="line">		i = max_pos ; <span class="comment">//将i设置为子节点的索引</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后代码参考<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/learn-algo/blob/master/heap.c">https://github.com/xuzhougeng/learn-algo/blob/master/heap.c</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" data-id="cllg90y6e00ineqp2gmjsanlp" data-title="数据结构之堆(heap)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-C语言实战课-klib库学习-c-practice-learn-klib" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" class="article-date">
+  <time class="dt-published" datetime="2020-01-24T14:45:09.726Z" itemprop="datePublished">2020-01-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/">C语言实战课-klib库学习</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>对于Python和R而言，使用一个已有的工具，通常都是先安装，然后看帮助文档学会怎么调用函数。那么对于C语言来说，我应该如何使用一个已有的轮子呢？</p>
+<p>前些日子，我翻译了李恒大神一篇关于<a target="_blank" rel="noopener" href="https://github.com/lh3/seqtk">seqtk</a>代码介绍的博客，让我决定以seqtk为切入点，介绍下如何用别人造好的轮子。seqtk主要用到了两个头文件, khash.h和kseq.h, 同时我发现这两个文件在<a target="_blank" rel="noopener" href="https://github.com/attractivechaos/klib">klib</a>中，而klib提供了较为详细的介绍文档，因此我就直接去学klib了。</p>
+<blockquote>
+<p>关于klib名字中的k, 我想到了之前英语老师说，在英语中k和c的发音类似，例如kindle读起来就像candle, 因此这里的k以及函数名，结构体名里的k，都可以认为是c，表示这是一个c语言库。</p>
+</blockquote>
+<h2 id="第一步：阅读文档"><a href="#第一步：阅读文档" class="headerlink" title="第一步：阅读文档"></a>第一步：阅读文档</h2><p>一个优秀的项目必然会有一个优秀的文档对这个项目进行介绍，否则就只能自娱自乐，不被广泛使用。因此，学习klib的第一步就是阅读它的文档。我为了让自己更好的理解，因此通过翻译的方式让自己能够认真阅读。</p>
+<p>为了实现范型的容器，klib广泛的使用了C宏。为了使用这些数据结构，我们需要先扩展出宏中的实例方法。于是，源代码就显得有点难以阅读以及不利于后续调试。由于C语言没有模版特性，实现高效范型编程也只能用宏。只有在宏的帮助下，我们才能写出范型容器，它在初始化之后才能在效率上和类型特异的容器竞争。其他一些库，例如<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/GLib">Glib</a>, 使用<code>void *</code>类型实现容器。但是这种实现方法效率比较低，并且比klib使用更多内存。（参考这个<a target="_blank" rel="noopener" href="http://attractivechaos.wordpress.com/2008/10/07/another-look-at-my-old-benchmark/">评测结果</a>）</p>
+<p>为了有效的使用klib，我们需要了解下它是如何实现范型编程。这里哈希表库（哈希表是一种键值对数据库，查询效率高）为例</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;khash.h&quot;</span></span></span><br><span class="line">KHASH_MAP_INIT_INT(<span class="number">32</span>, <span class="type">char</span>) <span class="comment">//利用宏构建函数和数据结构</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">int</span> ret, is_missing;</span><br><span class="line">	<span class="type">khiter_t</span> k;</span><br><span class="line">	<span class="type">khash_t</span>(<span class="number">32</span>) *h = kh_init(<span class="number">32</span>); <span class="comment">//初始化</span></span><br><span class="line">	k = kh_put(<span class="number">32</span>, h, <span class="number">5</span>, &amp;ret);   <span class="comment">//插入key</span></span><br><span class="line">	kh_value(h, k) = <span class="number">10</span>;   <span class="comment">//根据key设置值</span></span><br><span class="line">	k = kh_get(<span class="number">32</span>, h, <span class="number">10</span>); <span class="comment">//根据值找key</span></span><br><span class="line">	is_missing = (k == kh_end(h));</span><br><span class="line">	k = kh_get(<span class="number">32</span>, h, <span class="number">5</span>);</span><br><span class="line">	kh_del(<span class="number">32</span>, h, k); <span class="comment">//删除key</span></span><br><span class="line">	<span class="keyword">for</span> (k = kh_begin(h); k != kh_end(h); ++k) <span class="comment">//遍历哈希表</span></span><br><span class="line">		<span class="keyword">if</span> (kh_exist(h, k)) kh_value(h, k) = <span class="number">1</span>;  <span class="comment">//判断桶是否有数据</span></span><br><span class="line">	kh_destroy(<span class="number">32</span>, h); <span class="comment">//删除哈希表</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里例子中，第二行实例化了一个键类型为<code>unsigned</code>，值类型为<code>char</code>的哈希表，其中<code>m32</code>是哈希表的名字。所有和该名字相关的函数和数据类型都是宏，之后会进行解释。宏<code>kh_init()</code>初始化哈希表，而<code>kh_destroy()</code>则负责释放内存。<code>kh_put</code>插入键，并返回一个哈希表的迭代器(或者说位置)。<code>kh_get()</code>和<code>kh_del()</code>分别是获取值对应的键以及删除里面的元素。宏<code>kh_exist()</code>检测迭代器（或者说位置）是否在数据中。</p>
+<p>看完代码之后，你会发现代码看起来不太像是有效的C程序，例如它缺少分号, 对一个函数赋值，<code>m32</code>没有预先定义。为了理解为什么代码是正确都，让我们更进一步都看下<code>khash.h</code>都源代码，代码骨架如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_INIT(name, SCOPE, key_t, val_t, is_map, _hashf, _hasheq) \</span></span><br><span class="line"><span class="meta">  typedef struct &#123; \</span></span><br><span class="line"><span class="meta">    int n_buckets, size, n_occupied, upper_bound; \</span></span><br><span class="line"><span class="meta">    unsigned *flags; \</span></span><br><span class="line"><span class="meta">    key_t *keys; \</span></span><br><span class="line"><span class="meta">    val_t *vals; \</span></span><br><span class="line"><span class="meta">  &#125; kh_##name##_t; \</span></span><br><span class="line"><span class="meta">  SCOPE inline kh_##name##_t *init_##name() &#123; \</span></span><br><span class="line"><span class="meta">    return (kh_##name##_t*)calloc(1, sizeof(kh_##name##_t)); \</span></span><br><span class="line"><span class="meta">  &#125; \</span></span><br><span class="line"><span class="meta">  SCOPE inline int get_##name(kh_##name##_t *h, key_t k) \</span></span><br><span class="line"><span class="meta">  ... \</span></span><br><span class="line"><span class="meta">  SCOPE inline void destroy_##name(kh_##name##_t *h) &#123; \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (h) &#123; \</span></span><br><span class="line"><span class="meta">      free(h-&gt;keys); free(h-&gt;flags); free(h-&gt;vals); free(h); \</span></span><br><span class="line"><span class="meta">    &#125; \</span></span><br><span class="line"><span class="meta">  &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _int_hf(key) (unsigned)(key)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _int_heq(a, b) (a == b)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> khash_t(name) kh_##name##_t</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_value(h, k) ((h)-&gt;vals[k])</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_begin(h, k) 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_end(h) ((h)-&gt;n_buckets)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_init(name) init_##name()</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_get(name, h, k) get_##name(h, k)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> kh_destroy(name, h) destroy_##name(h)</span></span><br><span class="line">...</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KHASH_MAP_INIT_INT(name, val_t) \</span></span><br><span class="line"><span class="meta">	KHASH_INIT(name, static, unsigned, val_t, is_map, _int_hf, _int_heq)</span></span><br></pre></td></tr></table></figure>
+
+<p><code>KHASH_INIT</code>是一个巨大都宏，他定义了所有都结构体方法。当这个宏被调用时，所有代码会通过C预处理器插入到程序中被调用都位置。如果一个宏被多次调用，那么代码会在程序中出现多个拷贝。为了避免哈希表中因为不同键-值类型导致都命名冲突，这个库使用<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/C_preprocessor#Token_concatenation">token concatenation</a>, 也就是预处理器能够使用宏里的参数替换符号中部分内容。最后C预处理器会产生下面的代码，然后传递给编译器。（由于<code>kh_exist(h,k)</code>比较复杂，这里就不展开介绍）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> n_buckets, size, n_occupied, upper_bound;</span><br><span class="line">  <span class="type">unsigned</span> *flags;</span><br><span class="line">  <span class="type">unsigned</span> *keys;</span><br><span class="line">  <span class="type">char</span> *vals;</span><br><span class="line">&#125; <span class="type">kh_m32_t</span>;</span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">kh_m32_t</span> *<span class="title function_">init_m32</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (<span class="type">kh_m32_t</span>*)<span class="built_in">calloc</span>(<span class="number">1</span>, <span class="keyword">sizeof</span>(<span class="type">kh_m32_t</span>));</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title function_">get_m32</span><span class="params">(<span class="type">kh_m32_t</span> *h, <span class="type">unsigned</span> k)</span></span><br><span class="line">...</span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">destroy_m32</span><span class="params">(<span class="type">kh_m32_t</span> *h)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (h) &#123;</span><br><span class="line">    <span class="built_in">free</span>(h-&gt;keys); <span class="built_in">free</span>(h-&gt;flags); <span class="built_in">free</span>(h-&gt;vals); <span class="built_in">free</span>(h);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">int</span> ret, is_missing;</span><br><span class="line">	<span class="type">khint_t</span> k;</span><br><span class="line">	<span class="type">kh_m32_t</span> *h = init_m32();</span><br><span class="line">	k = put_m32(h, <span class="number">5</span>, &amp;ret);</span><br><span class="line">	<span class="keyword">if</span> (!ret) del_m32(h, k);</span><br><span class="line">	h-&gt;vals[k] = <span class="number">10</span>;</span><br><span class="line">	k = get_m32(h, <span class="number">10</span>);</span><br><span class="line">	is_missing = (k == h-&gt;n_buckets);</span><br><span class="line">	k = get_m32(h, <span class="number">5</span>);</span><br><span class="line">	del_m32(h, k);</span><br><span class="line">	<span class="keyword">for</span> (k = <span class="number">0</span>; k != h-&gt;n_buckets; ++k)</span><br><span class="line">		<span class="keyword">if</span> (kh_exist(h, k)) h-&gt;vals[k] = <span class="number">1</span>;</span><br><span class="line">	destroy_m32(h);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这个例子中，我们可以看到宏和C预处理器是klib中非常重要的部分。为什么klib那么快，一部分原因就是编译器在编译过程中已经知道键值对类型，因此他就能将代码优化到类特异代码对水平。一个用<code>void *</code>写的范型库无法达到这种性能。</p>
+<p>在实例化过程中会有大量代码插入，这也提示我们为什么<code>C++</code>编译速度慢以及使用STL&#x2F;boost编译的二进制文件很大。Klib由于代码量很小，并且各个组件相对独立，因此表现更加优异。插入上百行代码不会让编译变得很慢。</p>
+<h2 id="第二步：运行案例"><a href="#第二步：运行案例" class="headerlink" title="第二步：运行案例"></a>第二步：运行案例</h2><p>介绍文档给了哈希表作为案例，我们就可以复制代码进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/attractivechaos/klib</span><br></pre></td></tr></table></figure>
+
+<p>新建一个hash_test.c, 粘贴下列内容</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;klib/khash.h&quot;</span></span></span><br><span class="line">KHASH_MAP_INIT_INT(m32, <span class="type">char</span>)        <span class="comment">// instantiate structs and methods</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> ret, is_missing;</span><br><span class="line">    <span class="type">khint_t</span> k;</span><br><span class="line">    <span class="type">khash_t</span>(m32) *h = kh_init(m32);  <span class="comment">// allocate a hash table</span></span><br><span class="line">    k = kh_put(m32, h, <span class="number">5</span>, &amp;ret);     <span class="comment">// insert a key to the hash table</span></span><br><span class="line">    <span class="keyword">if</span> (!ret) kh_del(m32, h, k);</span><br><span class="line">    kh_value(h, k) = <span class="number">10</span>;             <span class="comment">// set the value</span></span><br><span class="line">    k = kh_get(m32, h, <span class="number">10</span>);          <span class="comment">// query the hash table</span></span><br><span class="line">    is_missing = (k == kh_end(h));   <span class="comment">// test if the key is present</span></span><br><span class="line">    k = kh_get(m32, h, <span class="number">5</span>);</span><br><span class="line">    kh_del(m32, h, k);               <span class="comment">// remove a key-value pair</span></span><br><span class="line">    <span class="keyword">for</span> (k = kh_begin(h); k != kh_end(h); ++k)  <span class="comment">// traverse</span></span><br><span class="line">        <span class="keyword">if</span> (kh_exist(h, k))          <span class="comment">// test if a bucket contains data</span></span><br><span class="line">			kh_value(h, k) = <span class="number">1</span>;</span><br><span class="line">    kh_destroy(m32, h);              <span class="comment">// deallocate the hash table</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译和运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -o test hash_test.c</span><br><span class="line">./test</span><br></pre></td></tr></table></figure>
+
+<p>这个代码在运行时不会有任何输出，下一步我们可以尝试改造代码，让代码能够输出信息。</p>
+<h2 id="第三步-改造代码"><a href="#第三步-改造代码" class="headerlink" title="第三步: 改造代码"></a>第三步: 改造代码</h2><p>学会写代码的最快路径就是多写代码。以前我学习的时候，总觉得看一遍就够了，没有必要真的写一遍。真正开始写代码的时候，发现自己啥都不会。因此，为了能够学会使用khash.h, 我们按照自己的想法对代码做一些改造，看看代码的表现是否符合预期。下面代码，我写了一个循环，用于设置键值对。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;klib/khash.h&quot;</span></span></span><br><span class="line">KHASH_MAP_INIT_INT(m32, <span class="type">char</span>)        <span class="comment">// instantiate structs and methods</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> ret, is_missing;</span><br><span class="line">    <span class="type">khint_t</span> k;</span><br><span class="line">    <span class="type">khash_t</span>(m32) *h = kh_init(m32);  <span class="comment">// allocate a hash table</span></span><br><span class="line"></span><br><span class="line">	<span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> ( i = <span class="number">0</span> ; i &lt; <span class="number">10</span> ; i++ )&#123;</span><br><span class="line">        k = kh_put(m32, h, i, &amp;ret);     <span class="comment">// insert a key to the hash table</span></span><br><span class="line">        <span class="keyword">if</span> (!ret) kh_del(m32, h, k);</span><br><span class="line">        kh_value(h, k) = i * i;             <span class="comment">// set the value</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (k = kh_begin(h); k != kh_end(h); ++k)  <span class="comment">// traverse</span></span><br><span class="line">        <span class="keyword">if</span> (kh_exist(h, k))          <span class="comment">// test if a bucket contains data</span></span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, kh_value(h, k) );</span><br><span class="line">    kh_destroy(m32, h);              <span class="comment">// deallocate the hash table</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假如你有个文件，也是键值对的关系，那么你可以读取这个文件，用文件里对内容对哈希表进行赋值。</p>
+<h2 id="第四步-在项目中应用"><a href="#第四步-在项目中应用" class="headerlink" title="第四步: 在项目中应用"></a>第四步: 在项目中应用</h2><p>学习klib的目的是为了解决我实际的问题，也就是写一个通用的fastq转换成fasta程序，这个程序能够自动解决行过长的问题。最终代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;klib/kseq.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">KSEQ_INIT(gzFile, gzread)</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">        gzFile fp;</span><br><span class="line">        <span class="type">kseq_t</span> *seq;</span><br><span class="line">        <span class="type">int</span> l;</span><br><span class="line">        <span class="keyword">if</span> (argc == <span class="number">1</span>)&#123;</span><br><span class="line">                <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Usage: %s &lt;in.fasta|in.fasta.gz&gt;\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        fp = gzopen(argv[<span class="number">1</span>], <span class="string">&quot;r&quot;</span>);</span><br><span class="line">        seq = kseq_init(fp); <span class="comment">// 分配内存给seq</span></span><br><span class="line">        <span class="keyword">while</span>( (l = kseq_read(seq)) &gt;= <span class="number">0</span>)&#123; <span class="comment">//读取数据到seq中</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;&gt;%s\n&quot;</span>, seq-&gt;name.s); <span class="comment">//</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, seq-&gt;seq.s);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        kseq_destroy(seq); <span class="comment">//释放内存</span></span><br><span class="line">        gzclose(fp);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这次的代码就特别的简洁，并且容易阅读。除了多了几行变量名定义和内存管理的代码外，其他时间就和写Python脚本一样，无非就是调用函数，<code>kseq_read</code>用于数据读取，<code>kseq_t</code>用于存放序列数据， 它的结构定义如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> __<span class="title">kstring_t</span> &#123;</span></span><br><span class="line">        <span class="type">size_t</span> l, m;</span><br><span class="line">        <span class="type">char</span> *s;</span><br><span class="line">&#125; <span class="type">kstring_t</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">kstring_t</span> name, comment, seq, qual;</span><br><span class="line">        <span class="type">int</span> last_char;</span><br><span class="line">        <span class="type">kstream_t</span> *f;</span><br><span class="line">&#125; <span class="type">kseq_t</span></span><br></pre></td></tr></table></figure>
+
+<p>这是我写的关于klib库的第一篇教程，往后还会不断用到这个库，用到的时候再写几篇进行介绍。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" data-id="cllg90xzb000zeqp2db24fnug" data-title="C语言实战课-klib库学习" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-C语言实战课-让程序能够处理gz文件-c-practice-fastq-add-gz-support" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" class="article-date">
+  <time class="dt-published" datetime="2020-01-23T23:34:01.877Z" itemprop="datePublished">2020-01-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/">C语言实战课-让程序能够处理gz文件</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>之前的程序不能够处理压缩文件，而事实上为了节约空间，基本上fastq都会压缩成gz格式，因此这一课就是让程序能够支持压缩文件。</p>
+<p>这里有两种思路，一种是利用管道，将之前的压缩文件通过<code>zcat</code>程序读取然后传递给我们的程序，另一种则是在程序中调用zlib库，让程序能够直接处理gz文件.</p>
+<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p><strong>针对思路1</strong>: 系统在每个C语言运行的时候都至少会提供三个流，标准输入(stdin)，标准输出(stdout)和标准错误(stderr).  在之前的程序我们就用到了stdout，用于将结果输出到屏幕上, 即<code>fprintf(stdout, &quot;%s&quot;, line);</code>。 同样，我们可以修改<code>fgets(line, MAX_LINE_LENGTH, fi) </code>中的<code>fi</code>为<code>stdin</code>使得程序能够接受管道传递的数据。</p>
+<p><strong>针对思路2</strong>: 利用zlib读取gz文件并不复杂，只需要将原来的函数名前面加上或者改成gz。毕竟优秀的代码应该符合人的直觉，下面就是我们将要用到的几个函数</p>
+<ul>
+<li>声明水管: gzFile</li>
+<li>连接水管: <code>gzopen(const char *path, const char *mode)</code></li>
+<li>读取一行: <code>gzgets(gzFile file, char *buf, int len)</code></li>
+<li>输出到gz文件中: <code>gzprintf(gzFile file, const char *format, ...)</code></li>
+<li>关闭水管: <code>gzclose(gzFile file)</code></li>
+</ul>
+<p>我们以一个非常简单的代码进行展示，它会从gz文件中按行读取然后输出</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	gzFile fi;</span><br><span class="line">	fi = gzopen(argv[<span class="number">1</span>], <span class="string">&quot;r&quot;</span>);</span><br><span class="line">	<span class="type">char</span> <span class="built_in">string</span>[<span class="number">1000</span>];</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> ( gzgets(fi, <span class="built_in">string</span>, <span class="number">1000</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="built_in">string</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它不是只能处理压缩文件，对于没有压缩的文件也是可以识别的，因此不需要写专门的逻辑判断语句，根据文件名来决定是否使用zlib相关的函数。</p>
+<blockquote>
+<p> gzopen can be used to read a file which is not in gzip format; in this case gzread will directly read from the file without decompression.  When reading, this will be detected automatically by looking for the magic two-byte gzip header</p>
+</blockquote>
+<p>由于zlib不是标准库，我们在编译程序的时候需要额外加上<code>-lz</code>参数，用于链接动态库。</p>
+<h2 id="动手搞事情"><a href="#动手搞事情" class="headerlink" title="动手搞事情"></a>动手搞事情</h2><p>有了以上的背景知识后，我们就可以来修改我们之前的代码了.</p>
+<p>zlib在大部分服务器上都属于默认安装，因此只需要多加一行<code>#include &lt;zlib.h&gt;</code>. 但是还是有一小部分服务器居然没有安装zlib，因此我们需要先下载编译（root权限可以直接用apt&#x2F;yum进行安装）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.zlib.net/zlib-1.2.11.tar.gz</span><br><span class="line">tar xf zlib-1.2.11.tar.gz</span><br><span class="line"><span class="built_in">cd</span> zlib-1.2.11 &amp;&amp; ./configure &amp;&amp; make -j 8</span><br></pre></td></tr></table></figure>
+
+<p>修改后的fq2fa.c的代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;zlib.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_LINE_LENGTH 1000</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span>&#123;</span><br><span class="line"></span><br><span class="line">	gzFile fi;</span><br><span class="line">	gzFile fo;</span><br><span class="line">	<span class="keyword">if</span> (argc &lt; <span class="number">2</span> )&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	fi = gzopen( argv[<span class="number">1</span>], <span class="string">&quot;rb&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> ( argc == <span class="number">3</span> )&#123;</span><br><span class="line">	    fo = gzopen (argv[<span class="number">2</span>], <span class="string">&quot;wb&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> line[MAX_LINE_LENGTH];</span><br><span class="line">	<span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> ( gzgets(fi,line, MAX_LINE_LENGTH) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="keyword">if</span> ( count == <span class="number">0</span>) &#123;</span><br><span class="line">			line[<span class="number">0</span>] = <span class="string">&#x27;&gt;&#x27;</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ( count &lt; <span class="number">2</span>)&#123;</span><br><span class="line">			<span class="keyword">if</span> ( argc == <span class="number">2</span>) &#123;</span><br><span class="line">				<span class="built_in">fprintf</span>(<span class="built_in">stdout</span>, <span class="string">&quot;%s&quot;</span>, line);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> ( argc ==<span class="number">3</span> )&#123;</span><br><span class="line">			    gzprintf(fo, <span class="string">&quot;%s&quot;</span>, line);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ( ++count &gt; <span class="number">3</span> )&#123;</span><br><span class="line">			count = <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	gzclose(fi);</span><br><span class="line">	<span class="keyword">if</span> (argc == <span class="number">3</span>) gzclose(fo);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译方法为<code>gcc -lz -Lzlib -o fq2fa fq2fa.c</code>。关于代码的讲解和zlib的知识点可以看视频介绍, <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av84768292/">https://www.bilibili.com/video/av84768292/</a>。</p>
+<p>代码目前存在的问题是行缓冲是1000字符，对于三代测序数据，按照宣传可以有几M，一般也是几百k，因此当前程序处理三代程序肯定不行。一个方法是将<code>MAX_LINE_LENGTH</code>设置为更大的值，比如说设置为10M，或者是将其设置为一个参数，可以手动指定。</p>
+<p>不过下一次，将会学习一个新的轮子<a target="_blank" rel="noopener" href="https://github.com/attractivechaos/klib/">klib</a>，用里面的函数来解决这个问题。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" data-id="cllg90xzd0015eqp2eb1vbv6x" data-title="C语言实战课-让程序能够处理gz文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-C语言实战课-将FASTQ转成FASTA-c-practice-fastq-fasta-program" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" class="article-date">
+  <time class="dt-published" datetime="2020-01-20T13:30:39.982Z" itemprop="datePublished">2020-01-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/">C语言实战课-将FASTQ转成FASTA</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>我这次学习C语言的目的非常单纯，就是尝试将C语言应用在日常的分析任务重，解决实际问题。既然如此，那么第一课就不是打印”hello world!” 了，毕竟说了那么多次世界你好，依旧写不好代码。</p>
+<p>我们第一课直接就来处理一个实际的小需求，读取FASTQ，将其转成一个FASTA。处理这个问题和把大象放进冰箱里一样，都是分为三步，读取数据，处理数据，输出数据。其中第一步和第三步都是和文件打交道，而第二步考验的是对算法，数据结构和内存等有关知识对理解。</p>
+<h2 id="文件读写背景知识"><a href="#文件读写背景知识" class="headerlink" title="文件读写背景知识"></a>文件读写背景知识</h2><p>我们应该如何读取数据呢？如果R语言，我会用<code>readLines(&quot;input.fasta&quot;)</code>直接读取所有的数据。如果是我以前用的python, 代码会是下面的样子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fi = <span class="built_in">open</span>(<span class="string">&quot;input.fasta&quot;</span>, <span class="string">&quot;r&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> fi.readline():</span><br><span class="line">    <span class="built_in">print</span>(line)</span><br><span class="line">fi.close()</span><br></pre></td></tr></table></figure>
+
+<p>乍看起来，R好像比Python写的代码要少很多。但其实Python也可以一行完成，<code>[line for line in open(&quot;input.fasta&quot;, &quot;r&quot;]</code>。将数据输出到外部也差不多，基本上都能一行命令搞定。</p>
+<p>总之，当你发现自己的代码可以少写了，其实是有人帮你简化了。</p>
+<p>回归到C语言，所有的读写操作其实就是简单地将字节逐个移入程序中，将字节逐个从程序中移出而已，类似于水<strong>流</strong>动的感觉。</p>
+<p>我们要让程序读取数据和输出数据，就相当于要搞一个水管，把水引过来。下面代码就是用<code>FILE *</code>声明了fi和fo这两根水管</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE *fi;</span><br><span class="line">FILE *fo;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们还需要把水管接到水流上。下面代码的<code>fopen</code>就是将我们之前对两根水管分别接到了输入文件和输出文件上，参数中的”r”表示读取(read), 而”w”表示写出(write)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fi = fopen(<span class="string">&quot;input.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">fo = fopen(<span class="string">&quot;output.txt&quot;</span>, <span class="string">&quot;w&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//确保文件能够正常打开</span></span><br><span class="line"><span class="comment">//否则退出</span></span><br><span class="line"><span class="keyword">if</span> ( fi == <span class="literal">NULL</span> )&#123;</span><br><span class="line">    perror(argv[<span class="number">1</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>水管接上了，那么如何打开水阀，让水不断地流入流出呢？一种是逐个字符操作，一种是逐行操作。前面的方法更加基础，因为逐行读取就是不断的读取一个个字符，当碰到换行符时，就把前面的字符合在一起，以<strong>字符串</strong>的形式传递，输出是以行为单位，每一行也是一个个字符的写出。</p>
+<ul>
+<li>逐字符函数: fgetc, fputc</li>
+<li>逐行函数: fgets, fputs</li>
+</ul>
+<p>通常读取和写出都伴随着数据处理，因此这部分放到实际数据处理进一步介绍。</p>
+<p>最后关闭水龙头，我们需要用到<code>fclose()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fclose(fi);</span><br><span class="line">fclose(fo);</span><br></pre></td></tr></table></figure>
+
+<h2 id="动手搞事情"><a href="#动手搞事情" class="headerlink" title="动手搞事情"></a>动手搞事情</h2><p>有了一些文件读写的基本概念之后，我们就可以开始动手写代码了。</p>
+<p>根据fastq和fasta的格式定义，fasta是一行以<code>&gt;</code>开头的序列表示，之后跟着N条序列。而fastq则是标准的4行，第一行是以<code>@</code>开头的序列标示符，第二行是序列，第三行以<code>+</code>开头，第四行是第二行序列对应的质量信息。处理过程描述如下</p>
+<ul>
+<li>读取第一行</li>
+<li>将第一个字符的<code>@</code>替换成<code>&gt;</code></li>
+<li>输出第一行</li>
+<li>读取第二行，输出第二行</li>
+<li>读取第三行，不输出</li>
+<li>读取第四行，不输出</li>
+</ul>
+<p>下面实际的代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_LINE_LENGTH 1000</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	FILE *fi;</span><br><span class="line">	FILE *fo;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ( argc == <span class="number">2</span>) &#123;</span><br><span class="line">	    fi = fopen(argv[<span class="number">1</span>], <span class="string">&quot;r&quot;</span>);</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (argc == <span class="number">3</span>)&#123;</span><br><span class="line">	    fo = fopen(argv[<span class="number">2</span>], <span class="string">&quot;w&quot;</span>);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> line[MAX_LINE_LENGTH];</span><br><span class="line">	<span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> ( fgets(line, MAX_LINE_LENGTH, fi) != <span class="literal">NULL</span> )&#123;</span><br><span class="line">		<span class="keyword">if</span> (count == <span class="number">0</span>)&#123;</span><br><span class="line">		    line[<span class="number">0</span>] = <span class="string">&#x27;&gt;&#x27;</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (count &lt; <span class="number">2</span>)&#123;</span><br><span class="line">			<span class="keyword">if</span> ( argc == <span class="number">2</span>)&#123;</span><br><span class="line">			    <span class="built_in">fprintf</span>(<span class="built_in">stdout</span>, <span class="string">&quot;%s&quot;</span>, line);</span><br><span class="line">			&#125; <span class="keyword">else</span>&#123;</span><br><span class="line">			    <span class="built_in">fprintf</span>(fo, <span class="string">&quot;%s&quot;</span>, line);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (++count &gt; <span class="number">3</span>)&#123;</span><br><span class="line">			count = <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fclose(fi);</span><br><span class="line">	<span class="keyword">if</span> (argc == <span class="number">3</span>) fclose(fo);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于代码的讲解，我录制了专门的视频，<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av84245773/">https://www.bilibili.com/video/av84245773/</a></p>
+<p>具体使用方法为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./fq2fa input.fq output.fa</span><br></pre></td></tr></table></figure>
+
+<p>目前代码代码比较简陋，至少存在下面这些问题</p>
+<ul>
+<li>不支持gz压缩</li>
+<li>不支持管道输入</li>
+<li>没有文件类型检验，不能提示正确的错误</li>
+</ul>
+<p>根据这些需求，我们就有了学习的目标，也就是后面课程的内容。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" data-id="cllg90xzc0010eqp240nufye4" data-title="C语言实战课-将FASTQ转成FASTA" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-这一次我要真正学会C语言-journey-of-learning-c" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" class="article-date">
+  <time class="dt-published" datetime="2020-01-17T22:40:20.245Z" itemprop="datePublished">2020-01-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/">这一次我要真正学会C语言</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>不知道从什么时候开始，我的脑海里就植入了一个想法，“我要学会C语言”。虽然我在大学时学过C语言，还参加过C语言等级考试，但是我现在能写的代码也就是”hello world!”而已。你让我用C语言具体的完成一些事情，比如说读取一个FASTQ文件将其转成一个FASTA，我甚至都不会打开文件。</p>
+<p>我买过很多C语言相关的书，比如下面这些</p>
+<ul>
+<li>笨方法学C语言</li>
+<li>啊哈C</li>
+<li>C和指针</li>
+<li>C专家编程</li>
+<li>C陷阱和缺陷</li>
+<li>C语言程序设计</li>
+<li>C语言从入门到精通</li>
+<li>C程序设计语言</li>
+<li>C primer Plus</li>
+</ul>
+<p>有些书太难，我看着看着就困了，有些书自我感觉太简单，我看着看着就无聊了，到最后我一本书都没有看完，每当处理数据的时候，还是掏出我的Python和R吧。</p>
+<p>你说，Python库和R包，它不香吗？为啥要折腾地去学C语言，何苦呢，何必呢？</p>
+<p>但是我还是不甘心，还是会去看C语言相关的书，忍不住点开bwa的源代码（然后自闭）。每次都感觉自己啥都没有学进去，但其实这些内容都在潜意识中不断的加工积累。终于在不久前，我有一种感觉，我站到了C语言的目前。</p>
+<p>这感觉就像多年前我刚开始接触RNA-seq，看书都是似懂非懂（就是那本「RNA-seq best practice」)。就跟段子写的一样，打开书，马冬梅，关上书，马什么梅？打开书，马冬梅，关上书，什么冬梅？考试，孙红雷。直到某一次生物统计课后，我在回去的路上，突然感觉一切都连接在一起，整个大脑都兴奋了起来。那一天，我才感觉自己站到了生物信息学的大门前。</p>
+<p>当然光看到门是不够的，我还需要不断强化这种知识的联结，最好的方式就是通过写作的方式倒闭自己输入。因此，我将会更新一系列和C语言有关的内容，把自己对C语言的理解写下来。</p>
+<p>最后，不是所有人都需要学C语言。我学C语言是为了让自己心安，只不过在学习过程中，我开始思考如何编写更高效的Python和R代码，也能解决和C语言相关的报错（比如说段错误和编译失败）。</p>
+<p>以下，是我本次学习C语言的一些计划</p>
+<ul>
+<li>掌握文件的读写</li>
+<li>彻底掌握指针</li>
+<li>学会对C语言代码进行调试</li>
+<li>学会使用结构体</li>
+<li>学会使用动态内存</li>
+<li>在实际项目中使用C语言编写小工具</li>
+<li>学习C语言库，包括不限于<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/antirez/sds">sds</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/attractivechaos/klib">klib</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/samtools/htslib">htslib</a></li>
+</ul>
+</li>
+<li>学习使用C处理生信数据</li>
+<li>学会使用多线程</li>
+<li>学会和R&#x2F;Python进行交互</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" data-id="cllg90y7400l0eqp27w4ka90b" data-title="这一次我要真正学会C语言" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-利用k-mer进行基因组调查-genome-survey-using-kmers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" class="article-date">
+  <time class="dt-published" datetime="2020-01-17T15:38:28.446Z" itemprop="datePublished">2020-01-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/">利用k-mer进行基因组调查</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在组装基因组之前一定要先对要组装的物种有一个大致的了解，判断其复杂程度, 标准如下</p>
+<ul>
+<li>基因组大小：基因组越大，测序花的钱越多</li>
+<li>简单基因组: 杂合度低于0.5%, GC含量在35%~65%, 重复序列低于50%</li>
+<li>二倍体普通基因组: 杂合度在0.5%~1.2%中间，重复序列低于50%。或杂合度低于0.5%，重复序列低于65%</li>
+<li>高复杂基因组: 杂合度&gt;1.2% 或 重复率大于65%</li>
+</ul>
+<h2 id="k-mers估计法"><a href="#k-mers估计法" class="headerlink" title="k-mers估计法"></a>k-mers估计法</h2><p>最简单的策略就是基于k-mer对基因组做一个简单的了解, 使用jellyfish统计k-mers，然后作图</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">jellyfish count  -m 21 -s 20G -t 20 -o 21mer_out  -C  &lt;(zcat test_1.fq.gz) &lt;(zcat test_2.fq.gz)</span><br><span class="line"><span class="comment"># -m k-mers的K</span></span><br><span class="line"><span class="comment"># -s Hash大小, 根据文件大小确定</span></span><br><span class="line"><span class="comment"># -t 线程</span></span><br><span class="line"><span class="comment"># -o 输出前缀</span></span><br><span class="line"><span class="comment"># -C 统计正负链</span></span><br><span class="line">jellyfish histo -o 21mer_out.histo 21mer_out</span><br></pre></td></tr></table></figure>
+
+<p>一些注意事项：</p>
+<ol>
+<li>绝对不要用<code>--min-qual-char</code>或其他参数，它们会将低质量的碱基替换成N</li>
+<li>在测序时由于不知道测得到底是DNA的哪一条链，因此k-mer及其互补链其实是等价的，所以一定要用<code>-C</code>参数</li>
+</ol>
+<p>将数据导入R语言中，进行作图</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pdf<span class="punctuation">(</span><span class="string">&quot;21_mer.out.pdf&quot;</span><span class="punctuation">)</span></span><br><span class="line">dataframe19 <span class="operator">&lt;-</span> read.table<span class="punctuation">(</span><span class="string">&quot;21mer_out.histo&quot;</span><span class="punctuation">)</span></span><br><span class="line">plot<span class="punctuation">(</span>dataframe19<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">,</span><span class="punctuation">]</span><span class="punctuation">,</span> type<span class="operator">=</span><span class="string">&quot;l&quot;</span><span class="punctuation">)</span></span><br><span class="line">dev.off<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-580d398975ab4b4c974d8116a612d6ac.png" alt="k-mers作图"></p>
+<p>由于只有一个主峰，说明该物种的杂合度并不高，基本上也就是二倍体。如果图中出现多个峰，说明它可能是多倍体或者是基因组杂合度高。</p>
+<p>基因组大小(G)估计算法为:</p>
+<p>$$<br>G&#x3D; K_{num} &#x2F; K_{depth}<br>$$</p>
+<p>其中 $K_{depth}$ 为K-mer的期望测序深度, $K_{num}$ 为K-mer的总数。 通常将K-mer深度分布曲线的峰值作为其期望深度。</p>
+<blockquote>
+<p>基因组的杂合性和使得来自杂合片段的K-mer深度较纯合区段降低50%。如果目标基因组有一定的杂合性，会在k-mer深度分布曲线主峰位置(c)的1&#x2F;2处(c&#x2F;2)出现一个小峰。杂合度越高，该峰越明显。</p>
+</blockquote>
+<p>推荐文献: Genomic DNA k-mer spectra: models and modalities</p>
+<h2 id="基于组装"><a href="#基于组装" class="headerlink" title="基于组装"></a>基于组装</h2><p>基于K-mers可以较好的预测基因组大小，并定性的了解基因组的复杂情况，如果想更具体的了解基因组的复杂度，可以先将50X以上的段片段进行组装，然后进行分析。</p>
+<p>组装的工具比较多，推荐用SOAPdenovo，因为速度快。</p>
+<p>新建一个contig.config, 增加如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">max_rd_len=150</span><br><span class="line">[LIB]</span><br><span class="line">avg_ins=200</span><br><span class="line">reverse_seq=0</span><br><span class="line">asm_flags=3</span><br><span class="line">rd_len_cutoff=100</span><br><span class="line">rank=1</span><br><span class="line">pair_num_cutoff=3</span><br><span class="line">map_len=32</span><br><span class="line">q1=read_1.fq</span><br><span class="line">q2=read_2.fq</span><br></pre></td></tr></table></figure>
+
+<p>组装出参考序列</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/SOAPdenovo2/SOAPdenovo-63mer all -s contig.config -R -K 63 -p 30 -o assembly/graph</span><br></pre></td></tr></table></figure>
+
+<p>最后graph.scafSeq是拼接后的序列, 提取出大于300bp的序列.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># adjust format</span></span><br><span class="line">bioawk -c fastx -v name=1 <span class="string">&#x27;&#123;if(length($seq)&gt;300) print &quot;&gt;&quot;name &quot;\n&quot; $seq;name+=1&#125;&#x27;</span> assembly/graph.scafSeq &gt;contig.fa</span><br></pre></td></tr></table></figure>
+
+<h3 id="杂合度估计"><a href="#杂合度估计" class="headerlink" title="杂合度估计"></a>杂合度估计</h3><p>将原来的序列回贴到contig上，并用samtools+bcftools进行snp calling.统计变异的碱基占总体的比例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p index</span><br><span class="line">bwa index contig.fa -p index/contig</span><br><span class="line">bwa mem -v 2 -t 10 index/contig read_1.fq read_2.fq | samtools <span class="built_in">sort</span> -n &gt; align.bam</span><br><span class="line">samtools mpileup -f contig align.bam | bcftools call -<span class="built_in">mv</span> -Oz -o variants.gz</span><br></pre></td></tr></table></figure>
+
+<p>一方面由于SOAPdenovo组装过程中会出错, 另一方面samtools在变异检测上也存在很高的假阳性, 所以总得先按照深度和质量过滤一批假阳性。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bcftools view -i <span class="string">&#x27; DP &gt; 30 &amp;&amp; MQ &gt; 30&#x27;</span> -H variants.vcf.gz | <span class="built_in">wc</span> -l</span><br><span class="line"><span class="comment"># 325219, 无过滤是445113</span></span><br></pre></td></tr></table></figure>
+
+<p>变异数目占基因组大小的比例就是杂合度。我的contig大概是200M，找到0.3M左右的变异，也就是0.0015，即0.15%.</p>
+<h3 id="重复序列估计"><a href="#重复序列估计" class="headerlink" title="重复序列估计"></a>重复序列估计</h3><p>基于同源注释，用RepeatMasker寻找重复序列. 这里要注意分析的fasta的ID不能过长，也就是最好是<code>&gt;scaffold_1</code>这种形式，不然会报错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/RepeatMsker/RepeatMasker -e ncbi -species arabidopsis -pa 10 -gff -<span class="built_in">dir</span> ./ contig.fa</span><br><span class="line"><span class="comment"># -e ncbi</span></span><br><span class="line"><span class="comment"># -species 选择物种 用~/opt/biosoft/RepeatMasker/util/queryRepeatDatabase.pl -tree 了解</span></span><br><span class="line"><span class="comment"># -pa 并行计算</span></span><br><span class="line"><span class="comment"># -gff 输出gff注释</span></span><br><span class="line"><span class="comment"># -dir 输出路径</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果中主要关注如下三个</p>
+<ul>
+<li>output.fa.masked, 将重复序列用N代替</li>
+<li>output.fa.out.gff, 以gff2形式存放重复序列出现的位置</li>
+<li>output.fa.tbl, 该文件记录着分类信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">==================================================</span><br><span class="line">file name: anno.fasta</span><br><span class="line">sequences:         62027</span><br><span class="line">total length:  273135210 bp  (273135210 bp excl N/X-runs)</span><br><span class="line">GC level:         36.80 %</span><br><span class="line">bases masked:   79642191 bp ( 29.16 %)</span><br><span class="line">==================================================</span><br></pre></td></tr></table></figure>
+
+<p>也就是说我们的物种有30%的重复序列，作为参考，拟南芥125Mb 14%重复序列, 水稻389M，36%重复</p>
+<h2 id="附录：软件安装"><a href="#附录：软件安装" class="headerlink" title="附录：软件安装"></a>附录：软件安装</h2><p>安装RepeatMasker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget http://tandem.bu.edu/trf/downloadstrf409.linux64</span><br><span class="line"><span class="built_in">mv</span> trf409.linux64 ~/opt/bin/trf</span><br><span class="line"><span class="built_in">chmod</span> a+x ~/opt/bin/trf</span><br><span class="line"><span class="comment"># RMBlast</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-src.tar.gz</span><br><span class="line">wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz</span><br><span class="line">tar xf ncbi-blast-2.6.0+-src</span><br><span class="line">gunzip isb-2.6.0+-changes-vers2.patch.gz</span><br><span class="line"><span class="built_in">cd</span> ncbi-blast-2.6.0+-src</span><br><span class="line">patch -p1 &lt; ../isb-2.6.0+-changes-vers2.patch</span><br><span class="line"><span class="built_in">cd</span> c++</span><br><span class="line">./configure --with-mt --prefix=~/opt/biosoft/rmblast --without-debug &amp;&amp; make &amp;&amp; make install</span><br><span class="line"><span class="comment"># RepeatMasker</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget http://repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz</span><br><span class="line">tar xf RepeatMasker-open-4-0-7.tar.gz</span><br><span class="line"><span class="built_in">mv</span> RepeatMasker ~/opt/biosoft/</span><br><span class="line"><span class="built_in">cd</span> ~/opt/biosoft/RepeatMasker</span><br><span class="line"><span class="comment">## 解压repbase数据到Libraries下</span></span><br><span class="line"><span class="comment">## 配置RepatMasker</span></span><br><span class="line">perl ./configure</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" data-id="cllg90y4k00e8eqp25lb14yb7" data-title="利用k-mer进行基因组调查" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-逃离dplyr_ 不使用group_by和arrange实现分组排序-sort-by-group-without-dplyr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" class="article-date">
+  <time class="dt-published" datetime="2020-01-09T16:07:03.766Z" itemprop="datePublished">2020-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/">逃离dplyr:不使用group_by和arrange实现分组排序</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天在写代码的时候，发现项目中出现了一些重复的代码，所以要把他们封装成一个单个函数。在封装的过程中，我遇到了一个让我头疼的问题。</p>
+<p>在使用dplyr的时候，你可能会注意到一个非常有趣的细节，那就是你不用<code>&quot;&quot;</code>来区别变量和字符串，<code>dplyr</code>能够帮你好这个事情。举个例子，下面的代码都是让<code>iris</code>数据集按照”Sepal.Length”进行排序。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> Sepal.Length<span class="punctuation">)</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> <span class="string">&quot;Sepal.Length&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候，让我们思考一个问题，如果在之前命名了一个<code>group.by &lt;- &quot;Sepal.Length&quot;</code>，那么运行<code>group_by(iris, group.by)</code>的时候， 这个group.by会被替换成Sepal.Length吗？下面的代码会报错吗？大家可以思考一下，然后往下看。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group.by <span class="operator">&lt;-</span> <span class="string">&quot;Sepal.Length&quot;</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> group.by<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>实际上，运行上面的代码，你会得到一个报错”Error: Column <code>group.by</code> is unknown”. <code>group_by</code>没有替换掉你的变量名。</p>
+<p>为什么会出现这个情况？这个就涉及到dplyr编程的内容，具体可以参考<a target="_blank" rel="noopener" href="https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html">https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html</a></p>
+<p>参考dplyr的教程，如果要让上面的代码能够运行，我们需要需要在变量名前加上<code>!!</code>或者调用<code>UQ</code>函数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> <span class="operator">!</span><span class="operator">!</span>group.by<span class="punctuation">)</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> UQ<span class="punctuation">(</span>group.by<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>假如你要创造一个函数，要用到<code>group_by</code>，那么你应该怎么写呢？我们的直觉就是下面的代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">my_group_by <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>df<span class="punctuation">,</span> group.by<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  df <span class="operator">&lt;-</span> group_by<span class="punctuation">(</span>df<span class="punctuation">,</span>group.by <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>根据前面的铺垫，你应该知道，运行<code>my_group_by(iris, Sepal.Length)</code>会出现报错，报错信息为” Error: Column <code>group.by</code> is unknown”。 于是你试着之前的解决方法加上了”UQ” </p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">my_group_by <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>df<span class="punctuation">,</span> group.by<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  df <span class="operator">&lt;-</span> group_by<span class="punctuation">(</span>df<span class="punctuation">,</span> UQ<span class="punctuation">(</span>group.by<span class="punctuation">)</span> <span class="punctuation">)</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>df<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>思考下，<code>my_group_by(iris, Sepal.Length)</code>能够得到结果吗？</p>
+<p>很遗憾，代码报错了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error in splice(dot_call(capture_dots, frame_env = frame_env, named = named,  : </span><br><span class="line"> object &#x27;Sepal.Length&#x27; not found </span><br></pre></td></tr></table></figure>
+
+<p>正确的调用方法是<code>my_group_by(iris, &quot;Sepal.Length&quot;)</code>.  当然由于你用习惯了dplyr，你希望是<code>my_group_by(iris, Sepal.Length)</code>调用代码，那么你的函数需要怎么写呢？为了解决这个问题，你可能要仔细阅读<a target="_blank" rel="noopener" href="https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html">https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html</a>才行，理解什么叫做”Quasiquotation”</p>
+<p>经过一波折腾之后，我受够了这种将dplyr代码改成函数时的不一致性（也可能是我不熟练），我决定还是只用R基础代码来实现我的功能，不就是分组排序吗，为啥一定要用<code>group_by</code> 和 <code>arrange</code>呢.</p>
+<p>无非就是先利用因子将数据库分成多个列表(split)，然后对每个列表按照某一列进行排序(lapply)，而这里排序过程就是获取从最大到最小的索引(order)，最后按行进行合并(do.call, rbind)而已呀。如下是实现的代码</p>
+<pre><code class="r">my.group.by &lt;- function(df, group.by, sort.by,
+                        decreasing = TRUE)&#123;
+  
+  df.split &lt;- split(df, df[[group.by]])
+  
+  df.split.sort &lt;- lapply(df.split, function(x)&#123;
+    x.order &lt;- order(x[[sort.by]],decreasing = decreasing)
+    x &lt;- x[x.order,]
+    x
+  &#125;)
+   df &lt;- do.call(rbind, df.split.sort)
+  return(df)
+&#125;
+
+my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&quot;)
+</code></pre>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="cllg90y7600l6eqp28av714oh" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用EDTA进行TE注释-annotate-te-with-edta-pipeline" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" class="article-date">
+  <time class="dt-published" datetime="2020-01-08T16:16:47.328Z" itemprop="datePublished">2020-01-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/">使用EDTA进行TE注释</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>一句话评价：重复序列注释用EDTA就完事了。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>EDTA, 全称是 Extensive de-novo TE Annotator, 一个综合性的流程工具，它整合了目前LTR预测工具结果，TIR预测工具结果，MITE预测工具结果，Helitrons预测工具结果, 从而构建出一高可信，非冗余的TE数据库，用做基因组的注释。流程图如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-450f4b170c1f42eb9450676772fb5a5a.png" alt="EDTA流程"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>如果没有管理员权限，可以用conda进行安装。如果有管理员权限，可以尝试用docker或者singularity进行安装。</p>
+<p>PS: 如果之前用过EDTA的话，可以更新一下版本，因为从1.7.0开始，EDTA把intact TE和homology based注释结合在一起，最终产生了很高质量的gff，合并了所有注释；1.7.1版把包含基因的intact也去掉了，进一步过滤。（来自于作者的建议）</p>
+<h3 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h3><p>使用conda的安装方法如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">conda create -n EDTA</span><br><span class="line">conda activate EDTA</span><br><span class="line">python2 -m pip install --user numpy==1.14.3 biopython==1.74 pp</span><br><span class="line">conda config --<span class="built_in">env</span> --add channels anaconda --add channels conda-forge --add channels biocore --add channels bioconda --add channels cyclus</span><br><span class="line">conda install -n EDTA -y cd-hit repeatmodeler muscle mdust repeatmasker=4.0.9_p2 blast-legacy java-jdk perl perl-text-soundex multiprocess regex tensorflow=1.14.0 keras=2.2.4 scikit-learn=0.19.0 biopython pandas glob2 python=3.6 trf</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/oushujun/EDTA</span><br><span class="line">./EDTA/EDTA.pl</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的一点是，bioconda建议添加国内镜像站点, 否则可能会下载失败。</p>
+<h3 id="singularity"><a href="#singularity" class="headerlink" title="singularity"></a>singularity</h3><p>方法1: 使用EDTA上提供的docker镜像，以singularity进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://kapeel/edta</span><br></pre></td></tr></table></figure>
+
+<p>在使用时，有一点需要注意，需要用<code>-B</code>将外部的RepeatMasker的Libraries绑定的Libraries，否则可能会在检查依赖这一步失败。</p>
+<p>这里，我参考的是<a target="_blank" rel="noopener" href="https://github.com/lfaino/LoReAn/">LoReAN</a>的方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~ <span class="comment"># 切换到家目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p LoReAn &amp;&amp; <span class="built_in">cd</span> LoReAn</span><br><span class="line">wget https://github.com/lfaino/LoReAn/raw/noIPRS/third_party/software/RepeatMasker.Libraries.tar.gz &amp;&amp; tar -zxvf RepeatMasker.Libraries.tar.gz</span><br><span class="line">singularity <span class="built_in">exec</span> \</span><br><span class="line">    -B /home/xzg/LoReAn/Libraries/:/opt/conda/share/RepeatMasker/Libraries/ \</span><br><span class="line">    /home/xzg/edta.sif /EDTA/EDTA.pl -h</span><br></pre></td></tr></table></figure>
+
+<p>上面的<code>/home/xzg/</code>是我的家目录，需要根据实际情况进行选择</p>
+<p>方法2: 使用 @wangshun1121 构建的docker镜像, 他解决了需要<code>-B</code>进行挂载的问题。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://registry.cn-hangzhou.aliyuncs.com/wangshun1121/edta</span><br></pre></td></tr></table></figure>
+
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><p>我们以拟南芥的第一条染色体为例，进行介绍</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># singularity</span></span><br><span class="line">singularity <span class="built_in">exec</span> ~/LoReAn/edta.sif /EDTA/EDTA.pl \</span><br><span class="line">    -genome chr1.fa -species others -step all -t 20</span><br><span class="line"><span class="comment"># conda</span></span><br><span class="line"><span class="comment"># 我的EDTA在我的家目录下</span></span><br><span class="line">~/EDTA/EDTA.pl -genome chr1.fa -species others -step all -t 20</span><br></pre></td></tr></table></figure>
+
+<p>这里的参数比较简单,</p>
+<ul>
+<li><code>-genome</code>: 输入的基因组序列</li>
+<li><code>-species</code>: 物种名，Rice, Maize和others三个可选</li>
+<li><code>-step</code>: 运行步骤,  <code>all|filter|final|anno</code>, 根据具体情况选择</li>
+<li><code>-t</code>: 线程数，默认是4</li>
+</ul>
+<p>此外还有几个参数可以关注下</p>
+<ul>
+<li><p><code>-cds</code>: 提供已有的CDS序列（不能包括内含子和UTR），用于过滤.这个值也比较重要，建议提供下，否则会降低busco值（来自于作者的推荐）</p>
+</li>
+<li><p><code>-sensitive</code>: 是否用<code>RepeatModeler</code>分析剩下的TE，默认是0，也就是不要。<code>RepeatModeler</code>运行时间比较久，量力而信。</p>
+</li>
+<li><p><code>-anno</code>: 是否在构建TE文库后进行全基因组预测，默认是0.</p>
+</li>
+<li><p><code>-evalues 1</code>: 默认是0，需要同时设置-anno 1才能使用。建议加上，它能够查看注释质量，是非常不错的功能哦（来自于作者的推荐）<br>运行结束之后，会在当前目录下留下运行时的中间文件，保证你程序中断之后，能够断点续跑</p>
+</li>
+<li><p>xxx.EDTA.raw</p>
+</li>
+<li><p>xxx.EDTA.combine</p>
+</li>
+<li><p>xxx.EDTA.final</p>
+</li>
+</ul>
+<p>以及你关注的<code>xxx.EDTA.TElib.fa</code>, 这就是最终的TE文库。</p>
+<p><strong>需要注意</strong>的是，在实际运行的时候，你不能单条染色体的运行，这不是程序设计的目的，我们这里用一条染色体仅仅是为了演示，测试程序能否顺利运行。</p>
+<p>而在实际项目中，一定要用所有的染色体或者scaffold</p>
+<h2 id="可能问题"><a href="#可能问题" class="headerlink" title="可能问题"></a>可能问题</h2><p>我在使用EDTA时，就遇到了两个问题。一个是singularity的EDTA直接使用时无法通过依赖检测，解决方法已经在安装部分提过，这里不在赘述。</p>
+<p>另一个问题我在”Identify TIR candidates from scratch”这一步出现下面的报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">what():  terminate called after throwing an instance of <span class="string">&#x27;Resource temporarily unavailable std::system_error&#x27;</span></span><br><span class="line">what():  Resource temporarily unavailable</span><br><span class="line">terminate called after throwing an instance of <span class="string">&#x27;std::system_error&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我对这个报错进行了分析，找到了对应代码，即<code>sh $TIR_Learner -g $genome -s $species -t $threads -l $maxint</code>. 用实际内容替换变量后，即下面这行代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh /EDTA/bin/TIR-Learner2.4/TIR-Learner2.4.sh -g chr.fa -s others -t 20 -l 5000</span><br></pre></td></tr></table></figure>
+
+<p>更具体一点，可以将问题定位到脚本的<code>Module 3, Step 3: Get dataset</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">genomeFile=/data/xzg_data/1800_assembly/annotation/repeatAnnotation/chr.fa <span class="comment">#基因组文件的实际路径</span></span><br><span class="line">genomeName=TIR-Learner</span><br><span class="line">tir_path=/EDTA/bin/TIR-Learner2.4 <span class="comment"># TIR-Learner2.4的路径</span></span><br><span class="line">t=1</span><br><span class="line"><span class="built_in">dir</span>=`<span class="built_in">pwd</span>`</span><br><span class="line"><span class="built_in">export</span> OMP_NUM_THREADS=1</span><br><span class="line">python3 <span class="variable">$tir_path</span>/Module3_New/getDataset.py -g <span class="variable">$genomeFile</span> -name <span class="variable">$genomeName</span> -p <span class="variable">$tir_path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将线程数设置为1后，该代码顺利跑通。进一步，我定位<code>getDataset.py</code>的出问题的地方实际是<code>predict</code>函数。当然接着执行后续的代码，发现改动这一参数并不影响下面代码的运行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 4: Check TIR/TSD&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3_New/CheckTIRTSD_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 5: Write to Gff&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3/WriteToGff_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我发现<code>predict</code>函数涉及到了Python的多进程调用，最终在偶然间找到问题真正所在，即Linux系统对用户的资源限制，可以通过<code>ulimit -a</code>查看。</p>
+<p>最终我通过设置<code>ulimit -u 9000</code>，提高允许运行的总程序数，将问题解决。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA">EDTA官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA/issues/11">RMblast的问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.linuxquestions.org/questions/linux-server-73/bash-fork-retry-resource-temporarily-unavailable-limit-issue-4175618262/">一个关于fork资源不够的解决过程</a></li>
+<li>Ou, S., Su, W., Liao, Y., Chougule, K., Agda, J.R.A., Hellinga, A.J., Lugo, C.S.B., Elliott, T.A., Ware, D., Peterson, T., et al. (2019). Benchmarking transposable element annotation methods for creation of a streamlined, comprehensive pipeline. Genome Biology 20, 275.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllg90y3x00bseqp2hg5sggpg" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如何创造并尝试处理一个segmentation fault (core dumped)-how-to-create-and-solve-segementation-fault" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" class="article-date">
+  <time class="dt-published" datetime="2020-01-08T10:59:32.812Z" itemprop="datePublished">2020-01-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/">如何创造并尝试处理一个segmentation fault (core dumped)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>segmentation fault (core dumped)</code>是一个曾经让我非常头疼的报错，当然它还有一种中文形式，**段错误(核心已转移)**。</p>
+<p>这种错误可能会在各种程序中出现，每次我都用软件名加报错信息去搜索，对于一些常见软件，我能够找到一些解决方案，于是我能按照它们提供的方式进行解决。而对于一些比较小众的软件，就几乎无解了。</p>
+<p>直到我学习「c和指针」，我自己创造出了一个段错误，我终于不再害怕这个报错（当然也仅限于不在害怕而已）。</p>
+<p>下面这行代码，我觉得和<code>printf(&quot;hello world!\n&quot;)</code>一样重要。”hello world!”让你开始入门编程，而理解下面的代码则让你深入编程。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> *a ;</span><br><span class="line">    *a = <span class="number">12</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以将其复制到到一个<code>error.c</code>中，然后编译运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gcc -o error error.c</span><br><span class="line">./error</span><br><span class="line">[<span class="number">2</span>]    <span class="number">110633</span> segmentation <span class="title function_">fault</span> <span class="params">(core dumped)</span> ./error</span><br></pre></td></tr></table></figure>
+
+<p>在代码中，我们创建一个叫做a的指针变量，后面赋值语句则是把12存储在a所指向的内存地址，从逻辑上看好像没啥问题。其背后的问题，且听我慢慢道来。</p>
+<p>a是一个指针变量，它和普通变量一样，它也有特定的内存地址，在那个内存递上也存放着值，该值是一个地址。对于一个普通变量而言，如果它们在声明的时候没有初始化，那么它们会有一个默认值，比如说<code>int i;</code>在我的机器上的结果是0。那么对于一个指针变量而言，如果没有在声明的时候没有初始化，它的值是什么呢？我用下面的代码测试了下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="type">int</span> *a;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;i:%d\n&quot;</span>,i);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a:%p\n&quot;</span>,a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在三次运行过程中，i的值始终为0，而a的值则是0x7ffee20e7dc0, 0x7ffc1d202d10,0x7fff50972560.这些都对应着内存上的一个地址。对<code>*a</code>进行赋值的过程，也就是对它对应的内存地址进行赋值，这就带来了一个问题。如果这些内存是合法能被我们操作的，那么这个操作将会顺利进行，不会出现报错，但是可能会出现一些你完全想象不到的问题。但如果内存是受到保护或者对应地址不存在（大部分情况），那么在Linux系统上就会跳出错误。</p>
+<p>现在我们知道了，段错误(core dumped)是程序访问&#x2F;使用它不能使用的内存地址所导致的，那么今后面对程序出现这个报错时，我们应该做呢？</p>
+<ol>
+<li>使用软件名 + 段错误对应的英文(core dumped)进行检索,  比如说 “STAR core dumped”, 相对而言，用英文检索的资料会比较</li>
+<li>检查自己的服务器内存是否充足，对于一些比对软件或者组装软件而言，它们比较占用内存，因此内存不够就会出现错误</li>
+<li>检查自己的输入是否合法，这可能是程序没有合理的错误捕捉机制，导致遇到错误格式的输入依旧运行了代码，结果中间指针没有正确初始化，最终出错</li>
+<li>更新软件：新的软件可能会修复之前代码错误</li>
+<li>换个软件：有些软件的版本可能就停留在它发表文章那一天，那么这个工具可能也不太可</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllg90y4y00fpeqp2638mhp0k" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/12/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/14/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

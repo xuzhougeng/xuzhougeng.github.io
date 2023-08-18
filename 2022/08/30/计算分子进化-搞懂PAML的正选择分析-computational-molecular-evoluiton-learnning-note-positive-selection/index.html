@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>计算分子进化-搞懂PAML的正选择分析 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="许多基因组的文章里都会提到使用PAML进行基因的正选择分析(positive selection), 网上也有一些教程介绍如何用PAML进行分析。无论是文章，还是教程，大多只介绍了过程，读完之后，是能够做相应的分析了，但却不知道为什么要这样子做，这篇教程就做这一方面的补充。 我们应该知道组成蛋白序列的氨基酸对应的核苷酸突变可以分为两类，同义置换(synonymous substitution)和非">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算分子进化-搞懂PAML的正选择分析">
+<meta property="og:url" content="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="许多基因组的文章里都会提到使用PAML进行基因的正选择分析(positive selection), 网上也有一些教程介绍如何用PAML进行分析。无论是文章，还是教程，大多只介绍了过程，读完之后，是能够做相应的分析了，但却不知道为什么要这样子做，这篇教程就做这一方面的补充。 我们应该知道组成蛋白序列的氨基酸对应的核苷酸突变可以分为两类，同义置换(synonymous substitution)和非">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/08/image-f966cef067d842eca83614c9bf8b4f43.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/08/image-b99988fbcf204777beef1786457e0dcb.png">
+<meta property="article:published_time" content="2022-08-30T14:17:49.670Z">
+<meta property="article:modified_time" content="2022-08-31T04:47:12.663Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="系统发育">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/08/image-f966cef067d842eca83614c9bf8b4f43.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-计算分子进化-搞懂PAML的正选择分析-computational-molecular-evoluiton-learnning-note-positive-selection" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" class="article-date">
+  <time class="dt-published" datetime="2022-08-30T14:17:49.670Z" itemprop="datePublished">2022-08-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      计算分子进化-搞懂PAML的正选择分析
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>许多基因组的文章里都会提到使用PAML进行基因的正选择分析(positive selection), 网上也有一些教程介绍如何用PAML进行分析。无论是文章，还是教程，大多只介绍了过程，读完之后，是能够做相应的分析了，但却不知道为什么要这样子做，这篇教程就做这一方面的补充。</p>
+<p>我们应该知道组成蛋白序列的氨基酸对应的核苷酸突变可以分为两类，同义置换(synonymous substitution)和非同义置换(nonsynonymous substitution),通过计算非同一置换速率和同义置换速率的比值, omega&#x3D;dN&#x2F;dS, 我们可以衡量蛋白的选择压力。如果选择<strong>不影响</strong>物种适应环境，那么比值两者的速率应该相等，因此比值为1，如果非同义突变会降低物种的适应性，那么dN &lt; dS, 因此比值小于1， 如果非同义突变让提高物种的适应性，那么dN &gt; dS, 则比值大于1. 于是乎，非同义突变率<strong>显著高于</strong>同义突变即为蛋白质适应性进化的证据。</p>
+<p>接下来，我们以书中被子植物光敏色素(phy)的适应性进化作为例子结合理论来讲解，数据方式如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PAML的安装和配置不再赘述</span></span><br><span class="line"><span class="comment"># codeml的配置文件</span></span><br><span class="line">wget http://abacus.gene.ucl.ac.uk/ziheng/data/phyACF.codeml.ctl </span><br><span class="line"><span class="comment"># 15个物种的codon联配结果, 包含gap</span></span><br><span class="line">wget http://abacus.gene.ucl.ac.uk/ziheng/data/phyACF.txt</span><br><span class="line"><span class="comment"># 15个物种的系统发育树</span></span><br><span class="line">wget http://abacus.gene.ucl.ac.uk/ziheng/data/phyACF.trees</span><br></pre></td></tr></table></figure>
+
+<p>下载的配置文件<code>phyACF.codeml.ctl</code>信息显示如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">      seqfile = phyACF.txt</span><br><span class="line">     treefile = phyACF.trees</span><br><span class="line"></span><br><span class="line">      outfile = mlc   * main result file name</span><br><span class="line">        noisy = 3 * 0,1,2,3,9: how much rubbish on the screen</span><br><span class="line">      verbose = 0  * 1: detailed output, 0: concise output</span><br><span class="line">      runmode = 0</span><br><span class="line"></span><br><span class="line">      seqtype = 1  * 1:codons; 2:AAs; 3:codons--&gt;AAs</span><br><span class="line">    CodonFreq = 2  * 0:1/61 each, 1:F1X4, 2:F3X4, 3:Fcodon</span><br><span class="line">       aaDist = 0  * 0:equal, +:geometric; -:linear, 1-6:G1974,Miyata,c,p,v,a</span><br><span class="line"></span><br><span class="line">        model = 2</span><br><span class="line">      NSsites = 2</span><br><span class="line"></span><br><span class="line">        icode = 0  * 0:universal code; 1:mammalian mt; 2-10:see below</span><br><span class="line"></span><br><span class="line">    fix_kappa = 0  * 1: kappa fixed, 0: kappa to be estimated</span><br><span class="line">        kappa = 5  * initial or fixed kappa</span><br><span class="line">    fix_omega = 0  * 1: omega or omega_1 fixed, 0: estimate</span><br><span class="line">        omega = 0.1</span><br><span class="line"></span><br><span class="line">    fix_alpha = 1  * 0: estimate gamma shape parameter; 1: fix it at alpha</span><br><span class="line">        alpha = .0  * initial or fixed alpha, 0:infinity (constant rate)</span><br><span class="line">        ncatG = 3  * # of categories in dG of NSsites models</span><br><span class="line"></span><br><span class="line">        clock = 0   * 0:no clock, 1:global clock; 2:local clock; 3:TipDate</span><br><span class="line">        getSE = 0  * 0: don&#x27;t want them, 1: want S.E.s of estimates</span><br><span class="line"> RateAncestor = 1  * (0,1,2): rates (alpha&gt;0) or ancestral states (1 or 2)</span><br><span class="line"></span><br><span class="line">   Small_Diff = .5e-6</span><br><span class="line">*    cleandata = 1  * remove sites with ambiguity data (1:yes, 0:no)?</span><br><span class="line">*        ndata = 3</span><br><span class="line">       method = 0  * 0: simultaneous; 1: one branch at a time</span><br></pre></td></tr></table></figure>
+
+<p>虽然参数很多，但正选择分析上, 我们所需要修改的参数是 model, NSsites, fix_omega, omega 这四项，来决定codeml的分析模式。</p>
+<p>首先， 修改配置文件中的 model &#x3D; 0 和 NSsites &#x3D; 0. 此时, codeml会计算全局omega. </p>
+<p>使用<code>codeml phyACF.codeml.ctl</code> 运行，输出结果在当前目录的mlc文件中。里面信息很多，我们重点关注如下几项</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">lnL(ntime: 27  np: 29): -29984.121043      +0.000000</span><br><span class="line">...</span><br><span class="line">Detailed output identifying parameters</span><br><span class="line"></span><br><span class="line">kappa (ts/tv) =  1.98351</span><br><span class="line"></span><br><span class="line">omega (dN/dS) =  0.08975</span><br></pre></td></tr></table></figure>
+
+<p>lnL是似然值(likeilhood value)的自然对数，之所以是负数，是因为计算出似然值是一个非常小的小数，如果不取对数，结果显示就是0，难以使用。</p>
+<p>从结果来看，我们算出的全局omega非常小，约为0.09。这很容易理解，因为我们都知道一个蛋白序列，保守的位点肯定远远多于不保守的位点，那么平均下来，整体的值就会很小。因此正选择通常分析的是系统发育关系的特定谱系或者是蛋白质的某几个位点。</p>
+<p>接下来，我们修改 model &#x3D; 2 和 NSsites &#x3D; 0, 此时codeml会分析我们提供系统发育树中某个分支(foreground)相对于其他分支(background)是否处于正选择。 问题来了，codeml如何判断哪个是foreground，哪些是background呢？此时需要看下 phyACF.trees. </p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">((C.Sorg:1.414715, (F.Tom:1.174355, C.Arab:1.734907):0.401510):7.949045 #1, (Oat3:0.217161, (A.Rice:0.255094, (A.Zea:0.084488, A.Sorg:0.041302):0.239315):0.038530):1.329584, ((A1.Pea1:0.304507, A.Soy:0.370169):0.329161, ((A.Pars:0.912283, (A.Tob:0.154040, (A.Tom:0.051204, A.Pot:0.054514):0.100673):0.456387):0.182221, (A.Zuc:0.729785, A.Arab:0.792669):0.136483):0.130833):0.547791);</span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用iTOL这个网页工具对这个树进行展示，树形如下。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/08/image-f966cef067d842eca83614c9bf8b4f43.png" alt="iTol of tree"></p>
+<p>不难从图中发现，有一个明显和其他格格不入的分支，其中包含C. Sorg(高粱,PhyC)和 C.Arab(拟南芥,PhyC), F.Tom(番茄,PhyF)。我们想要检验这一支，是不是受到了正选择。 为了强调这一支，我们需要在树结构对应的位置上加上<code>#1</code>，表示foreground, 而这在我们下载的.tree文件中已经有了，你可以检查下。</p>
+<p>我们运行<code>codeml phyACF.codeml.ctl</code>，关注输出文件mlc里的如下内容</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">lnL(ntime: 27  np: 30): -29983.513876      +0.000000</span><br><span class="line">...</span><br><span class="line">Detailed output identifying parameters</span><br><span class="line"></span><br><span class="line">kappa (ts/tv) =  1.99551</span><br><span class="line"></span><br><span class="line">w (dN/dS) for branches:  0.08998 0.03881</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在dN&#x2F;dS这一行有两个omega值，第一个是background, 第二个是foreground。虽然后者比前者大，但是也没有超过1。另外，似然比检验(LRT)也显示，这两个模式没有明显差异。</p>
+<p>这里，我们提到了<strong>似然比检验</strong>(likelihood-ratio test, LRT), 这个概念很重要，我们需要稍稍展开说明下。它指的是，根据两个竞争的统计模型的似然值的比值，评估两者的拟合度，其中一个是最大化整个参数空间，另一个则是做一些限制。如果限制条件（零假设）被观测数据所支持，那么两者的似然值的差异不会超过抽样误差。因此，LRT检验的是，比值是不是和1有显著区别，或者说比值的自然对数和0有显著区别。</p>
+<p>通常似然比检验的统计量表现为两个对数似然值的差值</p>
+<p>$$<br>\lambda_{\mathrm{LR}}&#x3D;-2\left[\ell\left(\theta_{0}\right)-\ell(\hat{\theta})\right]<br>$$</p>
+<p>这个统计量，我们可以使用卡方检验(chi2)来分析它的显著性。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用R算出</span></span><br><span class="line">abs(-2*(-29983.513876 - -29984.121043))</span><br><span class="line"><span class="comment"># PAML计算chi2, 自由度设置见最后的补充</span></span><br><span class="line">chi2 1 1.27</span><br><span class="line"><span class="built_in">df</span> =  1  prob = 0.270475480 = 2.705e-01</span><br></pre></td></tr></table></figure>
+
+<p>对比我们model&#x3D;2和model&#x3D;0, 显著性0.27 &gt; 0.05, 不足以拒绝零假设，即我们检测分支的omega相对于全局的omege没有明显差异。</p>
+<p>接下来，我们来介绍在所有教程都会提到的branch-site model. 也就是设置model&#x3D;2 NSsites&#x3D;2. 它会分析目标分支里的位点是不是受到了正选择。</p>
+<p>我们需要建立两个假设，分别是零假设和备择假设</p>
+<ul>
+<li>零假设: 检验的分支里的位点不受选择，我们设置参数fix_omega&#x3D;1, omega &#x3D; 1</li>
+<li>备择假设: 检验的分支里的位点受到正选择，我们设置fix_omege&#x3D;0, omege &#x3D; 1.1</li>
+</ul>
+<p>在零假设时，输出结果的内容如下，记录lnL&#x3D; -29704.738847  </p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">lnL(ntime: 27  np: 31): -29704.738847      +0.000000</span><br><span class="line">...</span><br><span class="line">Detailed output identifying parameters</span><br><span class="line"></span><br><span class="line">kappa (ts/tv) =  2.16177</span><br><span class="line"></span><br><span class="line">MLEs of dN/dS (w) for site classes (K=4)</span><br><span class="line"></span><br><span class="line">site class             0        1       2a       2b</span><br><span class="line">proportion       0.77433  0.07298  0.13953  0.01315</span><br><span class="line">background w     0.07767  1.00000  0.07767  1.00000</span><br><span class="line">foreground w     0.07767  1.00000  1.00000  1.00000</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>在备择假设时，输出结果的内容如下，记录lnL&#x3D; -29694.784206</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lnL(ntime: 27  np: 31): -29694.784206      +0.000000</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">Detailed output identifying parameters</span><br><span class="line"></span><br><span class="line">kappa (ts/tv) =  2.18201</span><br><span class="line"></span><br><span class="line">MLEs of dN/dS (w) for site classes (K=4)</span><br><span class="line"></span><br><span class="line">site class             0        1       2a       2b</span><br><span class="line">proportion       0.81323  0.07539  0.10194  0.00945</span><br><span class="line">background w     0.07958  1.00000  0.07958  1.00000</span><br><span class="line">foreground w     0.07958  1.00000 17.59530 17.59530</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>计算统计量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">abs(-2 *(-29694.784206 - -29704.738847 ) )</span><br><span class="line"># 19.90928</span><br></pre></td></tr></table></figure>
+
+<p>卡方检验(关于自由度是1, 见最后的补充)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chi2 1 19.9</span><br><span class="line">df =  1  prob = 0.000008160 = 8.160e-06</span><br></pre></td></tr></table></figure>
+
+
+<p>p远远小于0.01, 为正选择提供了强有力的证据。此时检查mlc输出文件的如下内容，我们还能够确定被选择的位点有哪些。 <code>*</code>表示显著性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Bayes Empirical Bayes (BEB) analysis (Yang, Wong &amp; Nielsen 2005. Mol. Biol. Evol. 22:1107-1118)</span><br><span class="line">Positive sites for foreground lineages Prob(w&gt;1):</span><br><span class="line">    17 T 0.539</span><br><span class="line">    33 G 0.634</span><br><span class="line">    34 D 0.672</span><br><span class="line">    35 S 0.750</span><br><span class="line">    43 E 0.621</span><br><span class="line">    55 R 0.982*</span><br><span class="line">    61 I 0.643</span><br><span class="line">    66 H 0.924</span><br><span class="line">    71 K 0.701</span><br><span class="line">   102 T 0.974*</span><br><span class="line">   104 V 0.932</span><br><span class="line">   105 S 0.994**</span><br><span class="line">   115 D 0.875</span><br><span class="line">   117 P 0.990*</span><br><span class="line">   120 G 0.819</span><br><span class="line">   130 T 0.976*</span><br><span class="line">....</span><br></pre></td></tr></table></figure>
+
+<p>最后补充下为什么自由度是1, 一方面这是PAML的文档中提到的。。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/08/image-b99988fbcf204777beef1786457e0dcb.png" alt="image.png"></p>
+<p>另一方面，根据定义，自由度指的是统计量计算时不受限制的变量个数。在我们检验分支的时候，只有一个foreground w是需要自由，所以df&#x3D;1; 在我们对比branch-sites model时，备择假设相对零假设，只有一个w2是自由(fix_omega &#x3D; 0), 所以df&#x3D;1</p>
+<p>以上是我在学习正选择分析时的整理结果，由于数学功底太弱，有些疑问我还没有结果，比如说似然值为什么那么小？ML模型参数是如何确定的？输出结果中Bayes Empirical Bayes是怎么运算的？这些还需要不断的学习。</p>
+<blockquote>
+<p>如果你并不怎么关注原理的话，可以考虑直接使用一个现有的流程 <a target="_blank" rel="noopener" href="https://github.com/lauguma/GWideCodeML/wiki">https://github.com/lauguma/GWideCodeML/wiki</a></p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" data-id="cllg90y6z00kmeqp2f5n46kkv" data-title="计算分子进化-搞懂PAML的正选择分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          如何安装操作系统
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2022/08/20/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02-computational-molecular-evoluiton-learnning-note-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">计算分子进化-学习笔记2</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

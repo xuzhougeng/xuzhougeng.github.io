@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>NECAT:Nanopore数据的高效组装工具 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="NECAT是肖传乐老师团队开发的一个针对Nanopore数据组装的软件，目前该工具尚未发表，除了https:&#x2F;&#x2F;github.com&#x2F;xiaochuanle&#x2F;NECAT有软件的介绍外，暂时没有中文资料介绍NECAT的使用。 太长不看的结论: Nanopore的组装推荐用下NECAT。组装之后是先用MEDAKA做一遍三代polish，然后用NextPolish默认参数做二代polish。 这篇将会以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NECAT:Nanopore数据的高效组装工具">
+<meta property="og:url" content="http://xuzhougeng.top/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="NECAT是肖传乐老师团队开发的一个针对Nanopore数据组装的软件，目前该工具尚未发表，除了https:&#x2F;&#x2F;github.com&#x2F;xiaochuanle&#x2F;NECAT有软件的介绍外，暂时没有中文资料介绍NECAT的使用。 太长不看的结论: Nanopore的组装推荐用下NECAT。组装之后是先用MEDAKA做一遍三代polish，然后用NextPolish默认参数做二代polish。 这篇将会以">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/necat-collinear-2148e1beda0446a3a1c81b29843e53fd.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/canu-collinear-11866e7fb7334b09a3ca5cda50006c59.png">
+<meta property="article:published_time" content="2019-08-31T10:42:15.791Z">
+<meta property="article:modified_time" content="2020-01-24T12:05:59.929Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="组装">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/necat-collinear-2148e1beda0446a3a1c81b29843e53fd.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-NECAT_ Nanopore数据的高效组装工具-assembly-nanopore-with-necat" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/" class="article-date">
+  <time class="dt-published" datetime="2019-08-31T10:42:15.791Z" itemprop="datePublished">2019-08-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      NECAT:Nanopore数据的高效组装工具
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>NECAT是肖传乐老师团队开发的一个针对Nanopore数据组装的软件，目前该工具尚未发表，除了<a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/NECAT">https://github.com/xiaochuanle/NECAT</a>有软件的介绍外，暂时没有中文资料介绍NECAT的使用。</p>
+<p><strong>太长不看的结论</strong>: Nanopore的组装推荐用下NECAT。组装之后是先用MEDAKA做一遍三代polish，然后用NextPolish默认参数做二代polish。</p>
+<p>这篇将会以一篇发表在Nature Communication上的拟南芥nanopore数据介绍如何使用NECAT进行组装，运行在CentOS Linux release 7.3.1611 (Core)，64G为内存， 20线程(Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz)，下面是正文。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>NECAT可以在<a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/NECAT/releases/">https://github.com/xiaochuanle/NECAT/releases/</a>页面获取最新的软件下载地址，这里下载的是0.01版本。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/xiaochuanle/NECAT/releases/download/v0.01/necat_20190307_linux_amd64.tar.gz</span><br><span class="line">tar xzvf necat_20190307_linux_amd64.tar.gz</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:$(<span class="built_in">pwd</span>)/NECAT/Linux-amd64/bin</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>目前0.01版本不支持gz文件作为输入，但后续版本应该会支持。</p>
+</blockquote>
+<p>目前更新到<code>necat_20200119_Linux-amd64</code>，新版本安装方法为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/xiaochuanle/NECAT/releases/download/SourceCodes20200119/necat_20200119_Linux-amd64.tar.gz</span><br><span class="line">tar xzvf necat_20200119_Linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">cd</span> NECAT/Linux-amd64/bin</span><br><span class="line">$ <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:$(<span class="built_in">pwd</span>)</span><br></pre></td></tr></table></figure>
+
+<p>新版本增加gz文件支持。目前测试发现文件名需要符合<code>xxx.fastq</code>或<code>xxx.fastq.gz</code>命名格式，对于<code>fq.gz</code>无法识别，会导致程序文件出错。</p>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><p><strong>第一步</strong>: 新建一个分析项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> NECAT &amp;&amp; <span class="built_in">cd</span> NECAT</span><br></pre></td></tr></table></figure>
+
+<p>以发表在NC上的拟南芥数据为例, 下载该数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 三代测序</span></span><br><span class="line">wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2173373/ERR2173373.fastq.gz</span><br><span class="line">seqkit seqkit fq2fa ERR2173373.fastq.gz | gzip -c &gt; ERR2173373.fasta</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>: 创建配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">necat.pl config ath_config.txt </span><br></pre></td></tr></table></figure>
+
+<p>配置文件中，主要修改如下几个参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PROJECT=athaliana <span class="comment">#项目名</span></span><br><span class="line">ONT_READ_LIST=read_list.txt <span class="comment">#read所在路径文件</span></span><br><span class="line">GENOME_SIZE=120000000 <span class="comment">#基因组大小</span></span><br><span class="line">THREADS=20 <span class="comment"># 线程数</span></span><br><span class="line">MIN_READ_LENGTH=3000 <span class="comment"># 最短的read长度</span></span><br><span class="line">CNS_OUTPUT_COVERAGE=45 <span class="comment"># 用于组装的深度</span></span><br></pre></td></tr></table></figure>
+
+<p>参数中还有一个，NUM_ITER&#x3D;2，它并非是简单的重复2次纠错，它的每一轮的校正目的其实不同，第一轮的优先级是敏感度(senstitive)， 第二轮之后主要追求速度(fast)。</p>
+<p>除了上面的配置参数外，其他参数可以不需要修改，使用默认的值即可。需要修改的话，参考最后的参数说明部分。</p>
+<p><strong>第三步</strong>:  序列纠错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">necat.pl correct ath_config.txt &amp;</span><br></pre></td></tr></table></figure>
+
+<p>纠错后的reads在<code>athaliana/1-consensus/cns_final.fasta</code></p>
+<p><code>cns_finla.fasta</code>的统计信息会输出在屏幕中， 或者自己用<code>fsa_rd_stat</code>也能得到同样的结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Count: 206342</span><br><span class="line">Tatal: 3102480870</span><br><span class="line">Max: 112992</span><br><span class="line">Min: 1010</span><br><span class="line">N25: 31940</span><br><span class="line">L25: 18989</span><br><span class="line">N50: 21879</span><br><span class="line">L50: 48506</span><br><span class="line">N75: 13444</span><br><span class="line">L75: 93215</span><br></pre></td></tr></table></figure>
+
+<p>此外我还用time获取了运行时间，纠错花了大概一个小时。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">real	55m31.451s</span><br><span class="line">user	815m32.801s</span><br><span class="line">sys	    7m55.039s</span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步</strong>:  contig组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">necat.pl assemble ath_config.txt &amp;</span><br></pre></td></tr></table></figure>
+
+<p>结果在<code>athaliana/4-fsa/contigs.fasta</code></p>
+<p>关于<code>contigs.fata</code>统计信息会输出在屏幕上，同样用<code>fsa_rd_stat</code> 也可以。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Count: 162</span><br><span class="line">Tatal: 122293198</span><br><span class="line">Max: 14562810</span><br><span class="line">Min: 1214</span><br><span class="line">N25: 13052494</span><br><span class="line">L25: 3</span><br><span class="line">N50: 9503368</span><br><span class="line">L50: 5</span><br><span class="line">N75: 4919866</span><br><span class="line">L75: 10</span><br></pre></td></tr></table></figure>
+
+<p>时间用了75分钟</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">real	74m53.127s</span><br><span class="line">user	1308m29.534s</span><br><span class="line">sys	    12m5.032s</span><br></pre></td></tr></table></figure>
+
+<p><strong>第五步</strong>:  contig搭桥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">necat.pl bridge ath_config.txt</span><br></pre></td></tr></table></figure>
+
+<p>结果在<code>athaliana/6-bridge_contigs/bridged_contigs.fasta</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Count: 127</span><br><span class="line">Tatal: 121978724</span><br><span class="line">Max: 14562810</span><br><span class="line">Min: 2217</span><br><span class="line">N25: 13193939</span><br><span class="line">L25: 3</span><br><span class="line">N50: 11146374</span><br><span class="line">L50: 5</span><br><span class="line">N75: 5690371</span><br><span class="line">L75: 9</span><br></pre></td></tr></table></figure>
+
+<p>从N50和N75可以看出这一步会提高组装的连续性。</p>
+<h3 id="组装结果polish"><a href="#组装结果polish" class="headerlink" title="组装结果polish"></a>组装结果polish</h3><p>对Nanopore组装结果进行polish的常用软件有下面3个 </p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://nanoporetech.github.io/medaka/index.html">Medaka</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/jts/nanopolish">nanopolish</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/isovic/racon">racon</a></li>
+</ul>
+<p>由于拟南芥的基因组比较小，我分别用了Medaka和racon对输出结果进行polish(因为没有原始信号数据，因此nanopolish用不了)，代码如下</p>
+<p> Medaka</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NPROC=20</span><br><span class="line">BASECALLS=ERR2173373.fasta</span><br><span class="line">DRAFT=athaliana/6-bridge_contigs/bridged_contigs.fasta</span><br><span class="line">OUTDIR=medaka_consensus</span><br><span class="line">medaka_consensus -i <span class="variable">$&#123;BASECALLS&#125;</span> -d <span class="variable">$&#123;DRAFT&#125;</span> -o <span class="variable">$&#123;OUTDIR&#125;</span> -t <span class="variable">$&#123;NPROC&#125;</span> -m r941_min_high</span><br></pre></td></tr></table></figure>
+
+<p>三轮Racon:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gzip -dc ERR2173373.fastq.gz  &gt; ERR2173373.fastq</span><br><span class="line">minimap2 -t 20 <span class="variable">$&#123;DRAFT&#125;</span> ERR2173373.fastq &gt; round_1.paf </span><br><span class="line">racon -t 20 ERR2173373.fastq round_1.paf <span class="variable">$&#123;DRAFT&#125;</span> &gt; racon_round1.fasta</span><br><span class="line">minimap2 -t 20 racon_round1.fasta ERR2173373.fastq &gt; round_2.paf </span><br><span class="line">racon -t 20 ERR2173373.fastq round_2.paf racon_round1.fasta&gt; racon_round2.fasta</span><br><span class="line">minimap2 -t 20 racon_round2.fasta ERR2173373.fastq &gt; round_3.paf</span><br><span class="line">racon -t 20 ERR2173373.fastq round_3.paf racon_round2.fasta&gt; racon_round3.fasta</span><br></pre></td></tr></table></figure>
+
+<p>在后续评估质量的时候，我发现单纯用三代polish的结果还不是很好，因此我用他们提供的二代测序，用NextPolish对NECAT的结果进行polish。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 二代测序</span></span><br><span class="line">prefetch ERR2173372</span><br><span class="line">fasterq-dump -O  . ERR2173372</span><br></pre></td></tr></table></figure>
+
+<p>run.cfg内容如下, 其中sgs.fofn记录的就是解压后的ERR2173372_1.fastq和ERR2173372_2.fastq的路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[General]                </span><br><span class="line">job_type = <span class="built_in">local</span>  </span><br><span class="line">job_prefix = nextPolish  </span><br><span class="line">task = 1212 </span><br><span class="line">rewrite = no </span><br><span class="line">rerun = 3</span><br><span class="line">parallel_jobs =  8  </span><br><span class="line">multithread_jobs = 20 </span><br><span class="line">genome = input.fasta </span><br><span class="line">genome_size = auto </span><br><span class="line">workdir = ./nextpolish </span><br><span class="line">polish_options = -p &#123;multithread_jobs&#125;</span><br><span class="line">[sgs_option]             </span><br><span class="line">sgs_fofn = ./sgs.fofn </span><br><span class="line">sgs_options = -max_depth 100 -bwa</span><br></pre></td></tr></table></figure>
+
+<p>我考虑了两种情况，一种是直接用二代polish，另一种是三代polish之后接二代polish。</p>
+<h3 id="结果评估"><a href="#结果评估" class="headerlink" title="结果评估"></a>结果评估</h3><p>在<strong>计算时间</strong>上，我之前用Canu跑了相同的数据，设置原始错误率0.5，纠错后错误率为0.144，用3个节点（每个节点12个线程），运行了3天时间，但是NECAT只需要3个小时左右就能完成相同的分析，这个速度差异实在是太明显了。</p>
+<p>用Minimap2 + <a target="_blank" rel="noopener" href="https://github.com/tpoorten/dotPlotly">dotPlotly</a>绘制CANU，NECAT和拟南芥参考基因组的共线性图</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">minimap2 -t 20 -x asm5 Athaliana.fa NECAT.fa &gt; NECAT.paf</span><br><span class="line">pafCoordsDotPlotly.R  -i NECAT.paf -o NECAT  -l -p 10 -k 5</span><br><span class="line">minimap2 -t 20 -x asm5 Athaliana.fa CANU.fa &gt; CANU.paf</span><br><span class="line">pafCoordsDotPlotly.R  -i CANU.paf -o CANU  -l -p 10 -k 5</span><br></pre></td></tr></table></figure>
+
+<p>NECAT的结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/necat-collinear-2148e1beda0446a3a1c81b29843e53fd.png" alt="NECAT"></p>
+<p>CANU的结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/canu-collinear-11866e7fb7334b09a3ca5cda50006c59.png" alt="CANU"></p>
+<p>NECAT和CANU都和参考基因组有着良好的共线性，但是NECAT的连续性更好，几乎成一条直线。</p>
+<p>之后，我使用了<a target="_blank" rel="noopener" href="http://quast.sourceforge.net/quast">QUAST</a>来评估Canu，NECAT初步组装，NECAT用Medaka， nanopolish和racon纠错的结果（MD: MEDAKA, RC: RACON, NP:NextPolish）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">quast.py -t 100 --output-dir athaliana --circos \</span><br><span class="line">    CANU.fa \</span><br><span class="line">    NECAT.fa \</span><br><span class="line">    NECAT_MD.fa \</span><br><span class="line">    NECAT_MD_NP.fa \</span><br><span class="line">    NECAT_NP.fa \</span><br><span class="line">    NECAT_RC.fa \</span><br><span class="line">    NECAT_RC_NP.fa \</span><br><span class="line">    -r Athaliana.fa  \</span><br><span class="line">    -g TAIR10_GFF3_genes.gff &amp;</span><br></pre></td></tr></table></figure>
+
+<p>一些描述基本信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CANU        N50 = 4875070,  L50 = 7, Total length = 114689024, GC % = 36.09 </span><br><span class="line">NECAT       N50 = 11146374, L50 = 5, Total length = 121978724, GC % = 36.50</span><br><span class="line">NECAT_MD    N50 = 11216803, L50 = 5, Total length = 122101599, GC % = 36.54</span><br><span class="line">NECAT_MD_NP N50 = 11405151, L50 = 5, Total length = 124142955, GC % = 36.30</span><br><span class="line">NECAT_NP    N50 = 11399084, L50 = 5, Total length = 124735066, GC % = 36.36</span><br><span class="line">NECAT_RC    N50 = 11212098, L50 = 5, Total length = 122519370, GC % = 36.4</span><br><span class="line">NECAT_RC_NP N50 = 11406553, L50 = 5, Total length = 124618502, GC % = 36.34</span><br></pre></td></tr></table></figure>
+
+<p>在BUSCO完整度上， 以embryophyta_odb10作为物种数据库, 其中ONTmin_IT4是发表的文章里的结果, Athalina则是拟南芥的参考基因组，我们以它们的BUSCO值作为参照。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Athalina     : C:98.6%[S:98.0%,D:0.6%],F:0.4%, M:1.0%, n:1375</span><br><span class="line">ONTmin_IT4   : C:98.4%[S:97.7%,D:0.7%],F:0.7%, M:0.9%, n:1375</span><br><span class="line">CANU         : C:22.9%[S:22.8%,D:0.1%],F:20.2%,M:56.9%,n:1375</span><br><span class="line">NECAT        : C:36.6%[S:36.6%,D:0.0%],F:22.9%,M:40.5%,n:1375</span><br><span class="line">NECAT_MEDAKA : C:53.6%[S:53.2%,D:0.4%],F:21.0%,M:25.4%,n:1375</span><br><span class="line">NECAT_RACON  : C:45.3%[S:45.2%,D:0.1%],F:23.1%,M:31.6%,n:1375</span><br></pre></td></tr></table></figure>
+
+<p>二代Polish后的BUSCO结果如下(MD: MEDAKA, RC: RACON, NP:NextPolish)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Athalina   : C:98.6%[S:98.0%,D:0.6%],F:0.4%,M:1.0%,n:1375</span><br><span class="line">ONTmin_IT4 : C:98.4%[S:97.7%,D:0.7%],F:0.7%,M:0.9%,n:1375</span><br><span class="line">NECAT_NP   : C:98.6%[S:97.9%,D:0.7%],F:0.4%,M:1.0%,n:1375   </span><br><span class="line">NECAT_MD_NP: C:98.7%[S:98.0%,D:0.7%],F:0.4%,M:0.9%,n:1375</span><br><span class="line">NECAT_RC_NP: C:98.5%[S:97.8%,D:0.7%],F:0.4%,M:1.1%,n:1375</span><br></pre></td></tr></table></figure>
+
+<p>从以上这些数据，你可以得到以下几个洞见:</p>
+<ul>
+<li>在Nanopore的组装上，NECAT效果优于Canu，无论是连续性还是N50上</li>
+<li>MEDAKA三代polish效果好于RACON。在速度上，MEDAKA比三遍RACON都慢，并且MEDAKA会将一些可能的错误组装给打断</li>
+<li>Nanopore的数据用NECAT组装后似乎用NextPolish进行polish后就行，但是由于物种比较小，可能不具有代表性。</li>
+</ul>
+<p><strong>结论</strong>: Nanopore的组装建议用NECAT。组装之后是先用MEDAKA做一遍三代polish，然后用NextPolish默认参数做二代polish。</p>
+<h2 id="配置文件补充"><a href="#配置文件补充" class="headerlink" title="配置文件补充"></a>配置文件补充</h2><p>这部分对配置文件做一点简单补充。</p>
+<p>下面这些参数相对简单，不需要过多解释，按照自己需求修改</p>
+<ul>
+<li>CLEANUP: 运行完是否清理临时文件，默认是0，表示不清理</li>
+<li>USE_GRID: 是否使用多节点, 默认是false</li>
+<li>GRID_NODE: 使用多少个节点，默认是0，当USE_GRID为true时，按照自己实际情况设置</li>
+</ul>
+<p>以下的参数则是需要根据到具体的软件中去查看具体含义，需要和软件开发者讨论</p>
+<ul>
+<li>OVLP_FAST_OPTIONS: 第二轮纠错时, 传给<code>oc2pmov</code></li>
+<li>OVLP_SENSITIVE_OPTIONS: 第一轮纠错时, 传给<code>oc2pmov</code></li>
+<li>CNS_FAST_OPTIONS: 第二轮纠错时，传给<code>oc2cns</code></li>
+<li>CNS_SENSITIVE_OPTIONS: 第一轮纠错时，传给<code>oc2cns</code></li>
+<li>TRIM_OVLP_OPTIONS: 传给<code>oc2asmpm</code></li>
+<li>ASM_OVLP_OPTIONS: 传给<code>oc2asmpm</code></li>
+<li>FSA_OL_FILTER_OPTIONS: 参数传给<code>fsa_ol_filter</code></li>
+<li>FSA_ASSEMBLE_OPTIONS: 参数传给<code>fsa_assemble</code></li>
+<li>FSA_CTG_BRIDGE_OPTIONS: 参数传给<code>fsa_ctg_bridge</code></li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/NECAT">https://github.com/xiaochuanle/NECAT</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/" data-id="cllg90y050035eqp23eis9537" data-title="NECAT:Nanopore数据的高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/02/%E4%BD%BF%E7%94%A8Swiss-Prot%E6%A0%B9%E6%8D%AE%E5%90%8C%E6%BA%90%E5%9F%BA%E5%9B%A0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-Function-anotation-with-swiss-prot-database/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          使用Swiss-Prot根据同源基因进行注释
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Seurat的scATAC-seq分析流程</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

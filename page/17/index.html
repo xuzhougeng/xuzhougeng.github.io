@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/17/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-使用NextDenovo组装Nanopore数据-Assembly-nanopore-with-NextDenovo" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" class="article-date">
+  <time class="dt-published" datetime="2019-10-21T10:59:24.003Z" itemprop="datePublished">2019-10-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/">使用NextDenovo组装Nanopore数据</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>NextDenovo是武汉未来组胡江博士团队开发的一个三代组装工具，能够用于PacBio和Nanopore数据的组装。但是从官方的介绍而言，此工具在组装Nanopore上优势更大一些。</p>
+<p>NextDenovo包括两个模块，NextCorrect用于原始数据纠错，NextGraph能够基于纠错后的进行组装。使用修改版的minimap2进行序列间相互比对。v2.0-beta.1版中在处理高度重复序列上可能存在错误组装，可以通过HiC和BioNano进行纠错。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>NextDenovo的软件安装非常简单, 下载解压缩即可使用。考虑到NextDenovo需要用Python2.7，我们可以用conda新建一个环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda create -n python2 python=2.7</span><br><span class="line">conda activate python2</span><br><span class="line">pip install psutil</span><br></pre></td></tr></table></figure>
+
+<p>然后下载解压缩（我习惯把软件放在<code>~/opt/bisofot</code>下)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/opt/biosoft/</span><br><span class="line"><span class="built_in">cd</span> ~/opt/biosoft/</span><br><span class="line">wget https://github.com/Nextomics/NextDenovo/releases/download/v2.0-beta.1/NextDenovo.tgz</span><br><span class="line">tar -zxvf NextDenovo.tgz</span><br></pre></td></tr></table></figure>
+
+<p>测试下软件是否可以使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/NextDenovo/nextDenovo -h</span><br></pre></td></tr></table></figure>
+
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><p>以发表在NC上的拟南芥数据为例,  简单介绍下软件的使用</p>
+<p><strong>第一步</strong>: 新建一个分析项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> NEXT &amp;&amp; <span class="built_in">cd</span> NEXT</span><br></pre></td></tr></table></figure>
+
+<p>然后从EBI上下载该数据，在<code>run.fofn</code>中记录文件的实际位置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 三代测序</span></span><br><span class="line">wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2173373/ERR2173373.fastq.gz</span><br><span class="line"><span class="built_in">realpath</span> ERR2173373.fastq.gz &gt; run.fofn</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>: 复制和修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> ~/opt/biosoft/NextDenovo/doc/run.cfg .</span><br></pre></td></tr></table></figure>
+
+<p>我的配置文件修改如下，参数说明参考<a target="_blank" rel="noopener" href="https://github.com/Nextomics/NextDenovo/blob/master/doc/OPTION.md">官方文档</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[General]</span><br><span class="line">job_type = <span class="built_in">local</span></span><br><span class="line">job_prefix = nextDenovo</span><br><span class="line">task = all <span class="comment"># &#x27;all&#x27;, &#x27;correct&#x27;, &#x27;assemble&#x27;</span></span><br><span class="line">rewrite = <span class="built_in">yes</span> <span class="comment"># yes/no</span></span><br><span class="line">deltmp = <span class="built_in">yes</span></span><br><span class="line">rerun = 3</span><br><span class="line">parallel_jobs = 5</span><br><span class="line">input_type = raw</span><br><span class="line">input_fofn = input.fofn</span><br><span class="line">workdir = 01_rundir</span><br><span class="line"><span class="comment"># cluster_options = -l vf=&#123;vf&#125; -q all.q -pe smp &#123;cpu&#125; -S &#123;bash&#125; -w n</span></span><br><span class="line"></span><br><span class="line">[correct_option]</span><br><span class="line">read_cutoff = 1k</span><br><span class="line">seed_cutoff = 3k</span><br><span class="line">blocksize = 3g</span><br><span class="line">pa_correction = 20</span><br><span class="line">seed_cutfiles = 20</span><br><span class="line">sort_options = -m 20g -t 8 -k 40</span><br><span class="line">minimap2_options_raw = -x ava-ont -t 8</span><br><span class="line">correction_options = -p 8</span><br><span class="line"></span><br><span class="line">[assemble_option]</span><br><span class="line">random_round = 20</span><br><span class="line">minimap2_options_cns = -x ava-ont -t 8 -k17 -w17</span><br><span class="line">nextgraph_options = -a 1</span><br></pre></td></tr></table></figure>
+
+<p>配置文件的几个重要参数说明（v2.0-beta.1）</p>
+<ul>
+<li>job_type 设置运行环境，可以使用（local， sge， pbs等）</li>
+<li>运行线程数设置，线程数计算为<code>parallel_jobs</code>分别与<code>sort_option</code>, <code>minimap_options_*</code>的<code>-t</code>数乘积，和<code>correction_options</code>的<code>-p</code>的乘积，量力而行。</li>
+<li>seed_cutfiles 如果在集群上运行，建议设置为可用的节点数，同时设置<code>correction_options</code>的<code>-p</code>为各个节点可用的核数，保证每个节点只有一个correction任务，减少运行时的内存和IO。 如果local上运行， 建议设置为总可用的核除以<code>correction_options</code>的<code>-p</code>值. </li>
+<li>parallel_jobs建议设置<strong>至少</strong>要大于<code>pa_correction</code>。</li>
+<li>blocksize 是将小于seed_cutfiles的数据拆分成的多个文件时单个文件的大小， 总的比对任务数等于基于该参数切分的文件数乘以<code>seed_cutfiles + seed_cutfiles * (seed_cutfiles - 1)/2</code>， 因此对于10g以内的数据量， 建议设置小于1g， 避免总的任务数小于parallel_jobs的值。</li>
+<li>测序数据类型相关: 对于PacBio而言，要修改<code>minimap2_options_*</code>中的<code>-x ava-ont</code>为<code>-x ava-pb</code></li>
+<li>数据量相关参数: <code>read_cutoff = 1k</code>过滤原始数据中低于1k的read，<code>seed_cutoff = 30k</code>则是选择大于30k以上的数据来矫正。关于<code>seed_cutoff</code>的设置，可以通过<code>~/opt/biosoft/NextDenovo/bin/seq_stat</code>来获取参考值，<strong>不建议</strong>直接使用默认值，因为改值会受到测序深度和测序长度影响，而且一个不合适的值会显著降低组装质量。对于基因组大于200m以上的物种，-d建议默认。</li>
+<li>correction_options中的-dbuf可以显著降低矫正时的内存，但会显著降低矫正速度。</li>
+<li>random_round参数，建议设置20-100. 该参数是设置随机组装参数的数量，nextGraph会基于每一套随机参数做一次组装， 避免默认参数效果不好。</li>
+</ul>
+<p><code>seq_stat</code>能够根据物种大小和预期用于组装的深度确定<code>seed_cutoff</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/NextDenovo/bin/seq_stat -g 110Mb -d 30 input.fofn</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步</strong>: 运行NextDenovo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/NextDenovo/nextDenovo run.cfg &amp;</span><br></pre></td></tr></table></figure>
+
+<p>运行时间如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">real	64m5.356s</span><br><span class="line">user	1827m37.890s</span><br><span class="line">sys	264m48.246s</span><br></pre></td></tr></table></figure>
+
+<p>默认参数结果是存放在<code>01_rundir/03.ctg_graph/01.ctg_graph.sh.work/ctg_graph00</code>, 可以将其复制到当前目录，用于后续的分析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> 01_rundir/03.ctg_graph/01.ctg_graph.sh.work/ctg_graph00/nextgraph.assembly.contig.fasta &gt; nextgraph.assembly.contig.fasta</span><br></pre></td></tr></table></figure>
+
+<p>但是在<code>01.ctg_graph.sh.work</code>目录下除了<code>ctg_graph00</code>以外，还有其他随机参数的在组装结果。随机参数结果只输出了统计结果，用户如需要输出组装序列，可以修改<code>01_rundir/03.ctg_graph/01.ctg_graph.sh</code>，将里面的<code>-a 0</code>替换成<code>-a 1</code>。</p>
+<p>每个目录下都有shell输出，可以挑选基于nextDenovo.sh.e这里面的结果挑选组装指标较好的，再输出序列，比如说比较下N50</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep N50  01_rundir/03.ctg_graph/01.ctg_graph.sh.work/ctg_graph*/*.e</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下，最终组装出20条contig，总大小116M，N50 12M.</p>
+<p>使用minimap2将组装结果和比对到TAIR10上，用dotplotly进行可视化</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">minimap2 -t 100 -x asm5 Athaliana.fa nextgraph.assembly.contig.fasta &gt; next.paf</span><br><span class="line">dotPlotly/pafCoordsDotPlotly.R  -i next.paf -o next  -l -p 6 -k 5</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571625271329-58bef12cf9584d90959127db3919895e.png" alt="共线性"></p>
+<p>不难发现，两者存在高度的共线性。大部分TAIR10的染色体对应的都是2条或者3条contig。</p>
+<p>此外这篇NC的拟南芥提供了BioNano光学图谱，我使用BioNano Hyrbrid Scaffold 流程进行了混合组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /opt/biosoft/Solve3.3_10252018/HybridScaffold/10252018/hybridScaffold_config.xml .</span><br><span class="line"><span class="comment"># 修改xml中fasta2cmap的enzyme为BSPQI</span></span><br><span class="line">perl /opt/biosoft/Solve3.3_10252018/HybridScaffold/10252018/hybridScaffold.pl \</span><br><span class="line">    -n nextgraph.assembly.contig.fasta \</span><br><span class="line">    -b kbs-mac-74_bng_contigs2017.cmap \</span><br><span class="line">    -c hybridScaffold_config.xml \</span><br><span class="line">    -r /opt/biosoft/Solve3.3_10252018/RefAligner/7915.7989rel/RefAligner \</span><br><span class="line">    -o nextgraph \</span><br><span class="line">    -B 2 -N 2 \</span><br><span class="line">    -f</span><br></pre></td></tr></table></figure>
+
+<p>组装结果如下，从原来的20的contig下降到了16个contig。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Count  = 16</span><br><span class="line">Min length (Mbp) = 0.026</span><br><span class="line">Median length (Mbp) = 7.224</span><br><span class="line">Mean length (Mbp) = 7.301</span><br><span class="line">N50 length (Mbp) = 13.013</span><br><span class="line">Max length (Mbp) = 14.965</span><br><span class="line">Total length (Mbp) = 116.811</span><br></pre></td></tr></table></figure>
+
+<p>此外还通过BioNano Access进行可视化，以其中一个结果为例。光学图谱和NextDenovo的组装结果存在很高的一致性。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571626377015-874040eb90674dcbb44a2f15fbfc07b5.png" alt="示例"></p>
+<p>综上，在Nanopore上组装上，我们又多了一个比较好用的工具。</p>
+<blockquote>
+<p>最后非常感谢胡江博士对于本文的指导！</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" data-id="cllg90y4000c1eqp2anpgc0li" data-title="使用NextDenovo组装Nanopore数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「BioNano系列」如何进行cmap之间的比对-BioNano-CMAP-Comparison" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" class="article-date">
+  <time class="dt-published" datetime="2019-10-21T10:25:08.151Z" itemprop="datePublished">2019-10-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/">「BioNano系列」如何进行cmap之间的比对</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>BioNano以cmap格式存放光学图谱，为了评估基因组的组装质量或者了解光学图谱中冗余情况(高杂合基因组组装结果偏大)，我们就需要进行cmap之间的比较。</p>
+<h2 id="CMAP间比对"><a href="#CMAP间比对" class="headerlink" title="CMAP间比对"></a>CMAP间比对</h2><p>Solve套件提供了runCharacterize.py脚本封装了RefAligner，用于进行CMAP之间的比对。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python2.7 runCharacterize.py \</span><br><span class="line">    -t RefAligner的二进制文件路径 \</span><br><span class="line">    -q 用于比对的CMAP \</span><br><span class="line">    -r 参考CMAP \</span><br><span class="line">    -p Pipeline文件路径\</span><br><span class="line">    -a 参数配置文件.xml \</span><br><span class="line">    -n 线程数,默认4</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是<code>-p</code>和<code>-a</code>参数的设置。<code>-p</code>是Pipeline的文件位置，比如说我的<code>Solve</code>安装在<code>/opt/biosoft/Solve3.4_06042019a</code>，那么参数设置为<code> -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019</code>。 而<code>-a</code>则是要在<code>/opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/</code>目录下选择合适的xml文件。比如你的CMAP是Irys平台，那么你可以考虑用optArguments_nonhaplotype_irys.xml.</p>
+<p>以最新发表的辣椒的光学图谱为例，该物种有比较高的杂合度，组装结果偏大，我们可以通过自比对来寻找冗余区域, </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载CMAP</span></span><br><span class="line">wget https://submit.ncbi.nlm.nih.gov/ft/byid/o62junnn/piper_nigrum_no_rcmap_refinefinal1.cmap</span><br><span class="line"><span class="comment"># 自比对</span></span><br><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">	-t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">	-q piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-r piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">	-a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml -n 64</span><br></pre></td></tr></table></figure>
+
+<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件可以用于上传到BioNano Access上进行展示。下图就是一个冗余实例，可以把图中较短的图谱删掉</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571624415320-5ae131f556f9408b868d750c99933b5e.png" alt="冗余"></p>
+<h2 id="基因组回帖"><a href="#基因组回帖" class="headerlink" title="基因组回帖"></a>基因组回帖</h2><p>为了将基因组回帖到CMAP上，需要先将基因组的fasta格式转成CMAP格式，参数如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl fa2cmap_multi_color.pl -i 输入FASTA -e 酶1 通道1 [酶2 通道2]</span><br></pre></td></tr></table></figure>
+
+<p>其中一个最重要的参数就是<strong>酶切类型</strong>。例如我需要将序列回帖到用Nt.BspQI酶切组装的光学图谱上，因此运行参数如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl /opt/biosoft/Solve3.4_06042019a/HybridScaffold/06042019/scripts/fa2cmap_multi_color.pl -i athaliana.fa -e BspQI 1</span><br></pre></td></tr></table></figure>
+
+<p>最后的athaliana_BSPQI_0kb_0labels.cmap就是模拟酶切的CMAP序列。</p>
+<p>之后将模拟酶切的结果回帖到实际的CMAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">    -t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">    -q athaliana_BSPQI_0kb_0labels.cmap \</span><br><span class="line">    -r kbs-mac-74_bng_contigs2017.cmap \</span><br><span class="line">    -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">    -a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml \</span><br><span class="line">    -n 64</span><br></pre></td></tr></table></figure>
+
+<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" data-id="cllg90y2k006veqp2g5f461gs" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用SCALE分析单细胞ATAC-seq数据-Analysis-sc-ATAC-seq-with-SCALE" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" class="article-date">
+  <time class="dt-published" datetime="2019-10-17T12:24:29.682Z" itemprop="datePublished">2019-10-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/">使用SCALE分析单细胞ATAC-seq数据</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>SCALE全称是Single-Cell ATAC-seq analysis vie Latent feature Extraction, 从名字中就能知道这个软件是通过隐特征提取的方式分析单细胞ATAC-seq数据。</p>
+<p>在文章中，作者从开发者的角度列出了目前的scATAC-seq分析软件，chromVAR, scABC, cisTopic, scVI，发现每个软件都有一定的不足之处，而从我们软件使用者的角度，其实可以考虑都试试这些工具。</p>
+<p>SCALE结合了深度生成模型(Depp Generative Models)变分自动编码器框架(Variational Autoencoder, VAE)与概率高斯混合模型(Gaussian Mixture Model, GMM)去学习隐特征，用于准确地鉴定scATAC-seq数据中的特征。</p>
+<p>文章通过一张图来解释了软件的工作机制：</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571238440863-636159eb005d4840b35544bcbb8c1205.png" alt="SCALE框架"></p>
+<p>SCALE将sc-ATAC-seq的输入数据x(Cells-by-Peaks矩阵)建模成一个联合分布，p(x,z,c)，c是GMM组件中对应的预定义的K个聚类，z是一个隐变量，是细胞在所有peak中实际可能的值，用于后续的聚类和可视化。z通过$z &#x3D; \mu_z + \sigma_Z \times \epsilon$ 计算而得，公式里面的 $\mu_z$  $\sigma_z$ 是编码器网络从x中学习而得，$\epsilon$ 则是从 $\mathbb{N}(0,\mathbf{I})$ 抽样而成。 </p>
+<p>从公式中我们还可以发现z其实和GMM的c有关，所以p(x,z,c)也可以写成P(x|z)p(z|c)p(c)，而p(c)是K个预定义聚类分布的离散概率分布，p(z|c)服从混合高斯分布，而p(x|z)则是服从多变量伯努利分布(multivartiable Bernoulli distribution), 通过解码者网络建模而成。</p>
+<p>当然从一个软件使用者的角度而言，我们不会去关心代码，也不会关心原理，我们更关心的是这个工具能做什么。SCALE能做以下的分析</p>
+<ul>
+<li>SCALE可以对隐特征聚类识别细胞类群</li>
+<li>SCALE可以降噪，恢复缺失的peak</li>
+<li>SCALE能够区分批次效应和生物学细胞类群之间的差异</li>
+</ul>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>推荐使用conda的方式进行软件安装（我测试过了，运行没有问题）</p>
+<p>第一步：创建一个环境，名字就是<code>SCALE</code>，并且启动该环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda create -n SCALE python=3.6 pytorch</span><br><span class="line">conda activate SCALE</span><br></pre></td></tr></table></figure>
+
+<p>第二步：从GitHub上克隆该项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/jsxlei/SCALE.git</span><br></pre></td></tr></table></figure>
+
+<p>第三步：安装SCALE</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> SCALE</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+
+<p>之后分析的时候，只需要通过<code>conda activate SCALE</code>就能启动分析环境。</p>
+<p>考虑后续要交互的读取数据和可视化，那么建议再安装一个Jupyter</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install jupyter</span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p>SCALE支持两类输入文件：</p>
+<ul>
+<li>count矩阵，行为peak，列为barcode</li>
+<li>10X输出文件: count.mtx.gz, peak.tsv, barcode.tsv</li>
+</ul>
+<p>我们以官方提供的Forebrain数据集为例进行介绍，因为这个数据相对于另外一个数据集Mouse Atlas小多了。</p>
+<p>我们在服务器上新建一个文件夹，用于存放从<a target="_blank" rel="noopener" href="https://cloud.tsinghua.edu.cn/d/bda0332212154163a647/">https://cloud.tsinghua.edu.cn/d/bda0332212154163a647/</a>下载的数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> Forebrain</span><br></pre></td></tr></table></figure>
+
+<p>保证<code>Forebrain</code>有下载好的数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> Forebrain </span><br><span class="line">data.txt</span><br></pre></td></tr></table></figure>
+
+<p>之后运行程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SCALE.py -d Forebrain/data.txt -k 8 --impute</span><br></pre></td></tr></table></figure>
+
+<p>软件运行步骤为：</p>
+<ul>
+<li>加载数据: Loading  data</li>
+<li>模型训练: Training Model</li>
+<li>输出结果: Saving imputed data</li>
+</ul>
+<p>其中模型训练这一步时间比较久，可以尝试用GPU加速（我是普通CPU服务器没有办法）。最终会在当前文件夹看到一个<code>output</code>文件夹，里面有如下内容:</p>
+<ul>
+<li>imputed_data.txt: 每个细胞在每个特征的推断值，建议用<code>--binary</code>保存二进制格式</li>
+<li>model.pt: 用于重复结果的模型文件，<code>--pretrain</code>参数能够读取该模型</li>
+<li>feature.txt: 每个细胞的隐特征，用于聚类和可视化</li>
+<li>cluster_assignments.txt: 两列，barcode和所属类群</li>
+<li>tsne.txt, tsne.pdf: tSNE的坐标和PDF文件，坐标文件可以导入到R语言进行可视化</li>
+</ul>
+<p>上面是命令行部分，下面则是Python环境进行交互式操作，输入<code>jupyter notebook</code>，之后在网页上打开</p>
+<p>首先是导入各种Python库</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> confusion_matrix</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line"><span class="keyword">from</span> scale.plot <span class="keyword">import</span> plot_embedding, plot_heatmap</span><br></pre></td></tr></table></figure>
+
+<p>然后加载分析结果，包括聚类信息和特征信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y = pd.read_csv(<span class="string">&#x27;output/cluster_assignments.txt&#x27;</span>, sep=<span class="string">&#x27;\t&#x27;</span>, index_col=<span class="number">0</span>, header=<span class="literal">None</span>)[<span class="number">1</span>].values</span><br><span class="line">feature = pd.read_csv(<span class="string">&#x27;output/feature.txt&#x27;</span>, sep=<span class="string">&#x27;\t&#x27;</span>, index_col=<span class="number">0</span>, header=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
+<p>通过热图展示不同聚类细胞之间的差异图</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plot_heatmap(feature.T, y, </span><br><span class="line">             figsize=(<span class="number">8</span>, <span class="number">3</span>), cmap=<span class="string">&#x27;RdBu_r&#x27;</span>, vmax=<span class="number">8</span>, vmin=-<span class="number">8</span>, center=<span class="number">0</span>,</span><br><span class="line">             ylabel=<span class="string">&#x27;Feature dimension&#x27;</span>, yticklabels=np.arange(<span class="number">10</span>)+<span class="number">1</span>, </span><br><span class="line">             cax_title=<span class="string">&#x27;Feature value&#x27;</span>, legend_font=<span class="number">6</span>, ncol=<span class="number">1</span>,</span><br><span class="line">             bbox_to_anchor=(<span class="number">1.1</span>, <span class="number">1.1</span>), position=(<span class="number">0.92</span>, <span class="number">0.15</span>, <span class="number">.08</span>, <span class="number">.04</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571285853797-58bd09803a9e4d2bae1f36ac5cbe0623.png" alt="heatmap"></p>
+<blockquote>
+<p>如果要矫正批次效应，可以通过根据feature的heatmap，去掉和batch相关的feature来实现</p>
+</blockquote>
+<p>我们可以展示SCALE对原始数据纠正后的值(imputed data), 该结果也能提高chromVAR鉴定motif的效果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">imputed = pd.read_csv(<span class="string">&#x27;output/imputed_data.txt&#x27;</span>, sep=<span class="string">&#x27;\t&#x27;</span>, index_col=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>展示聚类特异性的peak， 分析由<code>mat_specificity_score</code>和<code>cluster_specific</code>完成</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scale.specifity <span class="keyword">import</span> cluster_specific, mat_specificity_score</span><br><span class="line"></span><br><span class="line">score_mat = mat_specificity_score(imputed, y)</span><br><span class="line">peak_index, peak_labels = cluster_specific(score_mat, np.unique(y), top=<span class="number">200</span>)</span><br><span class="line"></span><br><span class="line">plot_heatmap(imputed.iloc[peak_index], y=y, row_labels=peak_labels, ncol=<span class="number">3</span>, cmap=<span class="string">&#x27;Reds&#x27;</span>, </span><br><span class="line">             vmax=<span class="number">1</span>, row_cluster=<span class="literal">False</span>, legend_font=<span class="number">6</span>, cax_title=<span class="string">&#x27;Peak Value&#x27;</span>,</span><br><span class="line">             figsize=(<span class="number">8</span>, <span class="number">10</span>), bbox_to_anchor=(<span class="number">0.4</span>, <span class="number">1.2</span>), position=(<span class="number">0.8</span>, <span class="number">0.76</span>, <span class="number">0.1</span>, <span class="number">0.015</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571286462453-1032ee7e22304701a52a8e81af3b0020.png" alt="聚类特异性peak"></p>
+<h2 id="参数介绍"><a href="#参数介绍" class="headerlink" title="参数介绍"></a>参数介绍</h2><p>通过<code>SCALE.py -h</code>可以输出SCALE的所有可用参数</p>
+<ul>
+<li><code>-d/--dataset</code>: 单个文件矩阵应该指定文件路径，10X输出的多个文件则是文件目录</li>
+<li><code>-k</code>: 设定输出结果的聚类数</li>
+<li><code>-o</code>: 输出文件路径</li>
+<li><code>--pretrain</code>: 读取之前训练的模型</li>
+<li><code>--lr</code>: 修改起始学习速率, 默认是0.002，和模型训练有关</li>
+<li><code>--batch_size</code>: 批处理大小， 默认就行，不需要修改（和批次效应处理无关）</li>
+<li><code>-g GPU</code>:  选择GPU设备数目，非GPU服务器用不到</li>
+<li><code>--seed</code>: 初始随机数种子，通常在遇到nan缺失时考虑修改</li>
+<li><code>-encode_dim</code>, <code>-decode_dim</code>: 编码器和解码器的维度，通常也不需要修改</li>
+<li><code>-latent</code> 隐藏层维度</li>
+<li><code>--low</code>, <code> --high</code>: 过滤低质量的peak, 即出现比例高于或者低于某个阈值的peak，默认是0.01和0.9。作者推荐保留1万-3万的peak用于SCALE分析。如果数据质量很高，且peak数不多于10万，那么可以不过滤。</li>
+<li><code> --min_peaks</code>: 过滤低质量细胞，如果该细胞的peak低于阈值</li>
+<li><code>log_transform</code>: <code>log2(x+1)</code>的变换</li>
+<li><code>--max_iter</code>: 最大迭代数，默认是30000, 可以观察损失收敛的情况来修改，也就是训练模型这一步输出的信息</li>
+<li><code>-weight_decay</code>: 没有说明</li>
+<li><code>--impute</code>: 保存推断数据，默认开启</li>
+<li><code>--binary</code>: 推荐加上该参数，减少imputed data占用空间</li>
+<li><code>--no_tsne</code>:  不需要保存t-SNE结果</li>
+<li><code>--reference</code>: 参考细胞类型</li>
+<li><code>-t</code>:  如果输出矩阵是列为peak，行为barcode，用该参数进行转置</li>
+</ul>
+<p>对于使用者而言，我们一般只用修改<code>-k</code>更改最后的聚类数，<code>--low</code>, <code>--high</code>, <code>---min_peaks</code>来对原始数据进行过滤，以及加上<code>--binary</code>节约空间。</p>
+<p>假如在训练模型阶段，发现输出信息为<code>loss=nan recon_loss=nan kl_loss=nan</code>,十有八九最终会报错退出， 可以如下的参数调整</p>
+<ul>
+<li>更改<code>--seed</code></li>
+<li>用更加严格的条件过滤peak，例如<code>-x 0.04</code> 或  <code>-x 0.06</code></li>
+<li>降低初始的学习速率，<code>--lr 0.0002</code></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" data-id="cllg90y4500cneqp2g16p3dug" data-title="使用SCALE分析单细胞ATAC-seq数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「文献」杂合基因组的策略思路-Assembly-heterozygous-genome-by-interspecific-hybrids" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" class="article-date">
+  <time class="dt-published" datetime="2019-10-16T18:48:45.776Z" itemprop="datePublished">2019-10-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/">「文献」杂合基因组的策略思路</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>文献出处: <a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41438-019-0139-1">Sequencing a Juglans regia × J. microcarpa hybrid yields high-quality genome assemblies of parental specie</a></p>
+<p>文章的亮点在于通过对一个F1子代进行三代测序，之后利用BioNano组装出两个亲本的光学图谱，最后根据光学图谱从F1中拆分出两套单倍型。</p>
+<p>杂合基因组组装的时候，通常会通过构建近交系，花粉加倍(DH)来降低杂合度。文章采用了种间杂交的方式来避免杂合。这是因为种间杂交的基因组通常包括亲本的两个单倍型，因此能够从中分离出两个亲本的单倍型基因组。种间杂交的一个优势在于，它比较容易构建。</p>
+<p>分析策略流程图如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571214701466-aa197a4f932a4d26b1283283d7604c63.png" alt="流程图"><br>文字版讲解如下：</p>
+<p>Step1: 使用两个近源物种（都有基因组草图）进行杂交得到F1(MS1-56)，使用PacBio进行测序组装（460条contig, 1.05G, 两倍基因组大小）</p>
+<p>Step2: 使用BioNano构建F1和两个亲本的光学图谱。</p>
+<p>Step3: 通过自我比对（self-alignment），鉴定haploid和diploid。 亲本的光学图谱包含两个部分，一个是haploid（两个单倍体因为相似而坍缩成一个)，另一个是diploid(两个单倍体因为不够相似被拆分， 也就是分型(phased))。大概是下面这个效果，a表示Serr ctg4上存在两套单倍型的情况.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571221028944-3d69ebf2957849ab8a0c8fb1955bd2a5.png" alt="光学图谱自我比对"></p>
+<p>Step4: 将contig回帖到杂合的光学图谱上，组装成scaffolds，大小为1.06G。之后根据杂合后代光学图谱和亲本光学图谱的关系，对scaffold进行拆分。上图b,c表示的是将F1后代的光学图谱和双亲的光学图谱进行比较，来鉴定出子代中属于一方亲本的单倍型。</p>
+<p>Step5: 上述因为太短而无法回帖到光学图谱的contig，比对到illumina组装的双亲基因组，进行区分。</p>
+<p>Step6: 根据高密度遗传图谱对scaffold进行排序和确认方向，最终得到准染色体级别的基因组。</p>
+<p>最后基因组还可以补洞和纠错，来提高质量，比如说10X Genomics Chicago 测序。</p>
+<blockquote>
+<p>最后一点感想：文章利用光学图谱进行分型的思路的确很棒。但是我想的是，为啥不直接测亲本基因组，用HiC进行分型呢？</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" data-id="cllg90y2x0080eqp27hkpe87q" data-title="「文献」杂合基因组的策略思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用Rcpp提高性能之入门篇-Import-R-performance-with-Rcpp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" class="article-date">
+  <time class="dt-published" datetime="2019-10-15T22:11:19.460Z" itemprop="datePublished">2019-10-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/">使用Rcpp提高性能之入门篇</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>C++</code>能解决的瓶颈问题有:</p>
+<ul>
+<li>由于迭代依赖于之前结果，循环难以简便的向量化运算</li>
+<li>递归函数，或者是需要对同一个函数运算成千上万次</li>
+<li>R语言缺少一些高级数据结构和算法</li>
+</ul>
+<p>我们只需要在代码中写一部分<code>C++</code>代码来就可以处理上面这些问题。后续操作在Windows下进行，你需要安装Rtools，用<code>install.packages(&quot;Rcpp&quot;)</code>安装新版的Rcpp，最重要一点，你需要保证你R语言时不能是<code>C:/Program Files/R/R-3.5.1/</code>这种形式，否则会报错。</p>
+<p>后续操作会用到<code>microbenchmark</code>包来评估R代码和RCPP的效率差异，用<code>install.packages(&#39;microbenchmark)</code>安装</p>
+<h2 id="RCPP入门"><a href="#RCPP入门" class="headerlink" title="RCPP入门"></a>RCPP入门</h2><p>先从一个简单的<code>add</code>函数开始，学习如何用<code>cppFunction</code>在R里面写<code>C++</code>代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Rcpp<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;int add(int x, int y, int z) &#123;</span></span><br><span class="line"><span class="string">  int sum = x + y + z;</span></span><br><span class="line"><span class="string">  return sum;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span><span class="punctuation">)</span></span><br><span class="line">add</span><br><span class="line"><span class="comment"># function (x, y) </span></span><br><span class="line"><span class="comment"># .Call(&lt;pointer: 0x0000000063c015a0&gt;, x, y)</span></span><br></pre></td></tr></table></figure>
+
+<p>Rcpp将会编译<code>C++</code>代码， 然后构建能够连接到C++函数的R函数。后续将会介绍如何将一些R代码改写成<code>C++</code>代码。</p>
+<ul>
+<li>标量输入，标量输出</li>
+<li>向量输入，标量输出</li>
+<li>向量输入，向量输出</li>
+<li>矩阵输入，向量输出</li>
+</ul>
+<h3 id="没有输入，标量输出"><a href="#没有输入，标量输出" class="headerlink" title="没有输入，标量输出"></a>没有输入，标量输出</h3><p>最简单的函数就是不提供任何输出，返回一个输出，比如说</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">one <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="number">1L</span></span><br></pre></td></tr></table></figure>
+
+<p>等价的<code>C++</code>代码是</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">one</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么将这段<code>C++</code>代码在R用<code>cppFunction</code>中改写就是如下</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;int one()&#123;</span></span><br><span class="line"><span class="string">  return 1;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>上面这段函数就展示了R和<code>C++</code>之间一些重要区别:</p>
+<ul>
+<li><code>C++</code>写代码不是<code> 函数名 &lt;- function(参数)&#123;&#125;</code> 而是 <code>函数名(函数参数)&#123;&#125;</code></li>
+<li><code>C++</code>中必须声明返回类型，<code>ini</code>就是标量整数。C++对应R语言常用向量的类是: <code>NumericVector</code>,<code>IntegerVector</code>, <code>CharacterVector</code>和<code>LogicalVector</code>.</li>
+<li>R语言没有标量，全是向量。而<code>C++</code>有向量和标量之分，标量的数据类型是<code>double</code>, <code>int</code>, <code>String</code>和<code>bool</code></li>
+<li><code>C++</code>你必须要用到<code>return</code>声明要返回的数据</li>
+<li>每段代码后要跟着<code>;</code></li>
+</ul>
+<h3 id="标量输入，标量输出"><a href="#标量输入，标量输出" class="headerlink" title="标量输入，标量输出"></a>标量输入，标量输出</h3><p>我们可以写一个函数，<code>sign</code>，他的功能就是把一个负数转成正数，正数不变</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">signR <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>x <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    x</span><br><span class="line">  <span class="punctuation">&#125;</span> <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span>x <span class="operator">==</span> <span class="number">0</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="number">0</span></span><br><span class="line">  <span class="punctuation">&#125;</span> <span class="keyword">else</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="operator">-</span>x</span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;int signC(int x)&#123;</span></span><br><span class="line"><span class="string">            if( x &gt;0 )&#123;</span></span><br><span class="line"><span class="string">              return x;</span></span><br><span class="line"><span class="string">            &#125; else if (x == 0)&#123;</span></span><br><span class="line"><span class="string">              return 0;</span></span><br><span class="line"><span class="string">            &#125; else &#123;</span></span><br><span class="line"><span class="string">              return -x;</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这个例子中要注意两件事情</p>
+<ul>
+<li>在<code>C++</code>中，你需要声明输入的数据类型</li>
+<li><code>C++</code>和R的条件语句长得一样。</li>
+</ul>
+<h3 id="向量输入，标量输出"><a href="#向量输入，标量输出" class="headerlink" title="向量输入，标量输出"></a>向量输入，标量输出</h3><p>R和<code>C++</code>一大区别就是R的循环效率很低。因此在R语言要尽量避免使用显示的循环语句，尽量向量化运算函数。而<code>C++</code>的循环花销特别小，所以可以放心大胆的用。</p>
+<p>让我们用R代码写一个求和函数<code>sum</code> 以及 <code>C++</code>的求和函数，然后比较下效率</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sumR <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  total <span class="operator">&lt;-</span> 0</span><br><span class="line">  <span class="keyword">for</span> <span class="punctuation">(</span>i <span class="keyword">in</span> <span class="built_in">seq_along</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    total <span class="operator">&lt;-</span> total <span class="operator">+</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  total</span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;int sumC(NumericVector x )&#123; </span></span><br><span class="line"><span class="string">            int n = x.size();</span></span><br><span class="line"><span class="string">            double total = 0;</span></span><br><span class="line"><span class="string">            for(int i = 0; i &lt; n; ++i)&#123;</span></span><br><span class="line"><span class="string">              total += x[i];  </span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">            return total;</span></span><br><span class="line"><span class="string">            &#125;&#x27;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><code>C++</code>版本和R版本的逻辑相同，但是有如下不同</p>
+<ul>
+<li>用<code>.size()</code>确认向量的长度</li>
+<li><code>for</code>的写法为<code>for(初始值; 判断语句; 递增)</code></li>
+<li><strong>记住</strong>: <code>C++</code>的向量索引从0开始，R是从1开始</li>
+<li>向量赋值是<code>=</code>而不是<code>&lt;-</code></li>
+<li><code>total += x[i]</code>等价于<code>total = total + x[i]</code>, 类似的符号还有<code>-=</code>, <code>*=</code>, <code>/=</code></li>
+</ul>
+<p>最后用<code>microbenchmark</code>比较下,R自带求和函数和我们自己写的两个版本的差异</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">x <span class="operator">&lt;-</span> runif<span class="punctuation">(</span><span class="number">1000</span><span class="punctuation">)</span></span><br><span class="line">microbenchmark<span class="punctuation">(</span></span><br><span class="line">  <span class="built_in">sum</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">  sumC<span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">  sumR<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>最快的是高度优化过的内置函数，最差的就是<code>sumR()</code>, 速度会比<code>sumC()</code>慢10倍以上。 </p>
+<h3 id="向量输入，向量输出"><a href="#向量输入，向量输出" class="headerlink" title="向量输入，向量输出"></a>向量输入，向量输出</h3><p>R中比较常见的操作就是向量间运算，尤其R还会自动补齐。自动补齐某些时候会造成一些问题，但是C++不存在这个问题。我们可以写一个RCPP的<code>+</code>函数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;NumericVector addC(NumericVector x, NumericVector y)&#123;</span></span><br><span class="line"><span class="string">  int xn = x.size();</span></span><br><span class="line"><span class="string">  int yn = y.size();</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  if (xn != yn)&#123;</span></span><br><span class="line"><span class="string">    stop(&quot;input should be same length&quot;);</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  NumericVector out(xn);</span></span><br><span class="line"><span class="string">  for(int i=0; i&lt; xn; ++i)&#123;</span></span><br><span class="line"><span class="string">    out[i] = x[i] + y[i];</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  return out;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">x <span class="operator">&lt;-</span> runif<span class="punctuation">(</span><span class="number">1e6</span><span class="punctuation">)</span></span><br><span class="line">y <span class="operator">&lt;-</span> runif<span class="punctuation">(</span><span class="number">1e6</span><span class="punctuation">)</span></span><br><span class="line">microbenchmark<span class="punctuation">(</span>addC<span class="punctuation">(</span>x<span class="punctuation">,</span>y<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">               x<span class="operator">+</span>y<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="矩阵输入，向量输出"><a href="#矩阵输入，向量输出" class="headerlink" title="矩阵输入，向量输出"></a>矩阵输入，向量输出</h3><p>每个向量类型都有矩阵等价类，<code>NumericMatrix</code>, <code>IntegerMatirx</code>, <code>CharacterMatirx</code>, <code>LogicalMatirx</code>. 让我们尝试写一个<code>rowSums()</code>函数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;NumericVector rowSumsC(NumericMatrix x)&#123;</span></span><br><span class="line"><span class="string">  int nrow = x.nrow(), ncol = x.ncol();</span></span><br><span class="line"><span class="string">  NumericVector out(nrow);</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  for(int i = 0; i &lt; nrow; i++)&#123;</span></span><br><span class="line"><span class="string">    double total =0;</span></span><br><span class="line"><span class="string">    for(int j =0; j&lt; ncol; j++)&#123;</span></span><br><span class="line"><span class="string">      total += x(i,j);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    out[i] = total;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  return out;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span><span class="punctuation">)</span></span><br><span class="line">set.seed<span class="punctuation">(</span><span class="number">1024</span><span class="punctuation">)</span></span><br><span class="line">x <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span>sample<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span><span class="punctuation">,</span> nrow <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">rowSumsC<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里注意有两点不同，在<code>C++</code>中，你用<code>()</code>对矩阵取值，而不是<code>[]</code></p>
+<p>尽管看起来<code>C++</code>的代码运行起来比R语言快多了，比如说R要一分钟，RCPP只要一秒，但是如果算上我们写代码的时间和调试代码的时间，刚开始不熟练估计要10分钟，那么总体来看，还是直接上手写R代码比较合适。</p>
+<p>但是如果有一些代码要不断复用，那么写<code>C++</code>代码还是很划算。这个时候就建议将代码写到专门的文本中，用<code>sourceCpp()</code>加载，而不是<code>cppFunction()</code>函数</p>
+<p>在Rsutdio中可以创建一个<code>C++</code>模板文件，代码写完之后还可以进行debug。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-17ff0fcaeda34cf5bbc0c7676ee3aa11.png" alt="创建模板"></p>
+<p>比如说在里面写上面的<code>rowSumsC</code>函数，分为如下几个部分</p>
+<p>导入头文件，加载Rcpp到命名空间中，类似于<code>library()</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>// [[Rcpp::export]]</code>说明这里的函数会被R使用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">NumericVector <span class="title">rowSumsC</span><span class="params">(NumericMatrix x)</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> ncol = x.<span class="built_in">ncol</span>(), nrow = x.<span class="built_in">nrow</span>();</span><br><span class="line">  <span class="function">NumericVector <span class="title">out</span><span class="params">(nrow)</span></span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i =<span class="number">0</span>; i &lt; nrow; i++ )&#123;</span><br><span class="line">    <span class="type">double</span> total = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j =<span class="number">0</span> ;j &lt; ncol; j++)&#123;</span><br><span class="line">      total += <span class="built_in">x</span>(i,j);</span><br><span class="line">    &#125;</span><br><span class="line">    out[i] = total;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> out;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面部分会在<code>sourceCpp()</code>加载后自动运行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*** R</span></span><br><span class="line"><span class="comment">library(microbenchmark)</span></span><br><span class="line"><span class="comment">set.seed(1014)</span></span><br><span class="line"><span class="comment">x &lt;- matrix(sample(100), 10)</span></span><br><span class="line"><span class="comment">microbenchmark(</span></span><br><span class="line"><span class="comment">  rowSumsC(x),</span></span><br><span class="line"><span class="comment">  Matrix::rowSums(x)</span></span><br><span class="line"><span class="comment">)</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>将文件保存成<code>rowSumsC.cpp</code>, 之后在R里用<code>sourceCpp(file = &quot;rowSumsC.cpp&quot;)</code>。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" data-id="cllg90y4300cgeqp2f1b84p8d" data-title="使用Rcpp提高性能之入门篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Rcpp学习笔记之数据结构-Rcpp_learn_note_data_structure" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" class="article-date">
+  <time class="dt-published" datetime="2019-10-15T22:01:05.852Z" itemprop="datePublished">2019-10-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/">Rcpp学习笔记之数据结构</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在使用R语言多年以后，我终于开始去学习Rcpp，利用C++来提高运行速度。其实当你能熟练的使用一门语言后，再去学一门新的语言，并没有想象中的那么难，更何况Rcpp把很多脏活累活都给包办了，在里面调用C++还是挺方便。</p>
+</blockquote>
+<p>C++是一门静态编译面向对象的编程语言，R是动态解释性面向对象语言，那么有一个不同就在于，你需要先声明一个变量，才能调用该变量。而在声明变量的时候，你就会遇到一个R语言中不怎么思考的问题，我这个变量要存放什么样的数据呢？</p>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>R的基本数据类型有六种 “logical”, “integer”, “numeric” (等价于”double”), “complex”, “character” 和 “raw”，但常用的就四种， “integer”, “numeric”,”logical”和”character”。</p>
+<p>对于数值数据而言，<code>C++</code>的整型和浮点型可以定义多种精度，而R语言则简化成两种”integer”(32 bit)和”numeric”(53 bits)，并且默认情况下数值都是浮点型。</p>
+<p>在数据结构上，R语言提供了向量(vector)，矩阵(matrix)，数组(array)，数据框(data.frame)和列表(list)，唯独没有标量。其中向量可以认为是R语言的基本单位，是其他数据结构的基础。</p>
+<p>原本能够让<code>C++</code>处理R对象，以及将<code>C++</code>处理完结果转成R能识别的对象，你需要了解R的内部结构，但是<code>Rcpp</code>通过定义了一系列数据类型（如下），使得我们能够非常容易地在R和<code>C++</code>之间交换对象。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Rcpp/include/Rcpp/vector/instantiation.h</span></span><br><span class="line"><span class="keyword">namespace</span> Rcpp&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;CPLXSXP&gt; ComplexVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;INTSXP&gt; IntegerVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;LGLSXP&gt; LogicalVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;REALSXP&gt; NumericVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;REALSXP&gt; DoubleVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;RAWSXP&gt; RawVector ;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;STRSXP&gt; CharacterVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;STRSXP&gt; StringVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;VECSXP&gt; GenericVector ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;VECSXP&gt; List ;</span><br><span class="line">    <span class="keyword">typedef</span> Vector&lt;EXPRSXP&gt; ExpressionVector ;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;CPLXSXP&gt; ComplexMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;INTSXP&gt; IntegerMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;LGLSXP&gt; LogicalMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;REALSXP&gt; NumericMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;RAWSXP&gt; RawMatrix ;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;STRSXP&gt; CharacterMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;STRSXP&gt; StringMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;VECSXP&gt; GenericMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;VECSXP&gt; ListMatrix ;</span><br><span class="line">    <span class="keyword">typedef</span> Matrix&lt;EXPRSXP&gt; ExpressionMatrix ;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以R语言的向量为例，Rcpp考虑到R语言所有可能的数据类型，提供了9种Vector。比如说”NumericVector”, “IntegerVector”, “LogicalVector”,” CharacterVector”就是对应着”integer”, “numeric”,”logical”和”character”这四种数据类型。因此，你可以根据你输入向量的数据类型来进行选择。</p>
+<p>我们以一个简单的求和函数作为例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">double sumC<span class="punctuation">(</span>NumericVector v<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">    double total <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    int num <span class="operator">=</span> v.size<span class="punctuation">(</span><span class="punctuation">)</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>int i <span class="operator">=</span> <span class="number">0</span>; i<span class="operator">&lt;</span> num; i<span class="operator">+</span><span class="operator">+</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">        total <span class="operator">+</span><span class="operator">=</span> v<span class="punctuation">[</span>i<span class="punctuation">]</span>;</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="built_in">return</span> total;</span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>sumC</code>这个函数读取一个数值向量，对其进行结合，返回一个浮点型标量。当然这个浮点型标量在R语言中就表现为一个长度为1的向量。</p>
+<p>由于R语言数据类型和<code>C++</code>的不是一一对应，因此在处理过程中，有些时候需要对数据进行转换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::string(x[i])</span><br></pre></td></tr></table></figure>
+
+<h2 id="变量创建"><a href="#变量创建" class="headerlink" title="变量创建"></a>变量创建</h2><p>我们可以通过下面这些方式创建向量</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// v &lt;- rep(0, 3)</span></span><br><span class="line"><span class="function">NumericVector <span class="title">v</span> <span class="params">(<span class="number">3</span>)</span></span>;</span><br><span class="line"><span class="comment">// v &lt;- rep(1, 3)</span></span><br><span class="line"><span class="function">NumericVector <span class="title">v</span> <span class="params">(<span class="number">3</span>,<span class="number">1</span>)</span></span>;</span><br><span class="line"><span class="comment">// v &lt;- c(1,2,3) </span></span><br><span class="line"><span class="comment">// C++11 Initializer list</span></span><br><span class="line">NumericVector v = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;; </span><br><span class="line"><span class="comment">// v &lt;- c(1,2,3)</span></span><br><span class="line">NumericVector v = NumericVector::<span class="built_in">create</span>(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>);</span><br><span class="line"><span class="comment">// v &lt;- c(x=1, y=2, z=3)</span></span><br><span class="line">NumericVector v = NumericVector::<span class="built_in">create</span>(<span class="built_in">Named</span>(<span class="string">&quot;x&quot;</span>,<span class="number">1</span>), <span class="built_in">Named</span>(<span class="string">&quot;y&quot;</span>)=<span class="number">2</span> , _[<span class="string">&quot;z&quot;</span>]=<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<p>创建矩阵的方法如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// m &lt;- matrix(0, nrow=2, ncol=2)</span></span><br><span class="line"><span class="function">NumericMatrix <span class="title">m1</span><span class="params">( <span class="number">2</span> )</span></span>;</span><br><span class="line"><span class="comment">// m &lt;- matrix(0, nrow=2, ncol=3)</span></span><br><span class="line"><span class="function">NumericMatrix <span class="title">m2</span><span class="params">( <span class="number">2</span> , <span class="number">3</span> )</span></span>;</span><br><span class="line"><span class="comment">// m &lt;- matrix(v, nrow=2, ncol=3)</span></span><br><span class="line"><span class="function">NumericMatrix <span class="title">m3</span><span class="params">( <span class="number">2</span> , <span class="number">3</span> , v.begin() )</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>数据框和列表的创建依赖于已有向量，和R语言中创建形式相似。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Creating DataFrame df from Vector v1, v2</span></span><br><span class="line">DataFrame df = DataFrame::<span class="built_in">create</span>(v1, v2);</span><br><span class="line"><span class="comment">// When giving names to columns</span></span><br><span class="line">DataFrame df = DataFrame::<span class="built_in">create</span>( <span class="built_in">Named</span>(<span class="string">&quot;V1&quot;</span>) = v1 , _[<span class="string">&quot;V2&quot;</span>] = v2 );</span><br><span class="line"></span><br><span class="line"><span class="comment">// Create list L from vector v1, v2</span></span><br><span class="line">List L = List::<span class="built_in">create</span>(v1, v2);</span><br><span class="line"><span class="comment">// When giving names to elements</span></span><br><span class="line">List L = List::<span class="built_in">create</span>(<span class="built_in">Named</span>(<span class="string">&quot;name1&quot;</span>) = v1 , _[<span class="string">&quot;name2&quot;</span>] = v2);a</span><br></pre></td></tr></table></figure>
+
+<h2 id="元素获取和赋值"><a href="#元素获取和赋值" class="headerlink" title="元素获取和赋值"></a>元素获取和赋值</h2><p>在选取元素之前一定要注意，<code>C++</code>是以0为基，而R是以1为基。</p>
+<p>我们可以用<code>[]</code>和<code>()</code>进行数据选取向量中的元素并复制，支持利用数值向量或者逻辑向量来选取多个数据</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新建向量</span></span><br><span class="line">NumericVector v  &#123;<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>&#125;;</span><br><span class="line"><span class="comment">// 设置向两名</span></span><br><span class="line">v.<span class="built_in">names</span>() = <span class="built_in">CharacterVector</span>(&#123;<span class="string">&quot;A&quot;</span>,<span class="string">&quot;B&quot;</span>,<span class="string">&quot;C&quot;</span>,<span class="string">&quot;D&quot;</span>,<span class="string">&quot;E&quot;</span>&#125;);</span><br><span class="line"><span class="comment">// 准备用于获取数据的向量</span></span><br><span class="line">NumericVector   numeric = &#123;<span class="number">1</span>,<span class="number">3</span>&#125;;</span><br><span class="line">IntegerVector   integer = &#123;<span class="number">1</span>,<span class="number">3</span>&#125;;</span><br><span class="line">CharacterVector character = &#123;<span class="string">&quot;B&quot;</span>,<span class="string">&quot;D&quot;</span>&#125;;</span><br><span class="line">LogicalVector   logical = &#123;<span class="literal">false</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">true</span>, <span class="literal">false</span>&#125;;</span><br><span class="line"><span class="comment">// 获取数据</span></span><br><span class="line"><span class="type">double</span> x1 = v[<span class="number">0</span>];</span><br><span class="line"><span class="type">double</span> x2 = v[<span class="string">&quot;A&quot;</span>];</span><br><span class="line">NumericVector res1 = v[numeric];</span><br><span class="line">NumericVector res2 = v[integer];</span><br><span class="line">NumericVector res3 = v[character];</span><br><span class="line">NumericVector res4 = v[logical];</span><br><span class="line"><span class="comment">// 赋值</span></span><br><span class="line">v[<span class="number">0</span>]   = <span class="number">100</span>;</span><br><span class="line">v[<span class="string">&quot;A&quot;</span>] = <span class="number">100</span>;</span><br><span class="line">NumericVector v2 &#123;<span class="number">100</span>,<span class="number">200</span>&#125;;</span><br><span class="line">v[numeric]   = v2;</span><br><span class="line">v[integer]   = v2;</span><br><span class="line">v[character] = v2;</span><br><span class="line">v[logical]   = v2;</span><br></pre></td></tr></table></figure>
+
+<p>对于矩阵而言，建议只用<code>()</code>进行数据选取，因为没有<code>[row_index, col_index]</code>的操作。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个5x5的矩阵</span></span><br><span class="line"><span class="function">NumericMatrix <span class="title">m</span><span class="params">( <span class="number">5</span>, <span class="number">5</span> )</span></span>;</span><br><span class="line"><span class="comment">// 获取0,2的元素</span></span><br><span class="line"><span class="type">double</span> x = <span class="built_in">m</span>( <span class="number">0</span> , <span class="number">2</span> );</span><br><span class="line"><span class="comment">// 选择第1行</span></span><br><span class="line">NumericVector v = <span class="built_in">m</span>( <span class="number">0</span> , _ );</span><br><span class="line"><span class="comment">// 选择第3列</span></span><br><span class="line">NumericVector v = <span class="built_in">m</span>( _ , <span class="number">2</span> );</span><br><span class="line"><span class="comment">// 选择第1-2行，3-4列</span></span><br><span class="line">NumericMatrix m2 = <span class="built_in">m</span>( <span class="built_in">Range</span>(<span class="number">0</span>,<span class="number">1</span>) , <span class="built_in">Range</span>(<span class="number">2</span>,<span class="number">3</span>) );</span><br></pre></td></tr></table></figure>
+
+<p>对于DataFrame和List，两则都只支持<code>[]</code>选择其中向量。</p>
+<h2 id="成员函数"><a href="#成员函数" class="headerlink" title="成员函数"></a>成员函数</h2><p>成员函数(member function)是<code>C++</code>面向对象编程中的一个概念，通过调用成员函数可以对类进行操作。</p>
+<p>举个例子，对于R语言而言，向量是可以有名字的，例如</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>a <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> b <span class="operator">=</span> <span class="number">2</span><span class="punctuation">,</span> <span class="built_in">c</span> <span class="operator">=</span> <span class="number">3</span><span class="punctuation">)</span>	</span><br></pre></td></tr></table></figure>
+
+<p>R语言是一个面向对象的编程语言，所以这种命名向量其实认为是一个向量拥有了一个名为<code>names</code>的属性而已。</p>
+<p>在R语言中<code>attr</code>函数能够增加对象的属性，因此上面代码等价于</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">)</span></span><br><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span>y<span class="punctuation">,</span> <span class="string">&#x27;names&#x27;</span><span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&#x27;a&#x27;</span><span class="punctuation">,</span><span class="string">&#x27;b&#x27;</span><span class="punctuation">,</span><span class="string">&#x27;c&#x27;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>而<code>C++</code>中的向量和矩阵拥有一个成员函数<code>.name()</code>就可以获取&#x2F;修改&#x2F;增加变量命名。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NumericVector <span class="title">addname2</span><span class="params">(NumericVector x, CharacterVector y)</span></span>&#123;</span><br><span class="line">    x.<span class="built_in">names</span>() = y;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>更通用的是<code>.attr</code>函数,它能够修改和增加任意属性</p>
+<p>不同数据类型拥有不同的成员函数，参考</p>
+<ul>
+<li>向量:  <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/080_vector.html#member-functions">https://teuder.github.io/rcpp4everyone_en/080_vector.html#member-functions</a></li>
+<li>矩阵: <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/100_matrix.html#member-functions-1">https://teuder.github.io/rcpp4everyone_en/100_matrix.html#member-functions-1</a></li>
+<li>数据框:  <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/140_dataframe.html#member-functions-2">https://teuder.github.io/rcpp4everyone_en/140_dataframe.html#member-functions-2</a></li>
+<li>列表: <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/150_list.html#member-functions-3">https://teuder.github.io/rcpp4everyone_en/150_list.html#member-functions-3</a></li>
+<li>字符串:  <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/170_string.html#member-functions-4">https://teuder.github.io/rcpp4everyone_en/170_string.html#member-functions-4</a></li>
+<li>日期: <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/180_date.html#member-functions-5">https://teuder.github.io/rcpp4everyone_en/180_date.html#member-functions-5</a></li>
+<li>时间: <a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en/190_datetime.html#member-functions-6">https://teuder.github.io/rcpp4everyone_en/190_datetime.html#member-functions-6</a></li>
+</ul>
+<h2 id="缺失值"><a href="#缺失值" class="headerlink" title="缺失值"></a>缺失值</h2><blockquote>
+<p>同R一样，缺失值之间以及缺失值和正常值之间的比较没有意义，因此在写代码过程时要提前考虑到缺失值的可能，或者是用R语言处理完缺失值，把不含缺失值的数据作为<code>C++</code>函数的输入。</p>
+</blockquote>
+<p>R语言采用比特模式对每一种数据类型进行标注，也就是针对每一种数据类型（Integer，Numeric，Character，Logical）保留一个比特作为缺失数据的标签值。</p>
+<p>为了在C++中处理R的缺失值，Rcpp提供了四个变量对应R的四种数据类型</p>
+<ul>
+<li>NA_INTEGER:  整型，Integer</li>
+<li>NA_STRING: 字符串，Character</li>
+<li>NA_LOGICAL：逻辑性，Logical</li>
+<li>NA_REAL：双精度浮点型， Numeric</li>
+</ul>
+<p>写一个函数进行讲解下缺失值的使用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">double</span> <span class="title">sumC</span><span class="params">(NumericVector v, <span class="type">bool</span> na_rm)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">double</span> total = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i&lt; v.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>( ! NumericVector::<span class="built_in">is_na</span>(v[i]))&#123;</span><br><span class="line">            total += <span class="built_in">double</span>(v[i]);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (NumericVector::<span class="built_in">is_na</span>(v[i]) &amp; na_rm)&#123;</span><br><span class="line">            <span class="keyword">continue</span> ;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> NA_REAL;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> total;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NumericVector::is_na()</code>用于判断是否为缺失值，不同的数据类型有不同的<code>is_na</code>。如果<code>na_rm=FALSE</code>，那么返回缺失值，也就是<code>NA_REAL</code>.</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23282849/rcpp-charactervector-why-arent-individual-elements-stdstrings">CharacterVector元素转string</a></li>
+<li><a target="_blank" rel="noopener" href="https://teuder.github.io/rcpp4everyone_en">https://teuder.github.io/rcpp4everyone_en</a></li>
+<li><a target="_blank" rel="noopener" href="https://adv-r.hadley.nz/rcpp.html#rcpp-intro">https://adv-r.hadley.nz/rcpp.html#rcpp-intro</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" data-id="cllg90y0b003neqp26zwrasnj" data-title="Rcpp学习笔记之数据结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-服务器上安装RStudio-server-Install-RStudio-server-in-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" class="article-date">
+  <time class="dt-published" datetime="2019-10-14T16:00:45.418Z" itemprop="datePublished">2019-10-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/">服务器上安装RStudio-server</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="服务器上安装RStudio-server"><a href="#服务器上安装RStudio-server" class="headerlink" title="服务器上安装RStudio-server"></a>服务器上安装RStudio-server</h1><p>如果想在服务器上安装一个RStudio-server，你需要先保证自己拥有管理员权限，之后参考<a href="/archives/Install-R-in-Linux">如何在服务器上安装最新的R</a>安装R语言，一定要<strong>注意</strong>在<code>./configure</code>的时候加上<code>--enable-R-shlib</code>，否则后续会出错。</p>
+<p>RStudio-server分为两种版本，一种是开源免费版，另一个是商业专业版本。个人觉得两者最大的区别在于，商业版支持在多个版本的R语言之间进行切换，而开源免费版不行。</p>
+<h2 id="CentOS篇"><a href="#CentOS篇" class="headerlink" title="CentOS篇"></a>CentOS篇</h2><p>如果服务器安装的是CentOS&#x2F;RedHat，那么需要保证它们的发行版本不等于6</p>
+<p>从官方上下载rpm文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<p>如果是第一次安装，那么就是运行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<p>假如是需要升级RStudio-server，比如我原先的是<code>1.1.456</code>最新的是<code>1.2.5001</code>, 需要先暂停当前的服务并卸载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/rstudio-server stop</span><br><span class="line">yum remove rstudio-server</span><br></pre></td></tr></table></figure>
+
+<p>之后才是安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<p>安装完成之后，我们可以通过修改<code>/etc/rstudio/rserver.conf</code>更改端口和R所在路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">www-port=8080 <span class="comment"># 端口, 默认8787</span></span><br><span class="line">www-address=0.0.0.0</span><br><span class="line">rsession-which-r=/opt/sysoft/R-3.6.1/bin/R <span class="comment"># 安装R的路径</span></span><br></pre></td></tr></table></figure>
+
+<p>修改完成之后，用<code>rstudio-server restart</code>重启服务，没有任何信息就表示安装成功了。</p>
+<p>当然你要是不放心，你还可以用<code>rstudio-server verify-installation</code>来验证下，如果没有任何输出信息就表示安装成功，假如出现下面这条信息，意味着你需要先用<code>rstudio-server stop</code>先暂停服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Server is running and must be stopped before running verify-installation</span><br></pre></td></tr></table></figure>
+
+<p>其实最直接的方法就是直接访问”IP:端口”，能够出现RStudio的登陆界面就意味着安装成功了。</p>
+<h2 id="Ubuntu篇"><a href="#Ubuntu篇" class="headerlink" title="Ubuntu篇"></a>Ubuntu篇</h2><p>我没有一台Ubuntu系统的服务器，只有一台Windows 10电脑有一个Linux子系统安装的是 Ubuntu 16.04.6 LTS。</p>
+<p>下载Deb文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install gdebi-core</span><br><span class="line">wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.5001-amd64.deb</span><br></pre></td></tr></table></figure>
+
+<p>如果不是第一次安装，需要是升级已有的RStudio-server，那么也需要先停用并卸载已有的RStudio-server</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/sbin/rstudio-server stop</span><br><span class="line">sudo apt-get remove rstudio-server </span><br></pre></td></tr></table></figure>
+
+<p>然后安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gdebi rstudio-server-1.2.5001-amd64.deb</span><br></pre></td></tr></table></figure>
+
+<p>如果是在Windows的子系统下安装，会出现如下的警告，允许访问即可。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571039719464-278ec32cdcb94ca1ad185f592228e4e1.png" alt="Windows中警告"></p>
+<p>如果能够打开<a target="_blank" rel="noopener" href="http://127.0.0.1:8787/">http://127.0.0.1:8787</a>, 就说明安装成功了。</p>
+<p>如果想修改RStudio-server的端口和调用R版本，参考CentOS篇</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server/redhat-centos/">https://rstudio.com/products/rstudio/download-server/redhat-centos/</a></li>
+<li><a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server/debian-ubuntu/">https://rstudio.com/products/rstudio/download-server/debian-ubuntu/</a></li>
+<li><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/216079967-Upgrading-RStudio-Server">https://support.rstudio.com/hc/en-us/articles/216079967-Upgrading-RStudio-Server</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" data-id="cllg90y6j00j3eqp2dbe1dmix" data-title="服务器上安装RStudio-server" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Rcpp学习笔记之简化版table-Rcpp_learn_note_simplified_table" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" class="article-date">
+  <time class="dt-published" datetime="2019-10-14T13:53:46.564Z" itemprop="datePublished">2019-10-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/">Rcpp学习笔记之简化版table</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>R语言有一个自带的函数<code>table</code>能够统计输入变量中不同元素出现的次数，举个例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">d <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;A&quot;</span><span class="punctuation">,</span><span class="string">&quot;B&quot;</span><span class="punctuation">,</span><span class="string">&quot;C&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>果子老师曾写一篇推送，自己写了一个简化版的table，比R自带的table 运行的速度更快，如下</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">tableGZ <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span><span class="punctuation">(</span><span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">==</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x</span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> </span><br><span class="line">                 <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span> <span class="punctuation">&#123;</span><span class="built_in">sum</span><span class="punctuation">(</span>data<span class="operator">==</span>x<span class="punctuation">)</span><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>data<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span> <span class="keyword">else</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">]</span></span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="built_in">sum</span><span class="punctuation">(</span>data <span class="operator">==</span> x<span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>dd<span class="punctuation">,</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="string">&#x27;NA&#x27;</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们通过运行1000次代码，来比较下两者的运行速度</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableGZ<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">42.9</span>ms  <span class="number">42.4</span>ms </span><br><span class="line"></span><br><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">107</span>ms   <span class="number">106</span>ms  </span><br></pre></td></tr></table></figure>
+
+<p>在我的电脑上，果子老师的代码运行速度比R自带的table快了将近3倍。当然这是有原因的，因为R的table的代码功能更加复杂，能够比较多个变量之间的关系，例如<code>table(d,d)</code>。</p>
+<p>既然是简单的统计每个元素的次数，那么我就想着能不能写出一个比果子老师速度更快的函数。 于是，我抽空写了下面的代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  out <span class="operator">&lt;-</span> vector<span class="punctuation">(</span><span class="built_in">length</span> <span class="operator">=</span> <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="literal">NA</span><span class="punctuation">,</span>  <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> <span class="punctuation">(</span>i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>j <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">[</span>j<span class="punctuation">]</span><span class="punctuation">)</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">          out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span></span><br><span class="line">          out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="number">1</span></span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">==</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">        out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="punctuation">&#125;</span> </span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    na_end <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    out_name<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="string">&#x27;NA&#x27;</span></span><br><span class="line">    out<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> NA_num</span><br><span class="line">    </span><br><span class="line">  <span class="punctuation">&#125;</span> </span><br><span class="line">  na_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> out_name<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  out <span class="operator">&lt;-</span> out<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  <span class="built_in">names</span><span class="punctuation">(</span>out<span class="punctuation">)</span> <span class="operator">&lt;-</span> out_name</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>out<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>虽然我的代码更长了，但是并没有让速度提高，反而比果子老师的代码慢，甚至还不如R自带的table。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">system.time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">148</span>ms   <span class="number">148</span>ms </span><br></pre></td></tr></table></figure>
+
+<p>当然那么一长串代码并不是白写的，因为我特意避免了使用R特有的内容，所以代码能够很容易改写成<code>C++</code>代码使用<code>Rcpp</code>调用，从而提高速度</p>
+<p>新建一个<code>tableC.cpp</code>文件，代码内容如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">NumericVector <span class="title">tableC</span><span class="params">(CharacterVector cv)</span></span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// initialize variable</span></span><br><span class="line">  CharacterVector na = CharacterVector::<span class="built_in">create</span>(<span class="string">&quot;NA&quot;</span>);</span><br><span class="line">  NumericVector out = <span class="built_in">rep</span>(NumericVector::<span class="built_in">create</span>(<span class="number">0</span>), cv.<span class="built_in">size</span>());</span><br><span class="line">  CharacterVector out_name = <span class="built_in">rep</span>(na, cv.<span class="built_in">size</span>());</span><br><span class="line">  <span class="type">int</span> unique_num = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// </span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; cv.<span class="built_in">size</span>();i ++) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; cv.<span class="built_in">size</span>(); j++)&#123;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == <span class="string">&quot;NA&quot;</span> )&#123;</span><br><span class="line">        out_name[j] = cv[i] ;</span><br><span class="line">        out[j] = <span class="number">1</span>;</span><br><span class="line">        unique_num += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == cv[i] )&#123;</span><br><span class="line">        out[j] = out[j] + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  out.<span class="built_in">attr</span>(<span class="string">&quot;names&quot;</span>) = out_name;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> out;</span><br><span class="line">  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>然后在R里面用Rcpp这个C++代码，替换掉之前代码中的循环部分</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Rcpp<span class="operator">::</span>sourceCpp<span class="punctuation">(</span><span class="string">&quot;tableC.cpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> <span class="built_in">as.character</span><span class="punctuation">(</span>x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> tableC<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> res<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">names</span><span class="punctuation">(</span>res<span class="punctuation">)</span> <span class="operator">==</span> <span class="string">&quot;NA&quot;</span><span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    res <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>res<span class="punctuation">,</span> <span class="string">&quot;NA&quot;</span><span class="operator">=</span>NA_num<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>res<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>于是这一次在C++的加持下，我写的table函数速度超过了果子老师的代码。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment">#结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">30.1</span>ms  <span class="number">29.3</span>ms </span><br></pre></td></tr></table></figure>
+
+<p>最后总结一下：如果一个操作只需要做一次，那么速度可能并不是最重要的。因为即便是一个原本要花24小时的代码，提速10倍，只要2小时，你可能也会愿意等一等。但是如果这个操作需要重复很多次，上百次，上千次，甚至上万次，那么你就可能等不下去了。你就需要对代码中的一些限速步骤进行优化，比如说table这种多功能函数，你就可以自己用R写一个简化版的函数，替换掉原先的代码。</p>
+<p>如果对速度有更高的要求，那么就需要用到<code>C++</code>进行代码重写了。学习<code>C++</code>其实并不会特别难，因为有一个<code>Rcpp</code>简化了许多操作，你只需要掌握几个最基本的语言特性，比如说<code>C++</code>需要先定义变量才能使用变量。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><ul>
+<li><a href="/archives/C++_For_R_User">给R使用者的C++最少必要知识</a></li>
+<li><a href="/archives/Write_first_function_Using_Rcpp">Rcpp学习笔记之Hello World!</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" data-id="cllg90y0c003reqp2gwqxe67k" data-title="Rcpp学习笔记之简化版table" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Rcpp学习笔记之Hello World!-Write_first_function_Using_Rcpp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" class="article-date">
+  <time class="dt-published" datetime="2019-10-13T15:52:36.990Z" itemprop="datePublished">2019-10-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/">Rcpp学习笔记之Hello World!</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在使用R语言多年以后，我终于开始去学习Rcpp，利用<code>C++</code>来提高运行速度。其实当你能熟练的使用一门语言后，再去学一门新的语言，并没有想象中的那么难，更何况Rcpp把很多脏活累活都给包办了，在里面调用<code>C++</code>还是挺方便。</p>
+</blockquote>
+<p>学习Rcpp的最重要一步是，运行一个”hello world!” 。如果能够运行”hello world!”就表明搞定了环境配置，后面就可以愉快的写代码了。</p>
+<p>安装Rcpp的方式为，<code>install.packages(&quot;Rcpp&quot;)</code>， 安装过程中可能会出现一些问题，对于不同的操作系统需要做不同的准备工作，</p>
+<ul>
+<li>Windows: 安装Rtools</li>
+<li>Mac: 安装Xcode，需要在App store下载</li>
+<li>Linux: 需要有GCC的编译环境</li>
+</ul>
+<p>之后就让我们写人生中第一个<code>C++</code>函数， <code>hello</code>,</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">hello</span><span class="params">()</span></span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Hello, World!&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么问题来了，这个函数应该如何才能让R语言调用呢？最简单的方式就是Rcpp的<code>cppFunction</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span><span class="string">&quot;Rcpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">int hello()&#123;</span></span><br><span class="line"><span class="string">    std::cout &lt;&lt; &quot;Hello, World!&quot;;</span></span><br><span class="line"><span class="string">    return 0;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#x27;</span><span class="punctuation">)</span></span><br><span class="line">hello<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>上面语句中，cppFunction中的<code>&#39;&#39;</code>中的内容是C++语句。在这条语句中，我们以<code>int hello()&#123;&#125;</code>定义了一个hello函数，这个函数不接受参数，返回一个整型。在函数里面一共有两条语句，每条语句都以<code>;</code>结尾。</p>
+<p>第一条是调用了<code>C++</code>的标准库的cout, <code>std::cout</code>, 和R中以<code>包名::函数名</code>调用函数的方法类似。第二条则是<code>return 0</code>，返回结果。</p>
+<p>除了利用<code>cppFunction</code>外，另外一种更常用的方法就是将代码放在其他文件中，然后用<code>sourceCpp</code>的方式读取。我们新建一个<code>hello.cpp</code>的文件，里面的内容如下(如果用Rstudio新建C++ 文件，它会提供一个模版用于修改)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//[[Rcpp::export]]</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">hello</span><span class="params">()</span></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Hello, World!&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** R</span></span><br><span class="line"><span class="comment">hello()</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>之后在R里面加载并调用，和之前的结果一样。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Rcpp<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">sourceCpp<span class="punctuation">(</span><span class="string">&quot;hello.cpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">hello<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>解释下<code>C++</code>的代码。第一行是用<code>#include &lt;Rcpp.h&gt;</code>语句导入了Rcpp的头文件，类似于R里面的<code>install.package()</code>用于安装R包，然后用<code>using namespace xxx;</code> 的方式加载了两个库，Rcpp和std, 这就类似于R里面的<code>library()</code>函数。</p>
+<p><code>C++</code>里面用<code>//</code>和<code>/*** 注释语句 */</code>进行代码注释。前者是注释单行，类似于R里面的<code>#</code>注释，后者是注释多行。只不过<code>//[Rcpp::export]]</code>这条注释有特殊的含义，在<code>sourceCpp</code>读取代码解析的过程中，被这条语句注释的函数能够在R里面调用。换句话说，如果你删了这句话，那么这个<code>hello</code>函数在R里面就是无法直接调用的。而<code>/*** R */</code>里面可以放R代码，会<code>c++</code>代码编译结束后运行，常用于代码测试。</p>
+<p>假如我们能够成功运行上面的代码，那么接下来要做的事情就是学习<code>C++</code>的基本语法(参考<a href="/archives/C++_For_R_User">给R使用者的C++最少必要知识</a>)，学习Rcpp的数据结构。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" data-id="cllg90y0a003keqp2932i1k4c" data-title="Rcpp学习笔记之Hello World!" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-给R使用者的C++最少必要知识-C++_For_R_User" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" class="article-date">
+  <time class="dt-published" datetime="2019-10-13T14:49:10.474Z" itemprop="datePublished">2019-10-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/">给R使用者的C++最少必要知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>C++</code>是一门非常复杂的编程语言，但是如果你已经有一定的R语言基础，希望通过<code>C++</code>来提高代码效率，那么掌握下面几点就能够开始写代码了，然后通过Rcpp调用。</p>
+<h2 id="C-是静态编程语言"><a href="#C-是静态编程语言" class="headerlink" title="C++是静态编程语言"></a><code>C++</code>是静态编程语言</h2><p><code>C++</code>是一门静态编程语言，这意味着对于一个变量而言，你需要<strong>先声明</strong>它，才能调用它。而且这个变量名的数据类型在使用过程中是无法更改的，这是因为它在内存中的大小已经固定了。 </p>
+<p>举个例子，在R语言中，下面这个代码运行时不会报错（但是会被吐槽）</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a <span class="operator">&lt;-</span> 1</span><br><span class="line">a <span class="operator">&lt;-</span> <span class="string">&#x27;a&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>但是在<code>C++</code>中，下面的代码会被提示<code>error: redefinition of &#39;x&#39; with a different type: &#39;char&#39; vs &#39;int&#39;</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> a = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line"><span class="type">int</span> a = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注</strong>：每个<code>C++</code>语句后需要有<code>;</code>, 而R没有。</p>
+<p>关于数据结构，标准<code>C++</code>的数据结构有如下几种</p>
+<ul>
+<li>整型: int, long</li>
+<li>浮点型: float, double</li>
+<li>逻辑: bool</li>
+<li>字符: char</li>
+</ul>
+<p><code>C++</code>的字符串在STL(Standard Template Library)中。STL里有很多高级数据结构，例如向量(vector)和列表(List)限于篇幅请自行检索。</p>
+<h2 id="C-的控制结构"><a href="#C-的控制结构" class="headerlink" title="C++的控制结构"></a><code>C++</code>的控制结构</h2><p><code>C++</code>的控制结构包括，for循环，while循环，if条件语句，switch条件语句，代码形式如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// for loop</span></span><br><span class="line"><span class="keyword">for</span> ( <span class="type">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++)&#123;</span><br><span class="line">    ...;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// while loop</span></span><br><span class="line"><span class="keyword">while</span> ( i &lt;= <span class="number">10</span>)&#123;</span><br><span class="line">  ...;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// if</span></span><br><span class="line"><span class="keyword">if</span> ()&#123;</span><br><span class="line">  ...;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span>()&#123;</span><br><span class="line">  ...;</span><br><span class="line">&#125; <span class="keyword">else</span>&#123;</span><br><span class="line">  ...;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// switch</span></span><br><span class="line"><span class="type">char</span> grade = <span class="string">&#x27;D&#x27;</span>;</span><br><span class="line"><span class="keyword">switch</span> (grade )&#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;A&#x27;</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&#x27;great&#x27;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span> ;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;B&#x27;</span> :</span><br><span class="line">    cout &lt;&lt; <span class="string">&#x27;not bad&#x27;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span> ;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">&#x27;D&#x27;</span> :</span><br><span class="line">    cout &lt;&lt; <span class="string">&#x27;Not good&#x27;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&#x27;wrong&#x27;</span> &lt;&lt; endl;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在代码形式上，if和while都是和R语言类似，for和switch则是有些不同。</p>
+<p><code>C++</code>的循环效率远远高于R语言，而且将对应的R代码修改成<code>C++</code>并不复杂。因此会用<code>C++</code>的循环，就能优化很多R代码。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p><code>C++</code>的函数和R不同，它的写法如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">数据结构 函数名(数据结构 参数, ...)&#123;</span><br><span class="line">  代码;</span><br><span class="line">  <span class="keyword">return</span> 变量名;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>举个例子</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">sumTwo</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>&#123;</span><br><span class="line">  <span class="type">int</span> z = x + y;</span><br><span class="line">  <span class="keyword">return</span> z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果是在R中则是</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sumTwo <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">   z <span class="operator">&lt;-</span> x <span class="operator">+</span> y</span><br><span class="line">   <span class="built_in">return</span><span class="punctuation">(</span>z<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>因此在改成原有的R函数时要注意两者的区别，</p>
+<ul>
+<li>代码形式不同</li>
+<li>参数名要声明数据类型</li>
+<li>return后直接跟变量名</li>
+</ul>
+<p>在函数的使用上，<code>C++</code>和R就没有区别了，都是<code>函数名(变量)</code>，举个例子<code>sumTwo(1,2)</code></p>
+<h2 id="额外库加载"><a href="#额外库加载" class="headerlink" title="额外库加载"></a>额外库加载</h2><p>在使用R语言的大部分时间里，我们都是面向R包编程，也就是搜索一个R包，然后安装R包，加载R包，调用函数。对于<code>C++</code>而言，也有许多现成的库，能够让我们避免造轮子。</p>
+<p>举个例子，加载Rcpp库，调用R函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"></span><br><span class="line"><span class="comment">//[[Rcpp::export]]</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;N(0,1) 95th percential %9.8f\n&quot;</span>,</span><br><span class="line">         R::<span class="built_in">qnorm</span>(<span class="number">0.95</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">1</span>, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>#include</code>类似于安装R包，而<code>using namespace Rcpp;</code>则是<code>library</code>加载R包。</p>
+<h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><p><code>C++</code>和R语言都是一门面向对象编程语言。R里面有S3，S4，RC等形式，<code>C++</code>则是<code>struct</code>和<code>class</code>两种形式，举个例子</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Date</span> &#123;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> year;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> month;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> date;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> year;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> month;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> date;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">setDate</span><span class="params">(<span class="type">int</span> y, <span class="type">int</span> m, <span class="type">int</span> d)</span></span>;</span><br><span class="line">  <span class="function"><span class="type">int</span> <span class="title">getDay</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">int</span> <span class="title">getMonth</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">int</span> <span class="title">getYear</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>强行联系的话，R的S3和<code>C++</code>的struct比较像，R的S4和<code>C++</code>的Date比较像，因为R的S3比较宽松，是基于list的堆叠，内部数据直接暴露到外部，而S4则是比较安全。<code>C++</code>的class用private保证private无法直接被外部访问，只能功过public暴露的函数进行操作。</p>
+<h2 id="指针和内存管理"><a href="#指针和内存管理" class="headerlink" title="指针和内存管理"></a>指针和内存管理</h2><p>指针和内存管理是两个比较高级的话题，如果你学习C语言不懂指针那你就和没学过C一样。不过我们学的是<code>C++</code>，只要不涉及到很高级的操作，那么我们完全可以避免接触它们。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于一个R语言使用者而言，如果想学习<code>C++</code>，那么至少需要知道如下几个概念</p>
+<ul>
+<li>变量声明</li>
+<li>控制结构，for, while, if-else</li>
+<li>函数编写和调用</li>
+<li>额外库</li>
+<li>面向对象</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" data-id="cllg90y6w00k9eqp21hck0t7h" data-title="给R使用者的C++最少必要知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/16/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/18/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>使用ArchR分析单细胞ATAC-seq数据(第十四章) | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="第十四章 ArchR的足迹分析转录因子(Transcripts factor, TF)足迹分析使得我们能够预测特定位点中TF的精确结合位置。这是因为该位置被TF结合避免了转座酶的切割，而TF结合位点的邻近位置处于开放状态。  理想情况下，TF足迹分析需要在单个位置上分析从而确定TF的准确结合位置。但实际上，这需要非常高的测序深度，甚至超过混池ATAC-seq或者scATAC-seq的所有数据。为了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用ArchR分析单细胞ATAC-seq数据(第十四章)">
+<meta property="og:url" content="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="第十四章 ArchR的足迹分析转录因子(Transcripts factor, TF)足迹分析使得我们能够预测特定位点中TF的精确结合位置。这是因为该位置被TF结合避免了转座酶的切割，而TF结合位点的邻近位置处于开放状态。  理想情况下，TF足迹分析需要在单个位置上分析从而确定TF的准确结合位置。但实际上，这需要非常高的测序深度，甚至超过混池ATAC-seq或者scATAC-seq的所有数据。为了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-9c35998c679f4262b1d3f7fe73533199.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-1c49ea2ad32e4f7b933132461b8233d0.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-9445c244d46f4c60b77b93eaf5209d14.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-16a63ea23fac4d31abf71b7b09d9a091.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-7fcb07f110c747c4ac55c3a71bde7f96.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-b23beabc98094afd8d59ba25139d06e6.png">
+<meta property="article:published_time" content="2021-01-17T16:29:32.657Z">
+<meta property="article:modified_time" content="2021-01-17T16:31:04.137Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="ATAC-seq | 单细胞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-9c35998c679f4262b1d3f7fe73533199.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-使用ArchR分析单细胞ATAC-seq数据(第十四章)-analysis-sc-atac-seq-with-archr-chapter14" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" class="article-date">
+  <time class="dt-published" datetime="2021-01-17T16:29:32.657Z" itemprop="datePublished">2021-01-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      使用ArchR分析单细胞ATAC-seq数据(第十四章)
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="第十四章-ArchR的足迹分析"><a href="#第十四章-ArchR的足迹分析" class="headerlink" title="第十四章 ArchR的足迹分析"></a>第十四章 ArchR的足迹分析</h1><p>转录因子(Transcripts factor, TF)足迹分析使得我们能够预测特定位点中TF的精确结合位置。这是因为该位置被TF结合避免了转座酶的切割，而TF结合位点的邻近位置处于开放状态。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-9c35998c679f4262b1d3f7fe73533199.png" alt="image.png"></p>
+<p>理想情况下，TF足迹分析需要在单个位置上分析从而确定TF的准确结合位置。但实际上，这需要非常高的测序深度，甚至超过混池ATAC-seq或者scATAC-seq的所有数据。为了解决这个问题，我们可以把和待预测的TF结合相关的Tn5插入位置进行合并。例如，我们可以提取所有包含CTCF motif的peak，制作一个全基因组的CTCF的聚合TF足迹。</p>
+<p>为了保证足迹的可靠性，我们需要确保能够可靠的预测出目标TF所对应的结合位点。ArchR使用自带的<code>addMotifAnnotations()</code>函数对peak区域进行搜索，寻找能够匹配的DNA序列。考虑到motif的简并性，无法保证每个motif都有足够的peak。添加到<code>ArchRProject</code>的motif注释以二值矩阵表示(0&#x3D;无motif, 1&#x3D;有motif)。一旦你有了这些motif注释，ArchR使用<code>getFootPrints()</code>函数分析足迹，它以一个<code>ArchRProject</code>对象和一个<code>GenomicRanges</code>对象(记录motif的位置)作为输入。可以使用<code>getPositions()</code>函数从<code>ArchRProject</code>中提取这些位置。之后足迹可以使用<code>plotFootprints()</code>函数可视化。</p>
+<p>或许更重要的是，ArchR的足迹分析能够抵消已知的Tn5插入序列偏好性。ArchR使用一个hexmer位置频率矩阵和一个目标Tn5插入位置上的k-mer频率矩阵来实现该功能。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-1c49ea2ad32e4f7b933132461b8233d0.png" alt="foot printing Methods"></p>
+<p>最终，该流程输出考虑到Tn5插入偏好性的足迹图。</p>
+<p>ArchR支持motif足迹分析和用户提供特征的足迹分析，在后续都会讨论。</p>
+<h2 id="14-1-motif足迹分析"><a href="#14-1-motif足迹分析" class="headerlink" title="14.1 motif足迹分析"></a>14.1 motif足迹分析</h2><p>由于教程用到的数据集比较小，因此利用该数据集得到足迹并不是那么的清晰。使用更大的数据会得到较小变异的足迹。</p>
+<p>在分析足迹时，我们要先获取和motif相关的所有位置。这可以通过<code>getPositions</code>函数完成。该函数有一个可选参数， <code>name</code>，用于传入<code>peakAnnotation</code>对象中我们想要获取位置的变量名。如果<code>name=NULL</code>, 那么ArchR会使用<code>peakAnnotation</code>槽(slot)的第一个条目(entry)。在下面的例子中，我们没有指定<code>name</code>, ArchR使用的第一个条目为CIS-BP motifs.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">motifPositions <span class="operator">&lt;-</span> getPositions<span class="punctuation">(</span>projHeme5<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这会创建一个<code>GRangesList</code>对象，每个TF motif以不同的<code>GRanges</code>对象进行区分。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">motifPositions</span><br><span class="line"><span class="comment"># GRangesList object of length 870:</span></span><br><span class="line"><span class="comment"># $TFAP2B_1</span></span><br><span class="line"><span class="comment"># GRanges object with 16773 ranges and 1 metadata column:</span></span><br><span class="line"><span class="comment"># seqnames ranges strand | score</span></span><br><span class="line"><span class="comment"># |</span></span><br><span class="line"><span class="comment"># [1] chr1 852468-852479 + | 8.17731199746359</span></span><br><span class="line"><span class="comment"># [2] chr1 873916-873927 + | 8.32673820065588</span></span><br><span class="line"><span class="comment"># [3] chr1 873916-873927 - | 8.32673820065588</span></span><br><span class="line"><span class="comment"># [4] chr1 896671-896682 + | 9.96223327271814</span></span><br><span class="line"><span class="comment"># [5] chr1 896671-896682 - | 8.92408377606486</span></span><br><span class="line"><span class="comment"># … … … … . …</span></span><br><span class="line"><span class="comment"># [16769] chrX 153991101-153991112 + | 8.39549159740639</span></span><br><span class="line"><span class="comment"># [16770] chrX 154299568-154299579 + | 8.90119825654299</span></span><br><span class="line"><span class="comment"># [16771] chrX 154664929-154664940 - | 8.16690864294221</span></span><br><span class="line"><span class="comment"># [16772] chrX 154807684-154807695 + | 9.57636587154549</span></span><br><span class="line"><span class="comment"># [16773] chrX 154807684-154807695 - | 10.6117355833828</span></span><br><span class="line"><span class="comment"># ——-</span></span><br><span class="line"><span class="comment"># seqinfo: 23 sequences from an unspecified genome; no seqlengths</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># …</span></span><br><span class="line"><span class="comment"># &lt;869 more elements&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们提取部分感兴趣的TF motifs用于展示。在我们提取”EBF1”会附带”SREBF1”, 因此我们需要用<code>%ni%</code>显式将其过滤。<code>%ni%</code>函数是R自带函数<code>%in%</code>的相反函数。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">motifs <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;GATA1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CEBPA&quot;</span><span class="punctuation">,</span> <span class="string">&quot;EBF1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;IRF4&quot;</span><span class="punctuation">,</span> <span class="string">&quot;TBX21&quot;</span><span class="punctuation">,</span> <span class="string">&quot;PAX5&quot;</span><span class="punctuation">)</span></span><br><span class="line">markerMotifs <span class="operator">&lt;-</span> unlist<span class="punctuation">(</span>lapply<span class="punctuation">(</span>motifs<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span> grep<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="built_in">names</span><span class="punctuation">(</span>motifPositions<span class="punctuation">)</span><span class="punctuation">,</span> value <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">markerMotifs <span class="operator">&lt;-</span> markerMotifs<span class="punctuation">[</span>markerMotifs <span class="operator">%ni%</span> <span class="string">&quot;SREBF1_22&quot;</span><span class="punctuation">]</span></span><br><span class="line">markerMotifs</span><br><span class="line"><span class="comment"># [1] “GATA1_383” “CEBPA_155” “EBF1_67” “IRF4_632” “TBX21_780” “PAX5_709”</span></span><br></pre></td></tr></table></figure>
+
+<p>为了准确找到TF足迹，我们需要大量的reads。因此，细胞需要进行分组生成拟混池ATAC-seq谱才能用于TF足迹分析。这些拟混池谱之前在peak鉴定时就已经保存为分组覆盖文件。 如果没有在<code>ArchRProject</code>添加分组覆盖信息，则运行如下命令</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHeme5 <span class="operator">&lt;-</span> addGroupCoverages<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> groupBy <span class="operator">=</span> <span class="string">&quot;Clusters2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>在计算分组覆盖度后，我们可以为之前<code>getFootprints()</code>挑选的一组标记motif计算足迹。即便ArchR已经优化了足迹分析流程，我们也建议先对一部分motif分析足迹，而不是直接分析所有motif。 我们通过<code>positions</code>参数来选择motif。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">seFoot <span class="operator">&lt;-</span> getFootprints<span class="punctuation">(</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  positions <span class="operator">=</span> motifPositions<span class="punctuation">[</span>markerMotifs<span class="punctuation">]</span><span class="punctuation">,</span> </span><br><span class="line">  groupBy <span class="operator">=</span> <span class="string">&quot;Clusters2&quot;</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>当我们获取了这些足迹，我们可以使用<code>plotFootprints()</code>函数进行展示。该函数能够同时以多种方式对足迹进行标准化。下一节，我们会讨论标准化和实际的足迹图。</p>
+<h2 id="14-2-Tn5偏好的足迹标准化"><a href="#14-2-Tn5偏好的足迹标准化" class="headerlink" title="14.2 Tn5偏好的足迹标准化"></a>14.2 Tn5偏好的足迹标准化</h2><p>使用ATAC-seq数据分析TF足迹的一大挑战就是Tn5转座酶的插入序列偏好性，这会导致TF足迹的错误分类。为了降低Tn5插入偏好性的影响，ArchR识别每个Tn5插入位置附近的k-mer序列(k由用户提供，默认是6). </p>
+<p>对于该项分析，ArchR为每个拟混池识别单碱基分辨率的Tn5插入位点，将这些1-bp位点调整为k-bp窗口（-k&#x2F;2和+（k&#x2F;2-1）bp），然后使用<code>Biostrings</code>包中的<code>oligonucleotidefrequency(w=k, simplify.as=&quot;collapse&quot;)</code>函数创建k-mer频率表。然后，ArchR使用与<code>BSgenome</code>相关的基因组文件，以相同的函数计算出全基因组范围预期的k-mers。</p>
+<p>为了计算拟混池足迹的插入偏差，ArchR创建了一个k-mer频率矩阵，该矩阵表示为从motif中心到窗口+&#x2F;-N bp（用户定义，默认为250 bp）的所有可能k-mer。然后，遍历每个motif位点，ArchR将定位的k-mer填充到k-mer频率矩阵中。然后在全基因组范围内计算每个motif位置。利用样本的k-mer频率表，ArchR可以通过将k-mer位置频率表乘以观察&#x2F;期望 Tn5 k-mer频率来计算预期的Tn5插入。</p>
+<p>以上所有这些发生在<code>plotFootprints()</code>函数中。</p>
+<h3 id="14-2-1-减去Tn5偏好"><a href="#14-2-1-减去Tn5偏好" class="headerlink" title="14.2.1 减去Tn5偏好"></a>14.2.1 减去Tn5偏好</h3><p>一个标准化方式就是从足迹信号中减去Tn5偏好。该标准化方法通过设置<code>plotFootprints()</code>的<code>normMethod = &quot;Subtract&quot;</code>实现</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">plotFootprints<span class="punctuation">(</span></span><br><span class="line">  seFoot <span class="operator">=</span> seFoot<span class="punctuation">,</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  normMethod <span class="operator">=</span> <span class="string">&quot;Subtract&quot;</span><span class="punctuation">,</span></span><br><span class="line">  plotName <span class="operator">=</span> <span class="string">&quot;Footprints-Subtract-Bias&quot;</span><span class="punctuation">,</span></span><br><span class="line">  addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">  smoothWindow <span class="operator">=</span> <span class="number">5</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>默认，这些图保存在<code>ArchRProjec</code>t的<code>outputDirectory</code>。如果你需要绘制所有motif, 可以将其返回为<code>ggplot2</code>对象，需要注意这个<code>ggplot</code>对象会非常大。下面是一个从motif足迹中减去Tn5偏好信号的结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-9445c244d46f4c60b77b93eaf5209d14.png" alt="Footprints-Subtract-Bias"></p>
+<h3 id="14-2-2-除以Tn5偏好"><a href="#14-2-2-除以Tn5偏好" class="headerlink" title="14.2.2 除以Tn5偏好"></a>14.2.2 除以Tn5偏好</h3><p>第二种标准化方法就是将足迹除以Tn5偏好信号。该标准化方法通过设置<code>plotFootprints()</code>的<code>normMethod = &quot;Divide&quot;</code>实现</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">plotFootprints<span class="punctuation">(</span></span><br><span class="line">  seFoot <span class="operator">=</span> seFoot<span class="punctuation">,</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  normMethod <span class="operator">=</span> <span class="string">&quot;Divide&quot;</span><span class="punctuation">,</span></span><br><span class="line">  plotName <span class="operator">=</span> <span class="string">&quot;Footprints-Divide-Bias&quot;</span><span class="punctuation">,</span></span><br><span class="line">  addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">  smoothWindow <span class="operator">=</span> <span class="number">5</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>下面是一个从motif足迹中除以Tn5偏好信号的结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-16a63ea23fac4d31abf71b7b09d9a091.png" alt="Footprints-Divide-Bias"></p>
+<h3 id="14-2-3-无Tn5偏好标准化的足迹"><a href="#14-2-3-无Tn5偏好标准化的足迹" class="headerlink" title="14.2.3 无Tn5偏好标准化的足迹"></a>14.2.3 无Tn5偏好标准化的足迹</h3><p>尽管我们高度推荐将足迹根据Tn5序列插入偏好性进行标准化，当然你可以通过设置<code>plotFootprints()</code>的<code>normMethod = &quot;None&quot;</code>来省去标准化。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">plotFootprints<span class="punctuation">(</span></span><br><span class="line">  seFoot <span class="operator">=</span> seFoot<span class="punctuation">,</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  normMethod <span class="operator">=</span> <span class="string">&quot;None&quot;</span><span class="punctuation">,</span></span><br><span class="line">  plotName <span class="operator">=</span> <span class="string">&quot;Footprints-No-Normalization&quot;</span><span class="punctuation">,</span></span><br><span class="line">  addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">  smoothWindow <span class="operator">=</span> <span class="number">5</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-7fcb07f110c747c4ac55c3a71bde7f96.png" alt="Footprints-No-Normalization"></p>
+<h2 id="14-3-特征足迹"><a href="#14-3-特征足迹" class="headerlink" title="14.3 特征足迹"></a>14.3 特征足迹</h2><p>除了motif足迹分析，ArchR还允许用户分析任意定义的特征数据集。为了对功能进行说明，我们将会使用<code>plotFootprints()</code>函数创建TSS插入谱(在之前数据质量控制一节中引入)。一个TSS插入谱本质上就是特殊的足迹。</p>
+<p>我们在之前小节讨论过，足迹会用到来源于拟混池重复的分组覆盖文件。我们在之前peak鉴定时创建过这些文件。如果你没有在<code>ArchRProject</code>加入分组覆盖信息, 那么需要运行如下代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHeme5 <span class="operator">&lt;-</span> addGroupCoverages<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> groupBy <span class="operator">=</span> <span class="string">&quot;Clusters2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们接着创建一个没有经过Tn5偏好性校正的TSS插入谱。和之前分析一个主要不同是，我们设置了<code>flank=2000</code>, 将TSS向前向后分别延伸2000 bp.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">seTSS <span class="operator">&lt;-</span> getFootprints<span class="punctuation">(</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  positions <span class="operator">=</span> GRangesList<span class="punctuation">(</span>TSS <span class="operator">=</span> getTSS<span class="punctuation">(</span>projHeme5<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">  groupBy <span class="operator">=</span> <span class="string">&quot;Clusters2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  flank <span class="operator">=</span> <span class="number">2000</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们接着用<code>plotFootprints()</code>对每个细胞分组绘制TSS插入谱。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">plotFootprints<span class="punctuation">(</span></span><br><span class="line">  seFoot <span class="operator">=</span> seTSS<span class="punctuation">,</span></span><br><span class="line">  ArchRProj <span class="operator">=</span> projHeme5<span class="punctuation">,</span> </span><br><span class="line">  normMethod <span class="operator">=</span> <span class="string">&quot;None&quot;</span><span class="punctuation">,</span></span><br><span class="line">  plotName <span class="operator">=</span> <span class="string">&quot;TSS-No-Normalization&quot;</span><span class="punctuation">,</span></span><br><span class="line">  addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">  flank <span class="operator">=</span> <span class="number">2000</span><span class="punctuation">,</span></span><br><span class="line">  flankNorm <span class="operator">=</span> <span class="number">100</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-b23beabc98094afd8d59ba25139d06e6.png" alt="TSS-No-Normalization"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" data-id="cllg90y3u00bceqp29gu752x1" data-title="使用ArchR分析单细胞ATAC-seq数据(第十四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter15/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          使用ArchR分析单细胞ATAC-seq数据(第十五章)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/04/%E6%B5%8B%E8%AF%95%E4%B8%8B%E6%95%B0%E6%8D%AE%E5%85%AC%E5%BC%8F-ce-shi-xia-shu-ju-gong-shi/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">测试下数据公式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

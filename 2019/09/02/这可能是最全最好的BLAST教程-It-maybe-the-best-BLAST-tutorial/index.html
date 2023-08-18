@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>这可能是最全最好的BLAST教程 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Basic local alignment search tool (BLAST)包括：blastn, blastp, blastx, tblastn, tblastx等. 使用conda安装即可。 123conda install -c bioconda blast# blast安装perl模块的方法conda install perl-digest-md5  BLAST的主要理念 Search">
+<meta property="og:type" content="article">
+<meta property="og:title" content="这可能是最全最好的BLAST教程">
+<meta property="og:url" content="http://xuzhougeng.top/2019/09/02/%E8%BF%99%E5%8F%AF%E8%83%BD%E6%98%AF%E6%9C%80%E5%85%A8%E6%9C%80%E5%A5%BD%E7%9A%84BLAST%E6%95%99%E7%A8%8B-It-maybe-the-best-BLAST-tutorial/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="Basic local alignment search tool (BLAST)包括：blastn, blastp, blastx, tblastn, tblastx等. 使用conda安装即可。 123conda install -c bioconda blast# blast安装perl模块的方法conda install perl-digest-md5  BLAST的主要理念 Search">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-7eda5a0afe83a170-60f9ffc04b8b4d66a567b7e0b20dfc69.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-9013c614e8290e5d-ddd2b176db0a43b890c9e4fa69604281.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-22d43cfb51512b11-42a366f0ffd645a496bac9ef1f45c9a0.jpg">
+<meta property="article:published_time" content="2019-09-02T18:29:39.839Z">
+<meta property="article:modified_time" content="2019-09-02T18:29:43.448Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="序列比对">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-7eda5a0afe83a170-60f9ffc04b8b4d66a567b7e0b20dfc69.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-这可能是最全最好的BLAST教程-It-maybe-the-best-BLAST-tutorial" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/09/02/%E8%BF%99%E5%8F%AF%E8%83%BD%E6%98%AF%E6%9C%80%E5%85%A8%E6%9C%80%E5%A5%BD%E7%9A%84BLAST%E6%95%99%E7%A8%8B-It-maybe-the-best-BLAST-tutorial/" class="article-date">
+  <time class="dt-published" datetime="2019-09-02T18:29:39.839Z" itemprop="datePublished">2019-09-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      这可能是最全最好的BLAST教程
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Basic-local-alignment-search-tool-BLAST"><a href="#Basic-local-alignment-search-tool-BLAST" class="headerlink" title="Basic local alignment search tool (BLAST)"></a>Basic local alignment search tool (BLAST)</h1><p>包括：blastn, blastp, blastx, tblastn, tblastx等. 使用conda安装即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda install -c bioconda blast</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">blast安装perl模块的方法</span></span><br><span class="line">conda install perl-digest-md5</span><br></pre></td></tr></table></figure>
+
+<h2 id="BLAST的主要理念"><a href="#BLAST的主要理念" class="headerlink" title="BLAST的主要理念"></a>BLAST的主要理念</h2><ul>
+<li>Search may take place in nucleotide and&#x2F;or protein space or translated spaces where nucleotides are translated into proteins.</li>
+<li>Searches may implement search “strategies”: optimizations to a certain task. Different search strategies will return different alignments.</li>
+<li>Searches use alignments that rely on scoring matrices</li>
+<li>Searches may be customized with many additional parameters. BLAST has many subtle functions that most users never need.</li>
+</ul>
+<h2 id="本地BLAST的基本步骤"><a href="#本地BLAST的基本步骤" class="headerlink" title="本地BLAST的基本步骤"></a>本地BLAST的基本步骤</h2><ol>
+<li>用makeblastdb为BLAST提供数据库</li>
+<li>选择blast工具，blastn,blastp</li>
+<li>运行工具，有必要的还可以对输出结果进行修饰</li>
+</ol>
+<h3 id="第一步：建立检索所需数据库"><a href="#第一步：建立检索所需数据库" class="headerlink" title="第一步：建立检索所需数据库"></a>第一步：建立检索所需数据库</h3><p>BLAST数据库分为两类，核酸数据库和氨基酸数据库，可以用<code>makeblastbd</code>创建。可以用help参数简单看下说明。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">makeblastdb -<span class="built_in">help</span></span></span><br><span class="line">USAGE</span><br><span class="line">  makeblastdb [-h] [-help] [-in input_file] [-input_type type]</span><br><span class="line">    -dbtype molecule_type [-title database_title] [-parse_seqids]</span><br><span class="line">    [-hash_index] [-mask_data mask_data_files] [-mask_id mask_algo_ids]</span><br><span class="line">    [-mask_desc mask_algo_descriptions] [-gi_mask]</span><br><span class="line">    [-gi_mask_name gi_based_mask_names] [-out database_name]</span><br><span class="line">    [-max_file_sz number_of_bytes] [-logfile File_Name] [-taxid TaxID]</span><br><span class="line">    [-taxid_map TaxIDMapFile] [-version]</span><br><span class="line">-dbtype &lt;String, `nucl&#x27;, `prot&#x27;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>具体以拟南芥基因组作为案例，介绍使用方法：<br><strong>注</strong>： 拟南芥的基因组可以在TAIR上下在，也可在<a target="_blank" rel="noopener" href="http://ensemblgenomes.org/info/genomes">ensemblgenomes</a>下载。后者还可以下载其他植物的基因组</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载基因组</span></span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-36/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz</span><br><span class="line">gzip -d Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">构建核酸BLAST数据库</span></span><br><span class="line">makeblastdb -in Arabidopsis_thaliana.TAIR10.dna.toplevel.fa -dbtype nucl -out TAIR10 -parse_seqids</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载拟南芥protein数据</span></span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-36/fasta/arabidopsis_thaliana/pep/Arabidopsis_thaliana.TAIR10.pep.all.fa.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">构建蛋白BLAST数据库</span></span><br><span class="line">gzip -dArabidopsis_thaliana.TAIR10.pep.all.fa.gz</span><br><span class="line">makeblastdb -in  Arabidopsis_thaliana.TAIR10.pep.all.fa -dbtype prot -out TAIR10 -parse_seqids</span><br></pre></td></tr></table></figure>
+
+<p>如果你从NCBI或者其他渠道下载了格式化过的数据库，那么可以用<code>blastdbcmd</code>去检索blast数据库，参数很多，常用就如下几个</p>
+<ul>
+<li>db string :  string表示数据库所在路径</li>
+<li>dbtype string,: string在（guess, nucl, prot)中选择一个</li>
+<li>检索相关参数<ul>
+<li>-entry all 或 555, AC147927 或 gnl|dbname|tag’</li>
+<li>-entry_batch 提供一个包含多个检索关键字的文件</li>
+<li>-info 数据库基本信息</li>
+</ul>
+</li>
+<li>输出格式 -outfmt %f %s %a %g …默认是%f</li>
+<li>out 输出文件</li>
+<li>show_blastdb_search_path: blast检索数据库路径</li>
+</ul>
+<p>使用案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看信息</span></span><br><span class="line">blastdbcmd -db TAIR10 -dbtype nucl -info</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">所有数据</span></span><br><span class="line">blastdbcmd -db TAIR10 -dbtype nucl -entry all | head</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">具体关键字，如GI号</span></span><br><span class="line">blastdbcmd -db TAIR10 -dbtype nucl -entry 3 | head</span><br></pre></td></tr></table></figure>
+
+<p>还有其他有意思的参数，可以看帮助文件了解</p>
+<h3 id="可选：BLAST安装和更新nr和nt库"><a href="#可选：BLAST安装和更新nr和nt库" class="headerlink" title="可选：BLAST安装和更新nr和nt库"></a>可选：BLAST安装和更新nr和nt库</h3><p>安装nt&#x2F;nr库需要先进行环境变量配置，在家目录下新建一个<code>.ncbirc</code>配置文件，然后添加如下内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">; 开始配置BLAST</span><br><span class="line">[BLAST]</span><br><span class="line">; 声明BLAST数据库安装位置</span><br><span class="line">BLASTDB=/home/xzg/Database/blast</span><br><span class="line">; Specifies the data sources to use for automatic resolution</span><br><span class="line">; for sequence identifiers</span><br><span class="line">DATA_LOADERS=blastdb</span><br><span class="line">; 蛋白序列数据库存本地位置</span><br><span class="line">BLASTDB_PROT_DATA_LOADER=/home/xzg/Database/blast/nr</span><br><span class="line">; 核酸数据库本地存放位置</span><br><span class="line">BLASTDB_NUCL_DATA_LOADER=/home/xzg/Database/blast/nt</span><br><span class="line">[WINDOW_MASKER]</span><br><span class="line">WINDOW_MASKER_PATH=/home/xzg/Database/blast/windowmasker</span><br></pre></td></tr></table></figure>
+
+<p>配置好之后，使用BLAST+自带的update_blastdb.pl脚本下载nr和nt等库文件（不建议下载序列文件，一是因为后者文件更大，二是因为可以从库文件中提取序列blastdbcmd -db nr -dbtype prot -entry all -outfmt “%f” -out nr.fa ，最主要是建库需要花费很长时间），直接运行下列命令即可自动下载。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup time update_blastdb.pl nt nr &gt; log &amp;</span><br></pre></td></tr></table></figure>
+
+<p>如果你不像通过<code>update_blastdb.pl</code>下载nr和nt等库文件，也可以是从ncbi上直接下载一系列nt&#x2F;nr.xx.tar.gz文件，然后解压缩即可，后续还可以用<code>update_blastdb.pl</code>进行数据更新。</p>
+<p><strong>报错</strong>： 使用<code>update_blastdb.pl</code>更新和下载数据库时候出现模块未安装的问题。解决方法，首先用conda安装对应的模块，然后修改<code>update_blastdb.pl</code>的第一行，即shebang部分，以conda的perl替换，或者按照如下方法执行。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl `which update_blastdb.pl`</span><br></pre></td></tr></table></figure>
+
+<p>下载过程中请确保网络状态良好，否则会出现<code>Downloading nt.00.tar.gz...Unable to close datastream</code>报错。</p>
+<h3 id="第二步：选择blast工具"><a href="#第二步：选择blast工具" class="headerlink" title="第二步：选择blast工具"></a>第二步：选择blast工具</h3><p>根据不同的需求，比如说你用的序列是氨基酸还是核苷酸，你要查找的数据是核甘酸还是氨基酸，选择合适的blast工具。不同需求的对应关系可以见下图（来自biostars handbook）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-7eda5a0afe83a170-60f9ffc04b8b4d66a567b7e0b20dfc69.png" alt="BLAST工具"></p>
+<p>不同工具的应用范围虽然不同，但是基本参数都是一致的，学会<code>blastn</code>，基本上其他诸如<code>blastp</code>,<code>blastx</code>也都会了。</p>
+<p>blastn的使用参数很多 <code>blastn [-h]</code> ，但是比较常用是如下几个</p>
+<ul>
+<li>-db : 数据库在本地的位置，或者是NCBI上数据库的类型,如 -db nr</li>
+</ul>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-9013c614e8290e5d-ddd2b176db0a43b890c9e4fa69604281.png" alt="BLAST库"></p>
+<ul>
+<li><p>-query: 检索文件</p>
+</li>
+<li><p>-query_loc : 指定检索的位置</p>
+</li>
+<li><p>-strand： 搜索正义链还是反义链，还是都要</p>
+</li>
+<li><p>out : 输出文件</p>
+</li>
+<li><p>-remote： 可以用NCBI的远程数据库， 一般与 -db nr</p>
+</li>
+<li><p>-evalue 科学计数法，比如说1e3，定义期望值阈值。E值表明在随机的情况下，其它序列与目标序列相似度要大于这条显示的序列的可能性。 与S值有关，S值表示两序列的同源性，分值越高表明它们之间相似的程度越大</p>
+<blockquote>
+<p>E值总结： 1.E值适合于有一定长度，而且复杂度不能太低的序列。2. 当E值小于10-5时，表明两序列有较高的同源性，而不是因为计算错误。3. 当E值小于10-6时，表时两序列的同源性非常高，几乎没有必要再做确认。</p>
+</blockquote>
+</li>
+<li><p>与<strong>联配计分</strong>相关参数： -gapopen，打开gap的代价；-gapextend， gap延伸的代价；-penalty：核酸错配的惩罚； -reward， 核酸正确匹配的奖励；</p>
+</li>
+<li><p>结果过滤：-perc_identity, 根据相似度</p>
+</li>
+</ul>
+<p><strong>注</strong> BLAST还提供一个task参数，感觉很有用的样子，好像会针对任务进行优化速度。</p>
+<h3 id="第三步：运行blast，调整输出格式。"><a href="#第三步：运行blast，调整输出格式。" class="headerlink" title="第三步：运行blast，调整输出格式。"></a>第三步：运行blast，调整输出格式。</h3><p>我随机找了一段序列进行检索</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &#x27;&gt;test&#x27; &gt; query.fa</span><br><span class="line">echo TGAAAGCAAGAAGAGCGTTTGGTGGTTTCTTAACAAATCATTGCAACTCCACAAGGCGCCTGTAATAGACAGCTTGTGCATGGAACTTGGTCCACAGTGCCCTACCACTGATGATGTTGATATCGGAAAGTGGGTTGCAAAAGCTGTTGATTGTTTGGTGATGACGCTAACAATCAAGCTCCTCTGGT &gt;&gt; query.fa</span><br></pre></td></tr></table></figure>
+
+<p>用的是<code>blastn</code> 检索核酸数据库。最简单的用法就是提供数据库所在位置和需要检索的序列文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">blastn -db BLAST/TAIR10 -query query.fa</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">还可以指定检索序列的位置</span></span><br><span class="line">blastn -db BLAST/TAIR10 -query query.fa  -query_loc 20-100</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者使用远程数据库</span></span><br><span class="line">blastn -db nr -remote -query query.fa</span><br><span class="line">blastn -db nt -remote -query query.fa</span><br></pre></td></tr></table></figure>
+
+<p>以上是默认输出，blast的<code>-outfmt</code>选项提供个性化的选择。一共有18个选择，默认是0。<br>     0 &#x3D; Pairwise,<br>     1 &#x3D; Query-anchored showing identities,<br>     2 &#x3D; Query-anchored no identities,<br>     3 &#x3D; Flat query-anchored showing identities,<br>     4 &#x3D; Flat query-anchored no identities,<br>     5 &#x3D; BLAST XML,<br>     6 &#x3D; Tabular,<br>     7 &#x3D; Tabular with comment lines,<br>     8 &#x3D; Seqalign (Text ASN.1),<br>     9 &#x3D; Seqalign (Binary ASN.1),<br>    10 &#x3D; Comma-separated values,<br>    11 &#x3D; BLAST archive (ASN.1),<br>    12 &#x3D; Seqalign (JSON),<br>    13 &#x3D; Multiple-file BLAST JSON,<br>    14 &#x3D; Multiple-file BLAST XML2,<br>    15 &#x3D; Single-file BLAST JSON,<br>    16 &#x3D; Single-file BLAST XML2,<br>    17 &#x3D; Sequence Alignment&#x2F;Map (SAM),<br>    18 &#x3D; Organism Report<br>其中6，7，10，17可以自定输出格式。默认是</p>
+<blockquote>
+<p>qaccver saccver pident length mismatch gapopen qstart qend sstart send evalue bitscore</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>简写</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>qaccver</strong></td>
+<td>查询的AC版本（与此类似的还有qseqid,qgi,qacc,与序列命名有关）</td>
+</tr>
+<tr>
+<td><strong>saccver</strong></td>
+<td>目标的AC版本（于此类似的还有sseqid,sallseqid,sgi,sacc,sallacc,也是序列命名相关)</td>
+</tr>
+<tr>
+<td><strong>pident</strong></td>
+<td>完全匹配百分比 （响应的nident则是匹配数）</td>
+</tr>
+<tr>
+<td><strong>length</strong></td>
+<td>联配长度(另外slen表示查询序列总长度，qlen表示目标序列总长度)</td>
+</tr>
+<tr>
+<td><strong>mismatch</strong></td>
+<td>错配数目</td>
+</tr>
+<tr>
+<td><strong>gapopen</strong></td>
+<td>gap的数目</td>
+</tr>
+<tr>
+<td><strong>qstart</strong></td>
+<td>查询序列起始</td>
+</tr>
+<tr>
+<td><strong>qstart</strong></td>
+<td>查询序列结束</td>
+</tr>
+<tr>
+<td><strong>sstart</strong></td>
+<td>目标序列起始</td>
+</tr>
+<tr>
+<td><strong>send</strong></td>
+<td>目标序列结束</td>
+</tr>
+<tr>
+<td><strong>evalue</strong></td>
+<td>期望值</td>
+</tr>
+<tr>
+<td><strong>bitscore</strong></td>
+<td>Bit得分</td>
+</tr>
+<tr>
+<td><strong>score</strong></td>
+<td>原始得分</td>
+</tr>
+<tr>
+<td>AC：</td>
+<td>accession</td>
+</tr>
+</tbody></table>
+<p>以格式7为实例进行输出，并且对在线数据库进行检索 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">blastn -task blastn -remote -db nr -query query.fa  -outfmt 7 -out query.txt</span><br><span class="line">head -n 15 query.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-22d43cfb51512b11-42a366f0ffd645a496bac9ef1f45c9a0.jpg" alt="BLAST BEST HIT"></p>
+<p>如果想输入序列，增加对应的格式<code>qseq, sseq</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">blastn -query query.fa -db nr -outfmt <span class="string">&#x27; 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send qseq sseq evalue bitscore&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>对已有序列进行注释时常见的<strong>best hit only</strong>模式命令行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">blastn -query gene.fa -out gene.blast.txt -task megablast -db nt -num_threads 12 -evalue 1e-10 -best_hit_score_edge 0.05 -best_hit_overhang 0.25 -outfmt <span class="string">&quot;7 std stitle&quot;</span> -perc_identity 50 -max_target_seqs 1</span><br><span class="line"><span class="comment"># 参数详解</span></span><br><span class="line">-task megablast : 任务执行模式，可选有<span class="string">&#x27;blastn&#x27;</span> <span class="string">&#x27;blastn-short&#x27;</span> <span class="string">&#x27;dc-megablast&#x27;</span> <span class="string">&#x27;megablast&#x27;</span> <span class="string">&#x27;rmblastn&#x27;</span></span><br><span class="line">-best_hit_score_edge 0.05 :  Best Hit 算法的边界值，取值范围为0到0.5，系统推荐0.1</span><br><span class="line">-best_hit_overhang 0.25 : Best Hit 算法的阈值，取值范围为0到0.5，系统推荐0.1</span><br><span class="line">-perc_identity 50 : 相似度大于50</span><br><span class="line">-max_target_seqs 1 : 最多保留多少个联配</span><br></pre></td></tr></table></figure>
+
+<p>仅仅看参数依旧无用，还需要知道BLAST的Best-Hits的过滤算法。假设一个序列存在两个match结果,A和B，无论A还是B，他们的HSP（High-scoring Segment Pair, 没有gap时的最高联配得分）一定要高于<code>best_hit_overhang</code>，否则被过滤。如果满足下列条件则保留A</p>
+<ul>
+<li>evalue(A) &gt;&#x3D; evalue (B)</li>
+<li>score(A)&#x2F;length(A) &lt; (1.0-score_edge)*score(B)&#x2F;length(B)</li>
+</ul>
+<h2 id="搭建网页BLAST"><a href="#搭建网页BLAST" class="headerlink" title="搭建网页BLAST"></a>搭建网页BLAST</h2><p>曾经的BLAST安装后提供wwwblast用于构建本地的BLAST网页工具，但是BLAST+没有提供这个工具，好在BLAST足够出名，也就有人给它开发网页版工具。如<a target="_blank" rel="noopener" href="http://indra.mullins.microbiol.washington.edu/blast/viroblast.php">viroBLAST</a>和<a target="_blank" rel="noopener" href="http://www.sequenceserver.com/">Sequenceserver</a>, 目前来看似乎后者更受人欢迎。</p>
+<p>有root安装起来非常的容易</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ruby ncbi-blast+ ruby-dev rubygems-integration npm</span><br><span class="line">sudo gem install sequenceserver</span><br></pre></td></tr></table></figure>
+
+<p>数据库准备,前面步骤已经下载了拟南芥基因组的FASTA格式数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sequenceserver -d /到/之前/建立/BLAST/文件路径</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以打开浏览器输入IP:端口号使用了。</p>
+<h3 id="Sequenceserver高级用法"><a href="#Sequenceserver高级用法" class="headerlink" title="Sequenceserver高级用法"></a>Sequenceserver高级用法</h3><p><strong>开机启动</strong>：</p>
+<p>新建一个<code>/etc/systemd/system/sequenceserver.service</code>文件，添加如下内容。注意修改<strong>ExecStart</strong>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=SequenceServer server daemon</span><br><span class="line">Documentation=<span class="string">&quot;file://sequenceserver --help&quot;</span> <span class="string">&quot;http://sequenceserver.com/doc&quot;</span></span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=seqservuser</span><br><span class="line">ExecStart=/path/to/bin/sequenceserver -c /path/to/sequenceserver.conf</span><br><span class="line">KillMode=process</span><br><span class="line">Restart=on-failure</span><br><span class="line">RestartSec=42s</span><br><span class="line">RestartPreventExitStatus=255</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>然后重新加载systemctl</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## let systemd know about changed files</span></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line"><span class="comment">## enable service for automatic start on boot</span></span><br><span class="line">systemctl <span class="built_in">enable</span> sequenceserver.service</span><br><span class="line"><span class="comment">## start service immediately</span></span><br><span class="line">systemctl start sequenceserver.service</span><br></pre></td></tr></table></figure>
+
+<p><strong>nginx反向代理</strong>：我承认没有基本的nginx的知识根本搞不定这一步，所以我建议组内使用就不要折腾这个。简单的说就是在nginx的配置文件的server部分添加如下内容即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">location /sequenceserver/ &#123;</span><br><span class="line">    root /home/priyam/sequenceserver/public/dist;</span><br><span class="line">    proxy_pass http://localhost:4567/;</span><br><span class="line">    proxy_intercept_errors on;</span><br><span class="line">    proxy_connect_timeout 8;</span><br><span class="line">    proxy_read_timeout 180;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假如你有docker的话</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ubuntu</span></span><br><span class="line">docker run --<span class="built_in">rm</span> -itp 4567:4567 -v /path-to-database-dir:/db wurmlab/sequenceserver:1.0.11</span><br><span class="line"><span class="comment"># centos</span></span><br><span class="line">docker run --privileged --<span class="built_in">rm</span> -itp 4567:4567 -v /path-to-database-dir:/db wurmlab/sequenceserver:1.0.11</span><br></pre></td></tr></table></figure>
+
+<p>注意，你得在宿主机器上<code> /path-to-database-dir</code>建好blast索引，或者用<code>docker exec -it  docker容器名 /bin/bash</code> 进入到容器里，用<code>sequenceserver -d db &amp;</code>运行</p>
+<p>参考资料：<a target="_blank" rel="noopener" href="http://www.sequenceserver.com/doc/">http://www.sequenceserver.com/doc/</a></p>
+<h2 id="术语列表"><a href="#术语列表" class="headerlink" title="术语列表"></a>术语列表</h2><p>引自<a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/books/NBK62051/">BLAST Glossary</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://blog.shenwei.me/local-blast-installation/">Linux系统中NCBI BLAST+本地化教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/books/NBK279690/">BLAST Command Line Applications User Manual</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/09/02/%E8%BF%99%E5%8F%AF%E8%83%BD%E6%98%AF%E6%9C%80%E5%85%A8%E6%9C%80%E5%A5%BD%E7%9A%84BLAST%E6%95%99%E7%A8%8B-It-maybe-the-best-BLAST-tutorial/" data-id="cllg90y7500l2eqp2ev68eg2c" data-title="这可能是最全最好的BLAST教程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/03/%E4%BD%BF%E7%94%A8OrthoMCL%E9%89%B4%E5%AE%9A%E7%9B%B4%E7%B3%BB%E5%90%8C%E6%BA%90%E5%9F%BA%E5%9B%A0%E7%BB%84-OrthoMCL-Identification-of-Ortholog-Groups-for-Eukaryotic-Genomes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          使用OrthoMCL鉴定直系同源基因组
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/02/%E3%80%8CJCVI%E6%95%99%E7%A8%8B%E3%80%8D%E4%BD%BF%E7%94%A8JCVI%E6%A0%B9%E6%8D%AECDS%E7%9A%84BLAST%E7%BB%93%E6%9E%9C%E7%BB%98%E5%88%B6%E5%85%B1%E7%BA%BF%E6%80%A7%E5%9B%BE-Analyze-synteny-base-on-CDS-blast-using-JCVI/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">「JCVI教程」使用JCVI根据CDS的BLAST结果绘制共线性图</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

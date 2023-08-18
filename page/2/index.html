@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/2/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-又快又好的Hi-C辅助组装流程-hic-scaffolding-with-chromap-yahs" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" class="article-date">
+  <time class="dt-published" datetime="2023-01-27T02:38:28.742Z" itemprop="datePublished">2023-01-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/">又快又好的Hi-C辅助组装流程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>之前使用的是3D-DNA流程做Hi-C的辅助组装，它的最大优势就是输出结果可以对接下游的JBAT(juicerbox with Assembly Tools)进行手动矫正。然而它点缺陷也很明显，处理速度不够快，且对植物的优化不行，同时目前许久不更新了。</p>
+<p>最近我发现了一套新的组合，chromap + yahs 完全替代之前3D-DNA流程。它的依赖工具如下</p>
+<ul>
+<li>chromap: 高效Hi-C数据比对</li>
+<li>samtools: sam转bam</li>
+<li>yahs: 另一个Hi-C scaffolding工具。纠错上准确性高，排序上略强3d-dna，远超SALSA2。</li>
+<li>juicer_tools: 用于输出导入JuiceBox</li>
+</ul>
+<p>chrompa, samtools, yahs可以直接用conda进行安装，juicer_tools依赖Java环境，并需要单独下载</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda create -n hic-scaffolding -c bioconda -c conda-forge chromap samtools yahs assembly-stats openjdk </span><br><span class="line"># 1.19.02版本就行了, 最新的3.0不向下兼容</span><br><span class="line">wget https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.19.02.jar</span><br></pre></td></tr></table></figure>
+
+
+<p>具体分析步骤如下，我们需要提供前期组装结果，以及Hi-C数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">contigsFasta=/到/你的/contig.fa的路径</span><br><span class="line">r1Reads=/到/你的/Hi-C R1测序的路径</span><br><span class="line">r2Reads=/到/你的/Hi-C R2测序的路径</span><br></pre></td></tr></table></figure>
+
+
+<p>第一步，数据比对</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建立索引</span></span><br><span class="line">samtools faidx <span class="variable">$contigsFasta</span></span><br><span class="line">chromap -i -r <span class="variable">$contigsFasta</span> -o contigs.index</span><br><span class="line"></span><br><span class="line"><span class="comment"># alignment</span></span><br><span class="line">chromap \</span><br><span class="line">    --preset hic \</span><br><span class="line">    -r <span class="variable">$contigsFasta</span> \</span><br><span class="line">    -x contigs.index \</span><br><span class="line">    --remove-pcr-duplicates \</span><br><span class="line">    -1 <span class="variable">$r1Reads</span> \</span><br><span class="line">    -2 <span class="variable">$r2Reads</span> \</span><br><span class="line">    --SAM \</span><br><span class="line">    -o aligned.sam \</span><br><span class="line">    -t 50</span><br><span class="line"></span><br><span class="line"><span class="comment"># 排序   </span></span><br><span class="line">samtools view -bh aligned.sam | samtools <span class="built_in">sort</span> -@ 50 -n &gt; aligned.bam</span><br><span class="line"><span class="built_in">rm</span> aligned.sam    </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>按照read的名字进行排序和按照位置排序或未排序的结果会有一些不同。</p>
+</blockquote>
+<p>第二步，又快又好的scaffolding。默认只需要两个输入，组转的contig.fa和比对的bam，和C语言一样简洁。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yahs <span class="variable">$contigsFasta</span> aligned.bam</span><br></pre></td></tr></table></figure>
+
+<p>在输出结果中</p>
+<ul>
+<li>inital_break 表示纠错的中间输出</li>
+<li>_scaffolds_final.agp和_scaffolds_final.fa则是最终结果</li>
+</ul>
+<p>对于输出结果，我们希望进行可视化，此时可以使用yahs提供的jucier工具</p>
+<p>第三步，为juicer_tools准备输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">juicer pre -a -o out_JBAT \</span><br><span class="line">    yahs.out.bin \</span><br><span class="line">    yahs.out_scaffolds_final.agp \</span><br><span class="line">    <span class="variable">$contigsFasta</span>.fai</span><br><span class="line"><span class="comment"># -o out_JBAT表示输出文件名的前缀    </span></span><br></pre></td></tr></table></figure>
+
+<p>一共包括如下几个文件</p>
+<ul>
+<li>out_JBAT.assembly</li>
+<li>out_JBAT.assembly.agp</li>
+<li>out_JBAT.hic</li>
+<li>out_JBAT.liftover.agp</li>
+<li>out_JBAT.txt</li>
+</ul>
+<p>out_JBAT.txt就作为下游的输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">JUICER=/路径/到/juicer_tools_1.19.02.jar</span><br><span class="line">asm_size=$(awk <span class="string">&#x27;&#123;s+=$2&#125; END&#123;print s&#125;&#x27;</span> <span class="variable">$contigsFasta</span>.fai)</span><br><span class="line">java -Xmx36G -jar <span class="variable">$JUICER</span> \</span><br><span class="line">    pre out_JBAT.txt out_JBAT.hic &lt;(<span class="built_in">echo</span> <span class="string">&quot;assembly <span class="variable">$&#123;asm_size&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>输出的out_JBAT.hic就可以导入到JBAT进行组装,导出为out_JBAT.review.assembly </p>
+<p>将手动修改的结果传递给juicer，进行scaffolding。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">juicer post -o out_JBAT out_JBAT.review.assembly out_JBAT.liftover.agp contigs.fa</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为 out_JBAT.FINAL.agp, out_JBAT.FINAL.fa</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" data-id="cllg90y4m00efeqp2ea1bdlch" data-title="又快又好的Hi-C辅助组装流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Bioconductor安装的网络问题-the-network-problem-when-using-bioconductor" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" class="article-date">
+  <time class="dt-published" datetime="2022-12-31T07:35:27.426Z" itemprop="datePublished">2022-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/">Bioconductor安装的网络问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>由于Bioconductor的网站在国外，因此一部分用户可能在使用BiocManager安装R包时因网络问题而失败。</p>
+<p>第一个问题是，<code>BiocManager::install()</code>在运行时会下载 <a target="_blank" rel="noopener" href="http://bioconductor.org/config.yaml">http://bioconductor.org/config.yaml</a> 然后检查当前系统是不是符合需求，R包有没有过期。</p>
+<p>尽管config.yaml文件非常小，但是依旧有一小部分人会因为访问不了biconductor.org, 导致这步花费非常久的时间。</p>
+<p>两个解决方案：</p>
+<p>第一个是设置BIOCONDUCTOR_ONLINE_VERSION_DIAGNOSIS来避免自检</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options<span class="punctuation">(</span>BIOCONDUCTOR_ONLINE_VERSION_DIAGNOSIS<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>第二个是，下载好这个config.yaml到本地, 设置BIOCONDUCTOR_CONFIG_FILE为该文件在本地的路径</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options<span class="punctuation">(</span>BIOCONDUCTOR_CONFIG_FILE<span class="operator">=</span><span class="string">&quot;/路径/到/你下载的/config.yaml&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>第二个问题是，用官方源下载速度非常慢，所以可以使用国内镜像，如</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options<span class="punctuation">(</span>BioC_mirror<span class="operator">=</span><span class="string">&quot;https://mirrors.tuna.tsinghua.edu.cn/bioconductor&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>亦或者用 <code>chooseBioCmirror()</code> 选择。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" data-id="cllg90xz5000neqp25mv42oij" data-title="Bioconductor安装的网络问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-无root权限下解决编译时的依赖问题-compile-as-normal-user" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" class="article-date">
+  <time class="dt-published" datetime="2022-12-11T04:09:56.472Z" itemprop="datePublished">2022-12-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/">无root权限下解决编译时的依赖问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>如果你拥有最高权限，如果你只管理一台服务器，那么系统自带的包管理工具就帮你解决了所有问题。但是真实世界没有那么美好，所以我花了那么久时间去学习如何从源码开始编译一个软件。</p>
+<p><strong>环境</strong>为CentOS Linux release 7.4.1708 (Core), Linux内核version 3.10.0-693.el7.x86_64， GCC版本为4.8.5 20150623 (Red Hat 4.8.5-16) (GCC)，</p>
+<h2 id="Linux的编译体系"><a href="#Linux的编译体系" class="headerlink" title="Linux的编译体系"></a>Linux的编译体系</h2><p>无管理员权限编译的常规三部曲是<code>./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</code>，其中最重要的一步就是<code>configure</code>，它所做的任务如下</p>
+<ul>
+<li>检查GCC版本以及是否安装了编译所需工具</li>
+<li>如果需要头文件，则默认去<code>/usr/include</code>查找</li>
+<li>如果涉及到动态编译库，则默认去<code>/usr/lib</code>和<code>/usr/lib64</code>查找. 注：<code>lib</code>的函数库仅用于开机时用,提供给&#x2F;bin和&#x2F;sbin.</li>
+</ul>
+<p>那为何需要配置？配置主要解决软件开发和软件实际安装时平台不同所导致的问题。</p>
+<p>首先，一个C&#x2F;C++工程不可能只用到标准库，很多已有的轮子就不需要重复制造。其次，由于很多软件都重复用到相同的依赖库，那么如果把这些依赖库独立成单独的模块，在调用的时候加载，也能节省空间。早期为了适配多个平台，开发人员需要手写条件语句来检查环境依赖，后来GNU专门开发了Autotools辅助构建源码编译所需要的关键文件。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2013053-36054cdebaf2ec9d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Autotools"></p>
+<h2 id="编译环境变量"><a href="#编译环境变量" class="headerlink" title="编译环境变量"></a>编译环境变量</h2><p>用<code>./configure -h</code>查看帮助文档的时候，会提示几个和编译相关非常重要的环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译器</span></span><br><span class="line">CC          指定C编译器(compiler command)路径</span><br><span class="line">CXX         指定C++编译器</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译器选项</span></span><br><span class="line">CFLAGS      用于C编译器的选项</span><br><span class="line">CXXFLAGS    用于C++编译器的选项</span><br><span class="line">LDFLAGS     链接相关选项,如果你有自定义的函数库(lib dir)，即可以用 -L&lt;lib dir&gt;指定</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预编译器</span></span><br><span class="line">CXXCPP      C++ 预处理器(preprocessor)</span><br><span class="line">CPP         C 预处理器(preprocessor)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预编译器选项</span></span><br><span class="line">CPPFLAGS    C/C++预处理器选项, 如果你自定义的头文件，可以用-I&lt;include dir&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Makfile规则中的编译命令通常遵守如下规范：</p>
+<p>1,首先从源代码生成目标文件( <strong>预处理,编译,汇编</strong> )，”-c”选项表示不执行链接步骤；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(CC) $(CPPFLAGS) $(CFLAGS) example.c   -c   -o example.o</span></span><br></pre></td></tr></table></figure>
+
+<p>2,然后将目标文件链接为最终的结果( <strong>链接</strong> )，”-o”选项用于指定输出文件的名字。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(CC) $(LDFLAGS) example.o   -o example</span></span><br></pre></td></tr></table></figure>
+
+<p>这些只是约定俗成的惯例，所以有些人会“随性而为”，你也拿他没有办法。尽管将源代码编译为二进制文件的四个步骤由不同的程序(cpp,gcc&#x2F;g++,as,ld)完成，但是事实上 cpp, as, ld 都是由 gcc&#x2F;g++ 进行间接调用的。换句话说，<strong>控制了 gcc&#x2F;g++ 就等于控制了所有四个步骤</strong>。从 Makefile 规则中的编译命令可以看出，编译工具的行为全靠 <strong>CC&#x2F;CXX CPPFLAGS CFLAGS&#x2F;CXXFLAGS LDFLAGS</strong> 这几个变量在控制。所以控制这些变量最简单的做法是首先设置与这些 Makefile 变量同名的环境变量并将它们 export 为 <strong>环境变量</strong>（全局），然后运行 configure 脚本，大多数 configure 脚本会使用这同名的环境变量代替 Makefile 中的值</p>
+<ul>
+<li>CC&#x2F;CXX: 指定C&#x2F;C++编译所在路径，即可以选择不同的版本的编译器进行编译。</li>
+<li>CPPFLAGS: 这是用于预处理阶段的选项。用于添加不在标准路径<code>/usr/include</code>下的头文件。如<code>CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses&quot;</code></li>
+<li>CFLAGS&#x2F;CXXFLAGS： 指定头文件（.h文件）的路径，如：<code>CFLAGS=-I/usr/include -I/path/include</code>。同样地，安装一个包时会在安装路径下建立一个include目录，当安装过程中出现问题时，试着把以前安装的包的include目录加入到该变量中来。</li>
+</ul>
+<blockquote>
+<p>CPPFLAG和CFLAGS&#x2F;CXXFLAGS这两个变量可以认为是等价关系，都用在预处理阶段，也就是都能用于指定头文件所在位置。</p>
+</blockquote>
+<ul>
+<li>LDFLAGS：gcc 等编译器会用到的一些优化参数，也可以在里面指定库文件的位置。用法：<code>LDFLAGS=-L/usr/lib -L/path/to/your/lib</code>。每安装一个包都几乎一定的会在安装目录里建立一个lib目录。如果明明安装了某个包，而安装另一个包时，它愣是说找不到，可以抒那个包的lib路径加入的LDFALGS中试一下。</li>
+</ul>
+<p>有时候LDFLAGS指定-L虽然能让链接器找到库进行链接，但是运行时链接器却找不到这个库，如果要让软件运行时库文件的路径也得到扩展，那么我们需要增加这两个库给”-Wl,R”：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LDFLAGS = -L/var/xxx/lib -L/opt/mysql/lib -Wl,R/var/xxx/lib -Wl,R/opt/mysql/lib</span><br></pre></td></tr></table></figure>
+
+<p>如在执行.&#x2F;configure以前设置环境变量 <code>export LDFLAGS=&quot;-L/var/xxx/lib -L/opt/mysql/lib -Wl,R/var/xxx/lib -Wl,R/opt/mysql/lib&quot;</code>，注意设置环境变量等号两边不可以有空格，而且要加上引号（shell的用法）。那么执行configure以后，Makefile将会设置这个选项，链接时会有这个参数，编译出来的可执行程序的库文件搜索路径就得到扩展了</p>
+<p>除了通过以上几种环境变量为编译器提供头文件和静态和动态库文件的位置信息外，还有一种变量叫做 <strong>PKG_CONFIG_PATH</strong> , 它从<code>xx.pc</code>文件获取读取相应的环境环境。</p>
+<p><strong>注意</strong>:Linux下编译共享库时，必须加上-fPIC参数，即<code>export CFLAGS=&quot; -fPIC&quot; CXXFLAGS=&quot; -fPIC&quot;</code>否则在链接时会有错误提示.这是在编译zsh时候发现明明装了ncurse却还是不能用的共享库的坑。</p>
+<blockquote>
+<p>fPIC的目的是什么？共享对象可能会被不同的进程加载到不同的位置上，如果共享对象中的指令使用了绝对地址、外部模块地址，那么在共享对象被加载时就必须根据相关模块的加载位置对这个地址做调整，也就是修改这些地址，让它在对应进程中能正确访问，而被修改到的段就不能实现多进程共享一份物理内存，它们在每个进程中都必须有一份物理内存的拷贝。fPIC指令就是为了让使用到同一个共享对象的多个进程能尽可能多的共享物理内存，它背后把那些涉及到绝对地址、外部模块地址访问的地方都抽离出来，保证代码段的内容可以多进程相同，实现共享。</p>
+</blockquote>
+<p><strong>动态库路径问题</strong>: 由前面可以知道许多大型软件为了减少体积不会完全编译所有功能，而是借助于动态连接技术在运行时加载封装好的动态连接库内的功能。这就涉及一个非常重要的问题，软件如何知道动态链接库所处的位置。动态库搜索路径分两种情况，一种是编译生成可执行文件时，另外一种是运行可执行文件时。</p>
+<p>编译生成可执行文件时，动态库的搜索路径顺序如下：</p>
+<ul>
+<li>首先gcc会找-L选项；</li>
+<li>然后再找gcc的环境变量<code>LIBRARY_PATH</code>，可以在.profile设置这个环境变量，并且可以通过选项-v查看gcc最终编译时LIBRARY_PATH的值；</li>
+<li>再找内定目录: <code>/lib：/usr/lib：/usr/local/lib</code>，这些都是当初compile gcc时写在程序内的。</li>
+</ul>
+<p>注意上面索顺序是<strong>不会递归</strong>在目录下搜索的。</p>
+<p>生成可执行文件后，运行文件时，动态库的搜索路径顺序如下：</p>
+<ul>
+<li>首先编译目标代码时指定的动态库搜索路径，就是用选项 <code>-Wl,rpath</code> 指定程序在运行时动态库的搜索路径，比如gcc -Wl,-rpath,include -L. -ldltest hello.c，在执行文件时会搜索路径.&#x2F;include；</li>
+<li>环境变量<code>LD_LIBRARY_PATH</code>指定的动态库搜索路径；</li>
+<li>配置文件<code>/etc/ld.so.conf</code>中指定的动态库搜索路径，即在配置文件中添加动态库的绝对路径，然后运行指令ldconfig是配置文件生效；</li>
+<li>默认的动态库搜索路径<code>/lib:/usr/lib</code>。</li>
+</ul>
+<p>同样上面索顺序是不会递归在目录下搜索的。通常使用动态库简单做法是：把生成的so文件拷贝到&#x2F;usr&#x2F;lib中，这样不管是生成可以执行文件时，还是执行程序时，都能找到需要的so文件。但是普通用户没有&#x2F;usr&#x2F;lib的写入权限，所有要指定<code>LD_LIBRARY_PATH</code>.ls</p>
+<p>参考资料:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/xinyuan510214/article/details/50457433">CFLAGS详解</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/hjwang1/article/details/44497489">Makefile编译选项CC与CXX&#x2F;CPPFLAGS、CFLAGS与CXXFLAGS&#x2F;LDFLAGS</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/MaximusZhou/article/details/38559963">使用gcc时头文件路径和动态链接库路径</a></li>
+</ul>
+<h2 id="GCC安装-非必要"><a href="#GCC安装-非必要" class="headerlink" title="GCC安装(非必要)"></a>GCC安装(非必要)</h2><p>首先让我们利用系统原来老旧的GCC编译器编译出最新版本的gcc吧，毕竟安装软件的时候，GCC的版本一定要过最低要求。</p>
+<p><strong>第一步</strong>： 下载gcc源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/src &amp;&amp; cd ~/src</span><br><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-7.2.0/gcc-7.2.0.tar.gz</span><br><span class="line">tar -zxvf gcc-7.2.0.tar.gz &amp;&amp; cd gcc-7.2.0</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/2013053-c5d4c17d7e569961.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="check"></p>
+<p><strong>第二步</strong>， 检查系统是否已经具备前置软件, 主要是GMP，MPFR, MPC。这些软件可以到<a href="ftp://gcc.gnu.org/pub/gcc/infrastructure/">ftp://gcc.gnu.org/pub/gcc/infrastructure/</a>找到，然后下载后解压缩，并移动到gcc源码文件夹下。 可以在配置的时候用<code>--with-gmp, --with-mpfr --with-mpc</code>指定具体所在路径。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd src</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">GNU Multiple precision Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf gmp-6.1.0.tar.bz2 &amp;&amp; mv gmp-6.1.0 gcc-7.2.0/gmp</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">isl library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf isl-0.18.tar.bz2 &amp;&amp; mv isl-0.18 gcc-7.2.0/isl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MPFR Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf mpfr-3.1.4.tar.bz2 &amp;&amp; mv mpfr-3.1.4 gcc-7.2.0/mpfr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MPC Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-1.0.3.tar.gz \</span><br><span class="line">&amp;&amp; tar -zxvf mpc-1.0.3.tar.gz &amp;&amp; mv mpc-1.0.3 gcc-7.2.0/mpc</span><br></pre></td></tr></table></figure>
+
+<p>不过更加人性化的方法是在GCC源码根目录下运行<code>./contrib/download_prerequisites</code>，可以自动搞定。</p>
+<p><strong>第三步</strong>：使用<code>./configure</code>进行配置。官方<strong>强烈</strong>建议, 配置所在文件夹一定要和源码所在文件夹区分开，此外configure还可以配置很多参数，我的代码如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build &amp;&amp; cd build</span><br><span class="line">../configure\</span><br><span class="line">	--prefix=$HOME/usr \ # 指定安装路径</span><br><span class="line">	--disable-multilib \ # 取消32位库编译</span><br><span class="line">	--enable-threads=posix \ # 使用POSIX/Unix98作为线程支持库</span><br></pre></td></tr></table></figure>
+
+<p>基本上这一步不会出现太多的报错，都能够顺利生成Makefile.</p>
+<p><strong>第四步</strong>： 编译. 这步有一个小技巧就是利用多核处理器进行加速，例如<code>make -j2</code> 就是双核。</p>
+<p>这一部分很慢很慢，因为默认设置下是3个阶段的引导(3-stage bootstrap), 以保证能够编译出完整的GCC系统并且还不会出错，你可以在配置的时候用<code>--disable-bootstrap</code>进行关闭。</p>
+<p><strong>第五步</strong>： 安装。如果你编译都成功了，那么安装也不会存在问题了， <code>make install</code>.</p>
+<p>那么我们编译的GCC和系统自带的有什么<strong>区别</strong>吗？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从头编译</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="variable">$HOME</span>/usr/bin/gcc -v</span></span><br><span class="line">Using built-in specs.</span><br><span class="line">COLLECT_GCC=/home/zgxu/usr/bin/gcc</span><br><span class="line">COLLECT_LTO_WRAPPER=/home/zgxu/usr/libexec/gcc/x86_64-pc-linux-gnu/7.2.0/lto-wrapper</span><br><span class="line">Target: x86_64-pc-linux-gnu</span><br><span class="line">Configured with: ../configure --prefix=/home/zgxu/usr --disable-multilib --enable-threads=posix</span><br><span class="line">Thread model: posix</span><br><span class="line">gcc version 7.2.0 (GCC)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">系统自带</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -v</span></span><br><span class="line">Using built-in specs.</span><br><span class="line">COLLECT_GCC=gcc</span><br><span class="line">COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper</span><br><span class="line">Target: x86_64-redhat-linux</span><br><span class="line">Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux</span><br><span class="line">Thread model: posix</span><br><span class="line">gcc version 4.8.5 20150623 (Red Hat 4.8.5-16) (GCC)</span><br></pre></td></tr></table></figure>
+
+<p>不谈安装路径和版本，基本上 <strong>差别</strong> 就是在配置这一步，而这些参数就需要仔细研究了。</p>
+<p>一个 <strong>错误</strong> : ‘Link tests are not allowed after GCC_NO_EXECUTABLES.’ 后来发现是第三步没有在独立的文件下构建Makefile.</p>
+<p>参考资料：</p>
+<ul>
+<li>installing GCC: <a target="_blank" rel="noopener" href="https://gcc.gnu.org/install/">https://gcc.gnu.org/install/</a></li>
+<li>linux下编译gcc6.2.0: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/oloroso/p/5984985.html">https://www.cnblogs.com/oloroso/p/5984985.html</a></li>
+</ul>
+<h2 id="CMake-平台无关的编译软件"><a href="#CMake-平台无关的编译软件" class="headerlink" title="CMake: 平台无关的编译软件"></a>CMake: 平台无关的编译软件</h2><p>不同平台有着不同的Make工具用于编译,例如 GNU Make ，QT 的 qmake ，微软的 MS nmake，BSD Make（pmake），Makepp，等等。这些 Make 工具遵循着不同的规范和标准，所执行的 Makefile 格式也千差万别。这样就带来了一个严峻的问题：如果软件想跨平台，必须要保证能够在不同平台编译。而如果使用上面的 Make 工具，就得为每一种标准写一次 Makefile ，这将是一件让人抓狂的工作。</p>
+<p>CMake就是针对上面问题所设计的工具：它首先允许开发者编写一种平台无关的 CMakeList.txt 文件来定制整个编译流程，然后再根据目标用户的平台进一步生成所需的本地化 Makefile 和工程文件，如 Unix 的 Makefile 或 Windows 的 Visual Studio 工程。从而做到“Write once, run everywhere”。显然，CMake 是一个比上述几种 make 更高级的编译配置工具。一些使用 CMake 作为项目架构系统的知名开源项目有 VTK、ITK、KDE、OpenCV、OSG 等.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz</span><br><span class="line">tar xf cmake-3.10.2.tar.gz</span><br><span class="line"><span class="built_in">cd</span> cmake-3.10.2</span><br></pre></td></tr></table></figure>
+
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.hahack.com/codes/cmake/">http://www.hahack.com/codes/cmake/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/d-blog/p/4617208.html">https://www.cnblogs.com/d-blog/p/4617208.html</a></li>
+</ul>
+<h2 id="几个必须要装的函数库"><a href="#几个必须要装的函数库" class="headerlink" title="几个必须要装的函数库"></a>几个必须要装的函数库</h2><p>在安装之前需要先声明几个环境变量，可以直接添加在配置文件中。这都是后面遇到共享库的问题得到的经验教训。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">export CFLAGS=&quot; -fPIC&quot;</span><br><span class="line">export CXXFLAGS=&quot; -fPIC&quot;</span><br><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses -I$HOME/usr/include/X11&quot;</span><br><span class="line">export LDFLAGS=&quot;-L$HOME/usr/lib -L$HOME/usr/lib64&quot;</span><br><span class="line">export LD_LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/lib64</span><br><span class="line">export PKG_CONFIG_PATH=$HOME/usr/lib/pkgconfig:$HOME/usr/share/pkgconfig</span><br></pre></td></tr></table></figure>
+
+<p><strong>ncurses</strong>提供了一系列的函数以便使用者调用它们去生成基于文本的用户界面，许多大名鼎鼎的软件都用到了ncurses，例如vim, screen,tmux,zsh等。并且<strong>samtools</strong>如果需要tview可视化BAM文件，也需要这个库做支持。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.invisible-island.net/ncurses/ncurses.tar.gz &amp;&amp; tar -zxvf ncurses.tar.gz</span><br><span class="line">./configure --enable-shared --prefix=$HOME/usr</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>Libevent</strong>是一个用C语言编写的、轻量级的开源高性能事件通知库, 后续安装tmux时候需要这个依赖库。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libevent</span></span><br><span class="line">cd src</span><br><span class="line">wget https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz</span><br><span class="line">tar -zxvf libevent-2.1.8-stable.tar.gz &amp;&amp; cd  libevent-2.1.8</span><br><span class="line">./configure prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>bzip2, xz, zlib</strong>: 文件压缩相关函数库，后续samtools编译时需要。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.zlib.net/zlib-1.2.11.tar.gz</span><br><span class="line">tar -zxvf zlib-1.2.11.tar.gz &amp;&amp; cd zlib-1.2.11 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br><span class="line">wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz</span><br><span class="line">tar -zxvf bzip2-1.0.6.tar.gz &amp;&amp; cd bzip2-1.0.6 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br><span class="line">wget https://tukaani.org/xz/xz-5.2.3.tar.gz</span><br><span class="line">tar -zxvf xz-5.2.3.tar.gz &amp;&amp; cd xz-5.2.3 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>openssl, libssh2, libcurl</strong>: 计算机之间文件传输访问相关库。其中OpenSSL是一个安全套接字层密码库，囊括主要的密码算法、常用的密钥和证书封装管理功能及SSL协议，并提供丰富的应用程序供测试或其它目的使用。libssh2是一个C 函数库，用来实现SSH2协议。libcurl主要功能就是用不同的协议连接和沟通不同的服务器.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装有先后</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">openssl</span></span><br><span class="line">wget https://www.openssl.org/source/openssl-1.0.2m.tar.gz</span><br><span class="line">tar -zxvf openssl-1.0.2m.tar.gz &amp;&amp; cd openssl-1.0.2m</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里非常神奇的居然是config，添加shared生成动态库</span></span><br><span class="line">./config prefix=$HOME/usr shared</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">卸载使用 make clean</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libssh2</span></span><br><span class="line">wget https://www.libssh2.org/download/libssh2-1.8.0.tar.gz</span><br><span class="line">tar -zxvf libssh2-1.8.0.tar.gz &amp;&amp; cd libssh2-1.8.0</span><br><span class="line">./configure --with-libssl-prefix=$HOME/usr/ssl --prefix=$HOME/usr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libcurl</span></span><br><span class="line">wget https://curl.haxx.se/download/curl-7.56.1.tar.gz</span><br><span class="line">tar -zxvf curl-7.56.1.tar.gz &amp;&amp; cd curl-7.56.1</span><br><span class="line">./configure --prefix=$HOME/usr --enable-http --enable-ftp --enable-file --enable-proxy --enable-telnet --enable-libcurl-option --enable-ipv6 --with-lib --with-ssl</span><br></pre></td></tr></table></figure>
+
+<p><strong>readline</strong>: GNU提供用于这些命令补全、搜索历史命令、行编辑快捷键等等这些人性化的交互方式的函数库，缺少这个标准库，编译的R就缺少自动补全的功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://ftp.gnu.org/gnu/readline/readline-7.0.tar.gz</span><br><span class="line">tar -zxvf readline-7.0.tar.gz &amp;&amp; cd readline-7.0</span><br><span class="line">./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>PCRE</strong>: 提供和Perl5相同语法和语义正则表达式的函数库，后续安装R用到。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.gz</span><br><span class="line">tar -zxvf pcre-8.41.tar.gz &amp;&amp; cd pcre-8.41</span><br><span class="line">./configure --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --prefix=$HOME/usr</span><br></pre></td></tr></table></figure>
+
+<p><strong>x11</strong>：X11也叫做X Window系统，X Window系统 (X11或X)是一种位图显示的视窗系统,是在 Unix 和 类Unix 操作系统，以及OpenVMS上建立图形用户界面的标准工具包和协议，并可用于几乎所有已有的现代操作系统。主要是R编译的时候要用，具体用途有待开发。</p>
+<p>x11安装比较复杂，有很多的依赖库，因此需要先安装xtrans, xextproto, xcb(lib,xcb-proto, libpthread-subs), kbproto,xproto,inputproto。但是编译很容易，仅提供下载链接</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">https://www.x.org/releases/X11R7.7/src/lib/xtrans-1.2.7.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/xextproto-7.2.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/kbproto-1.0.6.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/xproto-7.0.23.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/inputproto-2.2.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/libpthread-stubs-0.3.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/xcb-proto-1.7.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/libxcb-1.8.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libSM-1.2.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libICE-1.0.8.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libXt-1.1.3.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>相当于人工检查依赖环境，仅仅是繁琐而已，并不困难</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装X11</span></span><br><span class="line">wget -4 https://www.x.org/releases/X11R7.7/src/lib/libX11-1.5.0.tar.gz</span><br><span class="line">tar -zxvf libX11-1.5.0.tar.gz &amp;&amp; cd libX11-1.5.0</span><br><span class="line">./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译案例"><a href="#编译案例" class="headerlink" title="编译案例"></a>编译案例</h2><h3 id="安装zsh"><a href="#安装zsh" class="headerlink" title="安装zsh"></a>安装zsh</h3><p>zsh或许可以认为是最好的shell，用过zsh的人都不会想着bash了。不过zsh自定义配置，可供选择的插件以及主题实在是太多，因此一定要搭配oh-my-zsh。zsh依赖ncurses.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -O zsh.tar.gz https://sourceforge.net/projects/zsh/files/latest/download</span><br><span class="line">tar -zxvf zsh.tar.gz &amp;&amp; cd zsh</span><br><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include/&quot; LDFLAGS=&quot;-L$HOME/usr/lib&quot;</span><br><span class="line">../configure --prefix=$HOME/usr --enable-shared</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>由于没有root权限，无法使用<code>chsh</code>，只能通过在<code>~/.bashrc</code>添加<code>exec $HOME/usr/bin/zsh -l</code>保证登陆的时候自动切换成zsh。其次, zsh搭配oh-my-zsh才完整, 只不过这里只能手动安装了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从github上克隆oh-my-zsh</span></span><br><span class="line">git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用oh-my-zsh的zsh配置文件替代</span></span><br><span class="line">cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zhsrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装一些字体, 不然一些主题会显示异常</span></span><br><span class="line">cd src</span><br><span class="line">git clone https://github.com/powerline/fonts.git --depth=1</span><br><span class="line">cd fonts &amp;&amp; ./install.sh</span><br></pre></td></tr></table></figure>
+
+<p>重启一下终端，后面根据需要调整配置文件里的参数。</p>
+<h3 id="编译tmux"><a href="#编译tmux" class="headerlink" title="编译tmux"></a>编译tmux</h3><p>tmux和screen类似，也是文本终端神器, 依赖于libevent和ncurses.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses&quot;</span><br><span class="line">export LDFLAGS=&quot;-L$HOME/usr/lib -L$HOME/usr/lib64&quot;</span><br><span class="line">mkdir -p src &amp;&amp; cd src</span><br><span class="line">git clone https://github.com/tmux/tmux.git</span><br><span class="line">cd tmux</span><br><span class="line">sh autogen.sh</span><br><span class="line">./configure --prefix=$HOME/usr</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译R语言"><a href="#编译R语言" class="headerlink" title="编译R语言"></a>编译R语言</h3><p>由于我自己编译完全版的GCC套餐，很多之前的gfortran不存在的问题也就不存在了（管理员安装了Java）。此外，R还需要gnu readline, pcre &gt; 8.2, x11。当然这些函数包都在之前安装好了。</p>
+<p>一些依赖库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装tidyverse发现xm12需要libiconv的libiconv.so.2</span></span><br><span class="line">https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>正式安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://cran.r-project.org/src/base/R-3/R-3.4.2.tar.gz</span><br><span class="line">tar -zxvf R-3.4.2.tar.gz  &amp;&amp; cd R-3.4.2/</span><br><span class="line">./configure --prefix=$HOME/R</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/2013053-2bae1c5cdc39de29.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="R configure"></p>
+<p>到此，我可以说Linux平台下即便我没有root权限，也没有多少软件包是我所不能手工编译。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" data-id="cllg90y6g00iueqp27xxm5xdp" data-title="无root权限下解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-chatGPT会替代我们吗？-is-chatgpt-going-to-replace-us" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" class="article-date">
+  <time class="dt-published" datetime="2022-12-06T07:57:22.472Z" itemprop="datePublished">2022-12-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/">chatGPT会替代我们吗？</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最新上线chatGPT，非常的热闹，openAI的服务器几度因为请求太多而宕机，紧急增加了服务器。很多视频都说程序员岌岌可危，因为chatGPT真的能帮我们写代码。</p>
+<p>我试了试，发现chatGPT确实好用，比如说我让他帮我写一段差异分析的代码(differential analysis in R code)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># Load the necessary packages</span><br><span class="line">library(DESeq2)</span><br><span class="line"></span><br><span class="line"># Import the RNA-seq data into R</span><br><span class="line">data &lt;- readRDS(&quot;rnaseq_data.rds&quot;)</span><br><span class="line"></span><br><span class="line"># Create a DESeqDataSet object from the data</span><br><span class="line">dds &lt;- DESeqDataSet(data, design = ~ condition)</span><br><span class="line"></span><br><span class="line"># Perform the differential expression analysis</span><br><span class="line">dds &lt;- DESeq(dds)</span><br><span class="line"></span><br><span class="line"># Extract the results of the analysis</span><br><span class="line">results &lt;- results(dds)</span><br><span class="line"></span><br><span class="line"># Filter the results to only include significantly differentially expressed genes</span><br><span class="line">results &lt;- results[which(results$padj &lt; 0.05), ]</span><br></pre></td></tr></table></figure>
+
+<p>这是他的实现方式，确实有模有样。但其实，我如果去查DESeq2的相关的教程，也能找到类似的代码呀。</p>
+<p>另外，有些时候，它还会给出错误的实现方式，比如说，我让他绘制GWAS的Q-Q图，以下是它给的代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># Load the necessary packages</span><br><span class="line">library(graphics)</span><br><span class="line">library(GWASdata)</span><br><span class="line"></span><br><span class="line"># Load the example GWAS data</span><br><span class="line">data(gwas1)</span><br><span class="line"></span><br><span class="line"># Create a Q-Q plot for the GWAS data</span><br><span class="line">qqplot(gwas1$pvalue)</span><br></pre></td></tr></table></figure>
+
+<p>其中有一个R包，GWASdata需要额外安装。于是，我问他怎么安装呢？他给出的建议是用 <code>install.packages(&quot;GWASdata&quot;)</code>。然而，事实上，GWASdata是放在Bioconductor上的，所以安装方式是<code>BiocManager::install(&quot;GWASdata&quot;)</code>。当然即便我安装上了，但是这个代码也无法运行，因为gwas1这个数据集不存在与GWASdata中，我目前也不知到和这个gwas1哪里来的。更有趣的是，经过我的检索，实际上，我们应该用<code>qqPlot</code>这个来自于qqman包的函数，才能根据p值来画图。</p>
+<p>实际上，用AI辅佐写代码的事情，之前用GitHub的Copilot时，已经感受到了它的实用性了。它能够帮忙补全很多代码，然后我们在此基础上做些修改，差不多就能用了。但是，真的让它完成整个项目，我觉得还有一段路要走吧。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" data-id="cllg90y1b005peqp24xqlczyq" data-title="chatGPT会替代我们吗？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如何在脚本中调用conda创建环境的命令-activate-conda-environment-in-shell-script" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" class="article-date">
+  <time class="dt-published" datetime="2022-11-21T01:04:58.225Z" itemprop="datePublished">2022-11-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/">如何在脚本中调用conda创建环境的命令</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>事情源于，我在写脚本的时候，在脚本里面插入了一句 <code>conda activate 环境名</code>, 然后出现如下的报错提示</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">CommandNotFoundError: Your shell has not been properly configured to use &#x27;conda activate&#x27;.</span><br><span class="line">To initialize your shell, run</span><br><span class="line"></span><br><span class="line">    $ conda init &lt;SHELL_NAME&gt;</span><br><span class="line"></span><br><span class="line">Currently supported shells are:</span><br><span class="line">  - bash</span><br><span class="line">  - fish</span><br><span class="line">  - tcsh</span><br><span class="line">  - xonsh</span><br><span class="line">  - zsh</span><br><span class="line">  - powershell</span><br><span class="line"></span><br><span class="line">See &#x27;conda init --help&#x27; for more information and options.</span><br><span class="line"></span><br><span class="line">IMPORTANT: You may need to close and restart your shell after running &#x27;conda init&#x27;.</span><br></pre></td></tr></table></figure>
+
+<p>conda认为我没有初始化环境，我脚本是在bash环境下运行的，我也用<code>conda init bash</code>初始化过。因此，问题肯定不是出在这里。</p>
+<p>利用关键词”conda activate in bash script”检索，我找到了两种解决方法。</p>
+<p>方法1: 在脚本中多加一句</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> <span class="variable">$HOME</span>/miniconda/etc/profile.d/conda.sh</span><br></pre></td></tr></table></figure>
+
+<p>注意，我的conda是安装在家目录下的miniconda目录中，对于非家目录的安装方式，要修改 <code>$HOME/miniconda</code>。</p>
+<p>方法2: 我们可以通过 <code>conda run</code> 来运行给定环境下的命令，假如，我们安装了一个环境rna-seq, 里面有一个程序叫做STAR, 我们可以随便写一个tmp.sh脚本，内容为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda run -n rna-seq STAR --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+
+<p>那么，此时运行 bash tmp.sh 就不会报错。也就是说，你并不是一定要用conda activate 启动环境，才能调用命令，你其实可以调用某个环境的给定指令。</p>
+<p>方法2相对于方法1有个非常大的优势，那就是，如果你有多个不同python版本的环境，你不用担心写脚本的时候写了启动，但是忘了写退出。你只需要在原来的代码前加上一句， <code>conda run -n 环境名</code>。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/34534513/calling-conda-source-activate-from-bash-script">calling conda source activate from bash script</a></li>
+<li><a target="_blank" rel="noopener" href="https://askubuntu.com/questions/1218048/activating-conda-environment-in-within-a-shell-script">activating conda environment in within a shell script</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" data-id="cllg90y5300g4eqp29h2x7x27" data-title="如何在脚本中调用conda创建环境的命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/conda/" rel="tag">conda</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-MacOS原生Arm64架构的R语言环境配置-简明版-macos原生arm64架构的r语言环境配置-简明版" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" class="article-date">
+  <time class="dt-published" datetime="2022-11-14T02:08:02.722Z" itemprop="datePublished">2022-11-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/">MacOS原生Arm64架构的R语言环境配置-简明版</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在很早之前，我出过一期视频，介绍过如何在Arm64架构下（即M系列的芯片，包括M1，M2等）的Mac电脑上配置R语言分析环节。当时采用的是intel转译方案。只所以那样子做，是避免在环境配置上浪费不必要的时间，耽误了真正的学习过程。同时，我也写了<a href="https://xuzhougeng.top/archives/how-to-compile-r-package-in-arm64-macos">MacOS原生Arm64架构的R解决依赖编译问题</a>给那些需要折腾的人。</p>
+<p>不过，自从R进入了4.2, Bioconductor发布3.16之后，现阶段的M1&#x2F;M2等用户就可以开始用原生的Arm版本的R了，因为无论是CRAN，还是Bioconductor都提供了预编译的arm版本的R包。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" data-id="cllg90y02002xeqp27upjdfrv" data-title="MacOS原生Arm64架构的R语言环境配置-简明版" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我目前对Web开发的一些认知-my-knowledge-of-web-development" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/11/07/%E6%88%91%E7%9B%AE%E5%89%8D%E5%AF%B9Web%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5-my-knowledge-of-web-development/" class="article-date">
+  <time class="dt-published" datetime="2022-11-07T02:32:06.442Z" itemprop="datePublished">2022-11-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/11/07/%E6%88%91%E7%9B%AE%E5%89%8D%E5%AF%B9Web%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5-my-knowledge-of-web-development/">我目前对Web开发的一些认知</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最早，我从一个讲解电脑软件知识的杂志上看到的一篇文章，讲的是1元建站，心中植下了也要搞一个网站的想法。在很长一段时间，我都没有系统性的学习过相关知识，就导致我脑中的知识很混杂。不过，当相关知识积累到一定程度时，你可能就会在某一刻顿悟，惊呼，原来是这样！</p>
+<p>想要在别人通过互联网访问到你提供的资源，最关键的一步，是需要有一个拥有一个公网IP的服务器。由于早年设计互联网的时候，没有想到会有那么多人上网，于是IP地址非常有限，（特指的IPv4,目前的IPv6暂时不存在这个问题），因此并非所有的机器都拥有可被直接访问的地址，绝大部分都是内网地址。为方便理解，你可以认为服务器的IP地址就如同小区的门牌号码，小区里面有很多楼，因此每个楼还有一个内部编号，好比是内网地址。你住在A小区，告诉一个B小区的人自己在A小区的楼号，那个人在自己小区即便找到了那个楼，那个楼里面也没有你。</p>
+<p>为了获取一个独立公网IP的服务器，你有如下几个选择。</p>
+<ol>
+<li>联系你的网络运营商，让他给你家分配一个独立IP；</li>
+<li>购买一台<strong>独立的云服务器</strong>，然后自己在上面配置环境；</li>
+<li>购买别人搭建好环境的服务器，托管自己的应用。</li>
+<li>GitHub Page</li>
+</ol>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/11/image-672558cf89904efb9728e1743fc729b7.png" alt="独立的云服务器"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/11/image-10ff0a938a8a4332a7ad4464e3f25fe4.png" alt="托管服务器"></p>
+<p>早年间绝大部分小白建站，都是走的第三条路，自己在本机上用Adobe Dreamweaver这类工具把网站设计好，然后打包资源，将结果上传到对方要求的一个地方。</p>
+<p>如果全部是<strong>静态</strong>资源，目前一个很好的选择就是用GitHub Page免费构建一个网页，然后购买一个域名，将域名解析到GitHub Page对应的地址。</p>
+<p>这里提到了两个新的知识点，静态资源和域名。先讲最简单的域名，因为所谓的域名， 无非就是用更好记的单词去替代一串数字。访问域名的时候，会有一个DNS服务器（Domain Name System）帮你做相应的转换。注意，域名的注册是要钱的，好的域名还可以用来交易。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/11/image-47fd7704d91b44798843bef80852c123.png" alt="价格不菲的域名"></p>
+<p>购买后的域名，需要在域名提供商的管理后台设置一个解析，即让域名提供商去告诉其他DNS服务器，域名实际对应的IP地址。</p>
+<p>下一部分，我们来讲讲静态资源和动态资源。这两者的区分并不是网页上的元素能不能动，比如说图片的切换（由JavaScrip控制），而是网页返回的内容是不是动态生成的，例如你搜索时，返回的内容就是经过数据库查询后返回给你，你在购物网站搜索商品也是如此。</p>
+<p>举个例子：很久之前，我是通过HUGO框架搭建我自己的个人博客。HUGO会将我写好的Markdown文本进行处理，得到可以直接在本地查看的网页，我只要将其上传到服务器某个目录下，或者GitHub Page下，就算部署了我的博客。</p>
+<p>目前，我的博客用的是Halo进行建站，它有一套后台管理系统，我在后台编辑文章，编辑好的文章会记录在底层的数据库。用户访问时，会先去进行数据查询，查询的数据返回到前端，进行渲染。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/11/image-2f92b70727e4497aa102aa51cdbe9425.png" alt="Halo"></p>
+<p>我们说的Web开发分为两个部分，一部分是别人在浏览器上可以看到的元素（前端），一部分是别人看不到后台处理工作（后端）。</p>
+<p>前端开发有3个组成</p>
+<ul>
+<li>HTML: 控制页面的整体结构，相当于房子的结构</li>
+<li>CSS: 控制页面的样貌，相当于给房子做装修</li>
+<li>JavaScript: 控制页面的行为，相当于房子里面的各种开关</li>
+</ul>
+<p>后端包括</p>
+<ul>
+<li>应用: 不同编程语言开发的工具，用于处理数据，返回结果</li>
+<li>应用服务器：负责运行编写的应用。例如Tomcat运行Java的Servlet应用，Python的Django，R的ShinyServer。应用服务器通常会实现一部分HTTP服务器的功能，因此，当网站没有那么大需求时，一个应用服务器就可以了。</li>
+<li>HTTP服务器:  负责HTTP的响应，获取用户端的请求，将服务端的结果发送给用户端。如Apache，Nginx。相当于应用服务器，HTTP服务器专注于并发，负载均衡。</li>
+</ul>
+<p>在Web发展的初期，绝大部分网站都是静态网页，只要把网页写好，放在服务器上就行。但是这样子效率太低了，毕竟对于一个新闻资讯类网站而言，总不可能为条新闻都写一个页面吧。于是，就有了JSP技术，也就是在HTML里面混入Java代码，查询什么数据，就从数据库检索什么数据，填充到HTML指定位置即可。早期，这类数据获取操作每次都要刷新整个页面，在宽带不足的年代，会浪费不少的网页加载时间。另外，这也不利于分工合作，毕竟一个前端开发者未必懂Java（或许他懂PHP），一个Java开发者也未必能处理好HTML，最后出现bug，两方互相甩锅</p>
+<blockquote>
+<p>题外话: R的shiny是可以把HTML,CSS,JS和数据处理逻辑全部混在一个脚本中的。一个简单的应用还好，可能就几百行代码，以一个相对少的代码实现了一个相对好的页面。但是一旦业务复杂起来，动辄上千的代码，混杂了前端的页面展示，后端的数据处理，可能就是灾难。</p>
+</blockquote>
+<p>后来出现了Ajax技术（描述一类动态加载资源的技术），使得前端可以异步的获取数据并且刷新页面（目前不太会写原生的Ajax代码，主要用框架，如Axios），前后端的数据交互基于统一的数据格式（JSON），前端拿到数据后去改变页面上的展示（早年前用JQuery做DOM操作，后来则是AngularJS,  Vue，React这类框架）。</p>
+<p>如此一来，前后端分离，分工就更加精细了，写网页的只要负责好网页应该怎么展示，我预期从后端拿到什么样的数据，这类数据会如何改变当前的网页，完成开发后把项目部署在网络速度比较快的服务器上。而写后端的人，也不用考虑前端页面怎么展示，专心写数据处理逻辑，把项目部署在性能比较高的服务器上，以便于把要求的内容返回给前端即可。</p>
+<p>最后小结一下</p>
+<ul>
+<li>公网IP地址是允许公开访问的基础</li>
+<li>域名会通过DNS服务商转换成IP地址</li>
+<li>静态网站只需要懂HTML&#x2F;CSS&#x2F;JS即可</li>
+<li>动态网站开发在技术发展前期，会在HTML里混入开发语言的代码。</li>
+<li>在后期通过Ajax，让前后端通过JSON交互，前端使用JS改变页面展示。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/11/07/%E6%88%91%E7%9B%AE%E5%89%8D%E5%AF%B9Web%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5-my-knowledge-of-web-development/" data-id="cllg90y6b00ibeqp2a6y1cofd" data-title="我目前对Web开发的一些认知" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-从一则12年前的提问中学习_从配对序列联配到多序列联配-qa-from-pairwise-alignments-to-multiple-alignment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" class="article-date">
+  <time class="dt-published" datetime="2022-10-21T13:48:24.645Z" itemprop="datePublished">2022-10-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/">从一则12年前的提问中学习:从配对序列联配到多序列联配</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最近学习多基因组比对时，看到一则12年前在Biostars发布的提问, <a target="_blank" rel="noopener" href="https://www.biostars.org/p/2882/">Programming Challange: Pairwise Alignments To Multiple Alignment</a>, 收获颇多，这里记录下。</p>
+<p>提问者，一开始阐释了自己的问题，也就是他有10-12个非常近的物种的染色体序列，将这些物种和一个参考染色体比对后，得到了多个结果。他希望，在生成多序列联配结果的同时不影响到原本单独的比对结果。那么，他想的就是，在各个序列中加上一些插入，就可以得到相对基因组的全局联配。</p>
+<p>同时，他强调了，自己不是来找序列相似度！他想的是有没有已有的脚本可以做这些事情，或者提供一些代码上的建议帮助他完成。</p>
+<p>甚至，他还给了一个案例，来说明自己的需求</p>
+<p>也就是把下面这段</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Ref1: CGACAAT--GCACGACAGAGGAAGCAGAACAGATATTTAGATTGCCTCTCATTTTCTCTCCC</span><br><span class="line">Seq1: CGACAATAAGCACGACAGAGGAAGCAGAACAGATA-----ATTGCCTCTCATTTTC-CTCCC</span><br><span class="line"></span><br><span class="line">Ref1: CGACAATGCACGACAGAGGAAGC--AGAACAGATATTTAGATTGCCTCTCATTTTCTCTCCC</span><br><span class="line">Seq2: CGACAAT-CACGACAGAGGAAGCTTAGAACAGATATTTAG---GCCTCTCATTTTCTCTCCC</span><br><span class="line"></span><br><span class="line">Ref1: CGACAATGCACGACAGAGGAAG----CAGAACAGATATTTAGATTGCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq3: CGACAATGCACGACAGAGGAAGTTTTCAGAACAGATATTTAGATTGCCTCTCAAAAATTTTCTCTCCC</span><br></pre></td></tr></table></figure>
+
+<p>变成下面这段。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Ref1: CGACAAT--GCACGACAGAGGAAG----C--AGAACAGATATTTAGATTGCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq1: CGACAATAAGCACGACAGAGGAAG----C--AGAACAGATA-----ATTGCCTCTCA----TTTTC-CTCCC</span><br><span class="line">Seq2: CGACAAT---CACGACAGAGGAAG----CTTAGAACAGATATTTAG---GCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq3: CGACAAT--GCACGACAGAGGAAGTTTTC--AGAACAGATATTTAGATTGCCTCTCAAAAATTTTCTCTCCC</span><br></pre></td></tr></table></figure>
+
+<p>我觉得大部分人看到这样子的提问，就都知道提问者到底需要什么，也就不需要花太多时间思考题目，问提问者更多细节。</p>
+<p>排名第一的回答来自于唐海宝老师</p>
+<p>他首先回答了，作者需要的工具是TBA&#x2F;MULTIZ, 可以从<a target="_blank" rel="noopener" href="http://www.bx.psu.edu/miller_lab/">Miller Lab</a>下载.</p>
+<p>接着补充了一点细节，多序列联配的潜在原则是，gap和insertion的引入和你比对序列的顺序有关。也就是说，在很多情况下，<code>seq1-seq2-seq3和</code>seq2-seq1-seq3&#96;结果是不一样的，“once a gap, always gap”</p>
+<p>最后说了TBA软件的不足，即需要用他们定义的MAF格式作为输入，也就是用户得做一些格式转化你工作。并给了一个使用案例</p>
+<p>已知参考序列是ref1, 用于比对的序列是seq1, seq2, seq3。比对之后得到ref1.seq1.sing.maf, ref1.seq2.sing.maf, ref1.seq3.sing.maf, 这三个文件。提供一个进化树描述序列的顺序，如(((ref1 seq1) seq2) seq3， 表示ref1和seq1近，后面跟seq2近，最后是seq3。</p>
+<p>最后运行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tba <span class="string">&quot;(((ref1 seq1) seq2) seq3)&quot;</span> *.*.maf tba.maf</span><br></pre></td></tr></table></figure>
+
+<p>输出的tba.maf 就是你想要的结果，Good luck!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" data-id="cllg90y3d009feqp2g502060c" data-title="从一则12年前的提问中学习:从配对序列联配到多序列联配" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用jcvi绘制微共线性(Microsynteny)-plot-microsynteny-with-jcvi" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" class="article-date">
+  <time class="dt-published" datetime="2022-10-18T10:13:25.558Z" itemprop="datePublished">2022-10-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/">使用jcvi绘制微共线性(Microsynteny)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本文主要介绍如何使用JCVI的synteny子命令基于已有的共线性分析结果，展现局部的共线性。</p>
+<p>需要准备的三个输入文件</p>
+<ul>
+<li>记录物种内或者物种间的共线性基因对</li>
+<li>记录基因坐标的bed文件</li>
+<li>布局文件</li>
+</ul>
+<p>第一步，基于已有的共线性分析结果(WGDI, MCscan, MCscanX等软件的分析结果），整理出你需要展示的区间的基因对。注意分隔符是制表符，我们保存为blocks.txt</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">AL1G16390	AT1G06380</span><br><span class="line">AL1G16400	AT1G06390</span><br><span class="line">AL1G16410	AT1G06400</span><br><span class="line">AL1G16420	AT1G06410</span><br><span class="line">AL1G16430	AT1G06420</span><br><span class="line">AL1G16440	AT1G06430</span><br><span class="line">AL1G16450	AT1G06440</span><br><span class="line">AL1G16460	AT1G06450</span><br><span class="line">AL1G16470	AT1G06460</span><br><span class="line">AL1G16480	AT1G06470</span><br><span class="line">AL1G16490	AT1G06475</span><br><span class="line">AL1G16510	AT1G06490</span><br><span class="line">AL1G16520	AT1G06500</span><br><span class="line">AL1G16530	AT1G06515</span><br><span class="line">AL1G16540	AT1G06510</span><br><span class="line">AL1G16550	AT1G06520</span><br><span class="line">AL1G16560	AT1G06530</span><br><span class="line">AL1G16570	AT1G06540</span><br><span class="line">AL1G16580	AT1G06550</span><br><span class="line">AL1G16590	AT1G06560</span><br><span class="line">AL1G16600	AT1G06570</span><br><span class="line">AL1G16610	AT1G06580</span><br></pre></td></tr></table></figure>
+
+<p>第二步，整理记录基因坐标的bed文件。bed要求是6列，记录基因的坐标和朝向，第五列填0即可。 我们命名为genes.bed</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1	3631	5899	AT1G01010	0	+</span><br><span class="line">1	6788	9130	AT1G01020	0	-</span><br><span class="line">...</span><br><span class="line">scaffold_9	1792941	1795545	AL9U12210	0	-</span><br><span class="line">scaffold_9	1796870	1801565	AL9U12220	0	-</span><br><span class="line">scaffold_9	1810180	1812874	AL9U12230	0	+</span><br><span class="line">scaffold_9	1836100	1837535	AL9U12240	0	-</span><br></pre></td></tr></table></figure>
+
+<p>两个要求: </p>
+<ul>
+<li>第4列的基因名必须对应共线性对的基因</li>
+<li>文件里必须包含你需要展示物种的所有基因（至少是共线性区块的基因）</li>
+</ul>
+<p>第三步，提供布局文件, 命名为layout.csv</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># x,  y, rotation,  ha,  va, color, ratio,  label</span><br><span class="line">0.5, 0.4, 0, center,top,  ,  1, A.lyrata Chr1</span><br><span class="line">0.5, 0.3, 0, center, top,  ,  1,  A.thaliana Chr1</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br></pre></td></tr></table></figure>
+
+<p>该文件分为两个部分：上半部分是track在图中的相对位置(x,y)和旋转角度(rotation)，以及label的对齐方式， ha( left, center, right) va( top, button) 和颜色(color)</p>
+<p>下半部分是不同track的共线性关系，e,0,1表示第一个和第二个track有关联。</p>
+<p>最后运行程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.graphics.synteny blocks.txt  genes.bed layout.csv</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为一个pdf，如下所示</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-c2a65bc34e60499a8efeaea04cfc675e.png" alt="micro synteny"></p>
+<p>因为我们的共线性基因里面是A.lyrata是第一列，所以画图的时候也是A.lyrata在第一行。</p>
+<p>案例仅展示了2条序列之间的共线性，实际上<code>jcvi.graphics.synteny</code>是可以展示多条序列的结果，比如说jcvi案例展示graph, peach, cacao三者之间的共线性，提供的两两之间的共线性如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GSVIVT01012261001 . .</span><br><span class="line">GSVIVT01012259001 . .</span><br><span class="line">GSVIVT01012258001 . .</span><br><span class="line">GSVIVT01012257001 . .</span><br><span class="line">GSVIVT01012255001 Prupe.1G290900.1 Thecc1EG011472t1</span><br><span class="line">GSVIVT01012253001 Prupe.1G290800.2 Thecc1EG011473t1</span><br><span class="line">GSVIVT01012252001 Prupe.1G290700.1 Thecc1EG011474t1</span><br><span class="line">GSVIVT01012250001 Prupe.1G290600.1 Thecc1EG011475t1</span><br><span class="line">GSVIVT01012249001 Prupe.1G290500.1 Thecc1EG011478t1</span><br><span class="line">GSVIVT01012248001 Prupe.1G290400.1 Thecc1EG011482t1</span><br></pre></td></tr></table></figure>
+
+<p>通过调整布局(注意布局文件里面的坐标x,y, 以及edge)</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># x,   y, rotation,     ha,     va, color, ratio,            label</span><br><span class="line">0.5, 0.6,  0, center, top,   ,  1,  grape Chr1</span><br><span class="line">0.3, 0.4, 0, center, bottom,  , .5, peach scaffold_1</span><br><span class="line">0.7, 0.4,  0, center, bottom,   ,   .5, cacao scaffold_2</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br><span class="line">e, 0, 2</span><br></pre></td></tr></table></figure>
+
+<p>就能输出如下效果的共线性</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-ff7ce9b688a74fb887db099977f4a254.png" alt="synteny among three species "></p>
+<p>参考资料</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)">https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" data-id="cllg90y4b00daeqp2ax6s3fgm" data-title="使用jcvi绘制微共线性(Microsynteny)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如何安装操作系统-如何安装操作系统" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="article-date">
+  <time class="dt-published" datetime="2022-09-06T10:07:28.126Z" itemprop="datePublished">2022-09-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">如何安装操作系统</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>读大学的时候，我发现寝室楼下的打印店有一项业务是安装Windows系统，价格估计是80元&#x2F;次。我非常的纳闷，装系统不是有手就行吗？后来经历的多了，我才知道，装系统，还必须得有一些硬件和软件相关的知识。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" data-id="cllg90y5600geeqp29s3t8liw" data-title="如何安装操作系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/3/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

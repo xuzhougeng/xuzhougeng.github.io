@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>使用ArchR分析单细胞ATAC-seq数据(第三章) | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="第3章: 创建ArchRProjectArchRProject对象允许我们将多个Arrow文件整理到单个项目之中。ArchRProject比较小能够直接存放在内存中。通过操作ArchRProject，我们能够快速读取Arrow文件里的数据，并将修改后的数据写回到Arrow文件里。因此你几乎可以在这一章中找到后续分析所要用到的所有函数。此外，由于ArchRProject文件能够进行保存并在之后进行读">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用ArchR分析单细胞ATAC-seq数据(第三章)">
+<meta property="og:url" content="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="第3章: 创建ArchRProjectArchRProject对象允许我们将多个Arrow文件整理到单个项目之中。ArchRProject比较小能够直接存放在内存中。通过操作ArchRProject，我们能够快速读取Arrow文件里的数据，并将修改后的数据写回到Arrow文件里。因此你几乎可以在这一章中找到后续分析所要用到的所有函数。此外，由于ArchRProject文件能够进行保存并在之后进行读">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-63a17393b7664d39a148f25c1555a3f1.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-96a12652a7b74424a156cc0eb8b4c236.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-1d2e7b23376b474bad74f0dc9926c530.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-dca5dd1a2e4e4293a50dce27b44e7836.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-6c02fbc2c22e4cda8ee65cebcb8f3535.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-da8c354686ba405fab5cd2888ec80d4a.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-5aeda9f111d24a6da0762f9395fcb500.png">
+<meta property="article:published_time" content="2020-05-23T18:24:13.183Z">
+<meta property="article:modified_time" content="2020-05-23T18:24:13.183Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="ATAC-seq | 差异分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-63a17393b7664d39a148f25c1555a3f1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-使用ArchR分析单细胞ATAC-seq数据(第三章)-analysis-sc-atac-seq-with-archr-chapter3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" class="article-date">
+  <time class="dt-published" datetime="2020-05-23T18:24:13.183Z" itemprop="datePublished">2020-05-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      使用ArchR分析单细胞ATAC-seq数据(第三章)
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="第3章-创建ArchRProject"><a href="#第3章-创建ArchRProject" class="headerlink" title="第3章: 创建ArchRProject"></a>第3章: 创建ArchRProject</h1><p><code>ArchRProject</code>对象允许我们将多个Arrow文件整理到单个项目之中。<code>ArchRProject</code>比较小能够直接存放在内存中。通过操作<code>ArchRProject</code>，我们能够快速读取Arrow文件里的数据，并将修改后的数据写回到Arrow文件里。因此你几乎可以在这一章中找到后续分析所要用到的所有函数。此外，由于<code>ArchRProject</code>文件能够进行保存并在之后进行读取，那么也就保证了分析的连续性，同时也方便合作者之间的相互交流。这一章主要介绍如何创建<code>ArchRProject</code>对象并和它进行交互。</p>
+<h2 id="3-1-创建一个ArchRProject"><a href="#3-1-创建一个ArchRProject" class="headerlink" title="3.1 创建一个ArchRProject"></a>3.1 创建一个ArchRProject</h2><p><code>ArchRProject</code>至少需要设置两个参数，<code>ArrowFiles</code>和<code>outputDirectory</code>. 其中ArrowFilesArrow文件的文件路径，如果没有，清先阅读第一章将BAM&#x2F;Fragments文件转成Arrow文件。<code>outputDirectory</code>指的是下游分析得到的文件的保存路径。ArchR会自动将之前提供的<code>geneAnnotation</code>和<code>genomeAnnotation</code>和新的<code>ArchRProject</code>项目进行关联。这些在我们在之前运行<code>addArchRGenome(&quot;hg19&quot;)</code>的时候被保存在环境变量中。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">projHeme1 <span class="operator">&lt;-</span> ArchRProject<span class="punctuation">(</span></span><br><span class="line">  ArrowFiles <span class="operator">=</span> ArrowFiles<span class="punctuation">,</span></span><br><span class="line">  outputDirectory <span class="operator">=</span> <span class="string">&quot;HemeTutorial&quot;</span><span class="punctuation">,</span></span><br><span class="line">  copyArrows <span class="operator">=</span> <span class="literal">TRUE</span> <span class="comment">#This is recommened so that if you modify the Arrow files you have an original copy for later usage.</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>因为这是我们hematopoiesis项目的第一轮分析，所以我们将<code>ArchRProject</code>命名为”proJHeme1”。在后续的分析中，我们会不断修改并更新这个<code>ArchRProject</code>对象，我们需要使用不同的变量名对项目进行跟踪。如果变量名始终都是同一个，那么就可能出现明明是同一个命令，有些时候能运行成功有些时候运行失败的情况，原因可能就是某些中间步骤被漏掉了，导致同一个变量名的背后的实际内容其实是不一样的。</p>
+<p>我们可以直接检查下<code>ArchRProject</code>的内容</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">projHeme1</span><br><span class="line"><span class="comment">#输出信息</span></span><br><span class="line"><span class="comment"># class: ArchRProject</span></span><br><span class="line"><span class="comment"># outputDirectory: /path/to/HemeTutorial</span></span><br><span class="line"><span class="comment"># samples(3): scATAC_BMMC_R1 scATAC_CD34_BMMC_R1 scATAC_PBMC_R1</span></span><br><span class="line"><span class="comment"># sampleColData names(1): ArrowFiles</span></span><br><span class="line"><span class="comment"># cellColData names(15): Sample TSSEnrichment ... DoubletEnrichment BlacklistRatio</span></span><br><span class="line"><span class="comment"># numberOfCells(1): 10661</span></span><br><span class="line"><span class="comment"># medianTSS(1): 16.832</span></span><br><span class="line"><span class="comment"># medianFrags(1): 3050</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的输入中，我们可以发现<code>ArchRProject</code>在初始化的时候增加了一些额外信息</p>
+<ol>
+<li>outputDirectory: 输出目录</li>
+<li>samples： 样本名</li>
+<li>sampleColData: 记录每个样本的元信息</li>
+<li>cellColData: 记录每个细胞的元信息，第二章计算的”DoubleEnrichment”,”DoubletScore”就存放在此处</li>
+<li>numberOfCells: 项目总的合格细胞数，也就是不包括之前没有通过质控，或者被认为doublet的细胞<br>1.medianTSS&#x2F;medianFrags: 所有细胞的TSS值和Fragments数的中位数</li>
+</ol>
+<p>我们可以通过下面这行代码了解下<code>ArchRProject</code>在R中会使用多少内存</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">paste0<span class="punctuation">(</span><span class="string">&quot;Memory Size = &quot;</span><span class="punctuation">,</span> <span class="built_in">round</span><span class="punctuation">(</span>object.size<span class="punctuation">(</span>projHeme1<span class="punctuation">)</span> <span class="operator">/</span> <span class="number">10</span><span class="operator">^</span><span class="number">6</span><span class="punctuation">,</span> <span class="number">3</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot; MB&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># &quot;Memory Size = 37.477 MB&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们还可以检查当前的<code>ArchRProject</code>中存放了哪些矩阵数据，这些数据一旦增加后就可以在下游分析中使用。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">getAvailableMatrices<span class="punctuation">(</span>projHeme1<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># &quot;GeneScoreMatrix&quot; &quot;TileMatrix&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-操作ArchRProject对象"><a href="#3-2-操作ArchRProject对象" class="headerlink" title="3.2 操作ArchRProject对象"></a>3.2 操作ArchRProject对象</h2><p>既然已经在上一节创建了<code>ArchRProject</code>，这一节就来介绍一些比较常用的操作来从该对象中获取我们需要的信息和保存我们的数据</p>
+<h3 id="例1-使用-访问cellColData"><a href="#例1-使用-访问cellColData" class="headerlink" title="例1: 使用$访问cellColData"></a>例1: 使用<code>$</code>访问<code>cellColData</code></h3><p>我们可以使用<code>$</code>访问细胞名(cellNames), 样本名(sample)和TSS富集得分(TSS enrichment Scores)</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">head<span class="punctuation">(</span>projHeme1<span class="operator">$</span>cellNames<span class="punctuation">)</span></span><br><span class="line">head<span class="punctuation">(</span>projHeme1<span class="operator">$</span>Sample<span class="punctuation">)</span></span><br><span class="line">quantile<span class="punctuation">(</span>projHeme1<span class="operator">$</span>TSSEnrichment<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>除了这些以外，你还可以利用R的补全功能，在输入<code>projHeme1$</code>后看看它还能接哪些内容。</p>
+<h3 id="例2-从ArchRProject中提取部分细胞"><a href="#例2-从ArchRProject中提取部分细胞" class="headerlink" title="例2: 从ArchRProject中提取部分细胞"></a>例2: 从<code>ArchRProject</code>中提取部分细胞</h3><p>我们可以将以前学习的R语言向量&#x2F;矩阵&#x2F;数据框提取数据的方法无缝的迁移到<code>ArchRProject</code>上，但区别在于ArchR并不会直接提取数据，而是构建一个新的<code>ArchRProject</code>对象。</p>
+<p>最简单的方法是根据位置和细胞名</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 根据位置</span></span><br><span class="line">projHeme1<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">100</span><span class="punctuation">,</span> <span class="punctuation">]</span></span><br><span class="line"><span class="comment"># 根据细胞名</span></span><br><span class="line">projHeme1<span class="punctuation">[</span>projHeme1<span class="operator">$</span>cellNames<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">100</span><span class="punctuation">]</span><span class="punctuation">,</span> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>复杂一些就是先根据逻辑判断提取细胞名，接着根据细胞名提取数据。例如挑选<code>scATAC_BMMC_R1</code>的细胞，或是TSSEnrichment大于8的细胞。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sample name</span></span><br><span class="line">idxSample <span class="operator">&lt;-</span> BiocGenerics<span class="operator">::</span>which<span class="punctuation">(</span>projHeme1<span class="operator">$</span>Sample <span class="operator">%in%</span> <span class="string">&quot;scATAC_BMMC_R1&quot;</span><span class="punctuation">)</span></span><br><span class="line">cellsSample <span class="operator">&lt;-</span> projHeme1<span class="operator">$</span>cellNames<span class="punctuation">[</span>idxSample<span class="punctuation">]</span></span><br><span class="line">projHeme1<span class="punctuation">[</span>cellsSample<span class="punctuation">,</span> <span class="punctuation">]</span></span><br><span class="line"><span class="comment"># TSS enrichment score</span></span><br><span class="line">idxPass <span class="operator">&lt;-</span> which<span class="punctuation">(</span>projHeme1<span class="operator">$</span>TSSEnrichment <span class="operator">&gt;=</span> <span class="number">8</span><span class="punctuation">)</span></span><br><span class="line">cellsPass <span class="operator">&lt;-</span> projHeme1<span class="operator">$</span>cellNames<span class="punctuation">[</span>idxPass<span class="punctuation">]</span></span><br><span class="line">projHeme1<span class="punctuation">[</span>cellsPass<span class="punctuation">,</span> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="例3-在ArchRProject增加数据"><a href="#例3-在ArchRProject增加数据" class="headerlink" title="例3: 在ArchRProject增加数据"></a>例3: 在<code>ArchRProject</code>增加数据</h3><p>我们可以通过在<code>cellColData</code>增加新列的方式来为我们项目中的细胞增加额外的元信息。</p>
+<p>例如，我们可以从原来的样本名中提取更易阅读的部分添加到<code>cellColData</code>中。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bioNames <span class="operator">&lt;-</span> gsub<span class="punctuation">(</span><span class="string">&quot;_R2|_R1|scATAC_&quot;</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">,</span>projHeme1<span class="operator">$</span>Sample<span class="punctuation">)</span></span><br><span class="line">head<span class="punctuation">(</span>bioNames<span class="punctuation">)</span></span><br><span class="line"><span class="comment">#[1] &quot;BMMC&quot; &quot;BMMC&quot; &quot;BMMC&quot; &quot;BMMC&quot; &quot;BMMC&quot; &quot;BMMC&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>一种方式是使用<code>$</code>直接往<code>cellColData</code>添加列</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHeme1<span class="operator">$</span>bioNames <span class="operator">&lt;-</span> bioNames</span><br></pre></td></tr></table></figure>
+
+<p>或者是用<code>addCellColData()</code>函数往<code>cellColData</code>中添加新的列。使用<code>addCellColData()</code>的好处在于，你可以只为部分增加信息。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bioNames <span class="operator">&lt;-</span> bioNames<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">]</span></span><br><span class="line">cellNames <span class="operator">&lt;-</span> projHeme1<span class="operator">$</span>cellNames<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">]</span></span><br><span class="line">projHeme1 <span class="operator">&lt;-</span> addCellColData<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span> data <span class="operator">=</span> paste0<span class="punctuation">(</span>bioNames<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">    cells <span class="operator">=</span> cellNames<span class="punctuation">,</span> name <span class="operator">=</span> <span class="string">&quot;bioNames2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><code>ArchR</code>默认会用<code>NA</code>填充其余部分。正因如此，如果我们对比<code>bioNames</code>和<code>bioNames2</code>时，你就可以发现<code>NA</code>填充了那些没有被选择的部分</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">getCellColData<span class="punctuation">(</span>projHeme1<span class="punctuation">,</span> select <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;bioNames&quot;</span><span class="punctuation">,</span> <span class="string">&quot;bioNames2&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">DataFrame with <span class="number">10661</span> rows and <span class="number">2</span> columns</span><br><span class="line"><span class="comment">#                                     bioNames   bioNames2</span></span><br><span class="line"><span class="comment">#                                  &lt;character&gt; &lt;character&gt;</span></span><br><span class="line"><span class="comment">#scATAC_BMMC_R1#TTATGTCAGTGATTAG-1        BMMC        BMMC</span></span><br><span class="line"><span class="comment">#scATAC_BMMC_R1#AAGATAGTCACCGCGA-1        BMMC        BMMC</span></span><br><span class="line"><span class="comment">#scATAC_BMMC_R1#GCATTGAAGATTCCGT-1        BMMC        BMMC</span></span><br><span class="line"><span class="comment">#scATAC_BMMC_R1#TATGTTCAGGGTTCCC-1        BMMC        BMMC</span></span><br><span class="line"><span class="comment">#scATAC_BMMC_R1#TCCATCGGTCCCGTGA-1        BMMC        BMMC</span></span><br><span class="line"><span class="comment">#...                                       ...         ...</span></span><br><span class="line"><span class="comment">#scATAC_PBMC_R1#GCTGCGAAGATCCGAG-1        PBMC          NA</span></span><br><span class="line"><span class="comment">#scATAC_PBMC_R1#GCAGCTGGTGGCCTTG-1        PBMC          NA</span></span><br><span class="line"><span class="comment">#scATAC_PBMC_R1#GCAGATTGTACGCAAG-1        PBMC          NA</span></span><br><span class="line"><span class="comment">#scATAC_PBMC_R1#TTCGTTACATTGAACC-1        PBMC          NA</span></span><br><span class="line"><span class="comment">#scATAC_PBMC_R1#CGCTATCGTGAGGTCA-1        PBMC          N</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="例4-从cellColData中提取列"><a href="#例4-从cellColData中提取列" class="headerlink" title="例4: 从cellColData中提取列"></a>例4: 从<code>cellColData</code>中提取列</h3><p>ArchR提供了<code>getCellColData</code>用于从<code>ArchRProject</code>中提取元信息列。你可以认为这是<code>$</code>的功能增强版，因为<code>$</code>只能提取一列，而<code>getCellColData</code>可以提取多列信息，此外还有许多神奇的操作。</p>
+<p>例如我们可以根据列名获取数据，比方说每个细胞的唯一fragment数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df <span class="operator">&lt;-</span> getCellColData<span class="punctuation">(</span>projHeme1<span class="punctuation">,</span> select <span class="operator">=</span> <span class="string">&quot;nFrags&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>甚至，你还能在列名中添加一些运算操作，这样会直接输出运算后的结果</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df <span class="operator">&lt;-</span> getCellColData<span class="punctuation">(</span>projHeme1<span class="punctuation">,</span> select <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;log10(nFrags)&quot;</span><span class="punctuation">,</span> <span class="string">&quot;nFrags - 1&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="例5-绘制质控信息和TSS富集得分的对比图"><a href="#例5-绘制质控信息和TSS富集得分的对比图" class="headerlink" title="例5: 绘制质控信息和TSS富集得分的对比图"></a>例5: 绘制质控信息和TSS富集得分的对比图</h3><p>根据上述提供的案例，我们可以很容易获取到每个细胞的标准scATAC-seq质控信息。我们发现目前最靠谱的质控标准是TSS富集的得分(评估ATAC-seq数据的信噪比)和唯一比对数(比对数如果不够，那么该细胞也没有分析的价值)</p>
+<p>我们先用<code>getCellColData</code>提取我们需要的两列，其中nFrages需要进行log10运算</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df <span class="operator">&lt;-</span> getCellColData<span class="punctuation">(</span>projHeme1<span class="punctuation">,</span> select <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;log10(nFrags)&quot;</span><span class="punctuation">,</span> <span class="string">&quot;TSSEnrichment&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们基于TSS富集得分和唯一比对进行绘图，函数<code>ggPoint</code>是ArchR对<code>ggplot2</code>的点图相关函数的封装。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">p <span class="operator">&lt;-</span> ggPoint<span class="punctuation">(</span></span><br><span class="line">    x <span class="operator">=</span> df<span class="punctuation">[</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    y <span class="operator">=</span> df<span class="punctuation">[</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    colorDensity <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span></span><br><span class="line">    continuousSet <span class="operator">=</span> <span class="string">&quot;sambaNight&quot;</span><span class="punctuation">,</span></span><br><span class="line">    xlabel <span class="operator">=</span> <span class="string">&quot;Log10 Unique Fragments&quot;</span><span class="punctuation">,</span></span><br><span class="line">    ylabel <span class="operator">=</span> <span class="string">&quot;TSS Enrichment&quot;</span><span class="punctuation">,</span></span><br><span class="line">    xlim <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span>log10<span class="punctuation">(</span><span class="number">500</span><span class="punctuation">)</span><span class="punctuation">,</span> quantile<span class="punctuation">(</span>df<span class="punctuation">[</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">,</span> probs <span class="operator">=</span> <span class="number">0.99</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">    ylim <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> quantile<span class="punctuation">(</span>df<span class="punctuation">[</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">]</span><span class="punctuation">,</span> probs <span class="operator">=</span> <span class="number">0.99</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">)</span> <span class="operator">+</span> geom_hline<span class="punctuation">(</span>yintercept <span class="operator">=</span> <span class="number">4</span><span class="punctuation">,</span> lty <span class="operator">=</span> <span class="string">&quot;dashed&quot;</span><span class="punctuation">)</span> <span class="operator">+</span> geom_vline<span class="punctuation">(</span>xintercept <span class="operator">=</span> <span class="number">3</span><span class="punctuation">,</span> lty <span class="operator">=</span> <span class="string">&quot;dashed&quot;</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">p</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-63a17393b7664d39a148f25c1555a3f1.png" alt="dot plot"></p>
+<p>该图的主要作用是找到高质量的细胞。你可能会注意到一些细胞已经在我们之前创建Arrow文件时被设置的阈值<code>filterTSS, filterFargs</code>过滤掉了。然而，如果我们觉得之前的质控过滤对于这个样本不太合适，我们可以根据该图调整阈值，有必要的话还可以重新产生Arrow文件。</p>
+<p>尽管可以使用PDF的方式保存上图，但是对于这种点特别多的图，还是用PNG形式比较好。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">png<span class="punctuation">(</span><span class="string">&quot;TSS-vs-Frags.png&quot;</span><span class="punctuation">)</span></span><br><span class="line">plot<span class="punctuation">(</span>p<span class="punctuation">)</span></span><br><span class="line">dev.off<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line">getwd<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-为ArchRProject每个样本绘制统计信息"><a href="#3-3-为ArchRProject每个样本绘制统计信息" class="headerlink" title="3.3 为ArchRProject每个样本绘制统计信息"></a>3.3 为ArchRProject每个样本绘制统计信息</h2><p>如果一个项目中有多个不同的样本，我们很自然地就会想比较这些样本。所谓一图胜千言，ArchR提供了两种小提琴图(violin plot)和山脊图(ridge plot)用来展示不同组之间的信息。这两种类型的图可以用一个函数<code>plotGroups</code>进行绘制。当然这函数除了根据样本进行分组绘图外，还可以使用下游分析得到的分组信息（例如聚类）。</p>
+<p><strong>例1</strong>: 根据TSS富集得分为每个样本绘制山脊图。</p>
+<p>绘制山脊图时，需要设置<code>plotAs = &quot;ridges&quot;</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p1 <span class="operator">&lt;-</span> plotGroups<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span></span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Sample&quot;</span><span class="punctuation">,</span></span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;cellColData&quot;</span><span class="punctuation">,</span></span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;TSSEnrichment&quot;</span><span class="punctuation">,</span></span><br><span class="line">    plotAs <span class="operator">=</span> <span class="string">&quot;ridges&quot;</span></span><br><span class="line">   <span class="punctuation">)</span></span><br><span class="line">p1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-96a12652a7b74424a156cc0eb8b4c236.png" alt="ridges of TSSEnrichment"></p>
+<p><strong>例2</strong>: 根据TSS富集得分为每个样本绘制小提琴图。ArchR绘制的小提琴图额外叠加了一层箱线图(a box-and-whiskers plot in the style of Tukey)，中间水平的三条线表示数据中的1&#x2F;4分位数，中位数和3&#x2F;4分位数。最下方是最小值，最上方是最大值（或者是1.5倍的IQR, interquartile range, 1&#x2F;4分位数与3&#x2F;4分位数的距离）</p>
+<p>绘制小提琴图时，需要设置<code>plotAs = &quot;violin&quot;</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">p2 <span class="operator">&lt;-</span> plotGroups<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span></span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Sample&quot;</span><span class="punctuation">,</span></span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;cellColData&quot;</span><span class="punctuation">,</span></span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;TSSEnrichment&quot;</span><span class="punctuation">,</span></span><br><span class="line">    plotAs <span class="operator">=</span> <span class="string">&quot;violin&quot;</span><span class="punctuation">,</span></span><br><span class="line">    alpha <span class="operator">=</span> <span class="number">0.4</span><span class="punctuation">,</span></span><br><span class="line">    addBoxPlot <span class="operator">=</span> <span class="literal">TRUE</span></span><br><span class="line">   <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-1d2e7b23376b474bad74f0dc9926c530.png" alt="Violin plot"></p>
+<p><strong>例3</strong>: 根据log10(unique nuclear fragments)为每个样本绘制山脊图。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p3 <span class="operator">&lt;-</span> plotGroups<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span></span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Sample&quot;</span><span class="punctuation">,</span></span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;cellColData&quot;</span><span class="punctuation">,</span></span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;log10(nFrags)&quot;</span><span class="punctuation">,</span></span><br><span class="line">    plotAs <span class="operator">=</span> <span class="string">&quot;ridges&quot;</span></span><br><span class="line">   <span class="punctuation">)</span></span><br><span class="line">p3</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-dca5dd1a2e4e4293a50dce27b44e7836.png" alt="ridge plot"></p>
+<p><strong>例4</strong>:  根据log10(unique nuclear fragments)为每个样本绘制小提琴图。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">p4 <span class="operator">&lt;-</span> plotGroups<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span></span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Sample&quot;</span><span class="punctuation">,</span></span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;cellColData&quot;</span><span class="punctuation">,</span></span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;log10(nFrags)&quot;</span><span class="punctuation">,</span></span><br><span class="line">    plotAs <span class="operator">=</span> <span class="string">&quot;violin&quot;</span><span class="punctuation">,</span></span><br><span class="line">    alpha <span class="operator">=</span> <span class="number">0.4</span><span class="punctuation">,</span></span><br><span class="line">    addBoxPlot <span class="operator">=</span> <span class="literal">TRUE</span></span><br><span class="line">   <span class="punctuation">)</span></span><br><span class="line">p4</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-6c02fbc2c22e4cda8ee65cebcb8f3535.png" alt="Violin Plot"></p>
+<p>我们可以使用<code>plotPDF()</code>将上面的图绘制在一个PDF中</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>p1<span class="punctuation">,</span>p2<span class="punctuation">,</span>p3<span class="punctuation">,</span>p4<span class="punctuation">,</span> name <span class="operator">=</span> <span class="string">&quot;QC-Sample-Statistics.pdf&quot;</span><span class="punctuation">,</span> ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span> addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">4</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">4</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-4-绘制样本的TSS富集谱和Fragment大小分布"><a href="#3-4-绘制样本的TSS富集谱和Fragment大小分布" class="headerlink" title="3.4 绘制样本的TSS富集谱和Fragment大小分布"></a>3.4 绘制样本的TSS富集谱和Fragment大小分布</h2><p>鉴于数据的存储和读取方式， ArchR能够快速的从Arrow文件中计算出fragment大小分布和TSS富集谱。</p>
+<p><strong>Fragments大小分布</strong>:  我们使用<code>plotFragmentSizes</code>函数为绘制所有样本的fragment大小分布。ATAC-seq数据中的fragment大小分布可能会因样本、细胞类型和批次不同，但这和数据质量并不是严格相关。比如说我们的数据在不同组之间就存在一些差别。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p1 <span class="operator">&lt;-</span> plotFragmentSizes<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">)</span></span><br><span class="line">p1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-da8c354686ba405fab5cd2888ec80d4a.png" alt="Fragment size distribution"></p>
+<p><strong>TSS富集谱</strong>: 我们使用<code>plotTSSEnrichment()</code>函数绘制TSS富集谱。TSS富集谱需要在中心位置有一个明显的峰，在峰的右边还会有一个核小体引起的小隆起（约147 bp）。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p2 <span class="operator">&lt;-</span> plotTSSEnrichment<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">)</span></span><br><span class="line">p2</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-5aeda9f111d24a6da0762f9395fcb500.png" alt="TSS enrichment profiles"></p>
+<p>和之前一样，我们可以使用<code>plotPDF()</code>将图形以可编辑的矢量图进行保存。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>p1<span class="punctuation">,</span>p2<span class="punctuation">,</span> name <span class="operator">=</span> <span class="string">&quot;QC-Sample-FragSizes-TSSProfile.pdf&quot;</span><span class="punctuation">,</span> ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span> addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">5</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-5-保存和加载ArchRProject"><a href="#3-5-保存和加载ArchRProject" class="headerlink" title="3.5 保存和加载ArchRProject"></a>3.5 保存和加载<code>ArchRProject</code></h2><p>ArchR提供了<code>saveArchRProject</code>函数让我们能将内存中<code>ArchRProject</code>对象的保存到本地，并在之后进行读取，当然保存到本地的数据也就能分享给其他人。从根本上来讲，<code>ArchRProject</code>是一个指向多个Arrow文件的对象，因此使用<code>saveArchRProject()</code>保存<code>ArchRProject</code>的过程实际上分为两步</p>
+<ol>
+<li>将当前的Arrow文件复制到目标输出目录下<code>outputDirectory</code>,确保它们能和新的<code>ArchRProject</code>关联</li>
+<li>将目标<code>ArchRProject</code>保存到<code>outputDirectory</code>目录下</li>
+</ol>
+<p>我们这里以<code>projHeme1</code>为例介绍<code>saveArchRProject()</code>的用法</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">saveArchRProject<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span> outputDirectory <span class="operator">=</span> <span class="string">&quot;Save-ProjHeme1&quot;</span><span class="punctuation">,</span> load <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>运行结束后，<code>outputDirectory</code>对应的目录下就会保存相应的Arrow文件和<code>projHeme1</code>的Rds文件。</p>
+<p><strong>重要知识点</strong>: 这一步骤<strong>不会</strong>自动更新你当前R session里活跃的<code>ArchRProject</code>对象。也就说，当前R session里的<code>projHeme1</code>对象还是指向原来的Arrow文件，而不会指向拷贝到<code>outputDirectory</code>目录下的Arrow文件。</p>
+<p>换言之，如果我们想要将当前的项目复制到新的目录，你可以设置<code>load=TRUE</code>。下面的代码运行结束后得到的<code>projHemeNew</code>就是指向拷贝后Arrow文件的<code>ArchRProject</code>对象。你可以使用原来的<code>projHeme1</code>，这就会覆盖当前R session的<code>projHeme1</code>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHemeNew <span class="operator">&lt;-</span> saveArchRProject<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme1<span class="punctuation">,</span> outputDirectory <span class="operator">=</span> <span class="string">&quot;Save-ProjHeme1&quot;</span><span class="punctuation">,</span> load <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-6-使用ArchRProject过滤doublets"><a href="#3-6-使用ArchRProject过滤doublets" class="headerlink" title="3.6 使用ArchRProject过滤doublets"></a>3.6 使用ArchRProject过滤doublets</h2><p>当我们使用<code>addDOubletScores()</code>增加了预测的doublet信息后，我们就能使用<code>filterDoublets()</code>过滤这些预测的doublets。这个函数里的一个关键参数是<code>filterRatio</code>, 由于不同样本的制备过程中的细胞上样量不同，那么不同样本的doublet也就不同，为了保证不同样本的过滤后结果保持一致，所以引入了<code>filterRatio</code>。该值越高，被认为是doublet而被过滤的细胞也就越多。</p>
+<p>了解了<code>filterRatio</code>的作用后，我们再来看它的定义，它是根据未被过滤的细胞数计算的需要被过滤doublet的最大值(the maximum ratio of predicted doublets to filter based on the number of pass-filter cells)。举个例子。假如这里有5000个细胞，需要被过滤doublet的最大值就等于 <code>filterRatio * 5000^2 / (100000)</code>, 也就是<code>filterRatio * 5000 * 0.05</code>。</p>
+<p>如果还是不太了解，也不太纠结，毕竟大部分时候我们用的都是默认参数。我们现在只需要知道这个<code>filterRatio</code>参数很重要，得根据后续结果进行调整。这里就直接运行<code>filterDoublets</code>对细胞进行过滤。出于教学目的，我们将处理结果保存为一个新的<code>ArchRProject</code>对象，也就是<code>projHeme2</code>，实际分析中，你可以使用原来的名字覆盖之前的结果，降低内存消耗。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">projHeme2 <span class="operator">&lt;-</span> filterDoublets<span class="punctuation">(</span>projHeme1<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># Filtering 410 cells from ArchRProject!</span></span><br><span class="line"><span class="comment">#	scATAC_BMMC_R1 : 243 of 4932 (4.9%)</span></span><br><span class="line"><span class="comment">#	scATAC_CD34_BMMC_R1 : 107 of 3275 (3.3%)</span></span><br><span class="line"><span class="comment">#	scATAC_PBMC_R1 : 60 of 2454 (2.4%)</span></span><br></pre></td></tr></table></figure>
+
+<p>之前的<code>projHeme1</code>有10,661个细胞，经过上一步的过滤，<code>projHeme2</code>剩下了10,251个细胞，也就意味着有410个细胞(3.85%)是doublet。而且每个样本的过滤比例并不相同，这就是<code>filterRatio</code>的作用。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">projHeme2</span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line"><span class="comment"># numberOfCells(1): 10251</span></span><br><span class="line"><span class="comment"># medianTSS(1): 16.856</span></span><br><span class="line"><span class="comment"># medianFrags(1): 2991</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你想过滤更多<code>ArchRProject</code>里的细胞，你可以设置更高的<code>filterRatio</code>。和参数调整的更多信息可以用<code>?filterDoublets</code>查看。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">projHemeTmp <span class="operator">&lt;-</span> filterDoublets<span class="punctuation">(</span>projHeme1<span class="punctuation">,</span> filterRatio <span class="operator">=</span> <span class="number">1.5</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># Filtering 614 cells from ArchRProject!</span></span><br><span class="line"><span class="comment">#	scATAC_BMMC_R1 : 364 of 4932 (7.4%)</span></span><br><span class="line"><span class="comment">#	scATAC_CD34_BMMC_R1 : 160 of 3275 (4.9%)</span></span><br><span class="line"><span class="comment">#	scATAC_PBMC_R1 : 90 of 2454 (3.7%)</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，既然<code>projHemeTmp</code>只是说明用的临时对象，我们现在可以将其从R session中删除了。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm<span class="punctuation">(</span>projHemeTmp<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" data-id="cllg90y3k00aaeqp2glnegpnl" data-title="使用ArchR分析单细胞ATAC-seq数据(第三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%9B%9B%E7%AB%A0)-sanalysis-sc-atac-seq-with-archr-chapter4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          使用ArchR分析单细胞ATAC-seq数据(第四章)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/05/22/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">使用ArchR分析单细胞ATAC-seq数据(第二章)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-Oatk：利用HiFi Read进行细胞器组装-oatk-assembly-of-organelles-using-hifi-read" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" class="article-date">
+  <time class="dt-published" datetime="2023-06-24T06:24:54.906Z" itemprop="datePublished">2023-06-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Oatk是我见过的一个非常实用、高效的<strong>植物细胞器</strong>基于PacBio HiFi测序的基因组组装工具。这里有两个限定语，一个是植物，一个是PacBio HiFi。如果不满足这两个需求，那就无法使用这个工具。</p>
+<p>Oatk包括三个组件，<code>syncasm</code>用于从HiFi read中组装细胞器基因组。<code>hmm_annotation</code>会利用OatkDB的HMM profile对组装结果进行组装。最后的<code>pathfinder</code> 会根据注释信息和组装结果，得到环状的DNA序列。</p>
+<p>Oatk软件编译本身仅有一个依赖，zlib，下载源码，就可以编译安装。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/c-zhou/oatk.git</span><br><span class="line"><span class="built_in">cd</span> oatk</span><br><span class="line">make -j</span><br></pre></td></tr></table></figure>
+
+<p>在实际运行过程中，由于需要用到nhmmscan ，因此还需要额外安装了HMMER，可以使用conda安装。</p>
+<p>另外还需要一个OatkDB，里面是作者预处理过的HMM profile，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/c-zhou/OatkDB.git</span><br></pre></td></tr></table></figure>
+
+<p>你可以设置一个环境变量，hmm_db_dir，用于后续分析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmm_db_dir=/path/to/OatkDB/v20230210/</span><br></pre></td></tr></table></figure>
+
+<p>Oatk的运行只需要一个命令，如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">input_hifi=/path/to/your/hifi_reads.fq</span><br><span class="line"></span><br><span class="line">oatk -k 1001 -c 150 -t 8  \</span><br><span class="line">    -m <span class="variable">$hmm_db_dir</span>/angiosperm_mito.fam \</span><br><span class="line">    -p <span class="variable">$hmm_db_dir</span>/angiosperm_pltd.fam \</span><br><span class="line">    -o oatk <span class="variable">$input_hifi</span></span><br></pre></td></tr></table></figure>
+
+<p>其中-k和-c用于设置syncmer大小和深度。所谓的syncmer，类似Minimizers ，用于从序列中高效的选取K-mers（也就是长度为K的序列）。因此-k 1001 表示，kmer长度最小为1001 bp， -c 150 表示该类型的kmer至少要出现150次。</p>
+<p>在后续自己分析设置参数时，-k可以保持1001，-c必须根据实际的测序深度来，作者推荐该值在平均测序深度的5-10倍，用于有效的过滤核基因组序列，确保只筛选出细胞器的序列。</p>
+<p>-t 时线程数，根据实际的情况调整。 </p>
+<p>-m和-p对应的你实际物种的线粒体和叶绿体的HMM profile。</p>
+<p>-o则是输出文件名的前缀。</p>
+<p>最终的输出结果为</p>
+<ul>
+<li>oatk.mito.fasta： 线粒体的fasta</li>
+<li>oatk.pltd.fasta：叶绿体的fasta</li>
+</ul>
+<p>整体来说，oatk和作者之前开发的工具一样，非常的简洁，高效，并且实用。正如他所用的编程语言C一样。如果你用Hi-C用来搭基因组的话，强烈推荐用他的yahs。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" data-id="cllg90y060039eqp21wxr13qb" data-title="Oatk：利用HiFi Read进行细胞器组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-在Windows中搭建一个基于WSL的Python数据科学环境-building-a-wsl-based-python-data-science-environment-in-windows" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" class="article-date">
+  <time class="dt-published" datetime="2023-06-22T00:10:02.082Z" itemprop="datePublished">2023-06-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="安装WSL，提供Linux环境"><a href="#安装WSL，提供Linux环境" class="headerlink" title="安装WSL，提供Linux环境"></a>安装WSL，提供Linux环境</h1><blockquote>
+<p>如果你发现后续的命令无法运行或者说软件商城中找不到，这可能意味着你的操作系统不符合要求。WSL安装要求 Windows 10 version 2004（Build 19041 ）及以上，或者是Windows11.</p>
+</blockquote>
+<p>以管理员身份（也就是右击命令提示符）打开Windows下的CMD或PowerShell（后续，我们统一称之为<strong>终端</strong>）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_vySieCziap-9985fa1d46c14061828145444d4b3d33.png"></p>
+<p>然后终端中，执行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wsl --install</span><br></pre></td></tr></table></figure>
+
+<p>中间<strong>可能</strong>会出现几次弹窗，需要用户进行确定，如下是命令运行时的界面。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_PQhwCz5ESA-7d76694de0dc4d52a5d0c42217ab783c.png"></p>
+<p>或许？，你也可以通过<strong>Microsoft Store</strong>依序下载Windows Subsystem for Linux 和 Ubuntu（命令行的等价操作）。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_JZmsOMk0iJ-03a42f94f0684bf8950bbaeff8ddf132.png" alt="image_JZmsOMk0iJ"></p>
+<p>最后安装完成后，需要你重启一下系统。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_odGFIUb3k--3c455a52782c41f88e01f729165a7d9e.png"></p>
+<p>重启之后，会自动出现终端，让你输入用户名和密码，该用户还用sudo权限。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image__lfZbSc_Fw-121185f65b994bc6a9498c9e9e9d7c0d.png" alt="image__lfZbSc_Fw"></p>
+<p>如果你没有出现，或者自己手滑了，把它关闭了，这也问题不大，这意味着后续启动将以root用户启动。</p>
+<p>PS：启动wsl的方式很简单，就是在终端里输入<code>wsl</code>并回车，或者在应用里搜索ubuntu</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_vySieCziap-9985fa1d46c14061828145444d4b3d33.png" alt="image_vySieCziap"></p>
+<p>如果你觉得权限太大，还是希望以普通用户的方式登录。我们可以在root下用<code>adduser</code> 增加一个用户【WSL环境内】</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_HsYiTQ8y_i-7888d4ea96cd4d1e9af5aefcd0bcfffa.png" alt="image_HsYiTQ8y_i"></p>
+<p>然后将刚才新建的用户添加到sudo组中，例如xzg</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usermod -a -G sudo xzg</span><br></pre></td></tr></table></figure>
+
+<p>最后在终端增设置我们刚才的用户为默认启动用户【直接打开的终端环境】</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ubuntu config --default-user xzg</span><br></pre></td></tr></table></figure>
+
+<p>后续启动wsl 的时候就不再是root，而是新建的用户，并且该用户也能使用sudo。</p>
+<h1 id="配置WSL环境"><a href="#配置WSL环境" class="headerlink" title="配置WSL环境"></a>配置WSL环境</h1><h2 id="可选：系统代理"><a href="#可选：系统代理" class="headerlink" title="可选：系统代理"></a>可选：系统代理</h2><p>由于很多软件都需要从GitHub上下载，因此需要先为Linux系统配置一个系统代理。</p>
+<p>先确定下自己的WSL版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wsl -l -v</span><br><span class="line"><span class="comment"># 输出结果如下</span></span><br><span class="line">  NAME      STATE           VERSION</span><br><span class="line">* Ubuntu    Running         2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我的是WSL2，它是基于Hyper-V运行，因此与Windows系统在网络上是两台独立的机器。需要让WSL代理指向Windows的IP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 这部分代码可以放在.bashrc中，启动wsl时自动配置环境</span></span><br><span class="line">host_ip=$(<span class="built_in">cat</span> /etc/resolv.conf |grep <span class="string">&quot;nameserver&quot;</span> |<span class="built_in">cut</span> -f 2 -d <span class="string">&quot; &quot;</span>)</span><br><span class="line"><span class="built_in">export</span> ALL_PROXY=<span class="string">&quot;http://<span class="variable">$host_ip</span>:7890&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果是WSL1，那么就只需要用下面这个代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host_ip=127.0.0.1</span><br><span class="line"><span class="built_in">export</span> ALL_PROXY=<span class="string">&quot;http://<span class="variable">$host_ip</span>:7890&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>之后，在Windows上打开Allow LAN，也就是允许本地区域网的访问。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_sSacJUuilI-718e4643ccda4335b8fea76c5490263a.png" alt="image_sSacJUuilI"></p>
+<p>这样子后续数据下载走的都是代理。</p>
+<h2 id="可选：oh-my-zsh"><a href="#可选：oh-my-zsh" class="headerlink" title="可选：oh-my-zsh"></a>可选：oh-my-zsh</h2><p>之后，我们还需要简单的配置一个oh-my-zsh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装zsh</span></span><br><span class="line">sudo apt install zsh</span><br><span class="line"><span class="comment"># 安装oh-my-zsh</span></span><br><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>需要注意，我们后续安装conda之后，oh-my-zsh是没有conda配置的，因此我们还需要在bash环境中初始化下zsh相关的配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda init zsh</span><br></pre></td></tr></table></figure>
+
+<p>另外，配置在<code>.bashrc</code>里的一些内容，也应该需要自己手动加到<code>.zshrc</code>文件中</p>
+<h2 id="可选：NVIDIA驱动"><a href="#可选：NVIDIA驱动" class="headerlink" title="可选：NVIDIA驱动"></a>可选：NVIDIA驱动</h2><p>因为我的电脑需要做深度学习相关的分析，所以需要配置深度学习的分析环境。</p>
+<p>配置命令参考自：<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads" title="https://developer.nvidia.com/cuda-downloads">https://developer.nvidia.com/cuda-downloads</a></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_yV0UklJJNt-8056ceb7bd30461b8c542064d0e487ca.png" alt="image_yV0UklJJNt"></p>
+<p>只需要在WSL的Ubuntu中运行如下命令行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin</span><br><span class="line">sudo <span class="built_in">mv</span> cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600</span><br><span class="line"><span class="comment"># 2.6G的数据下载</span></span><br><span class="line">wget https://developer.download.nvidia.com/compute/cuda/12.1.1/local_installers/cuda-repo-wsl-ubuntu-12-1-local_12.1.1-1_amd64.deb</span><br><span class="line">sudo dpkg -i cuda-repo-wsl-ubuntu-12-1-local_12.1.1-1_amd64.deb</span><br><span class="line">sudo <span class="built_in">cp</span> /var/cuda-repo-wsl-ubuntu-12-1-<span class="built_in">local</span>/cuda-*-keyring.gpg /usr/share/keyrings/</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y install cuda</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>之后，只要在wsl的命令行中输入<code>nvidia-smi</code> 有输出就算成功。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br><span class="line"><span class="comment"># 我的输出如下</span></span><br><span class="line">Wed Jun 21 23:26:37 2023</span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line">| NVIDIA-SMI 525.85.05    Driver Version: 528.24       CUDA Version: 12.0     |</span><br><span class="line">|-------------------------------+----------------------+----------------------+</span><br><span class="line">| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |</span><br><span class="line">| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |</span><br><span class="line">|                               |                      |               MIG M. |</span><br><span class="line">|===============================+======================+======================|</span><br><span class="line">|   0  NVIDIA GeForce ...  On   | 00000000:01:00.0  On |                  Off |</span><br><span class="line">|  0%   32C    P8    13W / 450W |   2884MiB / 24564MiB |      1%      Default |</span><br><span class="line">|                               |                      |                  N/A |</span><br><span class="line">+-------------------------------+----------------------+----------------------+</span><br><span class="line"></span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line">| Processes:                                                                  |</span><br><span class="line">|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |</span><br><span class="line">|        ID   ID                                                   Usage      |</span><br><span class="line">|=============================================================================|</span><br><span class="line">|    0   N/A  N/A        32      G   /Xwayland                       N/A      |</span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果系统上安装了pytorch，可以检查下，是否能够调用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">torch.cuda.is_available()</span><br><span class="line"><span class="comment"># True 表示能够盗用</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="必选：安装conda"><a href="#必选：安装conda" class="headerlink" title="必选：安装conda"></a>必选：安装conda</h2><p>我们使用conda管理不同的环境，避免不同软件的依赖间冲突，导致环境崩溃。</p>
+<p>打开你的wsl，我们下载mambaforge，使用mamba作为包管理器，并默认增加conda-forge源</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载mambaforge(需要不错的网络环境）</span></span><br><span class="line">curl -L -O <span class="string">&quot;https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-<span class="subst">$(uname)</span>-<span class="subst">$(uname -m)</span>.sh&quot;</span></span><br><span class="line"><span class="comment"># 安装mamba</span></span><br><span class="line">bash Mambaforge-$(<span class="built_in">uname</span>)-$(<span class="built_in">uname</span> -m).sh</span><br><span class="line"><span class="comment"># 安装时会有一些的选项，注意选择</span></span><br></pre></td></tr></table></figure>
+
+<p>之后，就可以用mamba隔离不同的环境。例如，我们需要安装一个pytorch环境（带GPU）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mamba create -n pytorch2.0.1 pytorch=2.0.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia -y</span><br><span class="line"><span class="comment"># 大约要下载3.1GB</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，mamba与镜像的兼容性不是特别好，因此不推荐使用mamba的时候修改镜像，而是使用官方源。</p>
+<h1 id="安装vscode"><a href="#安装vscode" class="headerlink" title="安装vscode"></a>安装vscode</h1><p>VScode从微软官方站点(<a target="_blank" rel="noopener" href="https://code.visualstudio.com/" title="https://code.visualstudio.com/">https://code.visualstudio.com/</a>)下载安装</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_mH35pSo5-l-ece8056d748e492ebe76cf2b8ed5e079.png" alt="image_mH35pSo5-l"></p>
+<h2 id="配置插件"><a href="#配置插件" class="headerlink" title="配置插件"></a>配置插件</h2><p>未安装插件的VSCode只是一款普通的编辑器，为了能让它满足我们后续分析数据的需求，我们需要为其配置一些插件。</p>
+<p>我们需要先配置“Remote Development”，有了它，我们才能够连接到WSL系统。安装方式如下（其他插件也类似）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_VoS35suINB-1725cb88fe0745f396cd68463cd86d81.png" alt="image_VoS35suINB"></p>
+<p>之后用快捷键shift + ctrl +p 调出，然后输入wsl，我们连接到WSL。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_VjdKtZP-0C-52f5fbda366b40648ec478a33afd8bda.png" alt="image_VjdKtZP-0C"></p>
+<p>需要等待一会的后台初始化</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_Iw04LJcB3A-8a50c36983e04b5480cb54d0639a627b.png" alt="image_Iw04LJcB3A"></p>
+<h2 id="VSCode实现Jupyter"><a href="#VSCode实现Jupyter" class="headerlink" title="VSCode实现Jupyter"></a>VSCode实现Jupyter</h2><p>Jupyter 是一个开源的数据科学和机器学习工具，支持多种编程语言和平台。它允许用户在单个交互式笔记本中创建和共享文档，并且支持实时的代码编辑和运行。此外，Jupyter 还提供了一系列的库和扩展，可以用来完成各种数据分析、机器学习和科学计算任务。&#x20;</p>
+<p>通过VSCode中上安装一些插件，也可以通过终端访问 Jupyter Notebook</p>
+<ul>
+<li>Python: 使得VSCode能选择不同的Python内核</li>
+<li>Pytlance：类型检查等功能</li>
+<li>Jupyter: 在VSCode提供类Jupyter的界面</li>
+</ul>
+<blockquote>
+<p>需要注意的是WSL系统下的插件和Windows下插件并不互通，要单独安装。</p>
+</blockquote>
+<p>之后新建一个以.ipynb结尾的文件，就可以切换不同的Python内核</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_t8wThT-sZh-0f05902b41054071b963deddd2912e0d.png" alt="image_t8wThT-sZh"></p>
+<p>第一次运行代码时，可能会弹出如下提示，选择“安装”即可。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_RUBxu4j7TX-fa812a4b95b74def899479b821e4d770.png" alt="image_RUBxu4j7TX"></p>
+<p>后续就跟网页版的Jupyter Notebook体验一致，你可以在其中画图，处理数据。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/06/image_ml67PloBt2-3d430c2e05aa44759a22d219e100c99f.png" alt="image_ml67PloBt2"></p>
+<p>那么以上，我们就算实现Windows系统下配置WSL，并使用VSCode作为我们的分析平台，用于处理数据</p>
+<p>参考资料：</p>
+<ul>
+<li>WSL的安装： <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/wsl/install" title="https://learn.microsoft.com/en-us/windows/wsl/install">https://learn.microsoft.com/en-us/windows/wsl/install</a></li>
+<li>用户配置：<a target="_blank" rel="noopener" href="https://aka.ms/wslusers" title="https://aka.ms/wslusers">https://aka.ms/wslusers</a>&#x20;</li>
+<li>WSL和VSCode的联动</li>
+<li>WSL的系统配置：<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-vscode" title="https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-vscode">https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-vscode</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" data-id="cllg90y4p00epeqp247311kxm" data-title="在Windows中搭建一个基于WSL的Python数据科学环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-用Colab缓解我的GPU焦虑-用colab缓解我的gpu焦虑" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" class="article-date">
+  <time class="dt-published" datetime="2023-06-16T06:32:07.246Z" itemprop="datePublished">2023-06-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>大型语言模型（LLM）非常的火热，我就想着能不能自己在本地上部署一个开源的模型，比如说chatGLM-6B。尽管苹果公司自己的芯片支持pytorch的图形加速运算，但是真实体验下来，也只能说有待提高。</p>
+<p>另一个方法就是配一个4090显卡的主机了，毕竟4090有24Gb的显存，跑个chatGLM-6B还是绰绰有余的。奈何，我多看了一眼LLaMA-60B，光模型文件都差不多80G了，总不可能去买一张A100 80G吧。</p>
+<p>思来想去，还是听别人劝，用Google Colab吧。我测试了</p>
+<p>那么问题来了，每次都要重新开资源，岂不是要花很多时间在环境配置和数据下载上？</p>
+<p>事实上，你从Colab获取HuggingFace的模型时，速度是400Mb&#x2F;s。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" data-id="cllg90y6s00jweqp2dsrcac74" data-title="用Colab缓解我的GPU焦虑" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-掌握了一个关于Bcrypt加密的知识-acquired-a-knowledge-of-bcrypt-encryption" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" class="article-date">
+  <time class="dt-published" datetime="2023-05-31T14:12:07.550Z" itemprop="datePublished">2023-05-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>我发现，人的表达欲是看场景的，当涉及到我最感兴趣的技术类的话题时，我其实就知道该说什么了。</p>
+</blockquote>
+<p>最近在搞一个简单的后台管理的源码的二次开发，原项目中，不允许直接在后台添加用户，只能通过注册，或者前期初始化的时候实现。最终，在GPT的协助下，我完成了这个工作。</p>
+<p>首先，通过阅读源码，我发现项目中的密码不是明文存放（这个年头了，不会真有人还明文吧），是经过加密的，加密代码如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hashedPassword = bcrypt.<span class="title function_">hashSync</span>(password, <span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p>于是，我就让GPT根据这行命令给我写了一个脚本，结果如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// encryptPassword.js </span></span><br><span class="line"><span class="keyword">const</span> bcrypt = <span class="built_in">require</span>(<span class="string">&#x27;bcryptjs&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">encryptPassword</span>(<span class="params">password</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> hashedPassword = bcrypt.<span class="title function_">hashSync</span>(password, <span class="number">10</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Hashed Password: &quot;</span>, hashedPassword);</span><br><span class="line">  <span class="keyword">return</span> hashedPassword;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Get the password from command line arguments</span></span><br><span class="line"><span class="keyword">const</span> password = process.<span class="property">argv</span>[<span class="number">2</span>];</span><br><span class="line"><span class="title function_">encryptPassword</span>(password);</span><br></pre></td></tr></table></figure>
+
+<p>然后，我就发现了一个问题，那就是两次哈希的结果，居然是不一样的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ node encryptPassword.js 123456</span><br><span class="line">Hashed Password:  $2a$10<span class="variable">$Xp6RIApHxvQJsFT2FrzNUeKfyJoHOlcSUdqHD2tU</span>/YnnYCSuMniVK</span><br><span class="line">$ node encryptPassword.js 123456</span><br><span class="line">Hashed Password:  $2a$10<span class="variable">$rDs3aQs221In0FsastR7PuarxwruyKOQ3Qd9T6p6dO81z</span>/AUstz8q</span><br></pre></td></tr></table></figure>
+
+<p>我第一次遇到这个情况，于是我把结果返回给了了GPT，它给的回复如下：</p>
+<p> 两次加密结果不一样是因为 bcryptjs 使用了盐（salt）的概念来增加密码的安全性。盐是一个随机生成的值，与密码混合后进行哈希运算，生成最终的加密结果。</p>
+<p>每次调用 <code>bcrypt.hashSync</code> 方法时，bcryptjs 会生成一个新的随机盐，然后将该盐与密码混合后进行哈希运算。因此，即使输入的密码相同，由于使用了不同的盐，最终生成的加密结果也会不同。</p>
+<p>这种做法是为了增加密码的安全性，即使两个用户使用相同的密码，最终的加密结果也是不同的。这样做可以避免通过比较加密结果来判断用户是否使用相同的密码。</p>
+<p>如果需要在后续验证密码时，可以使用 <code>bcrypt.compareSync</code> 方法将输入的密码与存储的加密结果进行比较，bcryptjs 内部会自动提取盐并进行相应的比较验证。</p>
+<p>原来如此，于是我让GPT写一个测试脚本，让我来测试下，是不是真的如此</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//comparePasswords.js</span></span><br><span class="line"><span class="keyword">const</span> bcrypt = <span class="built_in">require</span>(<span class="string">&#x27;bcryptjs&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">comparePasswords</span>(<span class="params">password, hashedPassword</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> isMatch = bcrypt.<span class="title function_">compareSync</span>(password, hashedPassword);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isMatch) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Password matches!&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Password does not match!&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Get the user input and hashed password from command line arguments</span></span><br><span class="line"><span class="keyword">const</span> userInput = process.<span class="property">argv</span>[<span class="number">2</span>];</span><br><span class="line"><span class="keyword">const</span> hashedPassword = process.<span class="property">argv</span>[<span class="number">3</span>];</span><br><span class="line"><span class="title function_">comparePasswords</span>(userInput, hashedPassword);</span><br></pre></td></tr></table></figure>
+
+<p>我运行之后，发现两个不match啊，GPT你是不是骗我</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ node comparePasswords.js 123456 $2b$12<span class="variable">$RJhc7WSsbRhkg2QxZuDG6</span>.qgPXhFlrbvfOtw0SWDHkElgt1thSPD2</span><br><span class="line">Password does not match</span><br></pre></td></tr></table></figure>
+
+<p>当我把这段内容给GPT时，它敏锐的观察到，我的输入有问题，它的回复如下</p>
+<p>在你的示例中，你在命令行中传递了哈希值作为一个参数。这在许多命令行解释器中可能会引起问题，因为哈希字符串中的<code>$</code>符号可能会被视为变量的开头，然后尝试去解析它。结果就是，你的程序可能没有接收到完整的哈希字符串，而是只接收到了一部分。</p>
+<p>你可以尝试用引号将哈希字符串括起来，以避免命令行解释器对<code>$</code>符号进行解析。</p>
+<p>你的命令应该这样写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node comparePasswords.js 123456 <span class="string">&quot;$2b$12<span class="variable">$RJhc7WSsbRhkg2QxZuDG6</span>.qgPXhFlrbvfOtw0SWDHkElgt1thSPD2&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这个版本中，哈希字符串被括在双引号中，这会防止命令行解释器将<code>$</code>符号视为变量的开头。</p>
+<p>看来可能是因为<code>$</code>导致的。不过遗憾的是，我运行上述的代码还是失败了。因为<code>$</code>在双引号内还是会作为变量的开头，使用单引号才行，因此正确形式是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node comparePasswords.js 123456 <span class="string">&#x27;$2b$12$RJhc7WSsbRhkg2QxZuDG6.qgPXhFlrbvfOtw0SWDHkElgt1thSPD2&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>不管如何，我在GPT的帮助下，了解了一个新的库，Bcrypt，还知道了它能够保证每次加密的结果都是随机的，但又保证了，同一个密码能够正确的验证。比如说我让GPT写了一个python版本，虽然输出的结果很不一样，但是依旧能够通过验证。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" data-id="cllg90y6d00igeqp2d3y123qh" data-title="掌握了一个关于Bcrypt加密的知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我不知道说些什么-what-to-say" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" class="article-date">
+  <time class="dt-published" datetime="2023-05-28T12:20:52.946Z" itemprop="datePublished">2023-05-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这篇不是一个技术文章，只是我最近的一些感想吧，记录下来，给以后的我看。</p>
+<p>今年清明的时候，村委会的人问我回不回去，因为他们需要我上台讲点东西。我没有回去，因为我不知道说些什么。</p>
+<p>在写毕业论文时，我在致谢这一部分拖了好久，明明有很多感受，有很多话要说，但是落笔却非常艰难，因为我不知道写的内容是否合适。</p>
+<p>答辩结束的时候，主席老师问我想不想说些什么，我拿起话筒，刚准备说什么的时候，由于其他人没听到刚才那句话，以为已经结束了，就开始了下一个环节。我有点庆幸，因为我不知道说些什么。</p>
+<p>毕业典礼快到了，研究生部希望我们录制一点视频，说说自己的一些感想。我本来想录制的，但是我发现一个问题，我不知道说些啥。</p>
+<p>前些时候，给熊当伴郎帮忙，我问他婚礼上应该没有环节需要伴郎说两句吧，他说没有。还好没有这个环节，因为我不知道说些什么。</p>
+<p>当我处于一个都是陌生人的环境时，我都会非常局促，我不知道应该如何开口，我不知道自己应该说些什么？</p>
+<p>或许，不知道说些什么，是情绪太过复杂了？</p>
+<p>或许，不知道说些什么，是因为我认为存在一个标准回答模式？</p>
+<p>或许，不知道说些什么，是因为我之前根本没有类似经历，所以大脑直接宕机了？</p>
+<p>哎，想不明白啊。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" data-id="cllg90y6700i1eqp20pui84gw" data-title="我不知道说些什么" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-配置pytorch(gpu)分析环境-setting-up-pytorch-gpu-analysis-environment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" class="article-date">
+  <time class="dt-published" datetime="2023-04-04T15:01:51.528Z" itemprop="datePublished">2023-04-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/">配置pytorch(gpu)分析环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Pytorch是目前最火的深度学习框架之一，另一个是TensorFlow。不过我之前一直用到是CPU版本，几个月前买了一台3070Ti的笔记本（是的，我在40系显卡出来的时候，买了30系，这确实一言难尽），同时我也有一台M1芯片Macbook Pro，目前也支持了pytorch的GPU加速，所以我就想着，在这两个电脑上装个Pytorch，浅度学习深度学习。</p>
+<h2 id="Apple-silicon"><a href="#Apple-silicon" class="headerlink" title="Apple silicon"></a>Apple silicon</h2><p>首先是M1芯片，这个就特别简单了。先装一个conda，只不过是内置mamba包管理器，添加conda-forge频道，arm64版本。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-MacOSX-arm64.sh</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">bash Mambaforge-MacOSX-arm64.sh</span><br></pre></td></tr></table></figure>
+
+<p>然后我们用mamba创建一个环境，用的是开发版的pytorch，所以频道指定pytorch-nightly</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mamba create -n pytorch \</span><br><span class="line">   jupyterlab jupyterhub pytorch torchvision torchaudio </span><br><span class="line">   -c pytorch-nightly</span><br></pre></td></tr></table></figure>
+
+<p>最后，用<code>conda activate pytorch</code>,然后测试是否正确识别到GPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">torch.has_mps</span><br><span class="line"><span class="comment"># True</span></span><br><span class="line"><span class="comment"># 配置device</span></span><br><span class="line">device = torch.device(<span class="string">&quot;mps&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>参考资料: <a target="_blank" rel="noopener" href="https://developer.apple.com/metal/pytorch/">https://developer.apple.com/metal/pytorch/</a></p>
+<h2 id="Windows-NVIDIA"><a href="#Windows-NVIDIA" class="headerlink" title="Windows NVIDIA"></a>Windows NVIDIA</h2><p>首先，需要确保你的电脑安装的是NVIDIA的显卡，以及有了相应的CUDA驱动。</p>
+<blockquote>
+<p>CUDA的显卡架构要求: <a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html">https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html</a></p>
+</blockquote>
+<p>新一代的电脑上基本都自带CUDA驱动。可以通过打开NVIDIA控制面板的系统信息</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-27e6491eb3c34d939394609b4b9568bb.png" alt="NVIDIA控制面板"></p>
+<p>在组件中查看你已经安装的CUDA驱动，例如我的是11.7.89 。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-b34dc82e6453448aa0491d82b95f504a.png" alt="image.png"></p>
+<p>也可以通过命令行的方式查看，</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-65f42a95ed3344c392daa31d66c2efe5.png" alt="image.png"></p>
+<p>接下来，我们来安装pytorch。同样也是推荐conda的方法，我们先从清华镜像源中下载Miniconda。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-3a497035e53345b3a5a7da4c671c1635.png" alt="image.png"></p>
+<p>选择Windows的安装包</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-74bbb2435e92471c87739555b22764e5.png" alt="image.png"></p>
+<p>安装完之后，我们就可以通过Anaconda Prompt进入命令行，根据pytorch网站上的推荐进行安装。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-19ca614082fc41888e3ae5b252bd4d72.png" alt="image.png"></p>
+<p>但是有一点不同，为了避免环境冲突，最好是单独创建一个环境，所以代码如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n pytorch pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia</span><br></pre></td></tr></table></figure>
+
+<p>接着用 <code>conda activate pytorch</code>启动环境，然后在python环境中测试</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">torch.has_cuda</span><br><span class="line"><span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+
+<p>几个常见的问题（至少我在写文章想到的问题）：</p>
+<p>Q: 使用conda和pip安装的区别是什么？</p>
+<p>A: conda是pytorch官方推荐的安装方式，因为conda会一并帮你装好pytorch运行所需要的CUDA驱动和相关工具集。这意味着为conda所占用的空间会更多一些。</p>
+<p>Q: 既然conda那么强，是不是让conda帮我在非常老的硬件上安装最新的pytorch吗？</p>
+<p>A: 我觉得这个跟装游戏类似，你虽然能装上游戏，但是不满足游戏的最低配置需求，照样跑不动。放在conda上，conda虽然能给你配置好cuda驱动，但是cuda驱动本身对系统的显卡驱动有要求。如果你的显卡驱动不满足，那么就算装好了，也会报错。<code>RuntimeError: The NVIDIA driver on your system is too old </code></p>
+<p>Q: 电脑上必须要安装CUDA驱动和安装CUDA toolkit吗？</p>
+<p>A: 其实我个人不是很确定如何回答，如下是我目前的一些见解。如果你用的conda，那么他会帮你解决一些依赖问题。如果你是用pip，那么就需要你自己动手配置。其中，CUDA驱动是必须要安装的，因为CUDA驱动负责将GPU硬件与计算机操作系统相连接，不装驱动，操作系统就不识别CUDA核心，相当你没装NVIDIA显卡。而CUDA toolkit是方便我们调用CUDA核心的各种开发工具集合，你装CUDA toolkit的同时会配套安装CUDA驱动。除非你要做底层开发，或者你需要从源码编译一个pytorch，否则我们大可不装CUDA toolkit。</p>
+<p>Q: 如果我电脑上的CUDA驱动版本比较旧怎么办？或者说我CUDA的驱动版本是11.7，但是我安装了cuda&#x3D;11.8的pytorch，或者版本不一样的pytorch会怎么样？</p>
+<p>A: 我们在安装cuda&#x3D;11.7的pytorch，本质上安装的是在CUDA Toolkit版本为11.7环境下编译好的pytorch版本。当cuda版本之间的差异不是特别的大，或者说不是破坏性的升级的情况下，那么理论上也是能运行的。</p>
+<h2 id="手写数据性能测试"><a href="#手写数据性能测试" class="headerlink" title="手写数据性能测试"></a>手写数据性能测试</h2><p>下面用的是GPT3.5给我提供一段手写字识别（MNIST)案例代码，用来测试不同的平台的速度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 转换数据格式并且加载数据</span></span><br><span class="line">transform = transforms.Compose(</span><br><span class="line">    [transforms.ToTensor(),</span><br><span class="line">     transforms.Normalize((<span class="number">0.5</span>,), (<span class="number">0.5</span>,))])</span><br><span class="line"></span><br><span class="line">trainset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data&#x27;</span>, train=<span class="literal">True</span>,</span><br><span class="line">                                        download=<span class="literal">True</span>, transform=transform)</span><br><span class="line">trainloader = torch.utils.data.DataLoader(trainset, batch_size=<span class="number">64</span>,</span><br><span class="line">                                          shuffle=<span class="literal">True</span>, num_workers=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">testset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data&#x27;</span>, train=<span class="literal">False</span>,</span><br><span class="line">                                       download=<span class="literal">False</span>, transform=transform)</span><br><span class="line">testloader = torch.utils.data.DataLoader(testset, batch_size=<span class="number">64</span>,</span><br><span class="line">                                         shuffle=<span class="literal">False</span>, num_workers=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义网络模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Net</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Net, self).__init__()</span><br><span class="line">        self.conv1 = torch.nn.Conv2d(<span class="number">1</span>, <span class="number">6</span>, <span class="number">5</span>)</span><br><span class="line">        self.pool = torch.nn.MaxPool2d(<span class="number">2</span>, <span class="number">2</span>)</span><br><span class="line">        self.conv2 = torch.nn.Conv2d(<span class="number">6</span>, <span class="number">16</span>, <span class="number">5</span>)</span><br><span class="line">        self.fc1 = torch.nn.Linear(<span class="number">16</span> * <span class="number">4</span> * <span class="number">4</span>, <span class="number">120</span>)</span><br><span class="line">        self.fc2 = torch.nn.Linear(<span class="number">120</span>, <span class="number">84</span>)</span><br><span class="line">        self.fc3 = torch.nn.Linear(<span class="number">84</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = self.pool(torch.nn.functional.relu(self.conv1(x)))</span><br><span class="line">        x = self.pool(torch.nn.functional.relu(self.conv2(x)))</span><br><span class="line">        x = x.view(-<span class="number">1</span>, <span class="number">16</span> * <span class="number">4</span> * <span class="number">4</span>)</span><br><span class="line">        x = torch.nn.functional.relu(self.fc1(x))</span><br><span class="line">        x = torch.nn.functional.relu(self.fc2(x))</span><br><span class="line">        x = self.fc3(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line">net = Net()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里的代码比较随意，就是用哪个平台运行哪个</span></span><br><span class="line"><span class="comment"># CPU</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="comment"># CUDA</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda:0&quot;</span>)</span><br><span class="line"><span class="comment"># MPS</span></span><br><span class="line">device = torch.device(<span class="string">&quot;mps&quot;</span>)</span><br><span class="line"></span><br><span class="line">net.to(device)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义损失函数和优化器</span></span><br><span class="line">criterion = torch.nn.CrossEntropyLoss()</span><br><span class="line">optimizer = torch.optim.SGD(net.parameters(), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 训练网络</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">start_time = time.time()  <span class="comment"># 记录开始时间</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):  <span class="comment"># 进行10次迭代训练</span></span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(trainloader, <span class="number">0</span>):</span><br><span class="line">        inputs, labels = data[<span class="number">0</span>].to(device), data[<span class="number">1</span>].to(device)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        outputs = net(inputs)</span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        running_loss += loss.item()</span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;[%d, %5d] loss: %.3f&#x27;</span> %</span><br><span class="line">                  (epoch + <span class="number">1</span>, i + <span class="number">1</span>, running_loss / <span class="number">100</span>))</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">end_time = time.time()  <span class="comment"># 记录结束时间</span></span><br><span class="line">training_time = end_time - start_time  <span class="comment"># 计算训练时间</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Training took %.2f seconds.&#x27;</span> % training_time)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Finished Training&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试网络</span></span><br><span class="line">correct = <span class="number">0</span></span><br><span class="line">total = <span class="number">0</span></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> testloader:</span><br><span class="line">        images, labels = data[<span class="number">0</span>].to(device), data[<span class="number">1</span>].to(device)</span><br><span class="line">        outputs = net(images)</span><br><span class="line">        _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">        total += labels.size(<span class="number">0</span>)</span><br><span class="line">        correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Accuracy of the network on the 10000 test images: %d %%&#x27;</span> % (</span><br><span class="line">      ))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后统计下来的结果为</p>
+<p>Windows平台</p>
+<ul>
+<li>3070Ti Training took 45.02 seconds.</li>
+<li>i9 12900H Training took CPU 75.65</li>
+</ul>
+<p>Mac平台</p>
+<ul>
+<li>M1 Max Training took 50.79 seconds.</li>
+<li>M1 MAX CPU Training took 109.61 seconds.</li>
+</ul>
+<p>总体上来说，GPU加速很明显，无论是mac还是Windows。其次是GPU加速效果对比，M1 max芯片比3070Ti差个10%？。</p>
+<p>不过目前测试都是小数据集，等我学一段时间，试试大数据集的效果。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="cllg90xyq0001eqp22qn1ed8i" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-详解R语言的format函数-an-in-depth-explanation-of-the-format-function-in-rlanguage" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" class="article-date">
+  <time class="dt-published" datetime="2023-04-01T08:03:26.662Z" itemprop="datePublished">2023-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/">详解R语言的format函数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>先提一个问题，请问下面最后的两个逻辑语句的判断，结果是什么？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">x &lt;- c(<span class="number">1234567.8</span>, <span class="number">12.12345</span>)</span><br><span class="line">x11 &lt;- <span class="built_in">format</span>(x, scientific = FALSE)</span><br><span class="line">x12 &lt;- <span class="built_in">format</span>(x, scientific = TRUE)</span><br><span class="line">x21 &lt;- <span class="keyword">as</span>.numeric(x11)</span><br><span class="line">x22 &lt;- <span class="keyword">as</span>.numeric(x12)</span><br><span class="line"></span><br><span class="line">x21 == x</span><br><span class="line">x22 == x</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>大家可以稍作思考。</p>
+<p>之所以给出开头的问题，还是因为之前讨论的apply函数。当apply应用到data.frame上时，中间会调用泛型函数as.matrix将数据进行转换，如果发现数据中存在非数值型，会调用format对数值型数据进行格式化。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">....</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span>non.numeric<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>j <span class="keyword">in</span> pseq<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="comment"># 如果是字符串，不转换</span></span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.character</span><span class="punctuation">(</span>X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">        <span class="keyword">next</span></span><br><span class="line">      <span class="comment"># 如果是逻辑值，调用as.character</span></span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.logical</span><span class="punctuation">(</span>xj <span class="operator">&lt;-</span> X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">        xj <span class="operator">&lt;-</span> <span class="built_in">as.character</span><span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">      <span class="keyword">else</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="comment"># 如果有NA，先确定位置</span></span><br><span class="line">        miss <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="comment"># 如果是因子，调用as.vector，否则调用format</span></span><br><span class="line">        xj <span class="operator">&lt;-</span> <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">length</span><span class="punctuation">(</span>levels<span class="punctuation">(</span>xj<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">          as.vector<span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="keyword">else</span> format<span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="comment"># 最后把NA放回</span></span><br><span class="line">        <span class="built_in">is.na</span><span class="punctuation">(</span>xj<span class="punctuation">)</span> <span class="operator">&lt;-</span> miss</span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">      X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> xj</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">....</span><br></pre></td></tr></table></figure>
+
+<p>这个format的描述只有一句，‘Format an <strong>R</strong> object for pretty printing.’即，格式化一个 R 对象用于<strong>漂亮</strong>的打印，</p>
+<p>问题出在这个“漂亮”上，R语言有自己的理解。</p>
+<p>比如说同样的 1234567.8在不同的环境下，会出现了不同的情况，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">format</span>(c(<span class="number">1234567.8</span>, <span class="number">12.12345</span>))</span><br><span class="line"><span class="comment"># &quot;1.234568e+06&quot; &quot;1.212345e+01&quot;</span></span><br><span class="line"><span class="built_in">format</span>(c(<span class="number">1234567.8</span>, <span class="number">123.12345</span>))</span><br><span class="line"><span class="comment"># &quot;1234567.8000&quot; &quot;    123.1235&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>一个采取了科学计数法，并保留了7位有效数字，显示为1.234568e+06，一个则保持原状1234567.8000。</p>
+<p>为什么会出现这个情况呢？这和scientific参数有关，接受一个逻辑值或者一个整数。如果提供的逻辑值，行为非常简单，就是要么用科学计数法，要么不用科学计数法。</p>
+<p>而问题出在它默认值<strong>不是逻辑值</strong>，而是<strong>NA</strong>，此时他使用 <code>getOption(&quot;scipen&quot;)</code> 的结果作为输入，用于决定是以固定，还是以指数符号（科学计数法）打印数字。正值偏向于固定符号，负值则偏向于科学计数法。</p>
+<p>具体这个参数会触发R哪一行底代码呢？通过我刨根问底，最终确定源代码中src&#x2F;mian&#x2F;format.c 的formatReal函数，一个用于对double类型数据进行格式化的函数。</p>
+<p>代码有一段注释，含义是，在满足有效位数的前提下，<strong>固定表示</strong>使用的空间不超过<strong>指数表示</strong>时，优先使用固定显示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/* F Format: use &quot;F&quot; format WHENEVER we use not more space than &#x27;E&#x27;</span></span><br><span class="line"><span class="comment">     *    and still satisfy &#x27;R_print.digits&#x27; &#123;but as if nsmall==0 !&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * E Format has the form   [S]X[.XXX]E+XX[X]</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * This is indicated by setting *e to non-zero (usually 1)</span></span><br><span class="line"><span class="comment">     * If the additional exponent digit is required *e is set to 2</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">     ...</span><br><span class="line">  *d = mxns - <span class="number">1</span>;</span><br><span class="line">  *w = neg + (*d &gt; <span class="number">0</span>) + *d + <span class="number">4</span> + *e; <span class="comment">/* width for E format */</span></span><br><span class="line">  <span class="keyword">if</span> (wF &lt;= *w + R_print.scipen) &#123; <span class="comment">/* Fixpoint if it needs less space */</span></span><br><span class="line">      *e = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (nsmall &gt; rgt) &#123;</span><br><span class="line">    rgt = nsmall;</span><br><span class="line">    wF = mxsl + rgt + (rgt != <span class="number">0</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      *d = rgt;</span><br><span class="line">      *w = wF;</span><br><span class="line">  &#125; <span class="comment">/* else : &quot;E&quot; Exponential format -- all done above */</span></span><br><span class="line">...       </span><br></pre></td></tr></table></figure>
+
+<p>代码中w是指数表示法的宽度, wF是固定表示的宽度，最后w会加上 scipen 得到最终的长度，默认是0，也就是公平决斗。</p>
+<p>回到数据<code>c(1234567.8, 12.12345)</code>中，我们来看它在固定表示和指数表示的结果。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">12.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1.234568e+06&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;1.212345e+01&quot;</span></span><br><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">12.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1234567.80000&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;     12.12345&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在保证最小数字有7位有效数字的前提下（由digits参数控制），采用指数显示法时结果是12个字符，采取固定显示结果是13个字符。当scipen&#x3D;0时，指数显示<strong>比较窄</strong>，因此选择指数显示。</p>
+<p>而数据<code>c(1234567.8, 123.12345)</code>，在保证最小数字有7位有效数字时，结果都是12个字符，势均力敌的情况下，采取固定显示。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">123.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1.234568e+06&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;1.231235e+02&quot;</span></span><br><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">123.12345</span><span class="punctuation">)</span><span class="punctuation">,</span>scientific <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1234567.8000&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;    123.1235&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>有效数字的定义是，从第一位非0数字开始到最后一位，一共有多少位数字。例如100是3为有效数字，0.001是1位有效数字，0.00100是3位有效数字。</p>
+</blockquote>
+<p>最后帮助大家梳理下整体逻辑</p>
+<ol>
+<li>format函数作用是让打印结果更加美观</li>
+<li>在打印数字时，在保证最小数以一定有效数值展示的前提下，对比固定表示和指数表示两者的字符数目，选择占用字符最少的方法</li>
+<li>最终数值的展示效果会受到digits和scientific的影响</li>
+<li>digits和scientific默认值来自于getOption(“digits”)和getOption(“scipen”)</li>
+<li>如果想让结果都以固定显示，可以设置scipen为一个非常大的数。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="cllg90y7200kueqp28lbfgvv7" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我如何使用GPT-我如何使用gpt" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" class="article-date">
+  <time class="dt-published" datetime="2023-04-01T07:15:24.805Z" itemprop="datePublished">2023-04-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/">我如何使用GPT</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>我使用GPT也有一段时间了（主要是3.5，还在等4），简单说说我的使用感觉。</p>
+<ul>
+<li>你需要把GPT的回答都当做一次闭卷考试，因此它不能当场查资料。它为了得分，需要把每道题目都写出来，无论它有没有把握。我们都应该记得老师说过，要把试卷写满吧。</li>
+<li>因此，有一些题目他准备的非常好（指训练集里面有非常多的语料），有一些题目他不是特别的熟练（语料适中），而有些他压根不会（没有语料资源）。</li>
+<li>你不能让他做一些记忆性的题目，因为他背的东西可能太多了，以至于很多内容都背混了。</li>
+<li>有些时候，他非常的倔强，觉得自己就是对的。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" data-id="cllg90y6800i3eqp294qqfss9" data-title="我如何使用GPT" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我跟GPT合作写了一个genbank文件处理的脚本-write-genebank-process-script-with-gpt" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" class="article-date">
+  <time class="dt-published" datetime="2023-03-28T06:35:38.757Z" itemprop="datePublished">2023-03-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/">我跟GPT合作写了一个genbank文件处理的脚本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>事情起因是这样子，我有个genbank文件，里面记录的是线粒体的注释的坐标信息。由于这个注释是来源同源注释，可能存在错误，因此还需要后续的手动修改。我没去找到专门的工具，只是根据分析结果，手动改了里面一些基因的坐标，就导致里面的translation这一栏跟坐标对不上，需要更新一下。虽然我有能力写这个代码去更新结果，但是我希望给GPT(模型turbo 3.5)一个机会，让他处理下。</p>
+<p>首先，我问了它关于genbank的格式定义，确保它后续能够进行处理。他的回答非常正确，符合我的认知（下面是对话截图）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-fb5074c39d144572afff9b49cb1c4d4b.png" alt="image.png"></p>
+<p>接下来我就开始问问题了，我让他编写脚本，让我调整坐标，它写了一段python 的代码，通过调用BioPython模块来实现我刚才说的功能。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-28b85f1c26b84904a9934b61916c8eac.png" alt="image.png"></p>
+<p>但是这代码有问题，因为通用性比较差，所以我让他改写代码，有一个遍历过程，先得到新的CDS，然后和原来的translation进行比较，如果存在不同则替换</p>
+<p>它的工作非常棒，下面是它给的结果。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取GenBank文件</span></span><br><span class="line">record = SeqIO.read(<span class="string">&quot;your_genbank_file.gb&quot;</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遍历所有CDS区域</span></span><br><span class="line"><span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">    <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">        <span class="comment"># 获取原始位置信息</span></span><br><span class="line">        old_start = feature.location.start</span><br><span class="line">        old_end = feature.location.end</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 修改位置信息为新的位置</span></span><br><span class="line">        new_start = <span class="number">100</span>  <span class="comment"># 新的起始位置</span></span><br><span class="line">        new_end = <span class="number">500</span>  <span class="comment"># 新的终止位置</span></span><br><span class="line">        feature.location = feature.location._shifted(new_start - old_start)</span><br><span class="line">        feature.location = feature.location._shifted(new_end - old_end)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 更新翻译信息</span></span><br><span class="line">        old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line">        new_sequence = feature.extract(record.seq)  <span class="comment"># 提取新序列</span></span><br><span class="line">        new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)  <span class="comment"># 计算新的翻译信息</span></span><br><span class="line">        new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line">        <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">            feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写回GenBank文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;modified_genbank_file.gb&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">    SeqIO.write(record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>不过它总是念念不忘他的new_start 和 new_ned，这显然不是我需要的，所以，我让他把这部分去掉。下面截图是我的提问和它的回答。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-93c5ad8901564dd3b6b28bfe27c7e78c.png" alt="image.png"></p>
+<p>这次代码简洁多了。不过他还不是一个合格的代码，因为调用只能是固定的文件名，我希望它能进一步提高通用性，所以我的提问是“好的，进一步提供他的通用性，使得我们可以在命令行通过 python remake.py input.gb output.gb来实现文件的重新生成”</p>
+<p>这次他的回答更加的棒，它用了argparse模块，并将原来的代码函数化，下面是他的回答。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">            <span class="comment"># 获取CDS区域原始序列和翻译信息</span></span><br><span class="line">            old_sequence = feature.extract(record.seq)</span><br><span class="line">            old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取CDS区域新位置</span></span><br><span class="line">            start, end = new_positions.get(feature.qualifiers[<span class="string">&#x27;gene&#x27;</span>][<span class="number">0</span>], (feature.location.start, feature.location.end))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 调整CDS区域位置并计算新翻译信息</span></span><br><span class="line">            feature.location = feature.location._shifted(start - feature.location.start)</span><br><span class="line">            feature.location = feature.location._shifted(end - feature.location.end)</span><br><span class="line">            new_sequence = feature.extract(record.seq)</span><br><span class="line">            new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)</span><br><span class="line">            new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 如果翻译信息不同，则更新qualifiers字段</span></span><br><span class="line">            <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">                feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    record = SeqIO.read(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    new_positions = &#123;gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">0</span>]: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">1</span>].split(<span class="string">&quot;-&quot;</span>))) <span class="keyword">for</span> gene_pos <span class="keyword">in</span> args.positions.strip().split()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(args.output, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">        SeqIO.write(updated_record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>更惊喜的是，在它的解释中，它还扩展了功能，它说道</p>
+<blockquote>
+<p>此代码使用argparse模块解析命令行参数，并根据提供的输入文件名和输出文件名读取和写入GenBank记录。它还允许通过命令行参数-p&#x2F;–positions指定每个基因的新起始和终止位置，方式为’gene1:100-500 gene2:200-600’。如果不提供此参数，则使用每个CDS区域的原始位置。最后，它调用update_cds_translation函数来更新所有CDS区域的翻译信息，然后将修改后的GenBank记录写回到输出文件中。</p>
+</blockquote>
+<p>我觉得差不多了，并复制了代码，开始运行，然后我报错了。错误信息如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">我运行了代码，出现了如下报错，我应该如何处理</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/Users/xuzhougeng/Downloads/remake.py&quot;, line 48, in &lt;module&gt;</span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">  File &quot;/Users/xuzhougeng/Downloads/remake.py&quot;, line 22, in update_cds_translation</span><br><span class="line">    feature.location = feature.location._shifted(start - feature.location.start)</span><br><span class="line">AttributeError: &#x27;FeatureLocation&#x27; object has no attribute &#x27;_shifted&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>我直接复制了这段代码，问gpt怎么办，它推断是biopython的版本问题，还给我写了一个更加通用的代码，新的代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO, SeqFeature</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">            <span class="comment"># 获取CDS区域原始序列和翻译信息</span></span><br><span class="line">            old_sequence = feature.extract(record.seq)</span><br><span class="line">            old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取CDS区域新位置</span></span><br><span class="line">            start, end = new_positions.get(feature.qualifiers[<span class="string">&#x27;gene&#x27;</span>][<span class="number">0</span>], (feature.location.start, feature.location.end))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 调整CDS区域位置并计算新翻译信息</span></span><br><span class="line">            offset_start = start - feature.location.start</span><br><span class="line">            offset_end = end - feature.location.end</span><br><span class="line">            new_location = SeqFeature.FeatureLocation(</span><br><span class="line">                feature.location.start + offset_start,</span><br><span class="line">                feature.location.end + offset_end,</span><br><span class="line">                feature.location.strand</span><br><span class="line">            )</span><br><span class="line">            new_sequence = feature.extract(record.seq)</span><br><span class="line">            new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)</span><br><span class="line">            new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 如果翻译信息不同，则更新qualifiers字段</span></span><br><span class="line">            <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">                feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 更新位置信息</span></span><br><span class="line">            feature.location = new_location</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    record = SeqIO.read(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    new_positions = &#123;gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">0</span>]: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">1</span>].split(<span class="string">&quot;-&quot;</span>))) <span class="keyword">for</span> gene_pos <span class="keyword">in</span> args.positions.strip().split()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(args.output, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">        SeqIO.write(updated_record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个代码对不对呢？至少我跑完是没有报错的，我进一步的检查了它的分析结果。发现很多CDS的长度明显短了，我觉得这可能是我没有说清楚，我给的是线粒体基因组。我讲这个结果反馈给了gpt，它认可了我的推测，下面是他的回答。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-995e22c2f8cb4308a93fd91d4bb9c12d.png" alt="image.png"></p>
+<p>后来我们又反反复复商量了好几轮，对代码反复打磨，通常都是它给出了建议，我询问他是不是有另一种解决思路，比如说有些genbank文件里的cds长度有问题，不一定是3的倍数，他建议我对处理来的文件，我觉得可以考虑捕获报错，他也执行的特别好。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-2bc04800e2a549bd882fb7d6594190a0.png" alt="image.png"></p>
+<p>下面的代码目前我最为满意的版本了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO, Data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 遍历每个特征</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="comment"># 如果是CDS区域</span></span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&#x27;CDS&#x27;</span>:</span><br><span class="line">            <span class="comment"># 获取特征的名称</span></span><br><span class="line">            gene = feature.qualifiers.get(<span class="string">&#x27;gene&#x27;</span>, [<span class="string">&#x27;&#x27;</span>])[<span class="number">0</span>]</span><br><span class="line">            <span class="comment"># 获取CDS区域的起始和终止位置</span></span><br><span class="line">            start, end = feature.location.start, feature.location.end</span><br><span class="line">            <span class="comment"># 如果有新位置信息，则使用新位置信息</span></span><br><span class="line">            <span class="keyword">if</span> gene <span class="keyword">in</span> new_positions:</span><br><span class="line">                start, end = new_positions[gene]</span><br><span class="line">            <span class="comment"># 获取CDS区域的序列</span></span><br><span class="line">            cds_seq = record.seq[start:end]</span><br><span class="line">            <span class="comment"># 判断序列的方向</span></span><br><span class="line">            <span class="keyword">if</span> feature.strand == -<span class="number">1</span>:</span><br><span class="line">                cds_seq = cds_seq.reverse_complement()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取codon_start和transl_table信息</span></span><br><span class="line">            codon_start = <span class="built_in">int</span>(feature.qualifiers.get(<span class="string">&#x27;codon_start&#x27;</span>, [<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">            transl_table = <span class="built_in">int</span>(feature.qualifiers.get(<span class="string">&#x27;transl_table&#x27;</span>, [<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">            <span class="comment"># 翻译CDS区域</span></span><br><span class="line">            table = Data.CodonTable.unambiguous_dna_by_id[transl_table]</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                cds_protein = cds_seq[codon_start - <span class="number">1</span>:].translate(table=table, cds=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">except</span> Data.CodonTable.TranslationError:</span><br><span class="line">                cds_protein = <span class="string">&#x27;&#x27;</span></span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;Warning: Unable to translate CDS region <span class="subst">&#123;gene&#125;</span> in record <span class="subst">&#123;record.<span class="built_in">id</span>&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="comment"># 更新CDS区域的翻译信息</span></span><br><span class="line">            feature.qualifiers[<span class="string">&#x27;translation&#x27;</span>] = [<span class="built_in">str</span>(cds_protein)]</span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>, <span class="built_in">type</span>=argparse.FileType(<span class="string">&#x27;r&#x27;</span>))</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>, <span class="built_in">type</span>=argparse.FileType(<span class="string">&#x27;w&#x27;</span>))</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    records = (record <span class="keyword">for</span> record <span class="keyword">in</span> SeqIO.parse(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>))</span><br><span class="line">    new_positions = &#123;gene: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, pos.split(<span class="string">&#x27;-&#x27;</span>))) <span class="keyword">for</span> gene, _, pos <span class="keyword">in</span> <span class="built_in">map</span>(<span class="built_in">str</span>.partition, args.positions.split())&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    untranslated_cds_count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> record <span class="keyword">in</span> records:</span><br><span class="line">        record = update_cds_translation(record, new_positions)</span><br><span class="line">        <span class="comment"># 统计无法翻译的CDS区域个数</span></span><br><span class="line">        <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">            <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&#x27;CDS&#x27;</span> <span class="keyword">and</span> <span class="keyword">not</span> feature.qualifiers.get(<span class="string">&#x27;translation&#x27;</span>, [<span class="string">&#x27;&#x27;</span>])[<span class="number">0</span>]:</span><br><span class="line">                untranslated_cds_count += <span class="number">1</span></span><br><span class="line">        SeqIO.write(record, args.output, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 提示用户有多少个CDS区域无法翻译为蛋白质序列</span></span><br><span class="line">    <span class="keyword">if</span> untranslated_cds_count &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Warning: Failed to translate <span class="subst">&#123;untranslated_cds_count&#125;</span> CDS regions.&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>我运行了这个代码，发现结果非常好。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python remake.py mitoscaf.fa.gbf new.gff</span><br><span class="line">Warning: Unable to translate CDS region COX2 in record XZG</span><br><span class="line">Warning: Failed to translate 1 CDS regions.</span><br></pre></td></tr></table></figure>
+
+<p>其实早在几年前，openAI推出GPT3的时候，我就知道了，我也提交了申请，但是一直没被通过，也就被我忘了。后来chatGPT横空出世，我开始也聊了几句，后面也就放在一边了。直到最近，它又火了，并且还出现了一个非常优秀的github项目，chatgpt-web，使得我能搭建了一个自己的专属GPT，之后我还搞定了付费API。</p>
+<p>虽然他也会出错（未来的4.0 API或许会好很多），但这样子说的仿佛人不出错一样。我现在就把它当做一个合作搭档，我有一个想法，让我帮我快速实现一下，然后我根据结果进行修改，并反馈给他，他也能迅速的给我一个反馈，这不挺好吗？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" data-id="cllg90y6c00ideqp2fw2oetu9" data-title="我跟GPT合作写了一个genbank文件处理的脚本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-基于SpringBoot和React的一个文件上传案例-springboot-and-react-file-upload" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" class="article-date">
+  <time class="dt-published" datetime="2023-02-22T11:12:48.103Z" itemprop="datePublished">2023-02-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/">基于SpringBoot和React的一个文件上传案例</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>利用后端的SpringBoot框架和前端的React框架实现一个文件上传的小项目，对目前的学习做一个总结。</p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>我们先分别搭建前后端的项目环境，然后进行项目开发。</p>
+<h2 id="前端环境搭建"><a href="#前端环境搭建" class="headerlink" title="前端环境搭建"></a>前端环境搭建</h2><blockquote>
+<p>前端开发需要一些基本的HTML, CSS和Javscript的背景知识。</p>
+</blockquote>
+<p>我们直接使用成前端比较热门的React框架进行网页搭建，还有一个热门框架是Vue。</p>
+<p>先安装NODE环境，在<a target="_blank" rel="noopener" href="https://nodejs.org/en/">https://nodejs.org/en/</a>下载长期支持版，安装之后，在命令行输入node -v 确定版本。</p>
+<p>编程环境选择VSCode，同时安装了几个插件：</p>
+<ul>
+<li>IntelliJ IDEA Keybindings</li>
+<li>Prettier</li>
+<li>Prettier ESlint</li>
+</ul>
+<p>之后，我们使用<a target="_blank" rel="noopener" href="https://umijs.org/">umi</a>作为项目的脚手架，搭建项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> file_upload_frontend &amp;&amp; <span class="built_in">cd</span> file_upload_frontend</span><br><span class="line">pnpm dlx create-umi@latest</span><br><span class="line"><span class="comment"># 选择simple App + pnpm + taobao</span></span><br><span class="line"><span class="comment"># 安装ant-design</span></span><br><span class="line">pnpm i antd @ant-design/icons</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>安装结束后，启动项目，访问Network里的地址，就确定项目是跑上了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pnpm dev</span><br><span class="line">....</span><br><span class="line">        ╔════════════════════════════════════════════════════╗</span><br><span class="line">        ║ App listening at:                                  ║</span><br><span class="line">        ║  &gt;   Local: http://localhost:8000                  ║</span><br><span class="line">ready - ║  &gt; Network: http://192.168.50.97:8000              ║</span><br><span class="line">        ║                                                    ║</span><br><span class="line">        ║ Now you can open browser with the above addresses↑ ║</span><br><span class="line">        ╚════════════════════════════════════════════════════╝</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>网页显示如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-778d8da29fb04b72add7704afe96479f.png" alt="启动页面"></p>
+<h2 id="后端环境搭建"><a href="#后端环境搭建" class="headerlink" title="后端环境搭建"></a>后端环境搭建</h2><p>后端使用Java SpringBoot实现RESTful的接口开发。(这里的背景知识要求比较多，Java的面向对象编程，反射，注解，Spring框架，SpringMVC框架）</p>
+<p>首先，到<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/download/">https://www.jetbrains.com/idea/download/</a>里下载一个社区版的IntelliJ IDEA。相比于商业版，社区办缺少了Spring初始化、SQL数据库连接、HTTP客户端等功能，但是也是能用。</p>
+<p>接着，在<a target="_blank" rel="noopener" href="https://start.spring.io/">https://start.spring.io</a>中创建一个SpringBoot项目，配置如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-4f5fa9ed7847457899a4eaf59b2c2932.png" alt="image.png"></p>
+<p>得到一个fileupload.zip文件，解压缩后就得到了我们项目的基本结构</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">fileupload</span><br><span class="line">├── HELP.md</span><br><span class="line">├── mvnw</span><br><span class="line">├── mvnw.cmd</span><br><span class="line">├── pom.xml</span><br><span class="line">└── src</span><br><span class="line">    ├── main</span><br><span class="line">    │   ├── java</span><br><span class="line">    │   │   └── top</span><br><span class="line">    │   │       └── xuzhougeng</span><br><span class="line">    │   │           └── fileupload</span><br><span class="line">    │   │               └── FileuploadApplication.java</span><br><span class="line">    │   └── resources</span><br><span class="line">    │       ├── application.properties</span><br><span class="line">    │       ├── static</span><br><span class="line">    │       └── templates</span><br><span class="line">    └── test</span><br><span class="line">        └── java</span><br><span class="line">            └── top</span><br><span class="line">                └── xuzhougeng</span><br><span class="line">                    └── fileupload</span><br><span class="line">                        └── FileuploadApplicationTests.java</span><br></pre></td></tr></table></figure>
+
+<p>利用IDEA打开这个项目，把resources下的application.properties改成application.yaml，编辑内容如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8070</span></span><br></pre></td></tr></table></figure>
+
+<p>然后点击IDEA的运行键，如果能正常访问localhost:8070就意味着后端环境配置成功</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-b39e7be42bd542b19113f956bd19ca37.png" alt="springboot"></p>
+<h1 id="代码编写"><a href="#代码编写" class="headerlink" title="代码编写"></a>代码编写</h1><h2 id="前端基础代码"><a href="#前端基础代码" class="headerlink" title="前端基础代码"></a>前端基础代码</h2><p>前端的工作非常简单，只需要去Ant Design的官方找一个合适的模版。</p>
+<p>打开<a target="_blank" rel="noopener" href="https://ant-design.gitee.io/components/overview-cn/">https://ant-design.gitee.io/components/overview-cn/</a>，找到Upload上传组件块，选择一个顺眼的，复制它的代码</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-0057b758c1124b98a8c9af9413f006a0.png" alt="上传模块"></p>
+<p>之后在项目中建立一个src&#x2F;pages&#x2F;upload.tsx文件，把代码粘贴进去</p>
+<p>修改 .umirc.tsx 中的路由配置</p>
+<figure class="highlight plaintext"><figcaption><span>TSX</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import &#123; defineConfig &#125; from &quot;umi&quot;;</span><br><span class="line"></span><br><span class="line">export default defineConfig(&#123;</span><br><span class="line">  routes: [</span><br><span class="line">    &#123; path: &quot;/&quot;, component: &quot;index&quot; &#125;,</span><br><span class="line">    &#123; path: &quot;/docs&quot;, component: &quot;docs&quot; &#125;,</span><br><span class="line">    &#123; path: &quot;/upload&quot;, component: &quot;upload&quot;&#125;</span><br><span class="line">  ],</span><br><span class="line">  npmClient: &#x27;pnpm&#x27;,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>打开<a target="_blank" rel="noopener" href="http://localhost:8000/upload">http://localhost:8000/upload</a> 如果看到里面内容跟复制的内容一样，就算成功。</p>
+<p>接下来，编辑upload.tsx文件，做一些基本的修改</p>
+<figure class="highlight plaintext"><figcaption><span>TSX</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">multiple: false, //只允许传一个文件</span><br><span class="line">action: &#x27;http://localhost:8070/files&#x27;, //设置上传的站点</span><br></pre></td></tr></table></figure>
+
+<p>multiple设置为false，用于限制单次上传的文件数，action设置上传的目标地址。</p>
+<p>这样子，前端就算完工了。</p>
+<h2 id="后端代码"><a href="#后端代码" class="headerlink" title="后端代码"></a>后端代码</h2><p>后端文件上传代码参考<a target="_blank" rel="noopener" href="https://www.bezkoder.com/spring-boot-file-upload/">https://www.bezkoder.com/spring-boot-file-upload/</a></p>
+<p>首先，我们写服务层的代码，实现两个功能</p>
+<ol>
+<li>初始化文件上传后存放的目录</li>
+<li>保存文件</li>
+</ol>
+<p>在top.xuzhougeng.fileupload建立一个软件包, service。</p>
+<p>然后在service中创建一个接口FileStorageService，里面就定义两个接口函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// top/xuzhougeng/fileupload/service/FileStorageService.java</span></span><br><span class="line"><span class="keyword">package</span> top.xuzhougeng.fileupload.service;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.multipart.MultipartFile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">FileStorageService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">(MultipartFile file)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过在FileStorageService上用快捷键option + enter，实现接口。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-060d043e340849a192aea10ad2193439.png" alt="生成方法"></p>
+<p>实现类存放在service的impl目录下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/02/image-f7afc15de3bf4445826a052c19f8eb2f.png" alt="实现类"></p>
+<p>代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// top/xuzhougeng/fileupload/service/FileStorageServiceImpl.java</span></span><br><span class="line"><span class="keyword">package</span> top.xuzhougeng.fileupload.service.impl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.multipart.MultipartFile;</span><br><span class="line"><span class="keyword">import</span> top.xuzhougeng.fileupload.service.FileStorageService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.FileAlreadyExistsException;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Path;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FileStorageServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">FileStorageService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Path</span> <span class="variable">root</span> <span class="operator">=</span> Paths.get(<span class="string">&quot;uploads&quot;</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Files.createDirectories(root);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;无法初始化upload的上传目录&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">(MultipartFile file)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Files.copy(file.getInputStream(),</span><br><span class="line">                    <span class="built_in">this</span>.root.resolve(file.getOriginalFilename()));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            <span class="keyword">if</span> (e <span class="keyword">instanceof</span> FileAlreadyExistsException)&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;文件已存在&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>初始化init调用Files模块创建文件夹。save函数的参数类型为MultipartFile，是SpringMVC用来简化文件上传操作的工作类。通过调用Files模块，将上传的文件流复制到指定的目录下。</p>
+<p>服务层搞定之后，就是控制层，创建一个软件包controller，并在目录下建立一个FileController类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.xuzhougeng.fileupload.controller;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Controller;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.multipart.MultipartFile;</span><br><span class="line"><span class="keyword">import</span> top.xuzhougeng.fileupload.service.FileStorageService;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@CrossOrigin(value = &#123;&quot;http://192.168.50.97:8000&quot;&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FileController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> FileStorageService fileStorageService;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setFileStorageService</span><span class="params">(FileStorageService fileStorageService)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.fileStorageService = fileStorageService;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/files&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">fileSave</span><span class="params">(<span class="meta">@RequestParam(&quot;file&quot;)</span> MultipartFile file)</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;loading file&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            fileStorageService.save(file);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Upload successfully&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Upload failed&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>它的功能非常简单，就是相应POST请求，然后调用服务层的fileStorageService的save方法进行文件保存。</p>
+<p>最后还需要修改启动函数，使其实现CommandLineRunner，覆写他的 run方法，使其在运行前调用FileStorageService的init方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FileuploadApplication</span> <span class="keyword">implements</span> <span class="title class_">CommandLineRunner</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Resource</span></span><br><span class="line">  <span class="keyword">private</span> FileStorageService fileStorageService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    fileStorageService.init();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    SpringApplication.run(FileuploadApplication.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后启动后端，测试下文件上传。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" data-id="cllg90y4r00ezeqp257mp75fe" data-title="基于SpringBoot和React的一个文件上传案例" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/2/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

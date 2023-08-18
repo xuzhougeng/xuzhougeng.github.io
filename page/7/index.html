@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/7/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-一次路由器刷固件安插件的折腾之旅-update-router-firmware-for-scientific-internet-access" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" class="article-date">
+  <time class="dt-published" datetime="2021-08-08T23:04:16.120Z" itemprop="datePublished">2021-08-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/">一次路由器刷固件安插件的折腾之旅</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>故事的起因可以追溯到好几年之前，当时机缘巧合之下和<a target="_blank" rel="noopener" href="https://github.com/leoatchina">Leo@China</a>一起拼团买了一个二手斐讯路由器（关于这个路由器，还有一个金融理财事件在里面），第一次听说路由器刷固件的事情。</p>
+<p>最近为了改善我们课题组的上网环境（人多设备多，旧的路由器容易断连），斥巨资购买了华硕路由器，型号为RT-AX86U，在给路由器设置时，发现界面有些眼熟，不由得让我想起来之前那台斐讯路由器的后台，于是我就想着，这台路由器是不是也能刷固件呢？</p>
+<p>经过一波上网检索，我最终折腾成功，给这台路由器刷上了固件，离线安装了个别插件，如下是具体的教程。</p>
+<blockquote>
+<p>如果没有特别的上网需求，不建议刷固件。</p>
+</blockquote>
+<p>第一步，到KoolShare论坛的固件下载服务器， <a target="_blank" rel="noopener" href="https://firmware.koolshare.cn/%EF%BC%8C">https://firmware.koolshare.cn/，</a> 选择游客所能下载的最新固件。我购买的是2021年的RT-AX86U, 出场的固件版本就是386，因此我在 <a target="_blank" rel="noopener" href="https://firmware.koolshare.cn/Koolshare_RMerl_New_Gen_386/RT-AX86U/">https://firmware.koolshare.cn/Koolshare_RMerl_New_Gen_386/RT-AX86U/</a> 里选择7月30日发布的386固件进行下载</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/08/image-8185fa73fbe34f7fa3145925d0907f23.png" alt="选择固件"></p>
+<p>第二步：通过 router.asus.com 登录到路由器的后台，选择【系统管理】-&gt; 【固件升级】， 上传下载的固件</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/08/image-53f126be31314376ba12e05650f3681a.png" alt="上传固件"></p>
+<p>静静等待固件升级完成。</p>
+<p>第三步：登录路由器，选择最后的 【软件中心】，到【未安装】中安装 shellinabox，启动shell命令行，运行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/\tdetect_package/\t# detect_package/g&#x27;</span> /koolshare/scripts/ks_tar_install.sh</span><br></pre></td></tr></table></figure>
+
+<p>第四步：离线安装插件。访问 <a target="_blank" rel="noopener" href="https://github.com/hq450/fancyss">https://github.com/hq450/fancyss</a> ，点击 fancyss_hnd ，下载其中的 .tar.gz文件。接着，打开路由器后台，选择最后的软件中心的离线安装，上传该 tar.gz 文件，等待安装完成。</p>
+<p>第五步: 配置第四步里安装的插件，即可实现更加自由的网页访问。</p>
+<p>最后，感谢KoolShare论坛和GitHub的hq450。 </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" data-id="cllg90y37008oeqp2d1w4c4bw" data-title="一次路由器刷固件安插件的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-hifiasm对HiFi PacBio进行组装-assemble-hifi-pacbio-with-hifiasm" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" class="article-date">
+  <time class="dt-published" datetime="2021-08-02T21:42:03.312Z" itemprop="datePublished">2021-08-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/">hifiasm对HiFi PacBio进行组装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>hifiasm是一个能有效利用PacBio HiFi测序技术，在分型组装图(pahsed assembly gprah)中可靠的表示单倍体信息的算法。</p>
+<h2 id="流程介绍"><a href="#流程介绍" class="headerlink" title="流程介绍"></a>流程介绍</h2><p>hifiasm的分析流程如下，主要分为3个阶段</p>
+<p>第一阶段：通过所有序列的相互比对，对前在测序错误进行纠正。如果一个位置只存在两种碱基类型，且每个碱基类型至少有3条read支持，那么这个位置会被当作杂合位点，否则，视作测序错误，将被纠正。</p>
+<p>第二阶段：根据序列之间的重叠关系，构建分型的字符串图(phased string graph)。其中调整朝向的序列作为顶点(vertex)，一致重叠作为边(edge)。字符串图中的气泡(bubble)则是杂合位点。</p>
+<p>第三阶段：如果没有额外的信息，hifiasm会随机选择气泡的一边构建primary assembly，另一边则是alternate assembly. 该策略和HiCanu，Falcon-Unzip一样。对于杂合基因组而言，由于存在一个以上的纯合haplotype，因此primary assembly可能还会包含haplotigs。HiCanu依赖于第三方的purge_dups, 而hifiasm内部实现了purge_dups算法的变种，简化了流程。如果有额外的信息，那么hifiasm就可以正确的对haplotype进行分型。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/08/image-7b5344ff6ef24f789babd6da65f27cf4.png" alt="hifiasm workflow"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>hifiasm仅仅依赖 g++和zlib，以及git</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 依赖g++和zlib</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/chhylp123/hifiasm</span><br><span class="line"><span class="built_in">cd</span> hifiasm &amp;&amp; make</span><br><span class="line"></span><br><span class="line"><span class="comment"># bioconda</span></span><br><span class="line">conda install -c bioconda hifiasm</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过源码编译的方式安装，需要将hifiasm移动到你的软件目录下，或者将hifiasm的路径加入到环境变量PATH中。</p>
+<p>如果是 trio-binning模式，需要额外安装<a target="_blank" rel="noopener" href="https://github.com/lh3/yak">yak</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#source code</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/lh3/yak</span><br><span class="line"><span class="built_in">cd</span> yak &amp;&amp; make</span><br><span class="line"><span class="comment"># bioncda</span></span><br><span class="line">conda install -c bioconda yak</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="案例展示"><a href="#案例展示" class="headerlink" title="案例展示"></a>案例展示</h2><p>hifiasm的使用非常简洁明了，根据已有的数据分为，仅HiFi数据模式，有双亲二代测序的Trio-binning模式和有Hi-C数据的Hi-C模式。</p>
+<h3 id="仅有HiFi数据"><a href="#仅有HiFi数据" class="headerlink" title="仅有HiFi数据"></a>仅有HiFi数据</h3><p>最基本的用法，会得到两个部分分型的组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/chhylp123/hifiasm/releases/download/v0.7/chr11-2M.fa.gz</span><br><span class="line">hifiasm -o <span class="built_in">test</span> -t 32 chr11-2M.fa.gz 2&gt; test.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>-o</code>定义输出文件的文件名前缀， <code>-t</code>是线程数</p>
+<p>运行结束后生成的一系列文件中，我们只需要关注如下几项 (prefix表示前缀）</p>
+<ul>
+<li><p><code>prefix.bp.r_utg.gfa</code>:  haplotype-resolved raw unitig graph，记录所有的单倍型信息</p>
+</li>
+<li><p><code>prefix.bp.p_utg.gfa</code>: 在raw unitig graph基础上过滤小的bubble，</p>
+</li>
+<li><p><code>prefix.bp.p_ctg.gfa</code>: 主要contig的assembly graph</p>
+</li>
+<li><p><code>prefix.bp.hap1.p_ctg.gfa</code>: haplotype1的部分分型的contig graph</p>
+</li>
+<li><p><code>prefix.bp.hap2.p_ctg.gfa</code>: haplotype2的部分分型的contig graph</p>
+</li>
+</ul>
+<p>如果并不需要部分分型的组装，而只想要primary和alternate的组装结果，可以在之前的命令的基础上，加上 <code>--primary</code>参数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hifiasm --primary -o <span class="built_in">test</span> -t 32 chr11-2M.fa.gz 2&gt; test.log2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>由于hifiasm运行时会将步骤中纠错和相互比对的结果保存成 bin 文件，因此重新这一次运行速度会很快</p>
+</blockquote>
+<p>primay模式下输出的文件和之前的类似，唯一的不同在于没有 bp </p>
+<ul>
+<li><p>&#96;&#96;prefix<code>.r_utg.gfa</code>: haplotype-resolved raw unitig graph</p>
+</li>
+<li><p>&#96;&#96;prefix<code>.p_utg.gfa</code>: haplotype-resolved processed unitig graph without small bubbles.</p>
+</li>
+<li><p>&#96;&#96;prefix<code>.p_ctg.gfa</code>: assembly graph of primary contigs.</p>
+</li>
+<li><p>&#96;&#96;prefix<code>.a_ctg.gfa</code>: assembly graph of alternate contigs.</p>
+</li>
+</ul>
+<p>我们关心的，可能就是 主要的contig，通过awk进行提取</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;/^S/&#123;print &quot;&gt;&quot;$2;print $3&#125;&#x27;</span> test.p_ctg.gfa &gt; test.p_ctg.fa</span><br></pre></td></tr></table></figure>
+
+<h3 id="Trio-binning模式"><a href="#Trio-binning模式" class="headerlink" title="Trio-binning模式"></a>Trio-binning模式</h3><p>如果测了双亲，则可以使用trio-binning方法进行更加可靠的分型。分为两步，先用yak统计k-mers， 然后用hifiasm进行组装</p>
+<p>案例代码如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yak count -k31 -b37 -t16 -o pat.yak paternal.fq.gz</span><br><span class="line">yak count -k31 -b37 -t16 -o mat.yak maternal.fq.gz</span><br><span class="line">hifiasm -o NA12878.asm -t 32 -1 pat.yak -2 mat.yak NA12878.fq.gz</span><br></pre></td></tr></table></figure>
+
+<p>输出的文章和之前类似，主要关心其中文件名带 dip 的输出gfa文件</p>
+<ul>
+<li><p><code>prefix.dip.hap1.p_ctg.gfa</code>:  完成分型的父源单倍体 contig图.</p>
+</li>
+<li><p><code>prefix.dip.hap2.p_ctg.gfa</code>: 完全分型的母源单倍体contig图.</p>
+</li>
+</ul>
+<h3 id="整合Hi-C数据"><a href="#整合Hi-C数据" class="headerlink" title="整合Hi-C数据"></a>整合Hi-C数据</h3><p>由于Hi-C数据能够提供远距信息，因此也能用于单倍体分型。只需要加上两个参数， h1接受Hi-C的read1, h2 接受Hi-C的read2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hifiasm -o NA12878.asm -t32 --h1 read1.fq.gz --h2 read2.fq.gz HiFi-reads.fq.gz</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在该模式下，每个contig要么是来自于父亲，要么是来自于母亲。hifiasm会将同一来源的contig放在同一个组装中。需要注意的是，hifiasm未必能够处理好着丝粒附近的区域，另外hifiasm中Hi-C也不会用于进行scaffold。</p>
+<p>输出结果中，我们重点关注其中名字带hic的文件</p>
+<ul>
+<li><p><code>prefix.hic.p_ctg.gfa</code>: 主要contig的组装图</p>
+</li>
+<li><p><code>prefix.hic.hap1.p_ctg.gfa</code>: 完全分型的haplotype1的contig图</p>
+</li>
+<li><p><code>prefix.hic.hap2.p_ctg.gfa</code>: 完全分型的haplotype2的contig图</p>
+</li>
+<li><p><code>prefix.hic.a_ctg.gfa</code> : 如果设置了 <code>--primary</code>参数，还会输出该次要contig的组装图</p>
+</li>
+</ul>
+<h2 id="日志和参数调整"><a href="#日志和参数调整" class="headerlink" title="日志和参数调整"></a>日志和参数调整</h2><p>绝大部分的时候，我们只需要使用默认参数即可得到相对比较好的结果。但是当默认参数无法达到自己的目的，那我们就需要检查日志信息，阅读相关参数从而优化结果。</p>
+<p>日志信息主要分为三项</p>
+<ul>
+<li><p>k-mer图: 纯合样本只有一个peak，杂合样本则会有2个peak。</p>
+</li>
+<li><p>纯合峰的覆盖度: <code>[M::purge_dups] homozygous read coverage threshold: X</code> , 一般会由hifiasm自动推断。</p>
+</li>
+<li><p>杂合&#x2F;纯合碱基数目（Hi-C模式）: 在Hi-C模式下，如果纯合的碱基数超过杂合碱基数，那么hifiasm就不容易找对纯合read的所在峰。</p>
+</li>
+</ul>
+<p>对于日志信息，我们最主要关注的就是k-mer图，从而判断hifiasm是否能够正确的找到纯合峰，杂合峰的所在位置。如果hifiasm没有找对纯合峰所在的位置，就需要我们根据k-mer图手动指定 <code>--hom-cov</code>。</p>
+<p>对于一个组装结果，最直接的评估标准就是基因组大小是否符合预期，分型的两套基因组是否相差不大，序列是否足够长，是否存在错误组装的情况。</p>
+<p>如果基因组大小不符合预期，一般都是hifiasm找错了纯合峰的位置，我们需要手动指定 <code>--hom-cov</code>；如果分型的两套基因组差别过大，则通过降低 <code>-s</code> 调整。如果序列不够长，片段化明显，则可以尝试增加  <code>-D</code> 和  <code>-N</code>,  虽然会增加运行时间，但是会提高重复区域的分辨率。如果后续的Hi-C，或者BioNano发现hifiasm组装结果有比较多错误组装，则可以适当降低 <code>--purge-max</code>, <code>-s</code>和 <code>-O</code>。或者设置 <code>-u</code> 关闭post-join 步骤，hifiasm通过该步骤提高组装的连续性。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://github.com/chhylp123/hifiasm">https://github.com/chhylp123/hifiasm</a></p>
+<p><a target="_blank" rel="noopener" href="https://hifiasm.readthedocs.io/en/latest/index.html">https://hifiasm.readthedocs.io/en/latest/index.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41592-020-01056-5">https://www.nature.com/articles/s41592-020-01056-5</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" data-id="cllg90y1d005xeqp2eyu06g05" data-title="hifiasm对HiFi PacBio进行组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-人类的本质是复读机-人类的本质是复读机" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" class="article-date">
+  <time class="dt-published" datetime="2021-07-30T19:15:17.963Z" itemprop="datePublished">2021-07-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/">人类的本质是复读机</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" data-id="cllg90y3b0099eqp2ftu2d8et" data-title="人类的本质是复读机" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-在windows下编译bwa和samtools-compile-bwa-and-samtools-in-windows" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" class="article-date">
+  <time class="dt-published" datetime="2021-06-30T17:07:37.498Z" itemprop="datePublished">2021-06-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/">在windows下编译bwa和samtools</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>通过<a href="/archives/configure-msys2-in-windows">在Windows上配置类Unix环境(MSYS2)</a>里的操作，我们成功的在Windows里拥有了一个类Unix的环境，后续，我们就可以在这里面编译一些软件，这里以bwa和samtools为例</p>
+<p>以下是一些必须的依赖项</p>
+<ul>
+<li>zlib-devel</li>
+<li>git</li>
+<li>make</li>
+<li>gcc</li>
+</ul>
+<p>用pacman安装依赖项，如zlib-devel和git</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pacman -S zlib-devel</span><br><span class="line"><span class="comment"># 查漏补缺</span></span><br><span class="line">pacman -S --needed base-devel </span><br><span class="line">pacman -S mingw-w64-x86_64-toolchain</span><br><span class="line">pacman -S git </span><br><span class="line">pacman -S gcc vim cmake</span><br></pre></td></tr></table></figure>
+
+<p>如果连接git速度有问题，可以尝试按照如下方法配置镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global url.<span class="string">&quot;https://hub.fastgit.org/&quot;</span>.insteadOf <span class="string">&quot;https://github.com/&quot;</span></span><br><span class="line">git config protocol.https.allow always</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译bwa"><a href="#编译bwa" class="headerlink" title="编译bwa"></a>编译bwa</h2><p>bwa只依赖于zlib，因此会很顺利</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/lh3/bwa</span><br><span class="line"><span class="comment"># compile</span></span><br><span class="line"><span class="built_in">cd</span> bwa</span><br><span class="line">make </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="编译htslib"><a href="#编译htslib" class="headerlink" title="编译htslib"></a>编译htslib</h2><p>samtools依赖于htslib，因此需要先编译htslib</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">paman -S libbz2-devel liblzma-devel</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/samtools/htslib</span><br><span class="line"><span class="built_in">cd</span> htslib</span><br><span class="line">git submodule update --init --recursive </span><br><span class="line"><span class="comment"># 不需要root</span></span><br><span class="line">./configure</span><br><span class="line">make -j </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译samtools"><a href="#编译samtools" class="headerlink" title="编译samtools"></a>编译samtools</h2><p>已知我不需要用到samtools 的 tview功能，则可以设置 <code>--without-curses </code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/samtools/samtools</span><br><span class="line"><span class="built_in">cd</span> samtools</span><br><span class="line">autoheader</span><br><span class="line">autoconf -Wno-syntax  </span><br><span class="line">./configure --without-curses </span><br><span class="line">make -j</span><br><span class="line">make install </span><br></pre></td></tr></table></figure>
+
+<p>如果需要直接在cmd中调用msys2编译的程序，需要将 MSYS2 安装目录下的 <code>usr/bin</code>添加到Windows的环境变量中Path，参考<a href="/archives/configure-msys2-in-windows">在Windows上配置类Unix环境(MSYS2)</a>里的操作</p>
+<p>可能报错:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make: *** 没有规则可制作目标“../htslib/htscodecs/htscodecs/arith_dynamic.c”，由“../htslib/hts-object-files” 需求。 停止。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>原因: htslib没有克隆完全。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" data-id="cllg90y4r00eweqp23my48z0w" data-title="在windows下编译bwa和samtools" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-在Windows上配置类Unix环境(MSYS2)-configure-msys2-in-windows" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" class="article-date">
+  <time class="dt-published" datetime="2021-06-30T16:59:53.772Z" itemprop="datePublished">2021-06-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/">在Windows上配置类Unix环境(MSYS2)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>MSYS2通过精心整合一些已有的工具(如gcc, qt)，使得在Windows上也能使用类unix环境，调用类unix开发的软件。</p>
+<p>它的官方地址为: <a target="_blank" rel="noopener" href="https://www.msys2.org/">https://www.msys2.org/</a></p>
+<blockquote>
+<p>Cygwin尝试提供一个POSIX兼容环境，使得原本能在类unix环境里运行的软件，不需要经过太多修改就能直接在Windows上使用。它的特点是大而全，而MSYS2基于Cygwin提供优秀环境，使用了优秀的包管理工具pacman，更倾向于尝试提供一个构建原生Windows软件的环境。</p>
+</blockquote>
+<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p>第一步:在官网上下载MSYS2的<a target="_blank" rel="noopener" href="https://github.com/msys2/msys2-installer/releases/download/2021-06-04/msys2-x86_64-20210604.exe">安装包</a></p>
+<p>e地址: <a target="_blank" rel="noopener" href="https://github.com/msys2/msys2-installer/releases/download/2021-06-04/msys2-x86_64-20210604.exe">https://github.com/msys2/msys2-installer/releases/download/2021-06-04/msys2-x86_64-20210604.exe</a></p>
+<p>第二步: 运行MSYS2的安装程序，注意记录的你安装路径，我是修改了默认的安装路径为 <code>D:\MSYS2</code></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-5e76f5d89c3c40f482e795683817c8c9.png" alt="Fig1"></p>
+<p>安装成功之后，你的菜单栏里就有了一个MSYS2的启动方式</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-589dc32f69ab4894a011834272bdcdfc.png" alt="Fig2"></p>
+<p>第三步: 更新pacman的包数据库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pacman -Syu</span><br><span class="line"><span class="comment">#-S 表示同步 Sync</span></span><br><span class="line"><span class="comment">#u: -u --sysupgrade</span></span><br><span class="line"><span class="comment">#y: -y --refresh  </span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-f87c788fabb74e61869ef3133fed1cde.png" alt="Fig3"></p>
+<p>安装结束后，会关闭窗口，之后重新打开, 继续更新剩余的基础包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pacman -Su</span><br></pre></td></tr></table></figure>
+
+<p>第四步: 安装mingw-w64 GCC编译工具套装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pacman -S --needed base-devel mingw-w64-x86_64-toolchain</span><br><span class="line"><span class="comment">#  gcc vim cmake</span></span><br><span class="line">pacman -S gcc vim cmake</span><br><span class="line"><span class="comment"># git 版本控制</span></span><br><span class="line">pacman -S git </span><br></pre></td></tr></table></figure>
+
+<p>中间会有一些选项，全部enter默认即可。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="在CMD中调用MSYS2编译程序"><a href="#在CMD中调用MSYS2编译程序" class="headerlink" title="在CMD中调用MSYS2编译程序"></a>在CMD中调用MSYS2编译程序</h3><p>为了能够在cmd中使用MSYS2编译的软件，我们需要在<strong>环境变量</strong>中增加相应的路径，否则会出现如下报错</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-f4d657b9c21549f4a301e14f5cf34b99.png" alt="Fig4"></p>
+<p>我安装的软件在D盘，因此我添加的路径是 <code>D:\msys64\usr\bin</code></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-9618ca6bb31546b88221a6e9979a0775.png" alt="Fig4"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-246638b5263e4f27b40d25a20df12db1.png" alt="Fig5"></p>
+<h3 id="Pacman包管理"><a href="#Pacman包管理" class="headerlink" title="Pacman包管理"></a>Pacman包管理</h3><p>Pacman的常见操作</p>
+<p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pacman -S &lt;package_names|package_groups&gt;</span><br></pre></td></tr></table></figure>
+
+<p>移除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pacman -R  &lt;package_names|package_groups&gt;</span><br></pre></td></tr></table></figure>
+
+<p>搜索</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pacman -Ss &lt;name_pattern&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>package_names: 包的名字</li>
+<li>package_groups: 包的所在组</li>
+<li>name_pattern: 包的可能命名</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" data-id="cllg90y4o00emeqp28xn2eiw4" data-title="在Windows上配置类Unix环境(MSYS2)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Windows中Visual studio使用Qt5的中文乱码问题-windows-visual-studio-qt-jibberish" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" class="article-date">
+  <time class="dt-published" datetime="2021-06-19T11:47:26.754Z" itemprop="datePublished">2021-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/">Windows中Visual studio使用Qt5的中文乱码问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Qt的中文输入至少包括如下两类：</p>
+<ol>
+<li>代码编辑器中的中文</li>
+<li>通过文件选择框打开的中文路径</li>
+</ol>
+<p>对于第一种情况，代码编辑器中的中文跟<strong>编辑器的编码</strong>有关，因此可能会出现在编辑器中能够显示的中文，但是到了Qt的UI界面中就出现了乱码，例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QString status = <span class="string">&quot;echo 测试 &amp;&amp; pause&quot;</span>;</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-855e0b5aeba9497eb5b5cc56ddaa8ab2.png" alt="文本框中出现乱码"></p>
+<p>原因: Visual Studio中对中文的默认编码和QT对中文的默认编码不一样。也就是说，我们输入了X编码方案的中文，但是在编译阶段，Qt用了Y编码方案进行解码，从而导致源码阶段的乱码。</p>
+<p>解决方案，就是设置好编码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明来源是local 8bit</span></span><br><span class="line">QString status = QString::<span class="built_in">fromLocal8Bit</span>(<span class="string">&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);</span><br><span class="line"><span class="comment">//用unicode字面量</span></span><br><span class="line">QString status = <span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);</span><br></pre></td></tr></table></figure>
+
+<p>对于第二种情况，QString获取到的中文就是它默认的编码方式，因此通过文件选择框获取的文件路径，如果包含中文，它也能够在Qt的UI界面正常展示。</p>
+<p>但是如果直接转成string，然后调用system就会出现乱码，如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//乱码</span></span><br><span class="line">QString status = QString::<span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">string test = status.<span class="built_in">toStdString</span>();</span><br><span class="line"><span class="built_in">system</span>(test.<span class="built_in">c_str</span>());</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-8e931980dca649a48e02ae1c05285a0b.png" alt="cmd中的乱码"></p>
+<p>即，QString转string的时候存在编码上的问题。</p>
+<p>解决方案, 将QString转成Loal8Bit才行，而不是直接使用toStdString，之后在构建成string，转成const char*才能避免乱码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QString status = QString::<span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line"><span class="function">string <span class="title">test</span><span class="params">(status.toLocal8Bit())</span></span>;</span><br><span class="line"><span class="built_in">system</span>(test.<span class="built_in">c_str</span>());</span><br></pre></td></tr></table></figure>
+
+<p>参考资料</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1464366">https://cloud.tencent.com/developer/article/1464366</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/libaineu2004/article/details/19245205">彻底解决Qt中文乱码以及汉字编码的问题(UTF-8&#x2F;GBK)</a></li>
+<li><a target="_blank" rel="noopener" href="https://durant35.github.io/2016/02/02/programPearls_Qt_%E5%80%9FQt%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E8%B0%88%E8%B0%88Coding%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/">借Qt中文乱码谈谈Coding中的编码问题</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="cllg90y19005ieqp2gt8p87sg" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针-c名词解析指针常量指针指向常量的指针指向常量的常量指针" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" class="article-date">
+  <time class="dt-published" datetime="2021-05-29T14:49:32.764Z" itemprop="datePublished">2021-05-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/">「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>指针(pointer), 一个有点特殊的变量，该变量记录着它所指向的对象的内存地址。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> *ptr = &amp;a;</span><br></pre></td></tr></table></figure>
+
+<p>常量指针(const pointer), 指针本质上是个变量，因此可以用 <code>const</code> 进行修饰，表示该指针记录的值是一个常量。常量指针在声明时需要初始化值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a=<span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> *<span class="type">const</span> ptr = &amp;a;</span><br></pre></td></tr></table></figure>
+
+<p>指向常量的指针(pointer refer to const)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="type">const</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> cont *ptr = &amp;a;</span><br></pre></td></tr></table></figure>
+
+<p>指向常量的常量指针</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="type">const</span> *<span class="type">const</span> ptr </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="cllg90y2m006zeqp241a1ckmh" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发-visual-studio-configuration-of-opencv-for-cpp-development" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" class="article-date">
+  <time class="dt-published" datetime="2021-05-26T23:16:07.675Z" itemprop="datePublished">2021-05-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/">如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这是我第一次在号称宇宙最强的IDE Visual Studio上调用非标准库编译<code>C++</code>程序，中间遇到了很多的报错，让我怀疑人生。 </p>
+<p>首先，我们需要从<a target="_blank" rel="noopener" href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/">Sourceforge</a>下载OpenCV, 目前最新版是4.5.2</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-51a11bc996ed4923ba22cb81eb4891fa.png" alt="image.png"></p>
+<p>下载的exe文件双击之后会出现解压界面</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-db97fe58403f431081103684dc9af996.png" alt="解压中"></p>
+<p>解压缩后得到如下文件</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ed0562fe5fa410c90109dfa60ffaad6.png" alt="解压内容"></p>
+<p>我们需要依次系统属性-&gt;高级-&gt;环境变量，找到并设置设置环境变量Path</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-f9cec893255d4403a6cfe7295b6d1c9e.png" alt="环境变量"></p>
+<p>如果不在环境变量中设置opencv中的bin路径，会出现如下报错 【由于找不到opencv_world452d.dll, 无法继续执行代码】</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d79dd7544b154cc289b8c35bbfcd2387.png" alt="error1"></p>
+<p>在Visual Studio 2019中使用OpenCV构建项目的流程如下</p>
+<p>第一步：新建一个C++的控制台项目。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-654548fdb7414748b468f464b1d3a27a.png" alt="新建项目"></p>
+<p>第二步：配置项目的项目名称，例如opencv-test</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-ad4394ad531d4675bd3d08c0fe732dff.png" alt="image.png"></p>
+<p>创建项目之后，先将Debug 改为x64，因为后续构建的是x64的项目。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-5234740fcd2d469caf3f511a4e14d6fc.png" alt="修改Debug"></p>
+<p>第三步：为了能让代码正常运行，我们需要配置这个OpenCV项目的所需的include和library路径，以及依赖的lib文件。</p>
+<p>在菜单栏的项目(P)中选择属性(P)</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-151bb1e5a6d84d9b9a489adf37b5e54b.png" alt="项目属性"></p>
+<p>选择VC++目录(VC++ Directories)的包含目录(Include Directories)，点击编辑</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-135ed28733ac450093f5aa87bd5d22b0.png" alt="image.png"></p>
+<p>添加opencv的include的路径(头文件）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ac77d7dd74f43e4bcb8980d9555c3c6.png" alt="include"></p>
+<p>同样的操作，也用于库目录(Library Directories)的设置</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d83597426001403087700e7263bafe27.png" alt="library"></p>
+<p>添加library路径（路径比较深）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-1e3da7a7e9c243bca11ae07bc87d326f.png" alt="library路径"></p>
+<p>检查下，刚刚修改的include和library</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d7c389f081cc4ab6b68ef0ff0fc9c24b.png" alt="检查状态"></p>
+<p>此外还需要增加一个包括所有模块的lib文件。选择链接器(linker)中的输入(input), 接着编辑附加依赖项</p>
+<p>![linker(<a target="_blank" rel="noopener" href="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-75a058ac43214ee9bfb9fb18f884df75.png">https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-75a058ac43214ee9bfb9fb18f884df75.png</a>)</p>
+<p>添加<strong>opencv_world452d.lib</strong>，该文件包括opencv里的所有模块（lib文件和opencv版本有关，可从lib目录中确认）。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ab452f73b074436bea8273df0612707.png" alt="符加依赖库"></p>
+<p>如果不设置该变量，会出现【无法解析外部符号】的报错</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-2796e7747e1a4d09b3cb2d520973b6cb.png" alt="error2"></p>
+<p>如果写错成 opencv_world452d.dll，就会出现【 LNK1104  无法打开文件”opencv_world452d.dll”】报错（之所以写成dll，是因为之前出现的dll找不到报错，导致我以为增加的是这个文件）。</p>
+<p>如下是测试代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Mat image = Mat::<span class="built_in">zeros</span>(<span class="number">600</span>, <span class="number">600</span>, CV_8UC3);</span><br><span class="line">  <span class="built_in">putText</span>(image, <span class="string">&quot;xuzhougeng&quot;</span>, <span class="built_in">Point</span>(<span class="number">100</span>,<span class="number">300</span>), FONT_HERSHEY_COMPLEX, <span class="number">2.0</span>, <span class="built_in">Scalar</span>(<span class="number">100</span>,<span class="number">200</span>,<span class="number">200</span> ), <span class="number">5</span> );</span><br><span class="line">  <span class="built_in">imshow</span>(<span class="string">&quot;Display Window&quot;</span>, image);</span><br><span class="line">  <span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>能正常出图表示能正确在项目中调用OpenCV。</p>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.opencv.org/master/d3/d52/tutorial_windows_install.html">https://docs.opencv.org/master/d3/d52/tutorial_windows_install.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@subwaymatch/opencv-410-with-vs-2019-3d0bc0c81d96">https:&#x2F;&#x2F;medium.com&#x2F;@subwaymatch&#x2F;opencv-410-with-vs-2019-3d0bc0c81d96</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="cllg90y5100fweqp214tob13q" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Centos的Slurm安装笔记-install-slurm-in-centos" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" class="article-date">
+  <time class="dt-published" datetime="2021-04-21T11:49:05.177Z" itemprop="datePublished">2021-04-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/">Centos的Slurm安装笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>因为有一些软件必须要用Slurm，所以不得不在我的主机上配置slurm。</p>
+</blockquote>
+<p>Slurm的安装依赖于root权限</p>
+<h3 id="munge配置"><a href="#munge配置" class="headerlink" title="munge配置"></a>munge配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz</span><br><span class="line">rpmbuild -tb --without verify munge-0.5.14.tar.xz</span><br><span class="line"><span class="built_in">cd</span> /root/rpmbuild/RPMS/x86_64</span><br><span class="line">rpm -ivh munge-0.5.14-1.el7.x86_64.rpm \</span><br><span class="line">    munge-devel-0.5.14-1.el7.x86_64.rpm munge-libs-0.5.14-1.el7.x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<p>创建密钥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo -u munge /usr/sbin/mungekey -v</span><br><span class="line"><span class="comment"># mungekey: Info: Created &quot;/etc/munge/munge.key&quot; with 1024-bit key </span></span><br></pre></td></tr></table></figure>
+
+<p>生成的 munge.key 文件需要分发到所有的计算节点。</p>
+<p>启动守护进程(daemon)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> munge</span><br><span class="line">systemctl start  munge</span><br><span class="line"><span class="comment"># 检查状态</span></span><br><span class="line">systemctl status munge </span><br></pre></td></tr></table></figure>
+
+<h3 id="方法1-RPM安装"><a href="#方法1-RPM安装" class="headerlink" title="方法1: RPM安装"></a>方法1: RPM安装</h3><p>下载页面， <a target="_blank" rel="noopener" href="https://www.schedmd.com/downloads.php">https://www.schedmd.com/downloads.php</a></p>
+<p>因为是CentOS7, 因此我下载的是19.05版本。 而20.11可能不再支持Python2。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://download.schedmd.com/slurm/slurm-19.05.8.tar.bz2</span><br><span class="line">yum install pam-devel perl-Switch -y</span><br><span class="line">rpmbuild -ta slurm-19.05.8.tar.bz2</span><br><span class="line"><span class="built_in">cd</span> /root/rpmbuild/RPMS/x86_64</span><br><span class="line">rpm --install slurm-*.rpm</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>创建用户 slurm</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adduser slurm</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>创建配置文件（非常关键）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/slurm</span><br><span class="line"><span class="built_in">touch</span> /etc/slurm/slurm.conf </span><br></pre></td></tr></table></figure>
+
+<p>etc中slurm.conf文件里面的配置信息来自于<a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a> 生成，需要配置如下选项</p>
+<ul>
+<li><p>SlurmctldHost: 信息来自于 <code>hostname -f </code></p>
+</li>
+<li><p>NodeName: 信息来自于 <code>hostname -f</code>, 只不过是子节点的服务器信息，如果只有单个主机，那么同上</p>
+</li>
+<li><p>ComputeNodeAddress: 计算节点的IP地址，仅有单个节点时，信息为空</p>
+</li>
+<li><p>PartitionName: 任务分配名，改成batch</p>
+</li>
+<li><p>CPUs: 设置为空</p>
+</li>
+<li><p>CoresPerSocket: 实际的物理CPU数，例如96</p>
+</li>
+<li><p>ThreadsPerCore: 如果超线程，设置为2</p>
+</li>
+<li><p>RealMemory: 服务器内存大小，单位为Mb</p>
+</li>
+<li><p>SlurmUser: slurm要求有一个专门的用户，</p>
+</li>
+<li><p>StateSaveLocation: 一定要改成 &#x2F;var&#x2F;spool&#x2F;slurmd， 否则会出现权限问题</p>
+</li>
+</ul>
+<p>最后还需要增加一行 <code>CgroupMountpoint=/sys/fs/cgroup</code></p>
+<p>启动 slurmctld, slurmd 的守护进程(deamon)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 控制节点</span></span><br><span class="line">systemctl <span class="built_in">enable</span> slurmctld</span><br><span class="line">systemctl start slurmctld</span><br><span class="line">systemctl status slurmctld </span><br><span class="line"><span class="comment"># 计算节点 </span></span><br><span class="line">systemctl <span class="built_in">enable</span> slurmd</span><br><span class="line">systemctl start slurmd</span><br><span class="line">systemctl status slurmd  </span><br></pre></td></tr></table></figure>
+
+<h3 id="方法2-通过OpenHPC仓库"><a href="#方法2-通过OpenHPC仓库" class="headerlink" title="方法2: 通过OpenHPC仓库"></a>方法2: 通过OpenHPC仓库</h3><h3 id="测试安装"><a href="#测试安装" class="headerlink" title="测试安装"></a>测试安装</h3><p>安装结果后，我们创建一个 test.sbatch, 信息如下，用于测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#SBATCH -J test # Job name</span></span><br><span class="line"><span class="comment">#SBATCH -o job.%j.out # Name of stdout output file (%j expands to %jobId)</span></span><br><span class="line"><span class="comment">#SBATCH -N 1 # Total number of nodes requested</span></span><br><span class="line"><span class="comment">#SBATCH -n 2 # Total number of mpi tasks #requested</span></span><br><span class="line"><span class="comment">#SBATCH -t 01:30:00 # Run time (hh:mm:ss) - 1.5 hours</span></span><br><span class="line"><span class="comment"># Launch MPI-based executable</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Test output from Slurm Testjob&quot;</span></span><br><span class="line">NODEFILE=`generate_pbs_nodefile`</span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NODEFILE</span></span><br><span class="line"><span class="built_in">sleep</span> 20</span><br></pre></td></tr></table></figure>
+
+<p>递交任务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sbatch ./test.sbatch </span><br><span class="line"><span class="comment"># Submitted batch job 2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">squeue</span><br></pre></td></tr></table></figure>
+
+<p>如果能输出一个job.X.out 文件，说明我们的SLURM已经配置成功。</p>
+<h2 id="可能报错和解决方案"><a href="#可能报错和解决方案" class="headerlink" title="可能报错和解决方案"></a>可能报错和解决方案</h2><p>使用 <code>rpm --install</code>的时候可能会遇到如下的报错。这表示你需要安装perl的Switch模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">error: Failed dependencies:</span><br><span class="line">  perl(Switch) is needed by slurm-openlava-19.05.8-1.el7.x86_64</span><br><span class="line">  perl(Switch) is needed by slurm-torque-19.05.8-1.el7.x86_64</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>启动 slurmd的deamon失败</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># systemctl start slurmd</span></span><br><span class="line">Job <span class="keyword">for</span> slurmd.service failed because the control process exited with error code. </span><br><span class="line">See <span class="string">&quot;systemctl status slurmd.service&quot;</span> and <span class="string">&quot;journalctl -xe&quot;</span> <span class="keyword">for</span> details.</span><br></pre></td></tr></table></figure>
+
+<p>按照提示运行 <code>systemctl status slurmd.service</code> 发现error信息如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">error: Node configuration differs from hardware: Procs=1:192(hw) Boards=1:1(hw) SocketsPerBoard=1:4(hw) ...e=1:2(hw)</span><br><span class="line">error: cgroup namespace <span class="string">&#x27;freezer&#x27;</span> not mounted. aborting</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一个error原因是在<a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a> 填写 “Compute Machines” 的硬件信息出现错误</p>
+<p>第二个error原因是配置文件的默认配置表现不佳，需要做如下替换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> CgroupMountpoint=/sys/fs/cgroup &gt;&gt; /etc/slurm/cgroup.conf</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/62641323/error-cgroup-namespace-freezer-not-mounted-aborting">https://stackoverflow.com/questions/62641323/error-cgroup-namespace-freezer-not-mounted-aborting</a></p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>配置slurm: <a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a></p>
+<p>单节点slurm: <a target="_blank" rel="noopener" href="http://docs.nanomatch.de/technical/SimStackRequirements/SingleNodeSlurm.html">http://docs.nanomatch.de/technical/SimStackRequirements/SingleNodeSlurm.html</a></p>
+<p>munge配置:<a target="_blank" rel="noopener" href="https://github.com/dun/munge/wiki/Installation-Guide">https://github.com/dun/munge/wiki/Installation-Guide</a></p>
+<p>Slurm安装与使用: <a target="_blank" rel="noopener" href="http://wiki.casjc.com/?p=378">http://wiki.casjc.com/?p=378</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" data-id="cllg90xz8000teqp2cuul58lf" data-title="Centos的Slurm安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用Biopython调用EMBOSS的needle-biopython-emboss-needle" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/14/%E4%BD%BF%E7%94%A8Biopython%E8%B0%83%E7%94%A8EMBOSS%E7%9A%84needle-biopython-emboss-needle/" class="article-date">
+  <time class="dt-published" datetime="2021-04-14T20:32:13.198Z" itemprop="datePublished">2021-04-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/14/%E4%BD%BF%E7%94%A8Biopython%E8%B0%83%E7%94%A8EMBOSS%E7%9A%84needle-biopython-emboss-needle/">使用Biopython调用EMBOSS的needle</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最近有一个需求，计算250条序列两两之间的相似度，之后根据相似度继续进行序列过滤，即A和B如果相似度高于一个阈值，那么就把B去掉。</p>
+<p>我最初想到的就是在Python里面调用EMBOSS的needle，准备使用Python的os或者subprocess模块，但是突然想到之前看WGDI源代码时，发现作者时通过biopython的API进行MAFFT的调用，于是就决定改用Biopython.</p>
+<p>通过查找文档，我找到了Biopython对这部分内容的介绍，见 <a target="_blank" rel="noopener" href="http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec97">http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec97</a>,示例代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Bio.Emboss.Applications <span class="keyword">import</span> NeedleCommandline</span><br><span class="line">needle_cline = NeedleCommandline(asequence=<span class="string">&quot;alpha.faa&quot;</span>, </span><br><span class="line">                                 bsequence=<span class="string">&quot;beta.faa&quot;</span>, </span><br><span class="line">                                 gapopen=<span class="number">10</span>, gapextend=<span class="number">0.5</span>, </span><br><span class="line">                                 outfile=<span class="string">&quot;needle.txt&quot;</span>)</span><br><span class="line">stdout, stderr = needle_cline()</span><br><span class="line">align = AlignIO.read(<span class="string">&quot;needle.txt&quot;</span>, <span class="string">&quot;emboss&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>但是这个代码距离我最终代码还有很长的路要走，因为我需要先将序列写出到文件，然后调用命令行，然后再读取输出文件。我的问题是，能不能省掉这几次I&#x2F;O操作。在Emboss文档的下面，我发现Biopython提供了两个模块，分别是Bio.pairwise2和Bio.Align.PairwiseAligner, 可以直接使用Biopython的.SeqRecord对象。按照文档描述，pairwise2和PairwiseAligner能够达到和调用EMBOSS相同的速度，经过我测试，发现两者速度的确差别不大，这说明直接在Python里面进行配对序列联配并不比先输出运行所需文件，然后读取运行生成文件这个流程快，所以经过一番折腾之后，我还是决定使用NeedleCommandline。</p>
+<p>为了方便后续调用，我写了一个函数，函数的前3个参数是用来从SeqRecord列表中提取序列用于写出，第4个参数用来提供needle程序的路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run_needle</span>(<span class="params">aseq_pos, bseq_pos, seq, needle_path, verbose=<span class="literal">False</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;run EMBOSS needle retrun align </span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># get the Bio object</span></span><br><span class="line">    aseq = seq[aseq_pos]</span><br><span class="line">    bseq = seq[bseq_pos]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># create tempfile for write fasta and needle result</span></span><br><span class="line">    aseq_file = mkstemp(suffix=<span class="string">&quot;.fas&quot;</span>)[<span class="number">1</span>]</span><br><span class="line">    bseq_file =  mkstemp(suffix=<span class="string">&quot;.fas&quot;</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    needle_file =  mkstemp(suffix=<span class="string">&quot;.needle&quot;</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># write the sequence</span></span><br><span class="line">    SeqIO.write(aseq, aseq_file, <span class="string">&quot;fasta&quot;</span>)</span><br><span class="line">    SeqIO.write(bseq, bseq_file, <span class="string">&quot;fasta&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># build needle commnad</span></span><br><span class="line">    <span class="keyword">if</span> needle_path <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        needle_cmd = NeedleCommandline( asequence=aseq_file, bsequence=bseq_file,</span><br><span class="line">                   gapopen=<span class="number">10</span>, gapextend=<span class="number">0.5</span>, outfile=needle_file)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">assert</span> os.path.isfile(needle_path)</span><br><span class="line">        needle_cmd = NeedleCommandline( needle_path, asequence=aseq_file, bsequence=bseq_file,</span><br><span class="line">                   gapopen=<span class="number">10</span>, gapextend=<span class="number">0.5</span>, outfile=needle_file)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># running needle_cmd</span></span><br><span class="line">    stdout, stderr = needle_cmd()</span><br><span class="line">    <span class="keyword">if</span> verbose:</span><br><span class="line">        <span class="built_in">print</span>(stdout + stderr, file = sys.stderr)</span><br><span class="line">    </span><br><span class="line">    align = AlignIO.read(needle_file, <span class="string">&quot;emboss&quot;</span>)</span><br><span class="line">    <span class="comment"># deleting the tempfile</span></span><br><span class="line">    os.unlink(aseq_file)</span><br><span class="line">    os.unlink(bseq_file)</span><br><span class="line">    os.unlink(needle_file)</span><br><span class="line">    <span class="keyword">return</span> align</span><br></pre></td></tr></table></figure>
+
+<p>在写这个函数时，我在输出文件的文件名上折腾了很长时间，最初想使用原序列的ID，但ID包括一些奇奇怪怪的字符，例如<code>(|:</code>, 而NeedleCommandline不会自动在构建的命令中增加引号，使得运行时会出错。(你可以试试<code>echo a(b</code>会出现什么情况 )</p>
+<p>后来，我使用了随机数作为文件名。这个方法在单个进程时问题不大，当时当我为了加速使用多进程时，却发现发现随机数重复了。进程A输出的文件A由于和进程B的输入文件名一样，导致被跑完的进程B删了。当然，解决方法也很简单，加上一些判断文件是否存在的ifelse语句即可。</p>
+<p>不过，我还是选择调用tempfile标准库，使用mkstemp获取临时文件名，才解决了输出文件名的危机。</p>
+<p>最终我就可以在循环中调用这个函数，然后将结果保存在列表中，用于后续处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fasta = <span class="string">&quot;/path/to/your/sequence.fasta&quot;</span></span><br><span class="line">seqs = [ fas <span class="keyword">for</span> fas <span class="keyword">in</span> SeqIO.parse(fasta, <span class="string">&quot;fasta&quot;</span>) ]</span><br><span class="line">needle_path = <span class="string">&quot;/opt/biosoft/EMBOSS-6.6.0/bin/needle&quot;</span></span><br><span class="line"></span><br><span class="line">align_res = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(seqs)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(i+<span class="number">1</span>, <span class="built_in">len</span>(seqs)):</span><br><span class="line">        align = run_needle(i, j, seqs , needle_path)</span><br><span class="line">        align_res.append(align )</span><br><span class="line"><span class="comment"># 以pickle保存python对象</span></span><br><span class="line">outfile = <span class="built_in">open</span>(<span class="string">&quot;pairwise_stats.txt&quot;</span>, <span class="string">&quot;w&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> align <span class="keyword">in</span> align_res:</span><br><span class="line">    line = get_psa_stat(align)</span><br><span class="line">    line = <span class="string">&quot;\t&quot;</span>.join(line) + <span class="string">&quot;\n&quot;</span></span><br><span class="line">    outfile.write(line)</span><br><span class="line"></span><br><span class="line">outfile.close()</span><br></pre></td></tr></table></figure>
+
+<p>根据我的计算，循环要运行3万多次，按照平均1s一个循环，只要500多分钟，小于9个小时，我只要在回去前运行这个程序（写完第一版大概是晚上10点），然后第二天早上过来收结果就行了。</p>
+<p>但是，正如前文提及到的，「该程序会在多个进程运行时报错」，你也就知道我没有跑循环，而是选择了通过并行对循环进行加速。在一篇中，我将会讲一个，如何把一个简单的问题复杂化，最终又回到最初代码的故事</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/04/14/%E4%BD%BF%E7%94%A8Biopython%E8%B0%83%E7%94%A8EMBOSS%E7%9A%84needle-biopython-emboss-needle/" data-id="cllg90y3w00boeqp2d92lh9am" data-title="使用Biopython调用EMBOSS的needle" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/6/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/8/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

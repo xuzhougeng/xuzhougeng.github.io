@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/16/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-使用mclust进行聚类分析-Cluster-data-with-mclust" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/09/%E4%BD%BF%E7%94%A8mclust%E8%BF%9B%E8%A1%8C%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90-Cluster-data-with-mclust/" class="article-date">
+  <time class="dt-published" datetime="2019-11-09T16:05:10.766Z" itemprop="datePublished">2019-11-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/09/%E4%BD%BF%E7%94%A8mclust%E8%BF%9B%E8%A1%8C%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90-Cluster-data-with-mclust/">使用mclust进行聚类分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>mclust</code>(Model-based clustering) 能够基于高斯有限混合模型进行聚类，分类以及密度估计(density estimation)。对于具有各种协方差结构的高斯混合模型，它提供了根据EM算法的参数预测函数。它也提供了根据模型进行模拟的函数。还提供了一类函数，整合了基于模型的层次聚类，混合估计的EM算法，用于聚类、密度估计和判别分析中综合性策略的贝叶斯信息判别标准。最后还有一类函数能够对聚类，分类和密度估计结果中的拟合模型进行可视化展示。</p>
+<p>简而言之，<code>mclust</code>在R语言上实现了<strong>基于高斯有限混合模型</strong>的<strong>聚类</strong>，<strong>分类</strong>和<strong>密度估计</strong>分析，并且还有专门的可视化函数展示分析结果。</p>
+<blockquote>
+<p>和<code>mclust</code>功能相似的其他R包: ‘Rmixmod’, ‘mixture’, ‘EMCluster’, ‘mixtools’, ‘bgmm’, ‘flexmix’</p>
+</blockquote>
+<h2 id="安装和加载"><a href="#安装和加载" class="headerlink" title="安装和加载"></a>安装和加载</h2><p>在已有的R语言的基础上，只需要运行如下代码即可</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装</span></span><br><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;mclust&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">library<span class="punctuation">(</span>mclust<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="聚类实战"><a href="#聚类实战" class="headerlink" title="聚类实战"></a>聚类实战</h2><p>以一个例子来介绍一下如何使用<code>mclust</code>进行聚类分析。我们得要先加载一个来自于R包’gclus’的数据集’wine’，该数据集有178行，分别是不同区域的品种葡萄， 14列，其中后13列是化学分析的测量值。我们的目标是将其进行分类。</p>
+<p>第一步: 加载数据集</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;gclus&quot;</span><span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span><span class="string">&quot;wine&quot;</span><span class="punctuation">,</span> package <span class="operator">=</span> <span class="string">&quot;gclus&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="built_in">dim</span><span class="punctuation">(</span>wine<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>第二步 : 使用<code>Mclust</code>做聚类分析. <code>Mclust</code>主要功能就是分析当前的提供的数据是由什么统计模型</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一列和聚类无关</span></span><br><span class="line">X <span class="operator">&lt;-</span> data.matrix<span class="punctuation">(</span>wine<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">mod <span class="operator">&lt;-</span> Mclust<span class="punctuation">(</span>X<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>直接在交互行输入<code>mod</code>会得到如下信息</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;Mclust&#x27;</span> model object<span class="operator">:</span> <span class="punctuation">(</span>VVE<span class="punctuation">,</span><span class="number">3</span><span class="punctuation">)</span> </span><br><span class="line"></span><br><span class="line">Available components<span class="operator">:</span> </span><br><span class="line"> <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;call&quot;</span>           <span class="string">&quot;data&quot;</span>           <span class="string">&quot;modelName&quot;</span>     </span><br><span class="line"> <span class="punctuation">[</span><span class="number">4</span><span class="punctuation">]</span> <span class="string">&quot;n&quot;</span>              <span class="string">&quot;d&quot;</span>              <span class="string">&quot;G&quot;</span>             </span><br><span class="line"> <span class="punctuation">[</span><span class="number">7</span><span class="punctuation">]</span> <span class="string">&quot;BIC&quot;</span>            <span class="string">&quot;bic&quot;</span>            <span class="string">&quot;loglik&quot;</span>        </span><br><span class="line"><span class="punctuation">[</span><span class="number">10</span><span class="punctuation">]</span> <span class="string">&quot;df&quot;</span>             <span class="string">&quot;hypvol&quot;</span>         <span class="string">&quot;parameters&quot;</span>    </span><br><span class="line"><span class="punctuation">[</span><span class="number">13</span><span class="punctuation">]</span> <span class="string">&quot;z&quot;</span>              <span class="string">&quot;classification&quot;</span> <span class="string">&quot;uncertainty&quot;</span> </span><br></pre></td></tr></table></figure>
+
+<p>这里需要对结果稍作解释，第一行告诉我们’Mclust’以<code>VVE</code>模型将数据分为3类。第3行开始，它告诉我们’Mclust’的输出结果中包含了如下内容，我们可以通过<code>$</code>来提取。举个例子，我们提取<code>Mclust</code>的聚类结果和已知结果进行比较</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">table<span class="punctuation">(</span>wine<span class="operator">$</span>Class<span class="punctuation">,</span> mod<span class="operator">$</span>classification<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 如下是输出信息</span></span><br><span class="line">     <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span></span><br><span class="line">  <span class="number">1</span> <span class="number">59</span>  <span class="number">0</span>  <span class="number">0</span></span><br><span class="line">  <span class="number">2</span>  <span class="number">0</span> <span class="number">69</span>  <span class="number">2</span></span><br><span class="line">  <span class="number">3</span>  <span class="number">0</span>  <span class="number">0</span> <span class="number">48</span></span><br><span class="line"><span class="comment"># adjustedRandIndex:评估聚类效果</span></span><br><span class="line">adjustedRandIndex<span class="punctuation">(</span>wine<span class="operator">$</span>Class<span class="punctuation">,</span> mod<span class="operator">$</span>classification<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>从结果中，我们发现仅有2例没有正确聚类，说明<code>Mclust</code>的效果很好。但是随之而来的问题是，<code>Mclust</code>如何挑选模型以及它为什么认为聚成3类比较合适呢？我们可以根据什么信息进行模型选择呢？</p>
+<h2 id="模型选择"><a href="#模型选择" class="headerlink" title="模型选择"></a>模型选择</h2><p>为了解答上面的问题，我们需要稍微了解点<code>Mclust</code>的原理。和其他基于模型的方法类似，<code>Mclust</code>假设观测数据是一个或多个混合高斯分布的抽样结果，<code>Mclust</code>就需要根据现有数据去推断最优可能的模型参数，以及是由 q几组分布抽样而成。<code>mclust</code>一共提供了14种模型（见下表），可以用<code>?mclustModelNames</code>可以查看<code>mclust</code>提供的所有模型。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191109125815419-9f69302312944a0f92e0c245c6a39f0f.png" alt="模型总结"></p>
+<p>为了对模型有一个直观的理解，<code>mclust</code>提供了这些模型数据分为三组前提下在二维中的形状。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191109125852039-00b71d5c1283487c8084b329c61fb7aa.png" alt="二维的模型形状"></p>
+<p>继续回到之前的问题，<code>Mclust</code>如何确定模型和确定分组数目。之前我们调用<code>Mclust</code>时，除了必须设置的输入参数，没有修改其他参数。其实<code>Mclust</code>可以设置的参数不少，和问题直接相关的是如下两个参数</p>
+<ul>
+<li>G: 分组数，默认情况下是<code>1:9</code></li>
+<li>modelNames: 待拟合的模型，默认使用所有14种。</li>
+</ul>
+<p>也就是，<code>Mclust</code>默认得到14种模型1到9组的分析结果，然后根据一定的标准选择最终的模型和分组数。</p>
+<p><code>Mclust</code>提供了两种方法用于评估不同模型在不同分组下的可能性</p>
+<ul>
+<li>BIC( Bayesian Information Criterion ): 贝叶斯信息判别标准</li>
+<li>ICL( integrated complete-data likelihood ): 综合完全数据可能性</li>
+</ul>
+<p><code>Mclust</code>默认用的就是<code>BIC</code>，因此我们可以用<code>plot.Mclust</code>绘制其中BIC变化曲线</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plot.Mclust<span class="punctuation">(</span>mod<span class="punctuation">,</span> what <span class="operator">=</span> <span class="string">&quot;BIC&quot;</span><span class="punctuation">,</span> </span><br><span class="line">     ylim <span class="operator">=</span> <span class="built_in">range</span><span class="punctuation">(</span>mod<span class="operator">$</span>BIC<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span><span class="punctuation">(</span><span class="number">1</span><span class="operator">:</span><span class="number">2</span><span class="punctuation">)</span><span class="punctuation">]</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">     legendArgs <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>x <span class="operator">=</span> <span class="string">&quot;bottomleft&quot;</span><span class="punctuation">,</span> cex <span class="operator">=</span><span class="number">0.7</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191109154734889-6583692493584d749ae401eab1d6889a.png" alt="BIC曲线"></p>
+<p><code>Mclucst</code>会选择其中BIC最大的模型和分组作为最终的结果。</p>
+<p>此外我们可以用<code>MclustBIC</code>和<code>MclustICL</code>分别进行计算</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">par<span class="punctuation">(</span>mfrow<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">BIC <span class="operator">&lt;-</span> mclustBIC<span class="punctuation">(</span>X<span class="punctuation">)</span></span><br><span class="line">ICL <span class="operator">&lt;-</span> mclustICL<span class="punctuation">(</span>X<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>从中选择最佳的模型分组和模型作为输入</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mod2 <span class="operator">&lt;-</span> Mclust<span class="punctuation">(</span>X<span class="punctuation">,</span> G <span class="operator">=</span> <span class="number">3</span><span class="punctuation">,</span> modelNames <span class="operator">=</span> <span class="string">&quot;VVE&quot;</span><span class="punctuation">,</span> x<span class="operator">=</span>BIC<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="可视化展示"><a href="#可视化展示" class="headerlink" title="可视化展示"></a>可视化展示</h2><p><code>mclust</code>为不同的输出都提供了对应的泛型函数用于可视化，你需要用<code>plot</code>就能得到结果。例如对之前的聚类结果在二维空间展示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">drmod <span class="operator">&lt;-</span> MclustDR<span class="punctuation">(</span>mod<span class="punctuation">,</span> lambda <span class="operator">=</span> <span class="number">1</span><span class="punctuation">)</span></span><br><span class="line">plot<span class="punctuation">(</span>drmod<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 会提供一些列选项让你选择, 展示不同的结果</span></span><br><span class="line"><span class="comment"># Dimension reduction for model-based clustering and classification plots: </span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span><span class="operator">:</span> scatterplot</span><br><span class="line"><span class="number">2</span><span class="operator">:</span> contour</span><br><span class="line"><span class="number">3</span><span class="operator">:</span> classification</span><br><span class="line"><span class="number">4</span><span class="operator">:</span> boundaries</span><br><span class="line"><span class="number">5</span><span class="operator">:</span> density</span><br><span class="line"><span class="number">6</span><span class="operator">:</span> evalues</span><br><span class="line"><span class="comment"># 以1为例</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191109155624344-40f3e047fc6644c586e932b9196fcce3.png" alt="plot"></p>
+<p><code>mclust</code>还有很多其他功能，例如密度估计，自举推断(Bootstrap inference)，这些内容建议阅读”mclust 5: Clustering, Classification and Density Estimation Using Gaussian Finite Mixture Models “</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>想要更好的学习这个R包的使用，还需要去学习如下概念</p>
+<ul>
+<li>EM算法( expectation–maximization algorithm )</li>
+<li>BIC</li>
+<li>MLE(maximum likelihood estimator)</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/09/%E4%BD%BF%E7%94%A8mclust%E8%BF%9B%E8%A1%8C%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90-Cluster-data-with-mclust/" data-id="cllg90y4c00ddeqp24mhe292m" data-title="使用mclust进行聚类分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-线性代数学习笔记-利用最小二乘法做线性回归-Linear-algebra-linear-regression-with-least-square-method" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/07/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%81%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-algebra-linear-regression-with-least-square-method/" class="article-date">
+  <time class="dt-published" datetime="2019-11-07T16:39:29.231Z" itemprop="datePublished">2019-11-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/07/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%81%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-algebra-linear-regression-with-least-square-method/">线性代数学习笔记-利用最小二乘法做线性回归</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p>在学习线性代数的时候，我们都会先从线性方程组入手。求解一个线性方程组是否存在解，如果存在解，那么有多少解，比方说求解下面这个方程组</p>
+<p>$$<br>x_1 - 2x_2 &#x3D; -1<br>$$<br>$$<br>-x1 - 2x_2 &#x3D; 3<br>$$</p>
+<p>先别急着掏出纸和笔进行运算。在线性代数中, 这类线性方程组更常见的表述方式为<br>$$<br>Ax &#x3D; b<br>$$<br>其中，A是系数矩阵，x和b都是向量。在R语言中，这个方程组可以通过<code>solve</code>函数求解</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">2</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">2</span><span class="punctuation">)</span><span class="punctuation">,</span> ncol <span class="operator">=</span> <span class="number">2</span><span class="punctuation">)</span></span><br><span class="line">b <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">)</span></span><br><span class="line">solve<span class="punctuation">(</span>A<span class="punctuation">,</span>b<span class="punctuation">)</span> </span><br><span class="line"><span class="comment"># -2.0 -0.5</span></span><br></pre></td></tr></table></figure>
+
+<p>如果方程组有解或者无数解，那么我们称方程组是<strong>相容的</strong>，反之则是<strong>不相容</strong>。</p>
+<p>对于不相容的方程，我们无法求解出一个x使得等式成立，也就是下图的Ax和b不在一个平面上。因此只能找到一个x，让Ax尽可能b和接近，即求解一个x使得$||Ax-b||$最小。也就是$||Ax-b||^2$最小,  也就是$(Ax-b)\cdot(Ax-b)$最小， 这也就是术语<strong>最小二乘法</strong>( <strong>least squares method</strong>, 也称之为最小平方法 )的来源。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191107133503046-c48ec22789924735875f586647b188c5.png" alt="几何意义"></p>
+<p>那么如何求解出x呢？跳过教科书的证明部分，这里直接提供定理，用于判定在什么条件下，方程$Ax&#x3D;b$的最小二乘解是唯一的。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191107135914705-dabeb5d3ec954a80bef9ebd988c4f494.png" alt="定理"></p>
+<p>如果已知A的列是线性无关，那么对于方程$Ax&#x3D;b$，取$A&#x3D;QR$， 那么唯一的最小二乘解为$\hat x &#x3D; R^{-1}Q^Tb$,</p>
+<blockquote>
+<p>$A&#x3D;QR$称之为QR分解，也就是将 $m \times n$ 矩阵A分解为两个矩阵相乘的形式。其中Q是 $m \times n$ 矩阵，其列形成$Col\ A$的一个标准正交基，R是一个 $n \times n$ 上三角可逆矩阵且在对角线元素为正数。</p>
+</blockquote>
+<h2 id="最小二乘直线"><a href="#最小二乘直线" class="headerlink" title="最小二乘直线"></a>最小二乘直线</h2><p>那么最小二乘有什么用呢？为了方便讨论实际的应用问题，我们用科学和工程数据中更常见的统计分析记号$X\beta&#x3D;y$ 来替代$Ax&#x3D;b$. 其中$X$为<strong>设计矩阵</strong>，$\beta$为<strong>参数向量</strong>，$y$为<strong>观测向量</strong>。</p>
+<p>我们都知道身高和体重存在一定关系，但不是完美对应(数据集来自于R语言的women)</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191107142255926-23d0c820e06b4c779c062c827a8d3a95.png" alt="身高-体重关系"></p>
+<p>我们可以找到一条曲线去完美拟合已有的数据，但通常而言越复杂的模型就越容易出现过拟合的情况，不具有普适性，最好是找到一个简单模型，能对当前的数据做一个拟合，并且能预测未来。</p>
+<p>两个变量最简单的关系就是线性方程$y&#x3D;\beta_0 +\beta_1 x$。我们希望能够确定 $\beta_0$ 和 $\beta_1$使得预测值和观测值尽可能的接近，也就是让直线和数据尽可能的接近，最常用的度量方法就是<strong>余差平方之和</strong>最小。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191107145640604-1c2f0f704cc64b669e6135a682b68f1c.png" alt="直线拟合"></p>
+<p><strong>最小二乘直线</strong>$y&#x3D;\beta_0 +\beta_1 x$是余差平方之和最小的，这条直线也被称之为y对x的回归直线。直线的系数 $ \beta_0$ 和 $\beta_1$称为线性回归系数。</p>
+<p>如果数据点都落在直线上，那么参数 $ \beta_0$ 和 $\beta_1$满足如下方程，那么</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191107153306341-3531e3cb9b6f415f91709864e7650035.png" alt="线性方程组"></p>
+<p>但是当数据点不在直线上时，这就意味着 $X\beta&#x3D;y$ 没有解，那么问题其实是$Ax&#x3D;b$的最小二乘问题，这两者仅仅记法不同。并且由于X的列线性无关，那么唯一的最小二乘解为$\hat \beta &#x3D; R^{-1}Q^Ty$, 取$X&#x3D;QR$，</p>
+<p>接下来，我们就可以通过R语言的矩阵函数计算$\beta$</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载数据</span></span><br><span class="line">data<span class="punctuation">(</span><span class="string">&quot;women&quot;</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置X和Y</span></span><br><span class="line">X <span class="operator">&lt;-</span> cbind<span class="punctuation">(</span><span class="built_in">rep</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="built_in">length</span><span class="punctuation">(</span>women<span class="operator">$</span>height<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span> women<span class="operator">$</span>height<span class="punctuation">)</span></span><br><span class="line">y <span class="operator">&lt;-</span> women<span class="operator">$</span>weight</span><br><span class="line"></span><br><span class="line"><span class="comment"># QR分解</span></span><br><span class="line">qr <span class="operator">&lt;-</span> qr<span class="punctuation">(</span>X<span class="punctuation">)</span></span><br><span class="line">Q <span class="operator">&lt;-</span> qr.Q<span class="punctuation">(</span>qr<span class="punctuation">)</span></span><br><span class="line">R <span class="operator">&lt;-</span> qr.R<span class="punctuation">(</span>qr<span class="punctuation">)</span> </span><br><span class="line">R.inv <span class="operator">&lt;-</span> solve<span class="punctuation">(</span>R<span class="punctuation">)</span> <span class="comment"># 求逆矩阵</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算</span></span><br><span class="line">beta <span class="operator">&lt;-</span> R.inv <span class="operator">%*%</span> t<span class="punctuation">(</span>Q<span class="punctuation">)</span> <span class="operator">%*%</span> y</span><br></pre></td></tr></table></figure>
+
+<p>根据求解结果，系数分别是-87.52和3.45, 我们来绘图展示下</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plot<span class="punctuation">(</span>women<span class="operator">$</span>height<span class="punctuation">,</span> women<span class="operator">$</span>weight<span class="punctuation">,</span></span><br><span class="line">     xlab <span class="operator">=</span> <span class="string">&quot;height&quot;</span><span class="punctuation">,</span> ylab<span class="operator">=</span><span class="string">&quot;weigth&quot;</span><span class="punctuation">)</span></span><br><span class="line">x <span class="operator">&lt;-</span> 58<span class="operator">:</span><span class="number">72</span></span><br><span class="line">y <span class="operator">&lt;-</span> 3.45 <span class="operator">*</span> x <span class="operator">-</span> <span class="number">87.52</span></span><br><span class="line">lines<span class="punctuation">(</span>x<span class="operator">=</span>x<span class="punctuation">,</span>y<span class="operator">=</span>y<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-20191106233134871-d6a6a6d2ad8d40a59a4dd0539f2ea6f2.png" alt="weight-vs-height"></p>
+<p>关于线性回归，R语言提供了<code>lm</code>函数，之前只是无脑调用，现在我把它的黑匣子打开了，它和我们之前做的事情类似，都有一步QR分解，只不过调用了不同的底层函数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lm</span></span><br><span class="line">z <span class="operator">&lt;-</span> .Call<span class="punctuation">(</span>C_Cdqrls<span class="punctuation">,</span> ...</span><br><span class="line"><span class="comment"># qr</span></span><br><span class="line"><span class="keyword">if</span><span class="punctuation">(</span>LAPACK<span class="punctuation">)</span></span><br><span class="line">     <span class="built_in">return</span><span class="punctuation">(</span>structure<span class="punctuation">(</span>.Internal<span class="punctuation">(</span>La_qr<span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span> useLAPACK <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> <span class="built_in">class</span> <span class="operator">=</span> <span class="string">&quot;qr&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">...           </span><br><span class="line">res <span class="operator">&lt;-</span> .Fortran<span class="punctuation">(</span>.F_dqrdc2<span class="punctuation">,</span>...</span><br></pre></td></tr></table></figure>
+
+<p><code>lm</code>的输出信息有很多，比如说残差，系数的显著性水平，这些可以用<code>summary.lm</code>查看。</p>
+<blockquote>
+<p>之前看「R语言实战」的回归章节时，总是不理解，看完就记住了几个函数而已。现在在线性代数理论基础上对这个部分有所理解了。</p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>如果对线性代数的最小二乘理论感兴趣，推荐阅读「线性代数及其应用」，戴维，原书第五版，第六章。</p>
+<p>关于线性回归的R语言实现，推荐阅读「R语言实战」，第二版，第8章。</p>
+<p>此外，维基百科的 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95">最小二乘法</a>页面也提供了比较好的解释。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/07/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%81%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-algebra-linear-regression-with-least-square-method/" data-id="cllg90y6v00k6eqp2hd36d6vr" data-title="线性代数学习笔记-利用最小二乘法做线性回归" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-数据预处理之变量变换-Data-Preprocess-Variable-Transformation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/02/%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B9%8B%E5%8F%98%E9%87%8F%E5%8F%98%E6%8D%A2-Data-Preprocess-Variable-Transformation/" class="article-date">
+  <time class="dt-published" datetime="2019-11-02T18:37:55.904Z" itemprop="datePublished">2019-11-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/02/%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B9%8B%E5%8F%98%E9%87%8F%E5%8F%98%E6%8D%A2-Data-Preprocess-Variable-Transformation/">数据预处理之变量变换</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在学习「数据挖掘导论」的<strong>数据预处理</strong>时，里面谈到了变量变换，我联想到了在基因表达量分析时的常见操作，例如FPKM，TPM，CPM，log对数变换。 比如说在文章里面会见到如下的描述</p>
+<blockquote>
+<p> The size factor of each cell was computed using a pooling strategy implemented in the R function <code>computeSumFactors</code>. Normalized counts were then computed by dividing the counts for each cell by the size factor for that cell. A log2 transformation was applied to normalized counts. </p>
+</blockquote>
+<p>变量转换有什么好处，需要注意些什么呢？「数据挖掘导论」讨论了两种重要的变量变换类型: 简单函数变换和规范化。</p>
+<p><strong>简单变换</strong>是使用一个简单数学函数分别作用于每一个值，例如log转换，求绝对值，求倒数等。统计学中，变量变换（例如log转换）常用于将不具有高斯（正态）分布的数据变换成具有高斯（正态）分布的数据。在数据挖掘领域可以用来进行数据压缩。这类变换需要我们了解数据在变化前后的后果，例如负数取倒数之后的大小关系会逆转。</p>
+<p><strong>标准化(standardization)或规范化(normalization)<strong>的</strong>目标</strong>是使整个值的集合具有<strong>特定的属性</strong>。使用这两个术语需要特别注意使用这两个词的上下文。书中提到”在数据挖掘界，这两个术语常常可互换，然而，在统计学中，术语规范化可能与使得变量<strong>正态</strong>化相混淆”。虽然从中文的角度来看，规范化和正态化明显不一样，但是从英文的角度看，正态分布翻译自normal distribution, 很容易从normal联想到normalization。当然也有将normalization翻译成归一化，即将原来数据值通过$(x - min(X) &#x2F; (max(X) - min(X))$转换到0,1之间。统计学的变量标准化指的就是对原来的数据基于均值和标准差计算z-score(公式如下), 不过考虑到均值和标准差受到离群点波动很大，可以用中位数替代均值，用绝对标准差替代标准差。</p>
+<p>$$<br>x’ &#x3D; \frac{x-\bar{x}}{\sigma}<br>$$</p>
+<p>R语言中做标准化常用到一个函数<code>scale</code>，它的功能是对矩阵的列进行中心化和(或)缩放</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scale(x, center = TRUE, scale = TRUE)</span><br></pre></td></tr></table></figure>
+
+<p>参数就3个，基本上我用的时候就提供第一个输入，举个例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> x <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">)</span></span><br><span class="line"><span class="operator">&gt;</span> y <span class="operator">&lt;-</span> scale<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line"><span class="operator">&gt;</span> y</span><br><span class="line">           <span class="punctuation">[</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">1.2649111</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">0.6324555</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">3</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.0000000</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">4</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.6324555</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">5</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">1.2649111</span></span><br><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span><span class="punctuation">,</span><span class="string">&quot;scaled:center&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="number">3</span></span><br><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span><span class="punctuation">,</span><span class="string">&quot;scaled:scale&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="number">1.581139</span></span><br></pre></td></tr></table></figure>
+
+<p>之前我都是这样子用的，也没有思考过这到底它到底做了些什么。最近为了彻底搞懂它的两个参数，我翻了它的源代码。</p>
+<p>代码总共38行，第一部分是关于<code>center</code>参数，也就是中心化。它先判断<code>center</code>是否是逻辑值还是数值向量。如果是逻辑值，则当<code>center=TRUE</code>时它会计算每一列的均值，然后调用<code>sweep</code>按列分别减去均值。如果判定<code>center</code>是一个数值向量时，就是为<code>sweep</code>手动指定每一列的中心值。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.logical</span><span class="punctuation">(</span>center<span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>center<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    center <span class="operator">&lt;-</span> colMeans<span class="punctuation">(</span>x<span class="punctuation">,</span> na.rm<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    x <span class="operator">&lt;-</span> sweep<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2L</span><span class="punctuation">,</span> center<span class="punctuation">,</span> check.margin<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="keyword">else</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span><span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.numeric</span><span class="punctuation">(</span>center<span class="punctuation">)</span><span class="punctuation">)</span> center <span class="operator">&lt;-</span> <span class="built_in">as.numeric</span><span class="punctuation">(</span>center<span class="punctuation">)</span></span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">length</span><span class="punctuation">(</span>center<span class="punctuation">)</span> <span class="operator">==</span> nc<span class="punctuation">)</span></span><br><span class="line">    x <span class="operator">&lt;-</span> sweep<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2L</span><span class="punctuation">,</span> center<span class="punctuation">,</span> check.margin<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    stop<span class="punctuation">(</span><span class="string">&quot;length of &#x27;center&#x27; must equal the number of columns of &#x27;x&#x27;&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>第二部分是关于<code>scale</code>,决定数据如何缩放。如果是逻辑值且为真时，默认用下面的函数计算每一列的缩放系数，然后用<code>sweep</code>按列除以每列系数</p>
+<p>$$<br>\sqrt{\frac{\sum_{i&#x3D;1}^{n}x{‘}_i^2}{n-1}}<br>$$</p>
+<blockquote>
+<p>这个计算的结果就是样本标准差，因为$x’_i&#x3D;x_i-\bar x$</p>
+</blockquote>
+<p>如果是数值向量，则用<code>sweep</code>以给定数值按列相除。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.logical</span><span class="punctuation">(</span>scale<span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>scale<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    f <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>v<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">      v <span class="operator">&lt;-</span> v<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>v<span class="punctuation">)</span><span class="punctuation">]</span></span><br><span class="line">      <span class="built_in">sqrt</span><span class="punctuation">(</span><span class="built_in">sum</span><span class="punctuation">(</span>v<span class="operator">^</span><span class="number">2</span><span class="punctuation">)</span> <span class="operator">/</span> <span class="built_in">max</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span> <span class="built_in">length</span><span class="punctuation">(</span>v<span class="punctuation">)</span> <span class="operator">-</span> <span class="number">1L</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">    scale <span class="operator">&lt;-</span> apply<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2L</span><span class="punctuation">,</span> f<span class="punctuation">)</span></span><br><span class="line">    x <span class="operator">&lt;-</span> sweep<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2L</span><span class="punctuation">,</span> scale<span class="punctuation">,</span> <span class="string">&quot;/&quot;</span><span class="punctuation">,</span> check.margin<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="keyword">else</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span><span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.numeric</span><span class="punctuation">(</span>scale<span class="punctuation">)</span><span class="punctuation">)</span> scale <span class="operator">&lt;-</span> <span class="built_in">as.numeric</span><span class="punctuation">(</span>scale<span class="punctuation">)</span></span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">length</span><span class="punctuation">(</span>scale<span class="punctuation">)</span> <span class="operator">==</span> nc<span class="punctuation">)</span></span><br><span class="line">    x <span class="operator">&lt;-</span> sweep<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2L</span><span class="punctuation">,</span> scale<span class="punctuation">,</span> <span class="string">&quot;/&quot;</span><span class="punctuation">,</span> check.margin<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    stop<span class="punctuation">(</span><span class="string">&quot;length of &#x27;scale&#x27; must equal the number of columns of &#x27;x&#x27;&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一部分是设置输出结果的属性。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span><span class="punctuation">(</span><span class="built_in">is.numeric</span><span class="punctuation">(</span>center<span class="punctuation">)</span><span class="punctuation">)</span> <span class="built_in">attr</span><span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="string">&quot;scaled:center&quot;</span><span class="punctuation">)</span> <span class="operator">&lt;-</span> center</span><br><span class="line"><span class="keyword">if</span><span class="punctuation">(</span><span class="built_in">is.numeric</span><span class="punctuation">(</span>scale <span class="punctuation">)</span><span class="punctuation">)</span> <span class="built_in">attr</span><span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="string">&quot;scaled:scale&quot;</span> <span class="punctuation">)</span> <span class="operator">&lt;-</span> scale</span><br></pre></td></tr></table></figure>
+
+<p>那么默认参数下，我们就是对矩阵按列进行z-score的标准化。检验标准很简单，计算标准化的数据的均值和标准差，因为z-score的结果就是通过线性变换让数据的均值为0，标准差为1（不会改变原来的数据分布）。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> mean<span class="punctuation">(</span>y<span class="punctuation">)</span></span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="operator">&gt;</span> sd<span class="punctuation">(</span>y<span class="punctuation">)</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这解决了我多年的疑惑，为啥我在R语言中就是找不到<code>zscore</code>这个函数，因为<code>scale</code>默认情况下就是实现<code>z-score</code>的变换。当然R语言取名<code>scale</code>也是有它的道理，比方说数据中存在离群值，我们应该选择不容易受离群值影响的中位数替代均值，选择绝对平均偏差, 中位数绝对偏差或四分位数极差来替换方差。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 默认参数</span></span><br><span class="line"><span class="operator">&gt;</span> x <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">,</span> ncol<span class="operator">=</span><span class="number">2</span><span class="punctuation">)</span></span><br><span class="line"><span class="operator">&gt;</span> scale<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">           <span class="punctuation">[</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">]</span>       <span class="punctuation">[</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">1.2649111</span> <span class="operator">-</span><span class="number">0.4505747</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">0.6324555</span> <span class="operator">-</span><span class="number">0.4483330</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">3</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.0000000</span> <span class="operator">-</span><span class="number">0.4460914</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">4</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.6324555</span> <span class="operator">-</span><span class="number">0.4438497</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">5</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">1.2649111</span>  <span class="number">1.7888488</span></span><br><span class="line">...</span><br><span class="line"><span class="comment"># 替换后</span></span><br><span class="line"><span class="operator">&gt;</span> x <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">,</span> ncol<span class="operator">=</span><span class="number">2</span><span class="punctuation">)</span></span><br><span class="line"><span class="operator">&gt;</span> scale<span class="punctuation">(</span>x<span class="punctuation">,</span> </span><br><span class="line">      center <span class="operator">=</span> apply<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> median<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">      scale <span class="operator">=</span> apply<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">abs</span><span class="punctuation">(</span>x <span class="operator">-</span> mean<span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">/</span> <span class="punctuation">(</span><span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">)</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">      <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">           <span class="punctuation">[</span><span class="punctuation">,</span><span class="number">1</span><span class="punctuation">]</span>         <span class="punctuation">[</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">1.3333333</span> <span class="operator">-</span><span class="number">0.005012531</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">,</span><span class="punctuation">]</span> <span class="operator">-</span><span class="number">0.6666667</span> <span class="operator">-</span><span class="number">0.002506266</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">3</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.0000000</span>  <span class="number">0.000000000</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">4</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">0.6666667</span>  <span class="number">0.002506266</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">5</span><span class="punctuation">,</span><span class="punctuation">]</span>  <span class="number">1.3333333</span>  <span class="number">2.498746867</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>此外，它还能实现其他形式的数据转换，例如归一化，即将数据的范围缩放到0到1之间</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span><span class="number">4</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">,</span><span class="number">6</span><span class="punctuation">)</span><span class="punctuation">,</span> ncol<span class="operator">=</span><span class="number">2</span><span class="punctuation">)</span></span><br><span class="line">y <span class="operator">&lt;-</span> scale<span class="punctuation">(</span>x<span class="punctuation">,</span> center <span class="operator">=</span> apply<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">2</span><span class="punctuation">,</span> <span class="built_in">min</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">           scale <span class="operator">=</span> apply<span class="punctuation">(</span>x<span class="punctuation">,</span><span class="number">2</span><span class="punctuation">,</span><span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span> <span class="punctuation">&#123;</span><span class="built_in">max</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="operator">-</span><span class="built_in">min</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">           <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>最后总结一下:</p>
+<ul>
+<li>数据的变量转换有两类，简单变换和标准化&#x2F;规范化，无论是何种变换都要看它的具体公式</li>
+<li>R语言的<code>scale</code>默认就是计算原始数据的z-score, 通过调整<code>center</code>和<code>scale</code>可以实现多种形式的数据转换。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/02/%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B9%8B%E5%8F%98%E9%87%8F%E5%8F%98%E6%8D%A2-Data-Preprocess-Variable-Transformation/" data-id="cllg90y6f00ireqp28rv2h3kn" data-title="数据预处理之变量变换" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用LACHESIS利用HiC数据进行基因组组装-scaffolding-contig-with-LACHESIS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/01/%E4%BD%BF%E7%94%A8LACHESIS%E5%88%A9%E7%94%A8HiC%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-scaffolding-contig-with-LACHESIS/" class="article-date">
+  <time class="dt-published" datetime="2019-11-01T23:44:28.716Z" itemprop="datePublished">2019-11-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/01/%E4%BD%BF%E7%94%A8LACHESIS%E5%88%A9%E7%94%A8HiC%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-scaffolding-contig-with-LACHESIS/">使用LACHESIS利用HiC数据进行基因组组装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/image-540cd58f9f79426ea648f39202d1b2d5.png" alt="LACHESIS"></p>
+<p>LACHESIS是一个比较早利用HiC数据辅助基因组组装的工具，文章发表在<a target="_blank" rel="noopener" href="https://doi.org/10.1038/nbt.2727">Nature Biotechnology</a>上.但是这款软件在2年前就不在维护了，GitHub主页上也推荐使用<a target="_blank" rel="noopener" href="https://github.com/theaidenlab">https://github.com/theaidenlab</a>里的工具进行组装。</p>
+<p>不过目前依旧有很多公司在用这个软件做基因组组装，所以我也想试试看。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>LACHESIS需要安装在Linux系统系统，最低内存不低于16GB，要求最小堆栈大小为10MB，可以用<code>ulimit -s</code>查看，通过<code>ulimit -s 10240</code>。同时依赖于以下软件</p>
+<ul>
+<li>gcc</li>
+<li>zlib</li>
+<li>boost C++ : &gt; 1.52.0, &lt; 1.67.0, 老版本只有1.57能被我下载</li>
+<li>SAMtools: &lt; 0.1.19</li>
+</ul>
+<p>以没有root权限为例，安装SAMtools和Boost这两个依赖库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/src</span><br><span class="line"><span class="built_in">mkdir</span> -p ~/opt/&#123;biosoft,sysoft&#125;</span><br><span class="line"><span class="comment"># 安装boost C++, 这一步会很久</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.bz2</span><br><span class="line">tar xf boost_1_57_0.tar.bz2</span><br><span class="line"><span class="built_in">cd</span> boost_1_57_0</span><br><span class="line">./bootstrap.sh --prefix=~/opt/sysoft/boost_1_57_0 --with-libraries=all --with-toolset=gcc</span><br><span class="line">./b2 toolset=gcc</span><br><span class="line">./b2 install</span><br><span class="line">./bjam install</span><br><span class="line"><span class="comment"># 安装SAMtools</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget https://astuteinternet.dl.sourceforge.net/project/samtools/samtools/0.1.19/samtools-0.1.19.tar.bz2</span><br><span class="line">tar xf samtools-0.1.19.tar.bz2</span><br><span class="line"><span class="built_in">cd</span> samtools-0.1.19</span><br><span class="line">make -j 20</span><br></pre></td></tr></table></figure>
+
+<p>然后是下载并解压缩</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/opt/biosoft/</span><br><span class="line">curl -o LACHESIS.zip https://codeload.github.com/shendurelab/LACHESIS/legacy.zip/master</span><br><span class="line">unzip LACHESIS.zip</span><br><span class="line"><span class="built_in">mv</span> shendurelab-LACHESIS-2e27abb LACHESIS</span><br><span class="line"><span class="built_in">cd</span> LACHESIS</span><br></pre></td></tr></table></figure>
+
+<p>由于之前安装的samtools并不是安装在<code>/usr</code>目录下，因此要修改<code>src/include/gtools/</code>目录下的<code>SAMStepper.h</code>和<code>SAMStepper.cc</code>中的<code>#include &lt;bam/sam.h&gt;</code>, 指向实际地址。例如我的是<code>#include &quot;/home/xzg/src/samtools-0.1.19/sam.h&quot;</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LACHESIS_BOOST_DIR=<span class="variable">$HOME</span>/src/boost_1_57_0</span><br><span class="line"><span class="built_in">export</span> LACHESIS_SAMTOOLS_DIR=<span class="variable">$HOME</span>/src/samtools-0.1.19</span><br><span class="line">./configure --with-samtools=<span class="variable">$HOME</span>/src/samtools-0.1.19 \</span><br><span class="line">    --with-boost=<span class="variable">$HOME</span>/src/boost_1_57_0/ </span><br><span class="line">    </span><br><span class="line">./configure --with-samtools=/data/src/samtools-0.1.19 \</span><br><span class="line">    --with-boost=/data/src/boost_1_57_0/ </span><br><span class="line">make -j 20</span><br><span class="line"><span class="built_in">mv</span> src/bin .</span><br><span class="line"><span class="built_in">mv</span> src/Lachesis bin/</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果服务器管理员帮你安装了一个高版本的boost，你需要让他进行卸载，否则默认会线用系统的boost，然后就会出错。关于更多的报错，参考<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/51dc11d57ab4">HiC软件安装篇之Lachesis</a></p>
+</blockquote>
+<p>如果你Perl版本不是 5.14.2 ，那么我们需要打开bin下面的perl脚本，删除如下信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">///////////////////////////////////////////////////////////////////////////////</span><br><span class="line">//                                                                           //</span><br><span class="line">// This software and its documentation are copyright (c) 2014-2015 by Joshua //</span><br><span class="line">// N. Burton and the University of Washington.  All rights are reserved.     //</span><br><span class="line">//                                                                           //</span><br><span class="line">// THIS SOFTWARE IS PROVIDED <span class="string">&quot;AS IS&quot;</span>, WITHOUT WARRANTY OF ANY KIND, EXPRESS  //</span><br><span class="line">// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF                //</span><br><span class="line">// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  //</span><br><span class="line">// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY      //</span><br><span class="line">// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT //</span><br><span class="line">// OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR  //</span><br><span class="line">// THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                //</span><br><span class="line">//                                                                           //</span><br><span class="line">///////////////////////////////////////////////////////////////////////////////</span><br></pre></td></tr></table></figure>
+
+<p>而且还得将第一行替换成<code>#!/usr/bin/perl -w</code></p>
+<p>之后需要将LACHESIS加入环境变量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:~/biosoft/LACHESIS/bin </span><br></pre></td></tr></table></figure>
+
+<p>为了保证软件在后续不会出错，我们还要测试下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> bin</span><br><span class="line">./Lachesis INIs/test_case.ini</span><br></pre></td></tr></table></figure>
+
+<p>当你看到最后结果是<code>: Done!</code>就表明运行成功了，最终结果输出在当前目录下<code>outs</code>中</p>
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p>实际的软件使用要求你需要提供至少两类输入文件</p>
+<ul>
+<li>HiC数据，双端fastq格式</li>
+<li>初始组装，fasta格式</li>
+</ul>
+<p>参考<a href="/archives/Assemble-genome-using-ALLHiC-with-HiC-Data">使用ALLHiC基于HiC数据辅助基因组组装</a>的第一步，第二步和第三步，使用bwa-aln + bwa-sampe将fastq回帖到参考基因组，然后对数据进行过滤。那么在后续的流程都假设你有如下两个文件</p>
+<ul>
+<li>draft.asm.fasta: 初步组装结果</li>
+<li>sample.clean.bam: HiC数据比对的预处理结果</li>
+</ul>
+<p>然后我们需要拷贝一个配置运行文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> ~/opt/biosoft/LACHESIS/bin/INIs/test_case.ini sample.ini</span><br></pre></td></tr></table></figure>
+
+<p>接着去修改参数，由于每个参数都会有说明，这里就展示我编辑过的几个参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SPECIES = <span class="built_in">test</span> <span class="comment"># 写实际的物种名即可</span></span><br><span class="line">DRAFT_ASSEMBLY_FASTA = draft.asm.fasta <span class="comment"># 待组装序列的实际位置</span></span><br><span class="line">SAM_DIR = . <span class="comment">#表示当前目录下查找文件</span></span><br><span class="line">SAM_FILES = sample.clean.bam <span class="comment">#bam文件名</span></span><br><span class="line">RE_SITE_SEQ = AAGCTT <span class="comment">#酶切识别序列</span></span><br><span class="line">USE_REFERENCE = 0 <span class="comment">#不使用参考序列</span></span><br><span class="line">BLAST_FILE_HEAD = . <span class="comment"># BLAST的输出结果</span></span><br><span class="line">CLUSTER_N = 16 <span class="comment"># 最终聚类数目</span></span><br></pre></td></tr></table></figure>
+
+<p>上面这些参数的修改属于基本操作，而下面的参数可能需要反复修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># contig中最小的酶切位点数,</span></span><br><span class="line">CLUSTER_MIN_RE_SITES=25</span><br><span class="line"><span class="comment"># contig中最大的link密度, 也就是一个区域与多个contig存在信号</span></span><br><span class="line"><span class="comment"># 可能是异染色质或重复序列</span></span><br><span class="line">CLUSTER_MAX_LINK_DENSITY=2</span><br><span class="line"><span class="comment"># 对于CLUSTER_MIN_RE_SITES过滤掉的contig在初步聚类后还有机会加入已有的分组中</span></span><br><span class="line"><span class="comment"># 如果它加入其中的信号是加入另一组信号的3倍</span></span><br><span class="line">CLUSTER_NONINFORMATIVE_RATIO=3</span><br><span class="line"><span class="comment"># 允许成组的最小酶切数</span></span><br><span class="line">ORDER_MIN_N_RES_IN_TRUNK=15</span><br></pre></td></tr></table></figure>
+
+<p>最终运行即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -s 10240</span><br><span class="line">Lachesis sample.ini</span><br></pre></td></tr></table></figure>
+
+<p>我们来构建最终的组装fasta</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CreateScaffoldedFasta.pl draft.asm.fasta out/test_case</span><br></pre></td></tr></table></figure>
+
+<p>最终结果输出在<code>out/test_case/Lachesis_assembly.fasta</code></p>
+<p>使用体验:</p>
+<ul>
+<li>软件安装有很多问题</li>
+<li>无法处理多倍体</li>
+<li>已经许久不维护</li>
+<li>尝试了自己的物种，结果在排序步骤出现了问题</li>
+</ul>
+<blockquote>
+<p>目前的想法: 这个软件我不会再用第二次了。</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/01/%E4%BD%BF%E7%94%A8LACHESIS%E5%88%A9%E7%94%A8HiC%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-scaffolding-contig-with-LACHESIS/" data-id="cllg90y3y00bveqp2gxg4216x" data-title="使用LACHESIS利用HiC数据进行基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-ALLHiC_ 辅助组装简单的二倍体基因组-ALLHiC-scaffolding-of-a-simple-diploid-genome" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/31/ALLHiC_%20%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E7%AE%80%E5%8D%95%E7%9A%84%E4%BA%8C%E5%80%8D%E4%BD%93%E5%9F%BA%E5%9B%A0%E7%BB%84-ALLHiC-scaffolding-of-a-simple-diploid-genome/" class="article-date">
+  <time class="dt-published" datetime="2019-10-31T10:40:27.040Z" itemprop="datePublished">2019-10-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/31/ALLHiC_%20%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E7%AE%80%E5%8D%95%E7%9A%84%E4%BA%8C%E5%80%8D%E4%BD%93%E5%9F%BA%E5%9B%A0%E7%BB%84-ALLHiC-scaffolding-of-a-simple-diploid-genome/">ALLHiC:辅助组装简单的二倍体基因组</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="ALLHiC-辅助组装简单的二倍体基因组"><a href="#ALLHiC-辅助组装简单的二倍体基因组" class="headerlink" title="ALLHiC: 辅助组装简单的二倍体基因组"></a>ALLHiC: 辅助组装简单的二倍体基因组</h1><p>ALLHiC除了能够解决复杂基因组（高杂合，多倍体）的基因组组装问题，还能够搞定简单的基因组组装，毕竟本质上都是利用HiC的信号。</p>
+<p>ALLHiC大概有两个优势：</p>
+<ol>
+<li>对同源多倍体是一种解决方案</li>
+<li>当contig组装比较短的时候，大部分情况allhic的排序优于其他软件(如果contig很长的话，可以优先考虑下3d-dna打断，过长的contig或许是错误组装造成)</li>
+</ol>
+<p>参考<a href="/archives/Assemble-genome-using-ALLHiC-with-HiC-Data">使用ALLHiC基于HiC数据辅助基因组组装</a>完成软件安装和前三步的数据预处理，将Fastq文件转成BAM文件。</p>
+<p>下面假定你的初步组装结果是<code>draft.asm.fasta</code>, Fastq预处理后的文件是<code>sample.clean.bam</code></p>
+<p>之后，我们将contig根据相互之间的信号强弱关系进行分组，至于分成多少组要根据物种具体的染色体数目而定。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_partition -b sample.clean.bam -r draft.asm.fasta -e AAGCTT -k 16</span><br><span class="line"><span class="comment"># -k: 聚类组数</span></span><br><span class="line"><span class="comment"># -e: 酶切类型, 预设HindIII: AAGCTT; MboI: GATC</span></span><br><span class="line"><span class="comment"># -m: 每个contig最少的酶切位点, 默认25</span></span><br></pre></td></tr></table></figure>
+
+<p>要根据自己的实际建库方法选择酶切位点的识别序列，<strong>注</strong>, DpnI, DpnII, MboI, Sau3AI 这些酶都是识别相同的序列，仅仅是对甲基化敏感度不同。</p>
+<p>接着，提取CLM和每个contig的酶切数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allhic extract sample.clean.bam draft.asm.fasta --RE AAGCTT</span><br></pre></td></tr></table></figure>
+
+<p>然后是对每个组的contig位置和方向进行优化</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  如下命令可以通过循环同时运行</span></span><br><span class="line">allhic optimize sample.clean.counts_AAGCTT.16g1.txt sample.clean.clm</span><br><span class="line">allhic optimize sample.clean.counts_AAGCTT.16g2.txt sample.clean.clm</span><br><span class="line">...</span><br><span class="line">allhic optimize sample.clean.counts_AAGCTT.16g16.txt sample.clean.clm</span><br></pre></td></tr></table></figure>
+
+<p>最终获取染色体级别的组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_build draft.asm.fasta</span><br></pre></td></tr></table></figure>
+
+<p>绘制热图对组装进行评估</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取染色体长度</span></span><br><span class="line">perl getFaLen.pl -i groups.asm.fasta -o len.txt</span><br><span class="line"><span class="comment"># 构建chrn.list</span></span><br><span class="line">grep <span class="string">&#x27;merge.clean.counts_GATC&#x27;</span> len.txt &gt; chrn.list</span><br><span class="line"><span class="comment"># 绘图, 500k表示分辨率</span></span><br><span class="line">ALLHiC_plot sample.clean.bam groups.agp chrn.list 500k pdf</span><br></pre></td></tr></table></figure>
+
+<p>其中<a target="_blank" rel="noopener" href="https://github.com/tangerzhang/my_script/blob/master/getFaLen.pl">getFaLen.pl</a>可以从<a target="_blank" rel="noopener" href="https://github.com/tangerzhang/my_script">https://github.com/tangerzhang/my_script</a>获取</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-scaffolding-of-a-simple-diploid-genome">https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-scaffolding-of-a-simple-diploid-genome</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/31/ALLHiC_%20%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E7%AE%80%E5%8D%95%E7%9A%84%E4%BA%8C%E5%80%8D%E4%BD%93%E5%9F%BA%E5%9B%A0%E7%BB%84-ALLHiC-scaffolding-of-a-simple-diploid-genome/" data-id="cllg90xyy000beqp23245ct6i" data-title="ALLHiC:辅助组装简单的二倍体基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-ALLHiC续_ 如何构建Allele.ctg.table-How-to-build-allele-ctg-table" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/30/ALLHiC%E7%BB%AD_%20%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAAllele.ctg.table-How-to-build-allele-ctg-table/" class="article-date">
+  <time class="dt-published" datetime="2019-10-30T23:25:18.251Z" itemprop="datePublished">2019-10-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/30/ALLHiC%E7%BB%AD_%20%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAAllele.ctg.table-How-to-build-allele-ctg-table/">ALLHiC续:如何构建Allele.ctg.table</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Allele.ctg.table是<a href="/archives/Assemble-genome-using-ALLHiC-with-HiC-Data">ALLHiC</a>用于过滤多倍体基因组中因等位序列相似引起的HiC噪音的必要输入。</p>
+<p>构建的方法有很多种，这里列举两个方法。</p>
+<h2 id="方法一-基于BLAST"><a href="#方法一-基于BLAST" class="headerlink" title="方法一: 基于BLAST"></a>方法一: 基于BLAST</h2><p>基于BLAST的方法需要你提供一个染色体级别组装的近缘物种。需要提供4个文件，近缘物种的CDS和GFF文件，多倍体物种的CDS和GFF文件。最重要的是，你得保证CDS序列中的编号和GFF文件的基因编号一致，这也是后续处理至关重要的一步。</p>
+<p><strong>问题一</strong>: 我们如何快速获取待组装物种的CDS和GFF文件？最快速的方法就是利用转录组序列基于STAR + StringTie的组合进行拼接，并利用gffread从中提取出cdna序列。</p>
+<p>假设你的多倍体文件名为<code>contig.fa</code>, 转录组数据为<code>read_R1.fq.gz</code>, <code>read_R2.fq.gz</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p STAR</span><br><span class="line">ref=contig.fa</span><br><span class="line">THREADS=40</span><br><span class="line">fq1=read_R1.fq.gz</span><br><span class="line">fq2=read_R2.fq.gz</span><br><span class="line">prefix=sample</span><br><span class="line"><span class="comment"># 建立索引</span></span><br><span class="line">STAR \</span><br><span class="line">  --runThreadN <span class="variable">$THREADS</span> \</span><br><span class="line">  --runMode genomeGenerate \</span><br><span class="line">  --genomeDir STAR \</span><br><span class="line">  --genomeFastaFiles <span class="variable">$ref</span></span><br><span class="line"><span class="comment">#比对</span></span><br><span class="line">STAR \</span><br><span class="line">	--genomeDir STAR \</span><br><span class="line">	--runThreadN <span class="variable">$THREADS</span> \</span><br><span class="line">	--readFilesIn <span class="variable">$fq1</span> <span class="variable">$fq2</span> \</span><br><span class="line">	--readFilesCommand zcat \</span><br><span class="line">	--outFileNamePrefix <span class="variable">$prefix</span>\</span><br><span class="line">	--outSAMtype BAM SortedByCoordinate \</span><br><span class="line">	--outBAMsortingThreadN <span class="variable">$THREADS</span> \</span><br><span class="line">	--outSAMstrandField intronMotif \</span><br><span class="line">	--outFilterIntronMotifs RemoveNoncanonical</span><br><span class="line"><span class="comment"># 拼接转录本</span></span><br><span class="line">stringtie <span class="variable">$&#123;prefix&#125;</span>Aligned.sortedByCoord.out.bam -p <span class="variable">$THREADS</span> -o qry.gtf</span><br><span class="line"><span class="comment"># GTF 转成 GFF3</span></span><br><span class="line">gffread qry.gtf -o qry.gff</span><br><span class="line"><span class="comment"># 提取cdna</span></span><br><span class="line">gffread qry.gff -g <span class="variable">$ref</span> -w qry.fa</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题二</strong>:  后续的处理脚本要求输入序列的编号和GFF的基因编号相同，并且编号在GFF文件中的格式为<code>NAME=xxx</code>。</p>
+<p>对于我们上一步处理的qry.gff和qry.fa，我们只需要简单粗暴地替换qry.gff里的信息即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -e <span class="string">&#x27;s/transcript/gene/&#x27;</span> -e <span class="string">&#x27;s/ID/Name/&#x27;</span> qry.gff &gt; qry_gene.gff</span><br></pre></td></tr></table></figure>
+
+<p>对于近缘物种的cds序列和gff文件，考虑到后续的脚本只认gene所在的行，而cds里面存放的是转录本序列，我们可以提取mRNA所在行，然后将其改名成gene。假设参考序列是<code>ref.fa</code>,  参考的GFF文件名是<code>ref.gff</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ref=ref.gff</span><br><span class="line">grep <span class="string">&#x27;[[:blank:]]mRNA[[:blank:]]&#x27;</span> <span class="variable">$ref</span> | sed -e <span class="string">&#x27;s/mRNA/gene/&#x27;</span> -e <span class="string">&#x27;s/ID/Name/&#x27;</span> &gt; ref_gene.gff</span><br></pre></td></tr></table></figure>
+
+<p>综上你得到了如下四个文件, ref.fa, ref_gene.gff, qry.fa, qry_gene.gff</p>
+<p>下面的操作，参考自<a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-identify-allelic-contigs">官方教程</a>完成，</p>
+<p><strong>第一步</strong>： 建立BLAST索引</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">makeblastdb -<span class="keyword">in</span> ref.fa -dbtype nucl</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>: 将我们物种序列比对到近缘物种</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">blastn -query qry.fa -db ref.fa -out qry_vs_ref.blast.out -evalue 0.001 -outfmt 6 -num_threads 4 -num_alignments 1</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步</strong>: 过滤低质量的HIT，此处标准是相似度低于60%, 覆盖度低于80%</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">blastn_parse.pl -i qry_vs_ref.blast.out -o Eblast.out -q qry.fa -b 1 -c 0.6 -d 0.8 </span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步</strong>: 基于BLAST结果鉴定等位序列</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">classify.pl -i Eblast.out -p 4 -r ref_gene.gff -g qry_gene.gff</span><br><span class="line"><span class="comment"># -p 是等位基因的数目</span></span><br></pre></td></tr></table></figure>
+
+<p>最终输出的Allele.ctg.table就是后续ALLHiC的prune输入。</p>
+<h2 id="方法二-基于GMAP"><a href="#方法二-基于GMAP" class="headerlink" title="方法二:  基于GMAP"></a>方法二:  基于GMAP</h2><p>第二个方法比较简单，只需要提供多倍体基因组的基因组序列和近缘物种的cds序列即可</p>
+<p><strong>第一步</strong>: 运行GMAP获取GFF3文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">qry=target.genome  <span class="comment"># 你的多倍体序列</span></span><br><span class="line">ref_cds=reference.cds.fasta <span class="comment"># 同源物种的cds</span></span><br><span class="line">N=4 <span class="comment">#你的基因组倍性, 4表示的是4倍体</span></span><br><span class="line">gmap_build -D . -d DB <span class="variable">$qry</span></span><br><span class="line">gmap -D . -d DB -t 12 -f 2 -n <span class="variable">$N</span>  <span class="variable">$ref_cds</span> &gt; gmap.gff3</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>: 获取  allelic.ctg.table </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl gmap2AlleleTable.pl referenece.gff3</span><br></pre></td></tr></table></figure>
+
+<p> gmap2AlleleTable.pl脚本是ALLHiC的一部分。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/issues/16">https://github.com/tangerzhang/ALLHiC/issues/16</a> </li>
+<li><a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-identify-allelic-contigs">https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-identify-allelic-contigs</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/30/ALLHiC%E7%BB%AD_%20%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAAllele.ctg.table-How-to-build-allele-ctg-table/" data-id="cllg90xz0000feqp21lml2fa8" data-title="ALLHiC续:如何构建Allele.ctg.table" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用ALLHiC基于HiC数据辅助基因组组装-Assemble-genome-using-ALLHiC-with-HiC-Data" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" class="article-date">
+  <time class="dt-published" datetime="2019-10-28T22:30:59.259Z" itemprop="datePublished">2019-10-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/">使用ALLHiC基于HiC数据辅助基因组组装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>基因组组装大致可以分为三步（1）根据序列之间的重叠情况构建出contig，（2）基于二代的mate pair文库或光学图谱将contig搭建成scaffold，（3）对scaffold进行排序和调整方向得到最终的准染色体级别的基因组。</p>
+<p>目前的三代测序组装能够搞定第一步和第二步。而在将contig&#x2F;scaffold提升至准染色体水平上，有4种方案可选。一种是基于遗传图谱，一种是利用BioNano DLS光学图谱，一种是利用近缘物种的染色体同源性，还有一种就是HiC。其中HiC技术是三者中较为简单的一个，不需要高质量的DNA文库，也不需要一个很大的群体，结果也比较准确可信。</p>
+<p>HiC的文库构建示意图如下，我们所需要的就是最终双端测序的两端序列之间的距离关系。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/hi-c-3c-seq-capture-c-9f0946eb49b74725af32b32e0e57bad5.png" alt="图片来自于Illumina"></p>
+<p>目前利用HiC数据进行组装软件有 LACHESIS, HiRise, SALSA1, 3D-DNA等，这些软件在动物基因组上和简单植物基因组上表现都不错，但是不太适合直接用于多倍体物种和高杂合物种的组装上。主要原因就是等位基因序列的相似性，使得不同套染色体之间的contig出现了假信号，最终错误地将不同套染色体的contig连在了一起。最近在Nature Plants发表的ALLHiC流程就是用来解决多倍体物种和高杂合度基因组的HiC组装难题。</p>
+<h2 id="ALLHiC流程一览"><a href="#ALLHiC流程一览" class="headerlink" title="ALLHiC流程一览"></a>ALLHiC流程一览</h2><p>ALLHiC一共分为五步(见下图，Zhang et al., 2019)，pruning, partition, rescue, optimization, building，要求的输入文件为HiC数据比对后的BAM和一个Allele.ctg.table。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028095337641-8e3338626c334a8cb9795cb96f020d62.png" alt="算法过程"></p>
+<p>其中pruning步骤是ALLHiC区别于其他软件的关键一步。因此我专门将其挑选出来进行介绍，红色实线是潜在的坍缩区域（组装时因为序列高度相似而没有拆分），而其他颜色实线则是不同的单倍型（我用浅灰色椭圆进行区分）。粉红色虚线指的是等位基因间的HiC信号，而黑色虚线则是坍缩区域和未坍缩区域的HiC信号。</p>
+<p>ALLHiC在这一步会根据提供的Allele.ctg.table过滤BAM文件中等位基因间的HiC信号，同时筛选出坍缩区域和未坍缩区域的HiC信号。这些信号会用于Rescue步骤，将未锚定contig分配到已分组的contigs群。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028132758309-53e1f2a9f127465ba8a902441cd69d02.png" alt="Pruning"></p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>ALLHiC的安装非常简单，按照习惯，我将软件安装在<code>~/opt/biosoft</code>下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/opt/biosoft &amp;&amp; <span class="built_in">cd</span> ~/opt/biosoft </span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tangerzhang/ALLHiC</span><br><span class="line"><span class="built_in">cd</span> ALLHiC</span><br><span class="line"><span class="built_in">mv</span> allhic.v0.9.8 bin/allhic</span><br><span class="line"><span class="built_in">chmod</span> +x bin/*</span><br><span class="line"><span class="built_in">chmod</span> +x scripts/*  </span><br><span class="line"><span class="comment"># 添加到环境变量</span></span><br><span class="line">PATH=<span class="variable">$HOME</span>/opt/biosoft/ALLHiC/scripts/:<span class="variable">$HOME</span>/opt/biosoft/ALLHiC/bin/:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">export</span> PATH</span><br></pre></td></tr></table></figure>
+
+<p>此外ALLHiC还依赖于samtools(v1.9), bedtools 和 Python 3环境的matplotlib(v2.0+)，这些可以通过conda一步搞定。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -y -n allhic python=3.7 samtools bedtools matplotlib</span><br></pre></td></tr></table></figure>
+
+<p>之后检查下是否成功安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ conda activate allhic</span><br><span class="line">$ allhic -v</span><br><span class="line">$ ALLHiC_prune</span><br></pre></td></tr></table></figure>
+
+<p>你可能会遇到如下的报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_prune: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21<span class="string">&#x27; not found (required by ALLHiC_prune)</span></span><br></pre></td></tr></table></figure>
+
+<p>这是GLIBC过低导致，但是不要尝试动手去升级GLIBC（你承担不起后果的），conda提供了一个比较新的动态库，因此可以通过如下方法来解决问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span>:~/opt/miniconda3/lib</span><br></pre></td></tr></table></figure>
+
+<h2 id="ALLHiC分析实战"><a href="#ALLHiC分析实战" class="headerlink" title="ALLHiC分析实战"></a>ALLHiC分析实战</h2><p>感谢张兴坦老师提供的测试数据，我将其中的BAM转成了原始FastQ格式，以便从头讲解。数据在<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1_7VI127eCmYaO_3ukfN67Q">百度网盘</a>,提取码：17yk</p>
+<p>输入文件需要有4个，contig序列，等位contig信息和两个双端测序数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> -1</span><br><span class="line">Allele.ctg.table</span><br><span class="line">draft.asm.fasta</span><br><span class="line">reads_R1.fastq.gz</span><br><span class="line">reads_R2.fastq.gz</span><br></pre></td></tr></table></figure>
+
+<p>第一步: 建立索引</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools faidx draft.asm.fasta </span><br><span class="line">bwa index -a bwtsw draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>第二步: 序列回贴。这一步的限速步骤是<code>bwa sampe</code>，因为它没有多线程参数。如果数据量很大，可以先将原始的fastq数据进行拆分，分别比对后分别执行<code>bwa sampe</code>，最后合并成单个文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bwa aln -t 24 draft.asm.fasta reads_R1.fastq.gz &gt; reads_R1.sai  </span><br><span class="line">bwa aln -t 24 draft.asm.fasta reads_R2.fastq.gz &gt; reads_R2.sai  </span><br><span class="line">bwa sampe draft.asm.fasta reads_R1.sai reads_R2.sai reads_R1.fastq.gz reads_R2.fastq.gz &gt; sample.bwa_aln.sam  </span><br></pre></td></tr></table></figure>
+
+<p>第三步: SAM预处理，移除冗余和低质量信号，提高处理效率</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PreprocessSAMs.pl sample.bwa_aln.sam draft.asm.fasta MBOI</span><br><span class="line"><span class="comment"># 如果已有BAM文件</span></span><br><span class="line"><span class="comment"># PreprocessSAMs.pl sample.bwa_aln.bam draft.asm.fasta MBOI</span></span><br><span class="line">filterBAM_forHiC.pl sample.bwa_aln.REduced.paired_only.bam sample.clean.sam</span><br><span class="line">samtools view -bt draft.asm.fasta.fai sample.clean.sam &gt; sample.clean.bam</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>filterBAM_forHiC.pl</code>的过滤标准是比对质量高于30(MQ), 只保留唯一比对(XT:A:U), 编辑距离(NM)低于5, 错误匹配低于(XM)4,  不能有超过2个的gap(XO,XG)</p>
+<p>第四步(可选):  对于多倍体或者是高杂合的基因组，因为等位基因的序列相似性高，那么很有可能会在不同套基因组间出现假信号，因此需要<a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-identify-allelic-contigs">构建Allele.ctg.table</a>, 用于过滤这种假信号。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_prune -i Allele.ctg.table -b sample.clean.bam -r draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>这一步生成<code>prunning.bam</code>用于后续分析</p>
+<p>第五步: 这一步是根据HiC信号将不同的contig进行分组，分组数目由<code>-k</code>控制。如果跳过了第四步，那么可以直接用第三步的结果<code>sample.clean.bam</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_partition -b prunning.bam -r draft.asm.fasta -e AAGCTT -k 16  </span><br></pre></td></tr></table></figure>
+
+<p>这一步会生成一系列以<code>prunning</code>开头的文件</p>
+<ul>
+<li>分组信息: prunning.clusters.txt</li>
+<li>每个分组对应的contig: prunning.counts_AAGCTT.XXgYY.txt: </li>
+<li>每个contig长度和count数: prunning.counts_AAGCTT.txt</li>
+</ul>
+<p>第六步: 将未锚定的contig分配已有的分组中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_rescue -b sample.clean.bam -r draft.asm.fasta \</span><br><span class="line">    -c prunning.clusters.txt \</span><br><span class="line">    -i prunning.counts_AAGCTT.txt</span><br></pre></td></tr></table></figure>
+
+<p>这一步根据之前prunning.counts_AAGCTT.XXgYY.txt对应的groupYY.txt</p>
+<p>第七步: 优化每一组中的contig的排序和方向</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成.clm文件</span></span><br><span class="line">allhic extract sample.clean.bam draft.asm.fasta --RE AAGCTT  </span><br><span class="line"><span class="comment"># 优化</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> group*.txt; <span class="keyword">do</span></span><br><span class="line">    allhic optimize <span class="variable">$i</span> sample.clean.clm</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>这一步会基于groupYY.txt生成对应的groupYY.tour</p>
+<p>第八步: 将tour格式转成fasta格式，并生成对应的agp。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_build draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>这一步生成两个文件，groups.asm.fasta和groups.agp。其中groups.asm.fasta就是我们需要的结果。</p>
+<p>第九步: 构建染色质交互矩阵，根据热图评估结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">samtools faidx groups.asm.fasta</span><br><span class="line"><span class="built_in">cut</span> -f 1,2 groups.asm.fasta.fai  &gt; chrn.list</span><br><span class="line">ALLHiC_plot sample.clean.bam groups.agp chrn.list 500k pdf</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028191408460-bd640b324fbc49a5a1044e56970d664c.png" alt="heatmap"></p>
+<p>使用ALLHiC的几个注意事项:</p>
+<ol>
+<li>ALLHiC依赖于初始的contig，如果嵌合序列和坍缩序列比例过高，那么ALLHiC结果也会不准确。根据文章，ALLHiC能够处理<code>~10%</code>的嵌合比例，<code>~20%</code>的坍缩比例。因此最好是用类似于Canu这种能够区分单倍型的组装软件。</li>
+<li>单倍型之间序列相似度不能太高，否则会出现大量非唯一比对，降低可用的HiC信号</li>
+<li>构建Allele.ctg.table需要一个比较近缘的高质量基因组</li>
+<li>不要用过短的contig，因为短的contig信号少，很容易放到错误的区域</li>
+<li>K值的设置要根据实际的基因组数目设置，如果你发现输出结果中某些group过大，可以适当增大k值</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/tanghaibao/allhic">https://github.com/tanghaibao/allhic</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki">https://github.com/tangerzhang/ALLHiC/wiki</a></li>
+<li>Zhang, X., Zhang, S., Zhao, Q., Ming, R., and Tang, H. (2019). Assembly of allele-aware, chromosomal-scale autopolyploid genomes based on Hi-C data. Nat. Plants <em>5</em>, 833–845.</li>
+<li>Zhang, J., Zhang, X., Tang, H., Zhang, Q., Hua, X., Ma, X., Zhu, F., Jones, T., Zhu, X., Bowers, J., et al. (2018). Allele-defined genome of the autopolyploid sugarcane Saccharum spontaneum L. Nature Genetics <em>50</em>, 1565.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" data-id="cllg90y3h009xeqp2e71q1tl5" data-title="使用ALLHiC基于HiC数据辅助基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用nextpolish对三代组装进行polish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" class="article-date">
+  <time class="dt-published" datetime="2019-10-25T11:25:33.711Z" itemprop="datePublished">2019-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/">使用nextpolish对三代组装进行polish</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>NextPolish是武汉未来组开发的一个三代基因组polish工具（另外一个常用软件是Pilon）。NextPolish可以使用二代短读序列或者三代序列或者两者结合去纠正三代长读长序列在组装时导致的碱基错误(SNV&#x2F;Indel)。由于它是专为polish设计，因此在运行速度和内存使用上都优与Pilon。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>先确保自己的服务器上安装了Python2.7， 且有Shutil和Signal，或者你可以利用conda新建一个python2.7的环境。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shell</span></span><br><span class="line">python -V</span><br><span class="line">Python 2.7.15</span><br><span class="line"><span class="comment"># Python 交互命令行</span></span><br><span class="line">import shutil</span><br><span class="line">import signal</span><br></pre></td></tr></table></figure>
+
+<p>之后到<a target="_blank" rel="noopener" href="https://github.com/Nextomics/NextPolish/releases">https://github.com/Nextomics/NextPolish/releases</a>找最新的版本，写这篇时的最新版本就是1.05</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/opt/biosoft</span><br><span class="line"><span class="built_in">cd</span> ~/opt/biosoft</span><br><span class="line">wget https://github.com/Nextomics/NextPolish/releases/download/v1.0.5/NextPolish.tgz</span><br><span class="line">tar -zxvf NextPolish.tgz</span><br><span class="line"><span class="comment"># 编译软件</span></span><br><span class="line"><span class="built_in">cd</span> NextPolish &amp;&amp; make -j 10</span><br><span class="line"><span class="comment"># 加入到.bashrc或.zshrc</span></span><br><span class="line"><span class="built_in">export</span> PATH=~/opt/biosoft/NextPolish:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p><strong>注意</strong>：如果你的基因组用的是miniasm这类缺少consensus步骤的组装软件，那么你需要先用运行如下命令，或者是运行<code>racon</code>利用三代序列进行polish。否则，由于基因组上存在过高的错误率，导致二代序列错误比对，影响polish效果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">threads=20  </span><br><span class="line">genome=input.genome.fa <span class="comment"># 组装的基因组</span></span><br><span class="line">lgsreads=input.lgs.reads.fq.gz <span class="comment"># 三代长度序列</span></span><br><span class="line"><span class="comment"># 将三代回帖到参考基因组</span></span><br><span class="line">minimap2 -a -t <span class="variable">$&#123;threads&#125;</span> -x map-ont/map-pb <span class="variable">$&#123;genome&#125;</span> <span class="variable">$&#123;lgsreads&#125;</span>| \</span><br><span class="line">    samtools view -F 0x4 -b - | \</span><br><span class="line">    samtools <span class="built_in">sort</span> - -m 2g -@ <span class="variable">$&#123;threads&#125;</span> -o genome.lgs.bam  </span><br><span class="line"><span class="comment">#建立索引</span></span><br><span class="line">samtools index -@ <span class="variable">$&#123;threads&#125;</span> genome.lgs.bam</span><br><span class="line">samtools faidx <span class="variable">$&#123;genome&#125;</span></span><br><span class="line"><span class="comment"># 使用nextPolish.py 进行polish</span></span><br><span class="line">python ~/opt/biosoft/NextPolish/lib/nextPolish.py \</span><br><span class="line">    -g <span class="variable">$&#123;genome&#125;</span> -t 5 --bam_lgs genome.lgs.bam -p <span class="variable">$&#123;threads&#125;</span> &gt; genome.lgspolish.fa</span><br></pre></td></tr></table></figure>
+
+<p>生成的genome.lgspolish.fa才能用于后续的二代polish步骤。</p>
+<p>NextPolish要求我们需要准备两个文件：</p>
+<ul>
+<li><code>run.cfg</code>: 配置文件，</li>
+<li><code>sgs.fofn</code>: 二代测序文件的位置信息</li>
+</ul>
+<p>以<a href="/archives/Assembly-nanopore-with-NextDenovo">使用NextDenovo组装Nanopore数据</a>文章组装的结果为例进行介绍。在分析目录下有三个文件。</p>
+<ul>
+<li>三代组装结果: nextgraph.assembly.contig.fasta</li>
+<li>二代序列: ERR2173372_1.fastq,ERR2173372_2.fastq</li>
+</ul>
+<p>第一步：创建一个文件，用于记录二代序列的位置信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">realpath</span> ERR2173372_1.fastq ERR2173372_2.fastq  &gt; sgs.fofn</span><br></pre></td></tr></table></figure>
+
+<p>第二步：配置run.cfg文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从NextPolish目录下复制配置文件</span></span><br><span class="line"><span class="built_in">cp</span> ~/opt/biosoft/NextPolish/doc/run.cfg run2.cfg</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[General]</span><br><span class="line">job_type = <span class="built_in">local</span></span><br><span class="line">job_prefix = nextPolish</span><br><span class="line">task = default</span><br><span class="line">rewrite = 1212</span><br><span class="line">rerun = 3</span><br><span class="line">parallel_jobs = 2</span><br><span class="line">multithread_jobs = 10</span><br><span class="line">genome = ./nextgraph.assembly.contig.fasta</span><br><span class="line">genome_size = auto</span><br><span class="line">workdir = ./01_rundir</span><br><span class="line">polish_options = -p &#123;multithread_jobs&#125;</span><br><span class="line"></span><br><span class="line">[sgs_option]</span><br><span class="line">sgs_fofn = ./sgs.fofn</span><br><span class="line">sgs_options = -max_depth 100</span><br></pre></td></tr></table></figure>
+
+<p>其中需要修改的参数为，其余参数查看<a target="_blank" rel="noopener" href="https://github.com/Nextomics/NextPolish/blob/master/doc/OPTION.md">官方的参数配置说明</a>:</p>
+<ul>
+<li><code>job_type</code>: 任务类型，local表示单个节点运行。由于NextPolish使用DRMAA进行任务投递，因此还支持，SGE, PBS和SLURM</li>
+<li><code>task</code>: 任务类型， 用12,1212,121212,12121212来设置polish的轮数，建议迭代2轮就可以了。</li>
+<li><code>parallel_jobs</code>和<code>multithread_jobs</code>表示同时投递的任务数和每个任务的线程数，此处2 X 10&#x3D;20</li>
+<li><code>genome</code>: 表示组装基因组的位置</li>
+<li><code>workdir</code>: 输出文件所在目录</li>
+<li><code>sgs_options</code>: 该选项设置二代测序polish的参数，包括-use_duplicate_reads, -unpaired, -max_depth, -bwa, -minimap2(默认使用)</li>
+</ul>
+<p>运行方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nextPolish run2.cfg &amp;</span><br></pre></td></tr></table></figure>
+
+<p>在最后输出日志中，会提示最终存放的文件在什么位置，然后将这些文件合并到单个文件即可。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="cllg90y4d00dgeqp27mcqcxwv" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「热图」ComplexHeatmap展示单细胞聚类-ComplexHeatmap-for-single-cell-visualization" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" class="article-date">
+  <time class="dt-published" datetime="2019-10-24T19:49:27.742Z" itemprop="datePublished">2019-10-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/">「热图」ComplexHeatmap展示单细胞聚类</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>实用Seurat自带的热图函数<code>DoHeatmap</code>绘制的热图，感觉有点不上档次，于是我尝试使用<code>ComplexHeatmap</code>这个R包来对结果进行展示。</p>
+<p>个人觉得好的热图有三个要素</p>
+<ul>
+<li>聚类: 能够让别人一眼就看到模式</li>
+<li>注释: 附加注释能提供更多信息</li>
+<li>配色: 要符合直觉，比如说大部分都会认为红色是高表达，蓝色是低表达</li>
+</ul>
+<p>在正式开始之前，我们需要先获取一下pbmc的数据，Seurat提供了R包<code>SeuratData</code>专门用于获取数据</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&#x27;satijalab/seurat-data&#x27;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>SeuratData<span class="punctuation">)</span></span><br><span class="line">InstallData<span class="punctuation">(</span><span class="string">&quot;pbmc3k&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>加载数据并进行数据预处理，获取绘制热图所需的数据</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>SeuratData<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>Seurat<span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span><span class="string">&quot;pbmc3k&quot;</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> pbmc3k</span><br><span class="line">pbmc<span class="punctuation">[[</span><span class="string">&quot;percent.mt&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> PercentageFeatureSet<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> pattern <span class="operator">=</span> <span class="string">&quot;^MT-&quot;</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> subset <span class="operator">=</span> nFeature_RNA <span class="operator">&gt;</span> <span class="number">200</span> <span class="operator">&amp;</span> nFeature_RNA <span class="operator">&lt;</span> <span class="number">2500</span> <span class="operator">&amp;</span> percent.mt <span class="operator">&lt;</span> <span class="number">5</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> NormalizeData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> normalization.method <span class="operator">=</span> <span class="string">&quot;LogNormalize&quot;</span><span class="punctuation">,</span> scale.factor <span class="operator">=</span> <span class="number">10000</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindVariableFeatures<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> selection.method <span class="operator">=</span> <span class="string">&quot;vst&quot;</span><span class="punctuation">,</span> nfeatures <span class="operator">=</span> <span class="number">2000</span><span class="punctuation">)</span></span><br><span class="line">all.genes <span class="operator">&lt;-</span> rownames<span class="punctuation">(</span>pbmc<span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> ScaleData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> all.genes<span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> RunPCA<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> VariableFeatures<span class="punctuation">(</span>object <span class="operator">=</span> pbmc<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindNeighbors<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindClusters<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> resolution <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">pbmc.markers <span class="operator">&lt;-</span> FindAllMarkers<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> </span><br><span class="line">                               only.pos <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> </span><br><span class="line">                               min.pct <span class="operator">=</span> <span class="number">0.25</span><span class="punctuation">,</span> </span><br><span class="line">                               logfc.threshold <span class="operator">=</span> <span class="number">0.25</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>先感受下Seurat自带热图</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">top10 <span class="operator">&lt;-</span> pbmc.markers <span class="operator">%&gt;%</span> group_by<span class="punctuation">(</span>cluster<span class="punctuation">)</span> <span class="operator">%&gt;%</span> top_n<span class="punctuation">(</span>n <span class="operator">=</span> <span class="number">10</span><span class="punctuation">,</span> wt <span class="operator">=</span> avg_logFC<span class="punctuation">)</span></span><br><span class="line">DoHeatmap<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> top10<span class="operator">$</span>gene<span class="punctuation">)</span> <span class="operator">+</span> NoLegend<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571906906510-5666cad1b38f473b8b8896f9ebde28d3.png" alt="Seurat-heatmap"></p>
+<p>下面则是介绍如何用R包<code>ComplexHeatmap</code>进行组图，虽然这个R包名带着Complex，但是并不是说这个R包很复杂，这个Complex应该翻译成复合，也就是说这个R包能在热图的基础上整合很多信息。</p>
+<p>先安装并加载R包。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;ComplexHeatmap&quot;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>ComplexHeatmap<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>为了手动绘制一个热图，要从Seurat对象中提取所需要的表达量矩阵。我提取的是原始的count值，然后用<code>log2(count + 1)</code>的方式进行标准化</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mat <span class="operator">&lt;-</span> GetAssayData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> slot <span class="operator">=</span> <span class="string">&quot;counts&quot;</span><span class="punctuation">)</span></span><br><span class="line">mat <span class="operator">&lt;-</span> log2<span class="punctuation">(</span>mat <span class="operator">+</span> <span class="number">1</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>获取基因和细胞聚类信息</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gene_features <span class="operator">&lt;-</span> top10</span><br><span class="line">cluster_info <span class="operator">&lt;-</span> sort<span class="punctuation">(</span>pbmc<span class="operator">$</span>seurat_annotations<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>对表达量矩阵进行排序和筛选</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mat <span class="operator">&lt;-</span> as.matrix<span class="punctuation">(</span>mat<span class="punctuation">[</span>top10<span class="operator">$</span>gene<span class="punctuation">,</span> <span class="built_in">names</span><span class="punctuation">(</span>cluster_info<span class="punctuation">)</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>用<code>Heatmap</code>绘制热图。对于单细胞这种数据，一定要设置如下4个参数</p>
+<ul>
+<li><code>cluster_rows= FALSE</code>: 不作行聚类</li>
+<li><code>cluster_columns= FALSE</code>: 不作列聚类</li>
+<li><code>show_column_names=FALSE</code>: 不展示列名</li>
+<li><code>show_row_names=FALSE</code>: 不展示行名，基因数目不多时候可以考虑设置为TRUE</li>
+</ul>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571911526690-f312b4bf617f4e68bb539556872fe405.png" alt="Heatmap-1"></p>
+<p>从图中，我们可以发现以下几个问题：</p>
+<ul>
+<li>长宽比不合理，当然这和绘图函数无关，可以在保存时修改长宽比</li>
+<li>基因名重叠，考虑调整大小，或者不展示，或者只展示重要的基因</li>
+<li>颜色可以调整</li>
+<li>缺少聚类信息</li>
+</ul>
+<p>这些问题，我们可以通过在<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/">ComplexHeatmap Complete Reference</a>查找对应信息来解决。</p>
+<h2 id="配色方案"><a href="#配色方案" class="headerlink" title="配色方案"></a>配色方案</h2><p>在热图中会涉及到两类配色，一种用来表示表达量的连续性变化，一种则是展示聚类。有一个神奇的R包就是用于处理配色，他的Github地址为<a target="_blank" rel="noopener" href="https://github.com/caleblareau/BuenColors">https://github.com/caleblareau/BuenColors</a>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devtools::install_github(<span class="string">&quot;caleblareau/BuenColors&quot;</span>)</span><br><span class="line">library(<span class="string">&quot;BuenColors&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>它提供了一些列预设的颜色，比方说<code>jdb_color_maps</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">      HSC       MPP      LMPP       CMP       CLP       MEP       GMP </span><br><span class="line"><span class="string">&quot;#00441B&quot;</span> <span class="string">&quot;#46A040&quot;</span> <span class="string">&quot;#00AF99&quot;</span> <span class="string">&quot;#FFC179&quot;</span> <span class="string">&quot;#98D9E9&quot;</span> <span class="string">&quot;#F6313E&quot;</span> <span class="string">&quot;#FFA300&quot;</span> </span><br><span class="line">      pDC      mono     GMP<span class="operator">-</span>A     GMP<span class="operator">-</span>B     GMP<span class="operator">-</span>C       Ery       CD4 </span><br><span class="line"><span class="string">&quot;#C390D4&quot;</span> <span class="string">&quot;#FF5A00&quot;</span> <span class="string">&quot;#AFAFAF&quot;</span> <span class="string">&quot;#7D7D7D&quot;</span> <span class="string">&quot;#4B4B4B&quot;</span> <span class="string">&quot;#8F1336&quot;</span> <span class="string">&quot;#0081C9&quot;</span> </span><br><span class="line">      CD8        NK         B </span><br><span class="line"><span class="string">&quot;#001588&quot;</span> <span class="string">&quot;#490C65&quot;</span> <span class="string">&quot;#BA7FD0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这些颜色就能用于命名单细胞的类群，比如说我选择了前9个</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">col <span class="operator">&lt;-</span> jdb_color_maps<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">9</span><span class="punctuation">]</span></span><br><span class="line"><span class="built_in">names</span><span class="punctuation">(</span>col<span class="punctuation">)</span> <span class="operator">&lt;-</span> levels<span class="punctuation">(</span>cluster_info<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="增加列聚类信息"><a href="#增加列聚类信息" class="headerlink" title="增加列聚类信息"></a>增加列聚类信息</h2><p><code>Heatmap</code>的<code>row_split</code>和<code>column_split</code>参数可以通过设置分类变量对热图进行分隔。更多对热图进行拆分，可以参考<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html#heatmap-split">Heatmap split</a></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571911799187-41f8f8f51c7f4ee297fe3e29238daad1.png" alt="Heatmap-2"></p>
+<p>只用文字描述可能不够好看，最好是带有颜色的分块图，其中里面的颜色和t-SNE或UMAP聚类颜色一致，才能更好的展示信息。</p>
+<p>为了增加聚类注释，我们需要用到<code>HeatmapAnnotation</code>函数，它对细胞的列进行注释，而<code>rowAnnotation</code>函数可以对行进行注释。这两个函数能够增加各种类型的注释，包括条形图，点图，折线图，箱线图，密度图等等，这些函数的特征是<code>anno_xxx</code>，例如<code>anno_block</code>就用来绘制区块图。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">top_anno <span class="operator">&lt;-</span> HeatmapAnnotation<span class="punctuation">(</span></span><br><span class="line">  cluster <span class="operator">=</span> anno_block<span class="punctuation">(</span>gp <span class="operator">=</span> gpar<span class="punctuation">(</span>fill <span class="operator">=</span> col<span class="punctuation">)</span><span class="punctuation">,</span> <span class="comment"># 设置填充色</span></span><br><span class="line">                       labels <span class="operator">=</span> levels<span class="punctuation">(</span>cluster_info<span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">                       labels_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>cex <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">,</span> col <span class="operator">=</span> <span class="string">&quot;white&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># 设置字体</span></span><br></pre></td></tr></table></figure>
+
+<p>其中<code>anno_block</code>中的<code>gp</code>参数用于设置各类<strong>图形参数</strong>，<code>labels</code>设置标签，<code>labels_gp</code>设置和标签相关的<strong>图形参数</strong>。可以用<code>?gp</code>来了解有哪些<strong>图形参数</strong>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span> <span class="comment"># 在热图上边增加注释</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span> <span class="punctuation">)</span> <span class="comment"># 不需要列标题</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571914037258-69b71edb4e354f759b9f07674e714f13.png" alt="Heatmap-3"></p>
+<h2 id="突出重要基因"><a href="#突出重要基因" class="headerlink" title="突出重要基因"></a>突出重要基因</h2><p>由于基因很多直接展示出来，根本看不清，我们可以强调几个标记基因。用到两个函数是<code>rowAnnotation</code>和<code>anno_mark</code></p>
+<p>已知不同类群的标记基因如下</p>
+<table>
+<thead>
+<tr>
+<th align="left">Cluster ID</th>
+<th align="left">Markers</th>
+<th align="left">Cell Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">0</td>
+<td align="left">IL7R, CCR7</td>
+<td align="left">Naive CD4+ T</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="left">IL7R, S100A4</td>
+<td align="left">Memory CD4+</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">CD14, LYZ</td>
+<td align="left">CD14+ Mono</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">MS4A1</td>
+<td align="left">B</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">CD8A</td>
+<td align="left">CD8+ T</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">FCGR3A, MS4A7</td>
+<td align="left">FCGR3A+ Mono</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">GNLY, NKG7</td>
+<td align="left">NK</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">FCER1A, CST3</td>
+<td align="left">DC</td>
+</tr>
+<tr>
+<td align="left">8</td>
+<td align="left">PPBP</td>
+<td align="left">Platelet</td>
+</tr>
+</tbody></table>
+<p>我们需要给<code>anno_mark</code>提供基因所在行即可。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mark_gene <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;IL7R&quot;</span><span class="punctuation">,</span><span class="string">&quot;CCR7&quot;</span><span class="punctuation">,</span><span class="string">&quot;IL7R&quot;</span><span class="punctuation">,</span><span class="string">&quot;S100A4&quot;</span><span class="punctuation">,</span><span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span><span class="string">&quot;LYZ&quot;</span><span class="punctuation">,</span><span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span><span class="string">&quot;CD8A&quot;</span><span class="punctuation">,</span><span class="string">&quot;FCGR3A&quot;</span><span class="punctuation">,</span><span class="string">&quot;MS4A7&quot;</span><span class="punctuation">,</span><span class="string">&quot;GNLY&quot;</span><span class="punctuation">,</span><span class="string">&quot;NKG7&quot;</span><span class="punctuation">,</span><span class="string">&quot;FCER1A&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CST3&quot;</span><span class="punctuation">,</span><span class="string">&quot;PPBP&quot;</span><span class="punctuation">)</span></span><br><span class="line">gene_pos <span class="operator">&lt;-</span> which<span class="punctuation">(</span>rownames<span class="punctuation">(</span>mat<span class="punctuation">)</span> <span class="operator">%in%</span> mark_gene<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">row_anno <span class="operator">&lt;-</span>  rowAnnotation<span class="punctuation">(</span>mark_gene <span class="operator">=</span> anno_mark<span class="punctuation">(</span>at <span class="operator">=</span> gene_pos<span class="punctuation">,</span> </span><br><span class="line">                                     labels <span class="operator">=</span> mark_gene<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接着绘制热图</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571914905222-c332ebab06ee4100838180f2cb0f698a.png" alt="Heatmap-4"></p>
+<p>关于如何增加标记注释，参考<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/heatmap-annotations.html#mark-annotation">mark-annotation</a></p>
+<h2 id="调增图例位置"><a href="#调增图例位置" class="headerlink" title="调增图例位置"></a>调增图例位置</h2><p>目前的热图还有一个问题，也就是表示表达量范围的图例太占位置了，有两种解决方法</p>
+<ul>
+<li>参数设置<code>show_heatmap_legend=FALSE</code>直接删掉。</li>
+<li>利用<code>heatmap_legend_param</code>参数更改样式</li>
+</ul>
+<p>我们根据<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/legends.html">legends</a>这一节的内容进行一些调整</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span></span><br><span class="line">        heatmap_legend_param <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span></span><br><span class="line">          title <span class="operator">=</span> <span class="string">&quot;log2(count+1)&quot;</span><span class="punctuation">,</span></span><br><span class="line">          title_position <span class="operator">=</span> <span class="string">&quot;leftcenter-rot&quot;</span></span><br><span class="line">        <span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571915704401-c349679da08d48918a452ba49adbd6cb.png" alt="heatmap-5"></p>
+<p>因为ComplextHeatmap是基于Grid图形系统，因此可以先绘制热图，然后再用<code>grid::draw</code>绘制图例，从而实现将条形图的位置移动到图中的任意位置。</p>
+<p>先获取绘制热图的对象</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">p <span class="operator">&lt;-</span> Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span></span><br><span class="line">        show_heatmap_legend <span class="operator">=</span> <span class="literal">FALSE</span></span><br><span class="line">        <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>根据<code>p@matrix_color_mapping</code>获取图例的颜色的设置，然后用<code>Legend</code>构建图例</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">col_fun  <span class="operator">&lt;-</span> circlize<span class="operator">::</span>colorRamp2<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">2</span> <span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span> <span class="number">4</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                 <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;#0000FFFF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#9A70FBFF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#D8C6F3FF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#FFC8B9FF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#FF7D5DFF&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">lgd <span class="operator">&lt;-</span>  Legend<span class="punctuation">(</span>col_fun <span class="operator">=</span> col_fun<span class="punctuation">,</span> </span><br><span class="line">               title <span class="operator">=</span> <span class="string">&quot;log2(count+1)&quot;</span><span class="punctuation">,</span> </span><br><span class="line">               title_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>col<span class="operator">=</span><span class="string">&quot;white&quot;</span><span class="punctuation">,</span> cex <span class="operator">=</span> <span class="number">0.75</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">               title_position <span class="operator">=</span> <span class="string">&quot;leftcenter-rot&quot;</span><span class="punctuation">,</span></span><br><span class="line">               <span class="comment">#direction = &quot;horizontal&quot;</span></span><br><span class="line">               at <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">4</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">               labels <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;low&quot;</span><span class="punctuation">,</span> <span class="string">&quot;median&quot;</span><span class="punctuation">,</span> <span class="string">&quot;high&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">               labels_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>col<span class="operator">=</span><span class="string">&quot;white&quot;</span><span class="punctuation">)</span></span><br><span class="line">               <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>绘制图形</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grid.newpage<span class="punctuation">(</span><span class="punctuation">)</span> <span class="comment">#新建画布</span></span><br><span class="line">draw<span class="punctuation">(</span>p<span class="punctuation">)</span> <span class="comment"># 绘制热图</span></span><br><span class="line">draw<span class="punctuation">(</span>lgd<span class="punctuation">,</span> x <span class="operator">=</span> unit<span class="punctuation">(</span><span class="number">0.05</span><span class="punctuation">,</span> <span class="string">&quot;npc&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">     y <span class="operator">=</span> unit<span class="punctuation">(</span><span class="number">0.05</span><span class="punctuation">,</span> <span class="string">&quot;npc&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">     just <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;left&quot;</span><span class="punctuation">,</span> <span class="string">&quot;bottom&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># 绘制图形</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571916860482-418dc81dde834ac3a2ab4e65fc65a005.png" alt="heatmap-6"></p>
+<p>ComplexHeatmap绘制热图非常强大的工具，大部分我想要的功能它都有，甚至我没有想到的它也有，这个教程只是展示其中一小部分功能而已，还有很多功能要慢慢探索。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="cllg90y300089eqp2a1hl7bcn" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「LeetCode」递归题目之第N个Tribonacci数-LeetCode-N-th Tribonacci Number" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" class="article-date">
+  <time class="dt-published" datetime="2019-10-22T21:21:35.374Z" itemprop="datePublished">2019-10-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/">「LeetCode」递归题目之第N个Tribonacci数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Tribonacci序列Tn定义:</p>
+<p>T0&#x3D;0, T1&#x3D;1, T2&#x3D;1, n&gt;&#x3D;0时，Tn+3 &#x3D; Tn + Tn+1 + Tn+2</p>
+<p>限制条件是: 0&lt;&#x3D;n&lt;&#x3D;37, 32位整型。</p>
+<p>我直接用C++撸了下面的代码，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">tribonacci</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (n ==  <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="type">int</span> result = <span class="built_in">tribonacci</span>(n<span class="number">-3</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-2</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面是自己电脑编译测试用的代码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	Solution sol;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">37</span>; i++)&#123;</span><br><span class="line">	    cout &lt;&lt; <span class="string">&quot;tribonacci &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot; is &quot;</span> &lt;&lt; sol.<span class="built_in">tribonacci</span>(i) &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>提交答案后，提示”The Limit Exceeded”. </p>
+<p>在自己服务器测试时，也发现当n&#x3D;31之后的速度下降的非常快。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译</span></span><br><span class="line">g++ -o trib trib.cpp</span><br><span class="line">./trib</span><br></pre></td></tr></table></figure>
+
+<p>原因是当n越大时，直接使用递归会产生大量的重复计算，导致计算效率下降。为了解决该问题，需要维护一个已计算结果的字典，避免重复运算。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> tribo[<span class="number">100</span>];</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">tribonacci</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (n ==  <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (tribo[n] &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> tribo[n]<span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> result = <span class="built_in">tribonacci</span>(n<span class="number">-3</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-2</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-1</span>);</span><br><span class="line">        tribo[n] = result + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面是自己电脑编译测试用的代码</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	Solution sol;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">37</span>; i++)&#123;</span><br><span class="line">	    cout &lt;&lt; <span class="string">&quot;tribonacci &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot; is &quot;</span> &lt;&lt; sol.<span class="built_in">tribonacci</span>(i) &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>新的代码中，我预先定义了一个大小为100的数组，主要是因为题目限制n的取值，如果n没有限制取值，我会考虑使用vector容器或者map词典。其次考虑到n&#x3D;0时，结果为0，并且数组初始化值为0，为了能够通过数组值是否为0来判断是否已经计算了相应的tribonacci值，我对结果加上了一个pseducount。</p>
+<p>最后这段代码运行速度是0ms.</p>
+<p>如果要用哈希字典，代码如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="comment">//一定要引入map头文件</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//定义一个哈希字典</span></span><br><span class="line">    map&lt;<span class="type">int</span>, <span class="type">int</span>&gt; num;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">tribonacci</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(n &lt; <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line">        <span class="keyword">if</span>(n == <span class="number">2</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        <span class="comment">//如果字典中有已经计算的结果,直接返回结果</span></span><br><span class="line">        <span class="keyword">if</span>(num.<span class="built_in">find</span>(n) != num.<span class="built_in">end</span>()) <span class="keyword">return</span> num[n];</span><br><span class="line">        <span class="type">int</span> sum = <span class="built_in">tribonacci</span>(n<span class="number">-1</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-2</span>) + <span class="built_in">tribonacci</span>(n<span class="number">-3</span>);</span><br><span class="line">        num[n] = sum;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" data-id="cllg90y2q0079eqp2hmuhezpl" data-title="「LeetCode」递归题目之第N个Tribonacci数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/15/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/17/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

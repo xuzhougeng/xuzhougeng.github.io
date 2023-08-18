@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>无root权限解决编译时的依赖问题 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="如果你拥有最高权限，如果你只管理一台服务器，那么系统自带的包管理工具就帮你解决了所有问题。但是真实世界没有那么美好，所以我花了那么久时间去学习如何从源码开始编译一个软件。 环境为CentOS Linux release 7.4.1708 (Core), Linux内核version 3.10.0-693.el7.x86_64， GCC版本为4.8.5 20150623 (Red Hat 4.8.5">
+<meta property="og:type" content="article">
+<meta property="og:title" content="无root权限解决编译时的依赖问题">
+<meta property="og:url" content="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="如果你拥有最高权限，如果你只管理一台服务器，那么系统自带的包管理工具就帮你解决了所有问题。但是真实世界没有那么美好，所以我花了那么久时间去学习如何从源码开始编译一个软件。 环境为CentOS Linux release 7.4.1708 (Core), Linux内核version 3.10.0-693.el7.x86_64， GCC版本为4.8.5 20150623 (Red Hat 4.8.5">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-36054cdebaf2ec9d-d308d285e8734e5eb72f778be7e33c98.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-c5d4c17d7e569961-e411ca5a623a4f4ca75bd3596b0b5530.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-2bae1c5cdc39de29-b1856615b47a43b692e8da39655adcdc.png">
+<meta property="article:published_time" content="2019-09-23T11:02:01.221Z">
+<meta property="article:modified_time" content="2019-09-23T11:02:01.221Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="软件安装">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-36054cdebaf2ec9d-d308d285e8734e5eb72f778be7e33c98.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-无root权限解决编译时的依赖问题-Compile-Software-in-Linux-Without-Root" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" class="article-date">
+  <time class="dt-published" datetime="2019-09-23T11:02:01.221Z" itemprop="datePublished">2019-09-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      无root权限解决编译时的依赖问题
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>如果你拥有最高权限，如果你只管理一台服务器，那么系统自带的包管理工具就帮你解决了所有问题。但是真实世界没有那么美好，所以我花了那么久时间去学习如何从源码开始编译一个软件。</p>
+<p><strong>环境</strong>为CentOS Linux release 7.4.1708 (Core), Linux内核version 3.10.0-693.el7.x86_64， GCC版本为4.8.5 20150623 (Red Hat 4.8.5-16) (GCC)，</p>
+<h2 id="Linux的编译体系"><a href="#Linux的编译体系" class="headerlink" title="Linux的编译体系"></a>Linux的编译体系</h2><p>无管理员权限编译的常规三部曲是<code>./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</code>，其中最重要的一步就是<code>configure</code>，它所做的任务如下</p>
+<ul>
+<li>检查GCC版本以及是否安装了编译所需工具</li>
+<li>如果需要头文件，则默认去<code>/usr/include</code>查找</li>
+<li>如果涉及到动态编译库，则默认去<code>/usr/lib</code>和<code>/usr/lib64</code>查找. 注：<code>lib</code>的函数库仅用于开机时用,提供给&#x2F;bin和&#x2F;sbin.</li>
+</ul>
+<p>那为何需要配置？配置主要解决软件开发和软件实际安装时平台不同所导致的问题。</p>
+<p>首先，一个C&#x2F;C++工程不可能只用到标准库，很多已有的轮子就不需要重复制造。其次，由于很多软件都重复用到相同的依赖库，那么如果把这些依赖库独立成单独的模块，在调用的时候加载，也能节省空间。早期为了适配多个平台，开发人员需要手写条件语句来检查环境依赖，后来GNU专门开发了Autotools辅助构建源码编译所需要的关键文件。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-36054cdebaf2ec9d-d308d285e8734e5eb72f778be7e33c98.png" alt="Autotools"></p>
+<h2 id="编译环境变量"><a href="#编译环境变量" class="headerlink" title="编译环境变量"></a>编译环境变量</h2><p>用<code>./configure -h</code>查看帮助文档的时候，会提示几个和编译相关非常重要的环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译器</span></span><br><span class="line">CC          指定C编译器(compiler command)路径</span><br><span class="line">CXX         指定C++编译器</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译器选项</span></span><br><span class="line">CFLAGS      用于C编译器的选项</span><br><span class="line">CXXFLAGS    用于C++编译器的选项</span><br><span class="line">LDFLAGS     链接相关选项,如果你有自定义的函数库(lib dir)，即可以用 -L&lt;lib dir&gt;指定</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预编译器</span></span><br><span class="line">CXXCPP      C++ 预处理器(preprocessor)</span><br><span class="line">CPP         C 预处理器(preprocessor)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预编译器选项</span></span><br><span class="line">CPPFLAGS    C/C++预处理器选项, 如果你自定义的头文件，可以用-I&lt;include dir&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Makfile规则中的编译命令通常遵守如下规范：</p>
+<p>1,首先从源代码生成目标文件( <strong>预处理,编译,汇编</strong> )，”-c”选项表示不执行链接步骤；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(CC) $(CPPFLAGS) $(CFLAGS) example.c   -c   -o example.o</span></span><br></pre></td></tr></table></figure>
+
+<p>2,然后将目标文件链接为最终的结果( <strong>链接</strong> )，”-o”选项用于指定输出文件的名字。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(CC) $(LDFLAGS) example.o   -o example</span></span><br></pre></td></tr></table></figure>
+
+<p>这些只是约定俗成的惯例，所以有些人会“随性而为”，你也拿他没有办法。尽管将源代码编译为二进制文件的四个步骤由不同的程序(cpp,gcc&#x2F;g++,as,ld)完成，但是事实上 cpp, as, ld 都是由 gcc&#x2F;g++ 进行间接调用的。换句话说，<strong>控制了 gcc&#x2F;g++ 就等于控制了所有四个步骤</strong>。从 Makefile 规则中的编译命令可以看出，编译工具的行为全靠 <strong>CC&#x2F;CXX CPPFLAGS CFLAGS&#x2F;CXXFLAGS LDFLAGS</strong> 这几个变量在控制。所以控制这些变量最简单的做法是首先设置与这些 Makefile 变量同名的环境变量并将它们 export 为 <strong>环境变量</strong>（全局），然后运行 configure 脚本，大多数 configure 脚本会使用这同名的环境变量代替 Makefile 中的值</p>
+<ul>
+<li>CC&#x2F;CXX: 指定C&#x2F;C++编译所在路径，即可以选择不同的版本的编译器进行编译。</li>
+<li>CPPFLAGS: 这是用于预处理阶段的选项。用于添加不在标准路径<code>/usr/include</code>下的头文件。如<code>CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses&quot;</code></li>
+<li>CFLAGS&#x2F;CXXFLAGS： 指定头文件（.h文件）的路径，如：<code>CFLAGS=-I/usr/include -I/path/include</code>。同样地，安装一个包时会在安装路径下建立一个include目录，当安装过程中出现问题时，试着把以前安装的包的include目录加入到该变量中来。</li>
+</ul>
+<blockquote>
+<p>CPPFLAG和CFLAGS&#x2F;CXXFLAGS这两个变量可以认为是等价关系，都用在预处理阶段，也就是都能用于指定头文件所在位置。</p>
+</blockquote>
+<ul>
+<li>LDFLAGS：gcc 等编译器会用到的一些优化参数，也可以在里面指定库文件的位置。用法：<code>LDFLAGS=-L/usr/lib -L/path/to/your/lib</code>。每安装一个包都几乎一定的会在安装目录里建立一个lib目录。如果明明安装了某个包，而安装另一个包时，它愣是说找不到，可以抒那个包的lib路径加入的LDFALGS中试一下。</li>
+</ul>
+<p>有时候LDFLAGS指定-L虽然能让链接器找到库进行链接，但是运行时链接器却找不到这个库，如果要让软件运行时库文件的路径也得到扩展，那么我们需要增加这两个库给”-Wl,R”：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LDFLAGS = -L/var/xxx/lib -L/opt/mysql/lib -Wl,R/var/xxx/lib -Wl,R/opt/mysql/lib</span><br></pre></td></tr></table></figure>
+
+<p>如在执行.&#x2F;configure以前设置环境变量 <code>export LDFLAGS=&quot;-L/var/xxx/lib -L/opt/mysql/lib -Wl,R/var/xxx/lib -Wl,R/opt/mysql/lib&quot;</code>，注意设置环境变量等号两边不可以有空格，而且要加上引号（shell的用法）。那么执行configure以后，Makefile将会设置这个选项，链接时会有这个参数，编译出来的可执行程序的库文件搜索路径就得到扩展了</p>
+<p>除了通过以上几种环境变量为编译器提供头文件和静态和动态库文件的位置信息外，还有一种变量叫做 <strong>PKG_CONFIG_PATH</strong> , 它从<code>xx.pc</code>文件获取读取相应的环境环境。</p>
+<p><strong>注意</strong>:Linux下编译共享库时，必须加上-fPIC参数，即<code>export CFLAGS=&quot; -fPIC&quot; CXXFLAGS=&quot; -fPIC&quot;</code>否则在链接时会有错误提示.这是在编译zsh时候发现明明装了ncurse却还是不能用的共享库的坑。</p>
+<blockquote>
+<p>fPIC的目的是什么？共享对象可能会被不同的进程加载到不同的位置上，如果共享对象中的指令使用了绝对地址、外部模块地址，那么在共享对象被加载时就必须根据相关模块的加载位置对这个地址做调整，也就是修改这些地址，让它在对应进程中能正确访问，而被修改到的段就不能实现多进程共享一份物理内存，它们在每个进程中都必须有一份物理内存的拷贝。fPIC指令就是为了让使用到同一个共享对象的多个进程能尽可能多的共享物理内存，它背后把那些涉及到绝对地址、外部模块地址访问的地方都抽离出来，保证代码段的内容可以多进程相同，实现共享。</p>
+</blockquote>
+<p><strong>动态库路径问题</strong>: 由前面可以知道许多大型软件为了减少体积不会完全编译所有功能，而是借助于动态连接技术在运行时加载封装好的动态连接库内的功能。这就涉及一个非常重要的问题，软件如何知道动态链接库所处的位置。动态库搜索路径分两种情况，一种是编译生成可执行文件时，另外一种是运行可执行文件时。</p>
+<p>编译生成可执行文件时，动态库的搜索路径顺序如下：</p>
+<ul>
+<li>首先gcc会找-L选项；</li>
+<li>然后再找gcc的环境变量<code>LIBRARY_PATH</code>，可以在.profile设置这个环境变量，并且可以通过选项-v查看gcc最终编译时LIBRARY_PATH的值；</li>
+<li>再找内定目录: <code>/lib：/usr/lib：/usr/local/lib</code>，这些都是当初compile gcc时写在程序内的。</li>
+</ul>
+<p>注意上面索顺序是<strong>不会递归</strong>在目录下搜索的。</p>
+<p>生成可执行文件后，运行文件时，动态库的搜索路径顺序如下：</p>
+<ul>
+<li>首先编译目标代码时指定的动态库搜索路径，就是用选项 <code>-Wl,rpath</code> 指定程序在运行时动态库的搜索路径，比如gcc -Wl,-rpath,include -L. -ldltest hello.c，在执行文件时会搜索路径.&#x2F;include；</li>
+<li>环境变量<code>LD_LIBRARY_PATH</code>指定的动态库搜索路径；</li>
+<li>配置文件<code>/etc/ld.so.conf</code>中指定的动态库搜索路径，即在配置文件中添加动态库的绝对路径，然后运行指令ldconfig是配置文件生效；</li>
+<li>默认的动态库搜索路径<code>/lib:/usr/lib</code>。</li>
+</ul>
+<p>同样上面索顺序是不会递归在目录下搜索的。通常使用动态库简单做法是：把生成的so文件拷贝到&#x2F;usr&#x2F;lib中，这样不管是生成可以执行文件时，还是执行程序时，都能找到需要的so文件。但是普通用户没有&#x2F;usr&#x2F;lib的写入权限，所有要指定<code>LD_LIBRARY_PATH</code>.ls</p>
+<p>参考资料:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/xinyuan510214/article/details/50457433">CFLAGS详解</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/hjwang1/article/details/44497489">Makefile编译选项CC与CXX&#x2F;CPPFLAGS、CFLAGS与CXXFLAGS&#x2F;LDFLAGS</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/MaximusZhou/article/details/38559963">使用gcc时头文件路径和动态链接库路径</a></li>
+</ul>
+<h2 id="GCC安装-非必要"><a href="#GCC安装-非必要" class="headerlink" title="GCC安装(非必要)"></a>GCC安装(非必要)</h2><p>首先让我们利用系统原来老旧的GCC编译器编译出最新版本的gcc吧，毕竟安装软件的时候，GCC的版本一定要过最低要求。</p>
+<p><strong>第一步</strong>： 下载gcc源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/src &amp;&amp; cd ~/src</span><br><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-7.2.0/gcc-7.2.0.tar.gz</span><br><span class="line">tar -zxvf gcc-7.2.0.tar.gz &amp;&amp; cd gcc-7.2.0</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-c5d4c17d7e569961-e411ca5a623a4f4ca75bd3596b0b5530.png" alt="check"></p>
+<p><strong>第二步</strong>， 检查系统是否已经具备前置软件, 主要是GMP，MPFR, MPC。这些软件可以到<a href="ftp://gcc.gnu.org/pub/gcc/infrastructure/">ftp://gcc.gnu.org/pub/gcc/infrastructure/</a>找到，然后下载后解压缩，并移动到gcc源码文件夹下。 可以在配置的时候用<code>--with-gmp, --with-mpfr --with-mpc</code>指定具体所在路径。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd src</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">GNU Multiple precision Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf gmp-6.1.0.tar.bz2 &amp;&amp; mv gmp-6.1.0 gcc-7.2.0/gmp</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">isl library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf isl-0.18.tar.bz2 &amp;&amp; mv isl-0.18 gcc-7.2.0/isl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MPFR Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2 \</span><br><span class="line">&amp;&amp; tar -jxvf mpfr-3.1.4.tar.bz2 &amp;&amp; mv mpfr-3.1.4 gcc-7.2.0/mpfr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MPC Library</span></span><br><span class="line">wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-1.0.3.tar.gz \</span><br><span class="line">&amp;&amp; tar -zxvf mpc-1.0.3.tar.gz &amp;&amp; mv mpc-1.0.3 gcc-7.2.0/mpc</span><br></pre></td></tr></table></figure>
+
+<p>不过更加人性化的方法是在GCC源码根目录下运行<code>./contrib/download_prerequisites</code>，可以自动搞定。</p>
+<p><strong>第三步</strong>：使用<code>./configure</code>进行配置。官方<strong>强烈</strong>建议, 配置所在文件夹一定要和源码所在文件夹区分开，此外configure还可以配置很多参数，我的代码如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build &amp;&amp; cd build</span><br><span class="line">../configure\</span><br><span class="line">	--prefix=$HOME/usr \ # 指定安装路径</span><br><span class="line">	--disable-multilib \ # 取消32位库编译</span><br><span class="line">	--enable-threads=posix \ # 使用POSIX/Unix98作为线程支持库</span><br></pre></td></tr></table></figure>
+
+<p>基本上这一步不会出现太多的报错，都能够顺利生成Makefile.</p>
+<p><strong>第四步</strong>： 编译. 这步有一个小技巧就是利用多核处理器进行加速，例如<code>make -j2</code> 就是双核。</p>
+<p>这一部分很慢很慢，因为默认设置下是3个阶段的引导(3-stage bootstrap), 以保证能够编译出完整的GCC系统并且还不会出错，你可以在配置的时候用<code>--disable-bootstrap</code>进行关闭。</p>
+<p><strong>第五步</strong>： 安装。如果你编译都成功了，那么安装也不会存在问题了， <code>make install</code>.</p>
+<p>那么我们编译的GCC和系统自带的有什么<strong>区别</strong>吗？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从头编译</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="variable">$HOME</span>/usr/bin/gcc -v</span></span><br><span class="line">Using built-in specs.</span><br><span class="line">COLLECT_GCC=/home/zgxu/usr/bin/gcc</span><br><span class="line">COLLECT_LTO_WRAPPER=/home/zgxu/usr/libexec/gcc/x86_64-pc-linux-gnu/7.2.0/lto-wrapper</span><br><span class="line">Target: x86_64-pc-linux-gnu</span><br><span class="line">Configured with: ../configure --prefix=/home/zgxu/usr --disable-multilib --enable-threads=posix</span><br><span class="line">Thread model: posix</span><br><span class="line">gcc version 7.2.0 (GCC)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">系统自带</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -v</span></span><br><span class="line">Using built-in specs.</span><br><span class="line">COLLECT_GCC=gcc</span><br><span class="line">COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper</span><br><span class="line">Target: x86_64-redhat-linux</span><br><span class="line">Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux</span><br><span class="line">Thread model: posix</span><br><span class="line">gcc version 4.8.5 20150623 (Red Hat 4.8.5-16) (GCC)</span><br></pre></td></tr></table></figure>
+
+<p>不谈安装路径和版本，基本上 <strong>差别</strong> 就是在配置这一步，而这些参数就需要仔细研究了。</p>
+<p>一个 <strong>错误</strong> : ‘Link tests are not allowed after GCC_NO_EXECUTABLES.’ 后来发现是第三步没有在独立的文件下构建Makefile.</p>
+<p>参考资料：</p>
+<ul>
+<li>installing GCC: <a target="_blank" rel="noopener" href="https://gcc.gnu.org/install/">https://gcc.gnu.org/install/</a></li>
+<li>linux下编译gcc6.2.0: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/oloroso/p/5984985.html">https://www.cnblogs.com/oloroso/p/5984985.html</a></li>
+</ul>
+<h2 id="CMake-平台无关的编译软件"><a href="#CMake-平台无关的编译软件" class="headerlink" title="CMake: 平台无关的编译软件"></a>CMake: 平台无关的编译软件</h2><p>不同平台有着不同的Make工具用于编译,例如 GNU Make ，QT 的 qmake ，微软的 MS nmake，BSD Make（pmake），Makepp，等等。这些 Make 工具遵循着不同的规范和标准，所执行的 Makefile 格式也千差万别。这样就带来了一个严峻的问题：如果软件想跨平台，必须要保证能够在不同平台编译。而如果使用上面的 Make 工具，就得为每一种标准写一次 Makefile ，这将是一件让人抓狂的工作。</p>
+<p>CMake就是针对上面问题所设计的工具：它首先允许开发者编写一种平台无关的 CMakeList.txt 文件来定制整个编译流程，然后再根据目标用户的平台进一步生成所需的本地化 Makefile 和工程文件，如 Unix 的 Makefile 或 Windows 的 Visual Studio 工程。从而做到“Write once, run everywhere”。显然，CMake 是一个比上述几种 make 更高级的编译配置工具。一些使用 CMake 作为项目架构系统的知名开源项目有 VTK、ITK、KDE、OpenCV、OSG 等.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz</span><br><span class="line">tar xf cmake-3.10.2.tar.gz</span><br><span class="line"><span class="built_in">cd</span> cmake-3.10.2</span><br></pre></td></tr></table></figure>
+
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.hahack.com/codes/cmake/">http://www.hahack.com/codes/cmake/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/d-blog/p/4617208.html">https://www.cnblogs.com/d-blog/p/4617208.html</a></li>
+</ul>
+<h2 id="几个必须要装的函数库"><a href="#几个必须要装的函数库" class="headerlink" title="几个必须要装的函数库"></a>几个必须要装的函数库</h2><p>在安装之前需要先声明几个环境变量，可以直接添加在配置文件中。这都是后面遇到共享库的问题得到的经验教训。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">export CFLAGS=&quot; -fPIC&quot;</span><br><span class="line">export CXXFLAGS=&quot; -fPIC&quot;</span><br><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses -I$HOME/usr/include/X11&quot;</span><br><span class="line">export LDFLAGS=&quot;-L$HOME/usr/lib -L$HOME/usr/lib64&quot;</span><br><span class="line">export LD_LIBRARY_PATH=$HOME/usr/lib:$HOME/usr/lib64</span><br><span class="line">export PKG_CONFIG_PATH=$HOME/usr/lib/pkgconfig:$HOME/usr/share/pkgconfig</span><br></pre></td></tr></table></figure>
+
+<p><strong>ncurses</strong>提供了一系列的函数以便使用者调用它们去生成基于文本的用户界面，许多大名鼎鼎的软件都用到了ncurses，例如vim, screen,tmux,zsh等。并且<strong>samtools</strong>如果需要tview可视化BAM文件，也需要这个库做支持。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.invisible-island.net/ncurses/ncurses.tar.gz &amp;&amp; tar -zxvf ncurses.tar.gz</span><br><span class="line">./configure --enable-shared --prefix=$HOME/usr</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>Libevent</strong>是一个用C语言编写的、轻量级的开源高性能事件通知库, 后续安装tmux时候需要这个依赖库。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libevent</span></span><br><span class="line">cd src</span><br><span class="line">wget https://github.com/libevent/libevent/releases/download/release-2.1.8-stable/libevent-2.1.8-stable.tar.gz</span><br><span class="line">tar -zxvf libevent-2.1.8-stable.tar.gz &amp;&amp; cd  libevent-2.1.8</span><br><span class="line">./configure prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>bzip2, xz, zlib</strong>: 文件压缩相关函数库，后续samtools编译时需要。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.zlib.net/zlib-1.2.11.tar.gz</span><br><span class="line">tar -zxvf zlib-1.2.11.tar.gz &amp;&amp; cd zlib-1.2.11 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br><span class="line">wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz</span><br><span class="line">tar -zxvf bzip2-1.0.6.tar.gz &amp;&amp; cd bzip2-1.0.6 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br><span class="line">wget https://tukaani.org/xz/xz-5.2.3.tar.gz</span><br><span class="line">tar -zxvf xz-5.2.3.tar.gz &amp;&amp; cd xz-5.2.3 &amp;&amp; ./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>openssl, libssh2, libcurl</strong>: 计算机之间文件传输访问相关库。其中OpenSSL是一个安全套接字层密码库，囊括主要的密码算法、常用的密钥和证书封装管理功能及SSL协议，并提供丰富的应用程序供测试或其它目的使用。libssh2是一个C 函数库，用来实现SSH2协议。libcurl主要功能就是用不同的协议连接和沟通不同的服务器.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装有先后</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">openssl</span></span><br><span class="line">wget https://www.openssl.org/source/openssl-1.0.2m.tar.gz</span><br><span class="line">tar -zxvf openssl-1.0.2m.tar.gz &amp;&amp; cd openssl-1.0.2m</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里非常神奇的居然是config，添加shared生成动态库</span></span><br><span class="line">./config prefix=$HOME/usr shared</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">卸载使用 make clean</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libssh2</span></span><br><span class="line">wget https://www.libssh2.org/download/libssh2-1.8.0.tar.gz</span><br><span class="line">tar -zxvf libssh2-1.8.0.tar.gz &amp;&amp; cd libssh2-1.8.0</span><br><span class="line">./configure --with-libssl-prefix=$HOME/usr/ssl --prefix=$HOME/usr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">libcurl</span></span><br><span class="line">wget https://curl.haxx.se/download/curl-7.56.1.tar.gz</span><br><span class="line">tar -zxvf curl-7.56.1.tar.gz &amp;&amp; cd curl-7.56.1</span><br><span class="line">./configure --prefix=$HOME/usr --enable-http --enable-ftp --enable-file --enable-proxy --enable-telnet --enable-libcurl-option --enable-ipv6 --with-lib --with-ssl</span><br></pre></td></tr></table></figure>
+
+<p><strong>readline</strong>: GNU提供用于这些命令补全、搜索历史命令、行编辑快捷键等等这些人性化的交互方式的函数库，缺少这个标准库，编译的R就缺少自动补全的功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://ftp.gnu.org/gnu/readline/readline-7.0.tar.gz</span><br><span class="line">tar -zxvf readline-7.0.tar.gz &amp;&amp; cd readline-7.0</span><br><span class="line">./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>PCRE</strong>: 提供和Perl5相同语法和语义正则表达式的函数库，后续安装R用到。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.gz</span><br><span class="line">tar -zxvf pcre-8.41.tar.gz &amp;&amp; cd pcre-8.41</span><br><span class="line">./configure --enable-utf --enable-pcregrep-libz --enable-pcregrep-libbz2 --prefix=$HOME/usr</span><br></pre></td></tr></table></figure>
+
+<p><strong>x11</strong>：X11也叫做X Window系统，X Window系统 (X11或X)是一种位图显示的视窗系统,是在 Unix 和 类Unix 操作系统，以及OpenVMS上建立图形用户界面的标准工具包和协议，并可用于几乎所有已有的现代操作系统。主要是R编译的时候要用，具体用途有待开发。</p>
+<p>x11安装比较复杂，有很多的依赖库，因此需要先安装xtrans, xextproto, xcb(lib,xcb-proto, libpthread-subs), kbproto,xproto,inputproto。但是编译很容易，仅提供下载链接</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">https://www.x.org/releases/X11R7.7/src/lib/xtrans-1.2.7.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/xextproto-7.2.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/kbproto-1.0.6.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/xproto-7.0.23.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/proto/inputproto-2.2.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/libpthread-stubs-0.3.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/xcb-proto-1.7.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/xcb/libxcb-1.8.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libSM-1.2.1.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libICE-1.0.8.tar.gz</span><br><span class="line">https://www.x.org/releases/X11R7.7/src/lib/libXt-1.1.3.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>相当于人工检查依赖环境，仅仅是繁琐而已，并不困难</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装X11</span></span><br><span class="line">wget -4 https://www.x.org/releases/X11R7.7/src/lib/libX11-1.5.0.tar.gz</span><br><span class="line">tar -zxvf libX11-1.5.0.tar.gz &amp;&amp; cd libX11-1.5.0</span><br><span class="line">./configure --prefix=$HOME/usr &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译案例"><a href="#编译案例" class="headerlink" title="编译案例"></a>编译案例</h2><h3 id="安装zsh"><a href="#安装zsh" class="headerlink" title="安装zsh"></a>安装zsh</h3><p>zsh或许可以认为是最好的shell，用过zsh的人都不会想着bash了。不过zsh自定义配置，可供选择的插件以及主题实在是太多，因此一定要搭配oh-my-zsh。zsh依赖ncurses.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -O zsh.tar.gz https://sourceforge.net/projects/zsh/files/latest/download</span><br><span class="line">tar -zxvf zsh.tar.gz &amp;&amp; cd zsh</span><br><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include/&quot; LDFLAGS=&quot;-L$HOME/usr/lib&quot;</span><br><span class="line">../configure --prefix=$HOME/usr --enable-shared</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>由于没有root权限，无法使用<code>chsh</code>，只能通过在<code>~/.bashrc</code>添加<code>exec $HOME/usr/bin/zsh -l</code>保证登陆的时候自动切换成zsh。其次, zsh搭配oh-my-zsh才完整, 只不过这里只能手动安装了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从github上克隆oh-my-zsh</span></span><br><span class="line">git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用oh-my-zsh的zsh配置文件替代</span></span><br><span class="line">cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zhsrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装一些字体, 不然一些主题会显示异常</span></span><br><span class="line">cd src</span><br><span class="line">git clone https://github.com/powerline/fonts.git --depth=1</span><br><span class="line">cd fonts &amp;&amp; ./install.sh</span><br></pre></td></tr></table></figure>
+
+<p>重启一下终端，后面根据需要调整配置文件里的参数。</p>
+<h3 id="编译tmux"><a href="#编译tmux" class="headerlink" title="编译tmux"></a>编译tmux</h3><p>tmux和screen类似，也是文本终端神器, 依赖于libevent和ncurses.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">export CPPFLAGS=&quot;-I$HOME/usr/include -I$HOME/usr/include/ncurses&quot;</span><br><span class="line">export LDFLAGS=&quot;-L$HOME/usr/lib -L$HOME/usr/lib64&quot;</span><br><span class="line">mkdir -p src &amp;&amp; cd src</span><br><span class="line">git clone https://github.com/tmux/tmux.git</span><br><span class="line">cd tmux</span><br><span class="line">sh autogen.sh</span><br><span class="line">./configure --prefix=$HOME/usr</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译R语言"><a href="#编译R语言" class="headerlink" title="编译R语言"></a>编译R语言</h3><p>由于我自己编译完全版的GCC套餐，很多之前的gfortran不存在的问题也就不存在了（管理员安装了Java）。此外，R还需要gnu readline, pcre &gt; 8.2, x11。当然这些函数包都在之前安装好了。</p>
+<p>一些依赖库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装tidyverse发现xm12需要libiconv的libiconv.so.2</span></span><br><span class="line">https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>正式安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://cran.r-project.org/src/base/R-3/R-3.4.2.tar.gz</span><br><span class="line">tar -zxvf R-3.4.2.tar.gz  &amp;&amp; cd R-3.4.2/</span><br><span class="line">./configure --prefix=$HOME/R</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/2013053-2bae1c5cdc39de29-b1856615b47a43b692e8da39655adcdc.png" alt="R configure"></p>
+<p>到此，我可以说Linux平台下即便我没有root权限，也没有多少软件包是我所不能手工编译。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" data-id="cllg90y6h00ixeqp2fvsgfc6n" data-title="无root权限解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          如何在服务器上安装最新的R
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/18/%E4%BD%BF%E7%94%A8RepeatModeler%E5%92%8CRepeatMasker%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Annotate-repeat-in-genome-with-RepeatModeler-and-RepeatMasker/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">使用RepeatModeler和RepeatMasker注释基因组重复序列</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

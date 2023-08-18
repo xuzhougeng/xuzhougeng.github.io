@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Cicero:单细胞共开放分析 | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Cicero是一个单细胞染色质可及性实验可视化R包。Cicero的主要功能就是使用单细胞染色质可及性数据通过分析共开放去预测基因组上顺式调节作用(cis-regulatory interactions)，例如增强子和启动子。Cicero能够利用染色质开放性进行单细胞聚类，排序和差异可及性分析。关于Cicero的算法原理，参考他们发表的文章. 简介Cicero的主要目标是使用单细胞染色质可及性数据去">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cicero:单细胞共开放分析">
+<meta property="og:url" content="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="Cicero是一个单细胞染色质可及性实验可视化R包。Cicero的主要功能就是使用单细胞染色质可及性数据通过分析共开放去预测基因组上顺式调节作用(cis-regulatory interactions)，例如增强子和启动子。Cicero能够利用染色质开放性进行单细胞聚类，排序和差异可及性分析。关于Cicero的算法原理，参考他们发表的文章. 简介Cicero的主要目标是使用单细胞染色质可及性数据去">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/connection_plot-a71e2def92334614add0e4ce2280bbd8.png">
+<meta property="article:published_time" content="2019-08-18T23:20:21.487Z">
+<meta property="article:modified_time" content="2019-08-24T18:01:30.217Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="ATAC-seq | 单细胞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/connection_plot-a71e2def92334614add0e4ce2280bbd8.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Cicero_ 单细胞共开放分析- Cicero-single-cell-ATAC-seq-analyzing-tools" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" class="article-date">
+  <time class="dt-published" datetime="2019-08-18T23:20:21.487Z" itemprop="datePublished">2019-08-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Cicero:单细胞共开放分析
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Cicero是一个单细胞染色质可及性实验可视化R包。Cicero的<strong>主要功能</strong>就是使用单细胞染色质可及性数据通过分析共开放去预测基因组上<strong>顺式调节作用</strong>(cis-regulatory interactions)，例如增强子和启动子。Cicero能够利用染色质开放性进行单细胞聚类，排序和差异可及性分析。关于Cicero的算法原理，参考<a target="_blank" rel="noopener" href="https://cole-trapnell-lab.github.io/cicero-release/papers/">他们发表的文章</a>.</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Cicero的主要目标是使用单细胞染色质可及性数据去预测基因组上那些在细胞核中存在物理邻近的区域。这能够用于鉴定潜在的<strong>增强子-启动子对</strong>，对基因组顺式作用有一个总体了解。</p>
+<p>由于单细胞数据的稀疏性，细胞必须根据相似度进行聚合，才能够对数据中的多种技术因素进行可靠纠正。</p>
+<p>最终，Cicero给出了”Cicero 共开放”得分，分数在-1和1之间，用于评估用于给定距离中每个可及peak对之间的共开放性，分数越高，越可能是共开放。</p>
+<p>此外，Monocle3的框架让Cicero能对单细胞ATAC-seq实验完成Monocle3上的聚类，拟时间等分析。</p>
+<p>Cicero主要提供了两种核心分析:</p>
+<ul>
+<li><strong>构建和分析顺式调控网络</strong>.</li>
+<li><strong>常规单细胞染色质可及性分析</strong>:</li>
+</ul>
+<h2 id="Cicero安装和加载"><a href="#Cicero安装和加载" class="headerlink" title="Cicero安装和加载"></a>Cicero安装和加载</h2><p>Cicero运行在R语言分析环境中。尽管能够从Bioconductor安装，但是推荐从GitHub上安装。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">install.packages(&quot;BiocManager&quot;)</span><br><span class="line">BiocManager::install(c(&quot;Gviz&quot;, &quot;GenomicRanges&quot;, &quot;rtracklayer&quot;))</span><br><span class="line">install.packages(&quot;devtools&quot;)</span><br><span class="line">devtools::install_github(&quot;cole-trapnell-lab/cicero-release&quot;, ref = &quot;monocle3&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>加载Cicero</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library(cicero)</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据加载"><a href="#数据加载" class="headerlink" title="数据加载"></a>数据加载</h2><p>Cicero以<code>cell_data_set(CDS)</code>对象存放数据，该对象继承自Bioconductor的<code>SingleCellExperiment</code>对象。我们可以用下面三个函数来操纵数据</p>
+<ul>
+<li>fData: 获取feature的元信息, 这里的featureI指的是peak</li>
+<li>pData: 获取cell&#x2F;sample的元信息</li>
+<li>assay: 获取cell-by-peak的count矩阵</li>
+</ul>
+<p>除了CDS外，还需要基因坐标信息和基因注释信息。</p>
+<p>关于坐标信息，以mouse.mm9.genome为例，它是一个数据框，只有两列，一列是染色体编号，另一列对应的长度</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data(&quot;mouse.mm9.genome&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>基因组注释信息可以用<code>rtracklayer::readGFF</code>加载</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">temp &lt;- tempfile()</span><br><span class="line">download.file(&quot;ftp://ftp.ensembl.org/pub/release-65/gtf/mus_musculus/Mus_musculus.NCBIM37.65.gtf.gz&quot;, temp)</span><br><span class="line">gene_anno &lt;- rtracklayer::readGFF(temp)</span><br><span class="line">unlink(temp)</span><br></pre></td></tr></table></figure>
+
+<p>Bioconductor也有现成的TxDb，可以从中提取注释信息。</p>
+<h3 id="简单稀疏矩阵格式"><a href="#简单稀疏矩阵格式" class="headerlink" title="简单稀疏矩阵格式"></a>简单稀疏矩阵格式</h3><p>以一个测试数据集介绍如何加载简单稀疏矩阵格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">temp &lt;- textConnection(readLines(gzcon(url(&quot;http://staff.washington.edu/hpliner/data/kidney_data.txt.gz&quot;))))</span><br><span class="line">cicero_data &lt;- read.table(temp)</span><br></pre></td></tr></table></figure>
+
+<p>这里的简单稀疏矩阵格式指的是数据以三列进行存放，第一列是peak位置信息，第二列是样本信息，第三列则是样本中有多少fragment和该peak重叠。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chr1_4756552_4757256    GAATTCGTACCAGGCGCATTGGTAGTCGGGCTCTGA    1</span><br></pre></td></tr></table></figure>
+
+<p>对于这种格式，Cicero提供了一个函数<code>make_atac_cds</code>, 用于构建一个有效的<code>cell_data_set</code>对象，用于下游分析，输入既可以是一个数据框，也可以是一个文件路径。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input_cds &lt;- make_atac_cds(cicero_data, binarize = TRUE)</span><br></pre></td></tr></table></figure>
+
+<h3 id="10X-scATAC-seq-数据"><a href="#10X-scATAC-seq-数据" class="headerlink" title="10X scATAC-seq 数据"></a>10X scATAC-seq 数据</h3><p>如果数据已经经过10X scATAC-seq处理，那么结果中的<strong>filtered_peak_bc_matrix</strong>里就有我们需要的信息</p>
+<p>加载cell-by-peak count矩阵，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># read in matrix data using the Matrix package</span><br><span class="line">indata &lt;- Matrix::readMM(&quot;filtered_peak_bc_matrix/matrix.mtx&quot;) </span><br><span class="line"># binarize the matrix</span><br><span class="line">indata@x[indata@x &gt; 0] &lt;- 1</span><br></pre></td></tr></table></figure>
+
+<p>加载cell元数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># format cell info</span><br><span class="line">cellinfo &lt;- read.table(&quot;filtered_peak_bc_matrix/barcodes.tsv&quot;)</span><br><span class="line">row.names(cellinfo) &lt;- cellinfo$V1</span><br><span class="line">names(cellinfo) &lt;- &quot;cells&quot;</span><br></pre></td></tr></table></figure>
+
+<p>加载peak元数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># format peak info</span><br><span class="line">peakinfo &lt;- read.table(&quot;filtered_peak_bc_matrix/peaks.bed&quot;)</span><br><span class="line">names(peakinfo) &lt;- c(&quot;chr&quot;, &quot;bp1&quot;, &quot;bp2&quot;)</span><br><span class="line">peakinfo$site_name &lt;- paste(peakinfo$chr, peakinfo$bp1, peakinfo$bp2, sep=&quot;_&quot;)</span><br><span class="line">row.names(peakinfo) &lt;- peakinfo$site_name</span><br></pre></td></tr></table></figure>
+
+<p>为cell-by-peak的count矩阵增加行名(peak元数据)和列名(cell元数据)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">row.names(indata) &lt;- row.names(peakinfo)</span><br><span class="line">colnames(indata) &lt;- row.names(cellinfo)</span><br></pre></td></tr></table></figure>
+
+<p>然后用<code>new_cell_data_set</code>根据peak元数据，cell元数据构建出一个<code>cell_data_set</code>对象</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># make CDS</span><br><span class="line">input_cds &lt;-  suppressWarnings(new_cell_data_set(indata,</span><br><span class="line">    cell_metadata = cellinfo,</span><br><span class="line">    gene_metadata = peakinfo))</span><br></pre></td></tr></table></figure>
+
+<p>之后用<code>detect_genes</code>统计，对于每个基因在多少细胞中的表达量超过了给定阈值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input_cds &lt;- monocle3::detect_genes(input_cds)</span><br></pre></td></tr></table></figure>
+
+<p>过滤没有细胞开放的peak</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input_cds &lt;- input_cds[Matrix::rowSums(exprs(input_cds)) != 0,] </span><br></pre></td></tr></table></figure>
+
+<h2 id="构建顺式作用网络"><a href="#构建顺式作用网络" class="headerlink" title="构建顺式作用网络"></a>构建顺式作用网络</h2><h3 id="运行Cicero"><a href="#运行Cicero" class="headerlink" title="运行Cicero"></a>运行Cicero</h3><h3 id="构建Cicero-CDS对象"><a href="#构建Cicero-CDS对象" class="headerlink" title="构建Cicero CDS对象"></a>构建Cicero CDS对象</h3><p>因为单细胞染色质开放数据特别稀疏，为了能够比较准确的估计共开放得分，需要将一些比较相近的细胞进行聚合，得到一个相对比较致密的count数据。Cicero使用KNN算法构建细胞的相互重叠集。而细胞之间距离关系则是根据降维后坐标信息。降维方法有很多种，这里以UMAP为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">input_cds &lt;- detect_genes(input_cds)</span><br><span class="line">input_cds &lt;- estimate_size_factors(input_cds)</span><br><span class="line"># PCA或LSI线性降维</span><br><span class="line">input_cds &lt;- preprocess_cds(input_cds, method = &quot;LSI&quot;)</span><br><span class="line"># UMAP非线性降维</span><br><span class="line">input_cds &lt;- reduce_dimension(input_cds, reduction_method = &#x27;UMAP&#x27;, </span><br><span class="line">                              preprocess_method = &quot;LSI&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>此时用<code>reducedDimNames(input_cds)</code>就会发现它多了LSI和UMAP两个信息，我们可以用<code>reducedDims</code>来提取UMAP坐标信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umap_coords &lt;- reducedDims(input_cds)$UMAP</span><br></pre></td></tr></table></figure>
+
+<p><code>make_cicero_cds</code>函数就需要其中UMAP坐标信息。</p>
+<p><strong>注1</strong>: 假如你已经有了UMAP的坐标信息，那么就不需要运行<code>preprocess_cds</code>和<code>reduce_dimension</code>， 直接提供UMAP坐标信息给<code>make_cicero_cds</code>就可以了。</p>
+<p><strong>注2</strong>: umap_coords的行名需要和<code>pData</code>得到表格中的行名一样, 即<code>all(row.names(umap_coords) == row.names(pData(input_cds)))</code>结果为TRUE。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cicero_cds &lt;- make_cicero_cds(input_cds, reduced_coordinates = umap_coords)</span><br></pre></td></tr></table></figure>
+
+<p>此时的cicero_cds是没有UMAP降维信息。</p>
+<h3 id="运行Cicero-1"><a href="#运行Cicero-1" class="headerlink" title="运行Cicero"></a>运行Cicero</h3><p>Cicero包的主要功能就是预测基因组上位点之间的共开放. 有两种方式可以获取该信息</p>
+<ul>
+<li><code>run_cicero</code>: 一步到位。默认参数适用于人类和小鼠，但是其他物种，参考<a target="_blank" rel="noopener" href="https://cole-trapnell-lab.github.io/cicero-release/docs_m3//#important-considerations-for-non-human-data">此处</a></li>
+<li>单独运行每个函数，这样子获取中间的信息。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#测试部分数据</span><br><span class="line">data(&quot;mouse.mm9.genome&quot;)</span><br><span class="line">sample_genome &lt;- subset(mouse.mm9.genome, V1 == &quot;chr2&quot;)</span><br><span class="line">sample_genome$V2[1] &lt;- 10000000</span><br><span class="line">conns &lt;- run_cicero(cicero_cds, sample_genome, sample_num = 2) </span><br><span class="line">nrow(conns) # 212302</span><br><span class="line">## 全部数据, 时间真久</span><br><span class="line">conns &lt;- run_cicero(cicero_cds, mouse.mm9.genome, sample_num = 2)</span><br><span class="line">nrows(conns) #59741738</span><br></pre></td></tr></table></figure>
+
+<p>其中conns存放的是peak之间共开放得分。</p>
+<h3 id="Cicero-Connection可视化"><a href="#Cicero-Connection可视化" class="headerlink" title="Cicero Connection可视化"></a>Cicero Connection可视化</h3><p>有了peak之间共开放的可能性得分后，就可以画一些很酷的图了。用到的函数是<code>plot_connections</code>, 这个函数有很多参数，所以最终呈现结果取决于你的<a target="_blank" rel="noopener" href="https://cole-trapnell-lab.github.io/cicero-release/docs/#advanced-visualizaton">参数调整</a>。</p>
+<p>获取基因组注释信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">temp &lt;- tempfile()</span><br><span class="line">download.file(&quot;ftp://ftp.ensembl.org/pub/release-65/gtf/mus_musculus/Mus_musculus.NCBIM37.65.gtf.gz&quot;, temp)</span><br><span class="line">gene_anno &lt;- rtracklayer::readGFF(temp)</span><br><span class="line">unlink(temp)</span><br><span class="line"></span><br><span class="line">gene_anno$chromosome &lt;- paste0(&quot;chr&quot;, gene_anno$seqid)</span><br><span class="line">gene_anno$gene &lt;- gene_anno$gene_id</span><br><span class="line">gene_anno$transcript &lt;- gene_anno$transcript_id</span><br><span class="line">gene_anno$symbol &lt;- gene_anno$gene_name</span><br></pre></td></tr></table></figure>
+
+<p>除了从GFF文件中提取外，还可以利用<code>txdb</code>提取转录本位置信息</p>
+<p>举例子，下面的函数就是绘制染色体上<code>&quot;chr2:9773451-9848598</code>的共开放情况，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plot_connections(conns, &quot;chr2&quot;, 9773451, 9848598,</span><br><span class="line">                 gene_model = gene_anno, </span><br><span class="line">                 coaccess_cutoff = .25, </span><br><span class="line">                 connection_width = .5, </span><br><span class="line">                 collapseTranscripts = &quot;longest&quot; )</span><br></pre></td></tr></table></figure>
+
+<p>假如之前用的全基因组来算connections，那么这一步也会很久才能出图，所以建议先自己提取部分数据，这样子作图的速度就会快很多(因为源代码没有优化好矩阵过滤)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">conns_sub &lt;- conns[conns_matrix[,1] == &quot;chr2&quot; &amp; </span><br><span class="line">                     as.numeric(conns_matrix[,2]) &gt; 8000000 &amp;</span><br><span class="line">                     as.numeric(conns_matrix[,2]) &lt; 10000000 </span><br><span class="line">                     , ]</span><br><span class="line"></span><br><span class="line">plot_connections(conns_sub, &quot;chr2&quot;, 9773451, 9848598,</span><br><span class="line">                 gene_model = gene_anno, </span><br><span class="line">                 coaccess_cutoff = .25, </span><br><span class="line">                 connection_width = .5, </span><br><span class="line">                 collapseTranscripts = &quot;longest&quot; )</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/connection_plot-a71e2def92334614add0e4ce2280bbd8.png" alt="connections"></p>
+<h2 id="计算基因活跃度得分"><a href="#计算基因活跃度得分" class="headerlink" title="计算基因活跃度得分"></a>计算基因活跃度得分</h2><p>在启动子区的开放度并不是基因表达很好的预测子。使用Cicero links，我们就能得到启动子和它相关的远距位点的总体开放情况。这种区域间开放度联合得分和基因表达的相关度更高。作者称之为<strong>基因活跃度得分</strong>（Cicero gene activity score)。 可以用两个函数进行计算</p>
+<p><code>build_gene_activity_matrix</code>函数接受CDS和Cicero connection list作为输入，返回一个标准化的基因得分。<strong>注意</strong>， CDS必须在fData 表中有一列”gene”, 如果该peak在启动子区就用对应的基因名进行注释, 否则为NA. 我们可以用<code>annotate_cds_by_site</code>进行注释。</p>
+<p><code>build_gene_activitity_matrix</code>是未标准化的数据。需要用<code>normalize_gene_activities</code>进行标准化。如果你想比较不同数据集中部分数据的基因活跃度得分, 那么所有的gene activity 部分数据都需要一起标准化。如果只是想标准化其中一个数据集，那么传递一个结果即可。<code>normalize_gene_activities</code>也需要一个每个细胞所有开放位点的命名向量。这存放在CDS对象中的<code>pData</code>，在<code>num_genes_expressed</code>列。</p>
+<p>可能还是不是明白，看代码吧。</p>
+<p>第一步，是用<code>annotate_cds_by_site</code>对CDS对象进行注释在启动子区域的peak。</p>
+<p>我们先从GFF文件中提取启动子的位置，也就是每个转录本的第一个外显子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 分别提取正链和负链的注释, 仅保留第一个外显子</span><br><span class="line">pos &lt;- subset(gene_anno, strand == &quot;+&quot;)</span><br><span class="line">pos &lt;- pos[order(pos$start),] </span><br><span class="line"></span><br><span class="line"># remove all but the first exons per transcript</span><br><span class="line">pos &lt;- pos[!duplicated(pos$transcript),] </span><br><span class="line"># make a 1 base pair marker of the TSS</span><br><span class="line">pos$end &lt;- pos$start + 1 </span><br><span class="line"></span><br><span class="line">neg &lt;- subset(gene_anno, strand == &quot;-&quot;)</span><br><span class="line">neg &lt;- neg[order(neg$start, decreasing = TRUE),] </span><br><span class="line"># remove all but the first exons per transcript</span><br><span class="line">neg &lt;- neg[!duplicated(neg$transcript),] </span><br><span class="line">neg$start &lt;- neg$end - 1</span><br><span class="line"></span><br><span class="line"># 合并正链和负链</span><br><span class="line">gene_annotation_sub &lt;- rbind(pos, neg)</span><br><span class="line"></span><br><span class="line"># 只需要4列信息</span><br><span class="line">gene_annotation_sub &lt;- gene_annotation_sub[,c(&quot;chromosome&quot;, &quot;start&quot;, &quot;end&quot;, &quot;symbol&quot;)]</span><br><span class="line"></span><br><span class="line"># 第四列命名为gene</span><br><span class="line">names(gene_annotation_sub)[4] &lt;- &quot;gene&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>用<code>annotate_cds_by_site</code>对cds按照gene_annotation_sub注释。会多处两列，overlap和gene。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">input_cds &lt;- annotate_cds_by_site(input_cds, gene_annotation_sub)</span><br><span class="line">tail(fData(input_cds))</span><br></pre></td></tr></table></figure>
+
+<p>第二步: 计算未标准化的基因活跃度得分</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># generate unnormalized gene activity matrix</span><br><span class="line">unnorm_ga &lt;- build_gene_activity_matrix(input_cds, conns)</span><br><span class="line"></span><br><span class="line"># 过滤全为0的行和列</span><br><span class="line">unnorm_ga &lt;- unnorm_ga[!Matrix::rowSums(unnorm_ga) == 0, </span><br><span class="line">                       !Matrix::colSums(unnorm_ga) == 0]</span><br></pre></td></tr></table></figure>
+
+<p>第三步: 标准化基因活跃度得分</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 你需要一个命名列表</span><br><span class="line">num_genes &lt;- pData(input_cds)$num_genes_expressed</span><br><span class="line">names(num_genes) &lt;- row.names(pData(input_cds))</span><br><span class="line"></span><br><span class="line"># 标准化</span><br><span class="line">cicero_gene_activities &lt;- normalize_gene_activities(unnorm_ga, num_genes)</span><br></pre></td></tr></table></figure>
+
+<p>如果你有多个数据集需要进行标注化，那你就需要传递一个列表给<code>normalize_gene_activities</code>, 并且保证<code>num_genes</code>里包括所有数据集中的所有样本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># if you had two datasets to normalize, you would pass both:</span><br><span class="line"># num_genes should then include all cells from both sets</span><br><span class="line">unnorm_ga2 &lt;- unnorm_ga</span><br><span class="line">cicero_gene_activities &lt;- normalize_gene_activities(list(unnorm_ga, unnorm_ga2), </span><br><span class="line">                                                    num_genes)</span><br></pre></td></tr></table></figure>
+
+<p>标注化后的基因活跃度得分在0到1之间,</p>
+<p>第四步: 在UMAP上可视化基因得分。由于值比较小，要先扩大1000000倍，即log2(GA * 1000000 + 1)，这样子在可视化的时候比较好看。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">plot_umap_ga &lt;- function(cds,</span><br><span class="line">                         cicero_gene_activities,</span><br><span class="line">                         gene,</span><br><span class="line">                         dotSize = 1,</span><br><span class="line">                         log = TRUE)&#123;</span><br><span class="line">  #umap_df &lt;- as.data.frame(colData(cds))</span><br><span class="line">  umap_df &lt;- as.data.frame(reducedDims(input_cds)$UMAP)</span><br><span class="line">  colnames(umap_df) &lt;- c(&quot;UMAP1&quot;,&quot;UMAP2&quot;)</span><br><span class="line">  gene_pos &lt;- which(row.names(cicero_gene_activities) %in% gene)</span><br><span class="line"></span><br><span class="line">  umap_df$score &lt;- log2(cicero_gene_activities[gene_pos,] * 1000000 + 1)</span><br><span class="line">  if (log)&#123;</span><br><span class="line">    umap_df$score &lt;- log(umap_df$score + 1)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  p &lt;- ggplot(umap_df, aes(x=UMAP1, y=UMAP2)) +</span><br><span class="line">    geom_point(aes(color=score), size = dotSize) + scale_color_viridis(option=&quot;magma&quot;) +</span><br><span class="line">    theme_bw()</span><br><span class="line">  return(p)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="拟时序分析"><a href="#拟时序分析" class="headerlink" title="拟时序分析"></a>拟时序分析</h2><p>这部分的分析其实比较简单，因为仅仅是将feature从mRNA变成了peak而已。步骤如下</p>
+<ol>
+<li>数据预处理</li>
+<li>数据降维</li>
+<li>细胞聚类</li>
+<li>轨迹图学习</li>
+<li>在拟时间上对细胞进行排序</li>
+</ol>
+<p>代码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 读取数据</span><br><span class="line">temp &lt;- textConnection(readLines(gzcon(url(&quot;http://staff.washington.edu/hpliner/data/kidney_data.txt.gz&quot;))))set.seed(2017)</span><br><span class="line">input_cds &lt;- estimate_size_factors(input_cds)</span><br><span class="line">#1 数据预处理</span><br><span class="line">input_cds &lt;- preprocess_cds(input_cds, method = &quot;LSI&quot;)</span><br><span class="line">#2 降维</span><br><span class="line">input_cds &lt;- reduce_dimension(input_cds, reduction_method = &#x27;UMAP&#x27;, </span><br><span class="line">preprocess_method = &quot;LSI&quot;)</span><br><span class="line">#3 细胞聚类</span><br><span class="line">input_cds &lt;- cluster_cells(input_cds)</span><br><span class="line">#4 轨迹图学习</span><br><span class="line">input_cds &lt;- learn_graph(input_cds)</span><br><span class="line">#5 对细胞进行排序</span><br><span class="line">input_cds &lt;- order_cells(input_cds, </span><br><span class="line">                         root_cells = &quot;GAGATTCCAGTTGAATCACTCCATCGAGATAGAGGC&quot;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后可视化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plot_cells(input_cds, color_cells_by = &quot;pseudotime&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="差异开放分析"><a href="#差异开放分析" class="headerlink" title="差异开放分析"></a>差异开放分析</h3><p>当你的细胞在拟时间中排列之后，你可能会想知道基因组哪些区域会随着时间发生变化。</p>
+<p>如果你已经知道哪些区域会随着时间发生变化，你可以用<code>plot_accessibility_in_pseudotime</code>进行可视化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">input_cds_lin &lt;- input_cds[,is.finite(pseudotime(input_cds))]</span><br><span class="line">plot_accessibility_in_pseudotime(input_cds_lin[c(&quot;chr1_3238849_3239700&quot;, </span><br><span class="line">                                                 &quot;chr1_3406155_3407044&quot;, </span><br><span class="line">                                                 &quot;chr1_3397204_3397842&quot;)])</span><br></pre></td></tr></table></figure>
+
+<p>当然我们也可以从头分析. 先用<code>aggregate_by_cell_bin</code>对细胞根据相似度进行聚合</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># First, assign a column in the pData table to umap pseudotime</span><br><span class="line">pData(input_cds_lin)$Pseudotime &lt;- pseudotime(input_cds_lin)</span><br><span class="line">pData(input_cds_lin)$cell_subtype &lt;- cut(pseudotime(input_cds_lin), 10)</span><br><span class="line">binned_input_lin &lt;- aggregate_by_cell_bin(input_cds_lin, &quot;cell_subtype&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>之后用Monocle3的<code>fit_models</code>函数寻找差异开发的区域。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># For speed, run fit_models on 1000 randomly chosen genes</span><br><span class="line">set.seed(1000)</span><br><span class="line">acc_fits &lt;- fit_models(binned_input_lin[sample(1:nrow(fData(binned_input_lin)), 1000),], </span><br><span class="line">                       model_formula_str = &quot;~Pseudotime + num_genes_expressed&quot; )</span><br><span class="line">fit_coefs &lt;- coefficient_table(acc_fits)</span><br><span class="line"></span><br><span class="line"># Subset out the differentially accessible sites with respect to Pseudotime</span><br><span class="line">pseudotime_terms &lt;- subset(fit_coefs, term == &quot;Pseudotime&quot; &amp; q_value &lt; .05)</span><br><span class="line">head(pseudotime_terms)</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>官方教程:<a target="_blank" rel="noopener" href="https://cole-trapnell-lab.github.io/cicero-release/docs_m3">https://cole-trapnell-lab.github.io/cicero-release/docs_m3</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" data-id="cllg90xz8000veqp261qy85i1" data-title="Cicero:单细胞共开放分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          「三代组装」使用新版Falcon进行三代测序基因组组装
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/17/motifmatchr_%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%88%86%E6%9E%90peak%E4%B8%AD%E9%87%8C%E6%98%AF%E5%90%A6%E6%9C%89motif%E5%8C%B9%E9%85%8D-motifmatchr-peak-motif-search-in-R/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">motifmatchr:在R语言中分析peak中里是否有motif匹配</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

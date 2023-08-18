@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>使用ArchR分析单细胞ATAC-seq数据(第七章) | 洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="第7章: ArchR的基因得分和标记基因尽管ArchR能够可靠地对细胞进行聚类，但它并不能先验(a priori)地知道每个聚类所代表的细胞类型。通常这个任务也只能靠人工注释，毕竟每个项目都不太一样。 为了实现细胞类型注释，我们会用到已知的细胞类型特异的标记基因。在scATAC-seq数据中，这些基因的表达量其实是根据染色质开放数据估计的基因得分(gene score)。所谓的基因得分，本质上就是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用ArchR分析单细胞ATAC-seq数据(第七章)">
+<meta property="og:url" content="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:description" content="第7章: ArchR的基因得分和标记基因尽管ArchR能够可靠地对细胞进行聚类，但它并不能先验(a priori)地知道每个聚类所代表的细胞类型。通常这个任务也只能靠人工注释，毕竟每个项目都不太一样。 为了实现细胞类型注释，我们会用到已知的细胞类型特异的标记基因。在scATAC-seq数据中，这些基因的表达量其实是根据染色质开放数据估计的基因得分(gene score)。所谓的基因得分，本质上就是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-86acaf58acfb4d58889acbfd219c9b95.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-0dc48c66c89a4be598bdc9ccc7b80702.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-0d6f658c2d8144118dea1fc89eca5f36.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-28d4b94d9bed46ad8e08a2844b9c1de0.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-2fb12c1f7da64e2ca3a990aafa1f2a8d.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-1b321875a5db4095babe00b0391df152.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-cf5de1d7abe94e0ebf711dafa7c69fca.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-7a804bdfceff43b89a6e4ab7464061a7.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-9b93a3a6aabd4b99ac6e737dfe17a6a4.png">
+<meta property="og:image" content="http://xuzhougeng.top/upload/2020/05/image-fa9adf3584ea492484867839f4b64ef7.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-51ae326ad0fb47f0a60e9dc62310245d.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-941f533e83154ccf92caf016d8fac763.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-5c87ee91bd9b47aa95c10686bb19fe2b.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-47321577c4ba422780cb67cc5a9aaf3f.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-324391d639304514a4b11648489e8932.png">
+<meta property="og:image" content="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-db216dfaf3bc4bb5a56b5d41b2696e67.png">
+<meta property="article:published_time" content="2020-05-25T22:58:26.329Z">
+<meta property="article:modified_time" content="2020-05-31T15:48:25.503Z">
+<meta property="article:author" content="xuzhougeng">
+<meta property="article:tag" content="ATAC-seq | 单细胞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xuzhougeng.top/upload/2020/05/image-86acaf58acfb4d58889acbfd219c9b95.png">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-使用ArchR分析单细胞ATAC-seq数据(第七章)-analysis-sc-atac-seq-with-archr-chapter7" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" class="article-date">
+  <time class="dt-published" datetime="2020-05-25T22:58:26.329Z" itemprop="datePublished">2020-05-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      使用ArchR分析单细胞ATAC-seq数据(第七章)
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="第7章-ArchR的基因得分和标记基因"><a href="#第7章-ArchR的基因得分和标记基因" class="headerlink" title="第7章: ArchR的基因得分和标记基因"></a>第7章: ArchR的基因得分和标记基因</h1><p>尽管ArchR能够可靠地对细胞进行聚类，但它并不能先验(<em>a priori</em>)地知道每个聚类所代表的细胞类型。通常这个任务也只能靠人工注释，毕竟每个项目都不太一样。</p>
+<p>为了实现细胞类型注释，我们会用到已知的细胞类型特异的标记基因。在scATAC-seq数据中，这些基因的表达量其实是根据染色质开放数据估计的基因得分(gene score)。所谓的基因得分，本质上就是用基因附近的调控元件去预测基因的表达量。ArchR的亮点在于，它允许用户提供复杂的自定义的<strong>距离加权开放性模型</strong>去计算这些基因得分。</p>
+<h2 id="7-1-在ArchR中计算基因得分"><a href="#7-1-在ArchR中计算基因得分" class="headerlink" title="7.1 在ArchR中计算基因得分"></a>7.1 在ArchR中计算基因得分</h2><p>我们在文章中测试了超过50种不同的基因得分模型，并找到一种在大部分测试情况下都拥有良好表现的模型。这个模型目前是ArchR的默认设置，它包括三个主要部分</p>
+<ol>
+<li>在整个基因主体内(gene body)的开放部分都对基因得分有贡献</li>
+<li>对于潜在的远距调控元件，我们使用一个指数加权函数计算得分</li>
+<li>我们加入了基因边界(gene boundary)用于减少无关调控元件对基因得分的贡献</li>
+</ol>
+<p>那么，ArchR到底是怎么计算基因得分的呢？我建议先看图，再看文字描述。图中标注了两个TSS，分别表示两个基因的转录起始位点(TSS)，其中红色标识的基因是目标基因，我们需要根据其附近的开放情况来预测它的表达量。</p>
+<img src="/upload/2020/05/image-86acaf58acfb4d58889acbfd219c9b95.png" alt="基因活跃得分" style="zoom:15%;" />
+
+<p>对于每条染色体，ArchR都会构建一个分块矩阵(tile matrix)，块的大小由用户进行定义，在定义时计算（默认是500 bp），然后分析用户定义的另一个基因分窗(默认是基因两边100kb)和上一个分块矩阵的重叠部分。接着计算每个分块的起始位置或结束位置相对于基因主体(可额外添加上下游延伸)或基因起始位置的距离。我们发现基因表达量最好的预测者是基因区的局部开放性，包括启动子和基因主体。对于之前提到的远距调控元件，为了能正确地处理给定基因的远距离开放状态，ArchR只筛选了在基因分窗内但不跨到另一个基因区的分块。这个过滤标准既能利用远端调控元件提高基因表达量的预测准确性，同时也避免了无关开放状态的影响（例如，邻近基因启动子的开放状态）。每个分块到基因的距离会根据用户定义的开放模型里的权重进行转换，默认是e(-abs(distance)&#x2F;5000) + e-1)。</p>
+<p>我们还发现基因长度会明显影响总体的基因得分，这是因为如果基因区包括基因主体，当基因越长时，落在基因主体内的开放区也就越多，这些开放区会和最大的基于距离的权重相乘，也就会计算出更高的得分。为了调整基因长度所带来的差异，ArchR以每个基因长度的倒数(1 &#x2F; gene size)作为权重，然后将该权重线性缩放到1到用户定义的最大值之间(默认是5)。保证了越短的基因对应更大的相对权重，一定程度上避免了长度的影响。</p>
+<p>之后每个分块对应的距离权重和基因长度权重会和每个分块内的Tn5 insertion数相乘，接着将基因分窗内的所有分块的得分进行相加，相加时排除邻近基因区的分块。最后计算的总开放度就是基因得分(gene score)，接着所有基因的基因得分会按照用户定义的常数进行深度标准化(默认是10,000)。最后，计算的基因得分会被保存在相应的Arrow文件中用作下游分析。</p>
+<p>在创建Arrow文件时，如果设置<code>createArrowFiles</code>的参数<code>addGeneScoreMat = TRUE</code>(默认为TRUE)，那么生成的Arrow文件中会包含基因得分矩阵。此外，我们也可以在任意时候使用<code>addGeneScoreMatrix()</code>在Arrow文件中加入基因得分矩阵。一旦计算完成，每个细胞都可以在嵌入图中根据基因得分进行展示，方便鉴定不同的细胞类型。之后的章节中会逐一介绍基因得分的应用。</p>
+<p>当然并不是所有基因都会有基因得分，尤其是基因密度高的区域里的基因，它们更容易出现问题。因此，最好能在基因组浏览器对所有基因得分都做一遍检查，我们也会在后续章节里做相应介绍。</p>
+<h2 id="7-2-鉴定标记特征"><a href="#7-2-鉴定标记特征" class="headerlink" title="7.2 鉴定标记特征"></a>7.2 鉴定标记特征</h2><p>除了使用已知的细胞类型相关标记基因用于聚类注释外，ArchR还能无偏地鉴定任何给定细胞分组(如聚类)的标记特征。这些特征包括单不限于peaks, 基于基因得分的基因, 基于chromVAR离差的转录因子motif。这部分工作可通过<code>getMarkerFeatures()</code>函数完成，它的核心参数是<code>useMatrix</code>和<code>groupBy</code>。<code>useMatrix</code>可以是任何的矩阵输入，如果设置为<code>GeneScoreMatrix</code>那么函数就会分析不同细胞类型特异出现的基因。这就能无偏的找到每个聚类的活跃基因，可以用来辅助聚类注释。</p>
+<p>正如之前所提到的，<code>getMarkerFeatures()</code>能够接受任何存在Arrow文件里的矩阵作为输入，分析细胞类型的特异特征。例如<code>useMatrix = &quot;TileMatrix&quot;</code>用于鉴定细胞类群的特异基因区间，<code>useMatrix = &quot;PeakMatrix&quot;</code>用于鉴定细胞类群的特异peak。后续章节还会介绍如何使用其他特征类型作为<code>getMarkerFeatures()</code>的输入。</p>
+<h3 id="7-2-1-标记特征的鉴定过程"><a href="#7-2-1-标记特征的鉴定过程" class="headerlink" title="7.2.1 标记特征的鉴定过程"></a>7.2.1 标记特征的鉴定过程</h3><p>标记特征的鉴定过程取决于每一组细胞对应的偏好-匹配背景细胞的选择。对于所有特征，每个细胞组都会与它自己的背景细胞组进行比较，判断给定的细胞组有更显著的开放性。</p>
+<img src="/upload/2020/05/image-0dc48c66c89a4be598bdc9ccc7b80702.png" alt="markerFeature_schematic" style="zoom:45%;" />
+
+<p>选择合适的背景细胞组对标记特征的鉴定至关重要，取决于<code>getMarkerFeatures)()</code>的<code>bias</code>参数所构建的多维空间。对于给定分组的细胞，ArchR会在提供的多维空间中寻找每个细胞分组外的最近邻细胞。这些细胞和给定分组内细胞极其相似，因此被称为<strong>偏好-匹配</strong>细胞(bias-matched cells)。通过这一方法，即便是在细胞数目比较少的组中，我们都能为每个特征计算稳健的显著性。</p>
+<p>ArchR以<code>bias</code>参数中的所有维度作为输入，以分位数对值进行归一化，让每个维度的方差分布在相同的相对标度。举一个简单的例子，如如果<code>bias</code>的输入是<code>TSS</code>和<code>log10(Num Fragments)</code>，未经分位数归一化的值如下图所示</p>
+<img src="/upload/2020/05/image-0d6f658c2d8144118dea1fc89eca5f36.png" alt="ackground_preNorm" style="zoom: 25%;" />
+
+<p>这里y轴的相对方差和于x轴的相对方差相比，就显得特别小。如果我们对这些轴进行归一化，将值缩放到0-1之间，x和y的相对方差就近乎一样。<strong>注意</strong>，这个操作还会明显地改变每个细胞的最近邻（见下图右）。</p>
+<img src="/upload/2020/05/image-28d4b94d9bed46ad8e08a2844b9c1de0.png" alt="background_postNorm" style="zoom: 25%;" />
+
+<p>ArchR会对所有维度进行归一化，在归一化后的多维空间中以欧氏距离寻找最近邻。</p>
+<h2 id="7-3-鉴定标记基因"><a href="#7-3-鉴定标记基因" class="headerlink" title="7.3 鉴定标记基因"></a>7.3 鉴定标记基因</h2><p>为了根据基因得分来鉴定标记基因，我们需要在调用<code>getMarkerFeatures()</code>时设置<code>useMatrix = &quot;GeneScoreMatrix</code>。此外，我们设置了<code>groupBy=&quot;Clusters&quot;</code>告诉ArchR使用<code>cellColData</code>的”Clusters”列对细胞分组，从而得到每个聚类特异的标记基因。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">markersGS <span class="operator">&lt;-</span> getMarkerFeatures<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    useMatrix <span class="operator">=</span> <span class="string">&quot;GeneScoreMatrix&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Clusters&quot;</span><span class="punctuation">,</span></span><br><span class="line">    bias <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;TSSEnrichment&quot;</span><span class="punctuation">,</span> <span class="string">&quot;log10(nFrags)&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">    testMethod <span class="operator">=</span> <span class="string">&quot;wilcoxon&quot;</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>该函数返回一个<code>SummarizedExperiment</code>对象，里面记录着每个标记特征的相关信息。这是ArchR的一个常见输出，是下游数据分析的关键输出格式。<code>SummarizedExperiment</code>对象和矩阵类似，行是感兴趣的特征（例如基因），列表示样本。一个<code>SummarizedExperiment</code>能够记录一个或多个assay矩阵。如果你需要了解更多和<code>SummarizedExperiment</code>相关的内容，建议阅读相关的<a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html">Bioconductor页面</a>，这里就不深入对这方面内容进行介绍。</p>
+<p>我们能够使用<code>getMarkers()</code>函数从<code>SummarizedExperiment</code>对象中提取出一个包含多个<code>DataFrame</code>对象的列表，每个<code>DataFrame</code>对象都对应着一个聚类，记录着该聚类里相关的标记特征。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">markerList <span class="operator">&lt;-</span> getMarkers<span class="punctuation">(</span>markersGS<span class="punctuation">,</span> cutOff <span class="operator">=</span> <span class="string">&quot;FDR &lt;= 0.01 &amp; Log2FC &gt;= 1.25&quot;</span><span class="punctuation">)</span></span><br><span class="line">markerList<span class="operator">$</span>C6</span><br></pre></td></tr></table></figure>
+
+<p>我们使用<code>markerHeatmap()</code>创建含有所有标记特征的可视化热图。通过<code>labelMarkers()</code>在热图中标记部分感兴趣的基因。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">markerGenes  <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span></span><br><span class="line">    <span class="string">&quot;CD34&quot;</span><span class="punctuation">,</span> <span class="comment">#Early Progenitor</span></span><br><span class="line">    <span class="string">&quot;GATA1&quot;</span><span class="punctuation">,</span> <span class="comment">#Erythroid</span></span><br><span class="line">    <span class="string">&quot;PAX5&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;EBF1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MME&quot;</span><span class="punctuation">,</span> <span class="comment">#B-Cell Trajectory</span></span><br><span class="line">    <span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CEBPB&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MPO&quot;</span><span class="punctuation">,</span> <span class="comment">#Monocytes</span></span><br><span class="line">    <span class="string">&quot;IRF8&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    <span class="string">&quot;CD3D&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CD8A&quot;</span><span class="punctuation">,</span> <span class="string">&quot;TBX21&quot;</span><span class="punctuation">,</span> <span class="string">&quot;IL7R&quot;</span> <span class="comment">#TCells</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">heatmapGS <span class="operator">&lt;-</span> markerHeatmap<span class="punctuation">(</span></span><br><span class="line">  seMarker <span class="operator">=</span> markersGS<span class="punctuation">,</span> </span><br><span class="line">  cutOff <span class="operator">=</span> <span class="string">&quot;FDR &lt;= 0.01 &amp; Log2FC &gt;= 1.25&quot;</span><span class="punctuation">,</span> </span><br><span class="line">  labelMarkers <span class="operator">=</span> markerGenes<span class="punctuation">,</span></span><br><span class="line">  transpose <span class="operator">=</span> <span class="literal">TRUE</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们需要用<code>ComplexHeatmap::draw()</code>才能绘制该热图，这是因为<code>heatmapGS</code>实际上是一个热图列表。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ComplexHeatmap<span class="operator">::</span>draw<span class="punctuation">(</span>heatmapGS<span class="punctuation">,</span> heatmap_legend_side <span class="operator">=</span> <span class="string">&quot;bot&quot;</span><span class="punctuation">,</span> annotation_legend_side <span class="operator">=</span> <span class="string">&quot;bot&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<img src="/upload/2020/05/image-2fb12c1f7da64e2ca3a990aafa1f2a8d.png" alt="GeneScores Marker heatmap" style="zoom:20%;" />
+
+<p>使用plotPDF()函数保存可编辑的矢量版。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>heatmapGS<span class="punctuation">,</span> name <span class="operator">=</span> <span class="string">&quot;GeneScores-Marker-Heatmap&quot;</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">8</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">6</span><span class="punctuation">,</span> ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-4-在嵌入上可视化标记基因"><a href="#7-4-在嵌入上可视化标记基因" class="headerlink" title="7.4 在嵌入上可视化标记基因"></a>7.4 在嵌入上可视化标记基因</h2><p>在之前章节中提到，我们可以在UMAP嵌入上展示每个细胞的基因得分。这可以通过修改<code>plotEmbedding()</code>函数里的<code>colorBy</code>和<code>name</code>参数实现</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">markerGenes  <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span></span><br><span class="line">    <span class="string">&quot;CD34&quot;</span><span class="punctuation">,</span>  <span class="comment">#Early Progenitor</span></span><br><span class="line">    <span class="string">&quot;GATA1&quot;</span><span class="punctuation">,</span> <span class="comment">#Erythroid</span></span><br><span class="line">    <span class="string">&quot;PAX5&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MME&quot;</span><span class="punctuation">,</span> <span class="comment">#B-Cell Trajectory</span></span><br><span class="line">    <span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MPO&quot;</span><span class="punctuation">,</span> <span class="comment">#Monocytes</span></span><br><span class="line">    <span class="string">&quot;CD3D&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CD8A&quot;</span><span class="comment">#TCells</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">p <span class="operator">&lt;-</span> plotEmbedding<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;GeneScoreMatrix&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    name <span class="operator">=</span> markerGenes<span class="punctuation">,</span> </span><br><span class="line">    embedding <span class="operator">=</span> <span class="string">&quot;UMAP&quot;</span><span class="punctuation">,</span></span><br><span class="line">    quantCut <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">0.01</span><span class="punctuation">,</span> <span class="number">0.95</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">    imputeWeights <span class="operator">=</span> <span class="literal">NULL</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>选择绘图列表的其中一个基因进行展示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p<span class="operator">$</span>CD14</span><br></pre></td></tr></table></figure>
+
+<img src="/upload/2020/05/image-1b321875a5db4095babe00b0391df152.png" alt="Plot-UMAP-Marker-Genes-WO-Imputation" style="zoom:25%;" />
+
+<p>如果是需要绘制所有基因，那么可以使用<code>cowplot</code>将不同的标记基因整合到一张图中</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">p2 <span class="operator">&lt;-</span> lapply<span class="punctuation">(</span>p<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    x <span class="operator">+</span> guides<span class="punctuation">(</span>color <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> fill <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">    theme_ArchR<span class="punctuation">(</span>baseSize <span class="operator">=</span> <span class="number">6.5</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">    theme<span class="punctuation">(</span>plot.margin <span class="operator">=</span> unit<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;cm&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">    theme<span class="punctuation">(</span></span><br><span class="line">        axis.text.x<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.ticks.x<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.text.y<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.ticks.y<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">do.call<span class="punctuation">(</span>cowplot<span class="operator">::</span>plot_grid<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="built_in">list</span><span class="punctuation">(</span>ncol <span class="operator">=</span> <span class="number">3</span><span class="punctuation">)</span><span class="punctuation">,</span>p2<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<img src="/upload/2020/05/image-cf5de1d7abe94e0ebf711dafa7c69fca.png" alt="UMAP of Marker gene" style="zoom:75%;" />
+
+<p>使用<code>plotPDF()</code>函数保存可编辑的矢量版。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>plotList <span class="operator">=</span> p<span class="punctuation">,</span> </span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;Plot-UMAP-Marker-Genes-WO-Imputation.pdf&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">5</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-5-使用MAGIC填充标记基因"><a href="#7-5-使用MAGIC填充标记基因" class="headerlink" title="7.5 使用MAGIC填充标记基因"></a>7.5 使用MAGIC填充标记基因</h2><p>在上一节中，你可能注意到一些基因得分图变化很大，这是因为scATAC-seq数据太过稀疏。我们使用<a target="_blank" rel="noopener" href="https://github.com/KrishnaswamyLab/MAGIC">MAGIC</a>根据邻近细胞填充基因得分对信号进行平滑化处理。我们发现者能够极大程度地提高基因得分的可视化解读性。要执行此操作，我们需要先在我们的<code>ArchRProject</code>中加入填充权重。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHeme2 <span class="operator">&lt;-</span> addImputeWeights<span class="punctuation">(</span>projHeme2<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这些填充权重会在之后绘制UMAP嵌入图里的基因得分时传入到<code>plotEmbedding()</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">markerGenes  <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span></span><br><span class="line">    <span class="string">&quot;CD34&quot;</span><span class="punctuation">,</span>  <span class="comment">#Early Progenitor</span></span><br><span class="line">    <span class="string">&quot;GATA1&quot;</span><span class="punctuation">,</span> <span class="comment">#Erythroid</span></span><br><span class="line">    <span class="string">&quot;PAX5&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MME&quot;</span><span class="punctuation">,</span> <span class="comment">#B-Cell Trajectory</span></span><br><span class="line">    <span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MPO&quot;</span><span class="punctuation">,</span> <span class="comment">#Monocytes</span></span><br><span class="line">    <span class="string">&quot;CD3D&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CD8A&quot;</span><span class="comment">#TCells</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">p <span class="operator">&lt;-</span> plotEmbedding<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    colorBy <span class="operator">=</span> <span class="string">&quot;GeneScoreMatrix&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    name <span class="operator">=</span> markerGenes<span class="punctuation">,</span> </span><br><span class="line">    embedding <span class="operator">=</span> <span class="string">&quot;UMAP&quot;</span><span class="punctuation">,</span></span><br><span class="line">    imputeWeights <span class="operator">=</span> getImputeWeights<span class="punctuation">(</span>projHeme2<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>和之前一样，我们可以只画其中一个基因</p>
+<img src="/upload/2020/05/image-7a804bdfceff43b89a6e4ab7464061a7.png" alt="UMAP of imputation" style="zoom:50%;" />
+
+<p>也可以用<code>cowplot</code>绘制所有的标记基因</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Rearrange for grid plotting</span></span><br><span class="line">p2 <span class="operator">&lt;-</span> lapply<span class="punctuation">(</span>p<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    x <span class="operator">+</span> guides<span class="punctuation">(</span>color <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> fill <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">    theme_ArchR<span class="punctuation">(</span>baseSize <span class="operator">=</span> <span class="number">6.5</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">    theme<span class="punctuation">(</span>plot.margin <span class="operator">=</span> unit<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;cm&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">    theme<span class="punctuation">(</span></span><br><span class="line">        axis.text.x<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.ticks.x<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.text.y<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">        axis.ticks.y<span class="operator">=</span>element_blank<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">do.call<span class="punctuation">(</span>cowplot<span class="operator">::</span>plot_grid<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="built_in">list</span><span class="punctuation">(</span>ncol <span class="operator">=</span> <span class="number">3</span><span class="punctuation">)</span><span class="punctuation">,</span>p2<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<img src="/upload/2020/05/image-9b93a3a6aabd4b99ac6e737dfe17a6a4.png" alt="UMAP of all imputation" style="zoom:50%;" />
+
+<p>使用plotPDF()函数保存可编辑的矢量版。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>plotList <span class="operator">=</span> p<span class="punctuation">,</span> </span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;Plot-UMAP-Marker-Genes-W-Imputation.pdf&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">5</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="7-6-使用ArchRBrowser绘制Track"><a href="#7-6-使用ArchRBrowser绘制Track" class="headerlink" title="7.6 使用ArchRBrowser绘制Track"></a>7.6 使用ArchRBrowser绘制Track</h2><p>除了在UMAP上绘制每个细胞的基因得分外，我们还可以在基因组浏览器上浏览这些标记基因的局部染色体开放状态。为了执行该操作，我们使用<code>plotBrowserTrack()</code>函数，它会构建一系列绘图对象，每个对象对应一个标记基因。函数会根据<code>groupBy</code>输入的组别信息在不同track上绘制每组的开放状态。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">markerGenes  <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span></span><br><span class="line">    <span class="string">&quot;CD34&quot;</span><span class="punctuation">,</span> <span class="comment">#Early Progenitor</span></span><br><span class="line">    <span class="string">&quot;GATA1&quot;</span><span class="punctuation">,</span> <span class="comment">#Erythroid</span></span><br><span class="line">    <span class="string">&quot;PAX5&quot;</span><span class="punctuation">,</span> <span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span> <span class="comment">#B-Cell Trajectory</span></span><br><span class="line">    <span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span> <span class="comment">#Monocytes</span></span><br><span class="line">    <span class="string">&quot;CD3D&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CD8A&quot;</span><span class="punctuation">,</span> <span class="string">&quot;TBX21&quot;</span><span class="punctuation">,</span> <span class="string">&quot;IL7R&quot;</span> <span class="comment">#TCells</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">p <span class="operator">&lt;-</span> plotBrowserTrack<span class="punctuation">(</span></span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    groupBy <span class="operator">=</span> <span class="string">&quot;Clusters&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    geneSymbol <span class="operator">=</span> markerGenes<span class="punctuation">,</span> </span><br><span class="line">    upstream <span class="operator">=</span> <span class="number">50000</span><span class="punctuation">,</span></span><br><span class="line">    downstream <span class="operator">=</span> <span class="number">50000</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>通过选择列表中的给定基因来绘制最终结果</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grid<span class="operator">::</span>grid.newpage<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line">grid<span class="operator">::</span>grid.draw<span class="punctuation">(</span>p<span class="operator">$</span>CD14<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<img src="/upload/2020/05/image-fa9adf3584ea492484867839f4b64ef7.png" alt="Plot-Tracks-Marker-Genes_5" style="zoom:25%;" />
+
+<p>使用<code>plotPDF()</code>函数可以将多幅基因座位对应的图保存在一个PDF文件中。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">plotPDF<span class="punctuation">(</span>plotList <span class="operator">=</span> p<span class="punctuation">,</span> </span><br><span class="line">    name <span class="operator">=</span> <span class="string">&quot;Plot-Tracks-Marker-Genes.pdf&quot;</span><span class="punctuation">,</span> </span><br><span class="line">    ArchRProj <span class="operator">=</span> projHeme2<span class="punctuation">,</span> </span><br><span class="line">    addDOC <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> width <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> height <span class="operator">=</span> <span class="number">5</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-7-启动ArchRBrowser"><a href="#7-7-启动ArchRBrowser" class="headerlink" title="7.7 启动ArchRBrowser"></a>7.7 启动ArchRBrowser</h2><p>scATAC-seq数据分析一个与生俱来的挑战就是在基因组浏览器上可视化聚类间的染色质开放水平。传统做法是，先对scATAC-seq的fragments进行分组，然后构建一个基因组覆盖度的bigwig文件，最后对track进行标准化后才能实现定量层面上的可视化。终端用户经常用于测序数据可视化的基因组浏览器包括 <a target="_blank" rel="noopener" href="https://epigenomegateway.wustl.edu/">WashU Epigenome Browser</a>,  <a target="_blank" rel="noopener" href="http://genome.ucsc.edu/">UCSC Genome Browser</a>, <a target="_blank" rel="noopener" href="http://software.broadinstitute.org/software/igv/">IGV browser</a>。这一过程需要用到多个不同软件，并且一旦细胞分组信息改变，或者增加了更多的样本，就得重新分组输出bigiwig文件，相当耗时。</p>
+<p>为了避免重复劳动，ArchR开发了基于Shiny的交互式基因组浏览器，只需要一行<code>ArchRBrowser(ArchRProj)</code>命令就可启动。因为数据都存放在Arrow文件中，所以这个交互式浏览器就能动态的更改细胞分组信息，分辨率以及标准化，实现实时的track水平的可视化。ArchR Genome Browser 同样也能生成高质量的PDF格式输出文件用于发表或分享。此外，浏览器支持用户通过<code>features</code>参数传入<code>GenomicRanges</code>对象用来展示特征，或者通过<code>loop</code>参数传入基因组交互文件（ co-accessibility, peak-to-gene linkages, loops from chromatin conformation data）。其中<code>loop</code>的预期格式是<code>GRanges</code>，起点表示其中一个loop的中心，终点表示另一个loop中心。</p>
+<p>使用<code>ArchRBrowser()</code>函数启动我们的本地交互基因组浏览器</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-51ae326ad0fb47f0a60e9dc62310245d.png" alt="ArchR_Browser_1"></p>
+<p>通过选择”Gene Symbol”，就可以开始浏览了。你可能需要点击”Plot Track”才能强制让你的浏览器刷新</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-941f533e83154ccf92caf016d8fac763.png" alt="ArchR_Browser_2"></p>
+<p>当我们绘制一个基因位点后，我们看到不同track代表的是我们数据的不同聚类。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-5c87ee91bd9b47aa95c10686bb19fe2b.png" alt="ArchR_Browser_3"></p>
+<p>如果我们点击”Additional Parameters”侧边栏，我们可以选择部分聚类进行展示</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-47321577c4ba422780cb67cc5a9aaf3f.png" alt="ArchR_Browser_4"></p>
+<p>通过反选cluster1, 2, 3，我们就在绘图中移除了它们</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-324391d639304514a4b11648489e8932.png" alt="ArchR_Browser_5"></p>
+<p>当我们返回到”Plot”时，此时Cluster1,2,3就从图片中消失了。同样你也可能需要点击”Plot Track”才能让浏览器刷新结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-db216dfaf3bc4bb5a56b5d41b2696e67.png" alt="ArchR_Browser_6"></p>
+<p>无论在哪个阶段，我们都可以点击”Download The Track”来输出当前的绘图结果。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" data-id="cllg90y3j00a6eqp2gh498vo2" data-title="使用ArchR分析单细胞ATAC-seq数据(第七章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/31/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AB%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          使用ArchR分析单细胞ATAC-seq数据(第八章)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AD%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">使用ArchR分析单细胞ATAC-seq数据(第六章)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

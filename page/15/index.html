@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/15/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-ggplot2高级_构建自己的图层-ggplot2-advance-using-ggproto-to-create-your-own-layer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/09/ggplot2%E9%AB%98%E7%BA%A7_%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%9B%BE%E5%B1%82-ggplot2-advance-using-ggproto-to-create-your-own-layer/" class="article-date">
+  <time class="dt-published" datetime="2019-12-09T21:30:07.671Z" itemprop="datePublished">2019-12-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/09/ggplot2%E9%AB%98%E7%BA%A7_%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%9B%BE%E5%B1%82-ggplot2-advance-using-ggproto-to-create-your-own-layer/">ggplot2高级:构建自己的图层</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这部分内容是<a target="_blank" rel="noopener" href="https://ggplot2.tidyverse.org/articles/extending-ggplot2.html">Extending ggplot2</a>的学习笔记，大部分内容都是原文的简单翻译。</p>
+<p>所有的ggplot2对象都建立自”ggproto”这套面向对象编程系统，因此想要创建出自己的一套图层，而不是简单的对已有图层进行累加，那么就需要学习”ggproto”。</p>
+<h2 id="创建新的stat"><a href="#创建新的stat" class="headerlink" title="创建新的stat"></a>创建新的stat</h2><h3 id="最简单的stat"><a href="#最简单的stat" class="headerlink" title="最简单的stat"></a>最简单的stat</h3><p>我们会从一个最简单的stat开始: 根据已有的一组点，用一个凸壳(convex hull)包围他。</p>
+<p>第一步，我们创建一个继承自<code>Stat</code>的”ggproto”对象</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">StatChull <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatChull&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span></span><br><span class="line">                     compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                       data<span class="punctuation">[</span>chull<span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> data<span class="operator">$</span>y<span class="punctuation">)</span><span class="punctuation">,</span> <span class="punctuation">,</span> drop<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">]</span></span><br><span class="line">                     <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">                     required_aes <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;x&quot;</span><span class="punctuation">,</span><span class="string">&quot;y&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在”ggproto”函数中，前两个是固定项，分别是<strong>类名</strong>和继承的”ggproto”类。而后续内容则是和你继承的类相关，例如<code>compute_group()</code>方法负责计算，<code>required_aes</code>则列出哪些图形属性(aesthetics)必须要存在，这两个都继承自<code>Stat</code>，可以用<code>?Stat</code>查看更多信息。。</p>
+<p>第二步，我们开始写一个<strong>图层</strong>。由于历史设计原因，Hadley将其称作<code>stat_()</code>或<code>geom_()</code>。但实际上，Hadley认为<code>layer_()</code>可能更准确些，毕竟每一个图层都或多或少的有”stat”和”geom”。</p>
+<p>所有的图层都遵循<strong>相同的格式</strong>，即你在<code>function</code>中声明默认参数，然后调用<code>layer()</code>函数，将<code>...</code>传递给<code>params</code>参数。在<code>...</code>的参数既可以是”geom”的参数(如果你要做一个stat封装)，或者是”stat”的参数(如果你要做geom的封装)，或者是将要设置的图形属性. <code>layer()</code>会小心的将不同的参数分开并确保它们存储在正确的位置:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">stat_chull <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;polygon&quot;</span><span class="punctuation">,</span></span><br><span class="line">                       position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                       inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span></span><br><span class="line">    stat <span class="operator">=</span> StatChull<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> geom <span class="operator">=</span> geom<span class="punctuation">,</span></span><br><span class="line">    position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">    params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span></span><br><span class="line">    </span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>(<strong>注</strong>, 在写R包的时候要注意用<code>ggplot2::layer()</code>或在命名空间中导入<code>layer()</code>, 否则会因找到函数而报错)</p>
+<p>当我们写好了图层函数后，我们就可以尝试这个新的”stat”了</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_chull<span class="punctuation">(</span>fill <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span> colour<span class="operator">=</span> <span class="string">&quot;black&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209211949133-7dfe3ed520f244df9d5fc35f55b53cef.png" alt="simple-stat"></p>
+<p>(后续我们会学习如何通过设置”geom”的默认值，来避免声明<code>fill=NA</code>)</p>
+<p>一旦我们构建了这种基本的对象，ggplot2将会给我们带来极大的自由。举个例子，ggplot2自动保留每组中不变的图形属性，也就是说你可以分组绘制一个凸壳:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">,</span> colour <span class="operator">=</span> drv<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_chull<span class="punctuation">(</span>fill <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209212349634-20e492500ce8464bb4a4eb23ce623a2e.png" alt="add group chull"></p>
+<p>我们还可以覆盖默认的图层，来以不同的形式展现凸壳:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_chull<span class="punctuation">(</span>geom <span class="operator">=</span> <span class="string">&quot;point&quot;</span><span class="punctuation">,</span> size <span class="operator">=</span> <span class="number">4</span><span class="punctuation">,</span> colour <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209212531609-0d6b161d9bfd4267a38598ff6f6d0665.png" alt="different chull"></p>
+<h3 id="Stat参数"><a href="#Stat参数" class="headerlink" title="Stat参数"></a>Stat参数</h3><p>一个更加复杂的”stat”会做一些计算。我们可以通过实现一个简单版本的<code>geom_smooth</code>来了解。我们将会创建一个新的图层<code>StatLm</code>（继承自<code>Stat</code>）和一个的图层函数<code>stat_lm()</code>:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基于ggproto创建StatLm</span></span><br><span class="line">StatLm <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatLm&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span></span><br><span class="line">                  required_aes <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;x&quot;</span><span class="punctuation">,</span> <span class="string">&quot;y&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                  compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                    rng <span class="operator">&lt;-</span> <span class="built_in">range</span><span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> nr.rm <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">                    grid <span class="operator">&lt;-</span> data.frame<span class="punctuation">(</span>x <span class="operator">=</span> rng<span class="punctuation">)</span></span><br><span class="line">                    mod <span class="operator">&lt;-</span> lm<span class="punctuation">(</span>y <span class="operator">~</span> x<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">)</span></span><br><span class="line">                    grid<span class="operator">$</span>y <span class="operator">&lt;-</span> predict<span class="punctuation">(</span>mod<span class="punctuation">,</span> newdata <span class="operator">=</span> grid<span class="punctuation">)</span></span><br><span class="line">                    grid</span><br><span class="line">                  <span class="punctuation">&#125;</span></span><br><span class="line">                  <span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 创建图层函数</span></span><br><span class="line">stat_lm <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;line&quot;</span><span class="punctuation">,</span></span><br><span class="line">                    position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                    inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span></span><br><span class="line">    stat <span class="operator">=</span> StatLm<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> geom <span class="operator">=</span> geom<span class="punctuation">,</span></span><br><span class="line">    position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">    params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>调用我们写的<code>stat_lm()</code>图形，检查下效果</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_lm<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209221353283-0d80288d88ee4787ae3be21b09891703.png" alt="liner model"></p>
+<p><code>StatLm</code>缺少参数不太灵活，只能做单一线性拟合。最好是允许用户能够自由修改模型公式和创建图层所需要的数据量。为了实现这一需求，我们在<code>compute_group()</code>增加了一些参数，代码如下:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 增加了参数n和formula</span></span><br><span class="line">StatLm2 <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatLm2&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span></span><br><span class="line">                  required_aes <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;x&quot;</span><span class="punctuation">,</span> <span class="string">&quot;y&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                  compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">,</span> params<span class="punctuation">,</span> </span><br><span class="line">                                           n <span class="operator">=</span> <span class="number">100</span><span class="punctuation">,</span> formula <span class="operator">=</span> y <span class="operator">~</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                    </span><br><span class="line">                    rng <span class="operator">&lt;-</span> <span class="built_in">range</span><span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">                    grid <span class="operator">&lt;-</span> data.frame<span class="punctuation">(</span>x <span class="operator">=</span> seq<span class="punctuation">(</span>rng<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">,</span> rng<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span><span class="punctuation">,</span><span class="built_in">length</span> <span class="operator">=</span> n<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">                    </span><br><span class="line">                    mod <span class="operator">&lt;-</span> lm<span class="punctuation">(</span>formula<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">)</span></span><br><span class="line">                    grid<span class="operator">$</span>y <span class="operator">&lt;-</span> predict<span class="punctuation">(</span>mod<span class="punctuation">,</span> newdata <span class="operator">=</span> grid<span class="punctuation">)</span></span><br><span class="line">                    grid</span><br><span class="line">                  <span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 固定模板</span></span><br><span class="line">stat_lm2 <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;line&quot;</span><span class="punctuation">,</span></span><br><span class="line">                     position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                     inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> n <span class="operator">=</span> <span class="number">50</span><span class="punctuation">,</span> formula <span class="operator">=</span> y <span class="operator">~</span> x<span class="punctuation">,</span></span><br><span class="line">                     ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span>stat <span class="operator">=</span> StatLm2<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> geom <span class="operator">=</span> geom<span class="punctuation">,</span></span><br><span class="line">        position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">        params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span> n <span class="operator">=</span> n<span class="punctuation">,</span> formula <span class="operator">=</span> formula<span class="punctuation">,</span> na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="comment"># 绘图</span></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_lm<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_lm2<span class="punctuation">(</span>formula <span class="operator">=</span> y <span class="operator">~</span> poly<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">10</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_lm2<span class="punctuation">(</span>formula <span class="operator">=</span> y <span class="operator">~</span> poly<span class="punctuation">(</span>x<span class="punctuation">,</span> <span class="number">10</span><span class="punctuation">)</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;point&quot;</span><span class="punctuation">,</span> colour <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">,</span> n <span class="operator">=</span><span class="number">20</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209222604591-ed2e32a2f0124cb0a6b282bf961fbd9f.png" alt="add parameter"></p>
+<p>我们并不需要显式在图层中包括新的参数，<code>..</code>会将这些参数放到合适的地方。但是你必须在文档中写出哪些参数是可以让用户调整的，以便用户知道他们的存在。举个一个简单的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#&#x27; <span class="doctag">@export</span></span></span><br><span class="line"><span class="comment">#&#x27; <span class="doctag">@inheritParams</span> ggplot2::stat_identity</span></span><br><span class="line"><span class="comment">#&#x27; <span class="doctag">@param <span class="variable">formula</span></span> The modelling formula passed to <span class="keyword">\code</span>&#123;lm&#125;. Should only </span></span><br><span class="line"><span class="comment">#&#x27;   involve <span class="keyword">\code</span>&#123;y&#125; and <span class="keyword">\code</span>&#123;x&#125;</span></span><br><span class="line"><span class="comment">#&#x27; <span class="doctag">@param <span class="variable">n</span></span> Number of points used for interpolation.</span></span><br><span class="line">stat_lm <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;line&quot;</span><span class="punctuation">,</span></span><br><span class="line">                    position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span> </span><br><span class="line">                    inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> n <span class="operator">=</span> <span class="number">50</span><span class="punctuation">,</span> formula <span class="operator">=</span> y <span class="operator">~</span> x<span class="punctuation">,</span> </span><br><span class="line">                    ...<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span></span><br><span class="line">    stat <span class="operator">=</span> StatLm<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> geom <span class="operator">=</span> geom<span class="punctuation">,</span> </span><br><span class="line">    position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">    params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>n <span class="operator">=</span> n<span class="punctuation">,</span> formula <span class="operator">=</span> formula<span class="punctuation">,</span> na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面代码中以<code>#&#39; </code>开头内容都是roxygon语法，其中<code>@inheritParams ggplot2::stat_identity</code>表示在最后输出的帮助文档中会继承<code>stat_identity</code>的参数说明。而<code>@export</code>则是将函数让用户可见，否则用户无法直接调用。</p>
+<h3 id="挑选参数"><a href="#挑选参数" class="headerlink" title="挑选参数"></a>挑选参数</h3><p>有些时候，你会发现部分运算是针对所有数据集进行，而非每个分组。比较好的方法就是挑选明智的默认值。例如，我们需要做密度预测，我们有理由为整个图形挑选一个带宽(bandwidth)。下面的”Stat”创建了<code>stat_density()</code>的变体，通过选择每组最优带宽的均值作为所有分组的带宽。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">StatDensityCommon <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatDensityComon&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span></span><br><span class="line">                             required_aes <span class="operator">=</span> <span class="string">&quot;x&quot;</span><span class="punctuation">,</span></span><br><span class="line">                             </span><br><span class="line">                             setup_params <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> params<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                               <span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.null</span><span class="punctuation">(</span>params<span class="operator">$</span>bandwidth<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">                                 <span class="built_in">return</span><span class="punctuation">(</span>params<span class="punctuation">)</span></span><br><span class="line">                               </span><br><span class="line">                               xs <span class="operator">&lt;-</span> split<span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> data<span class="operator">$</span>group<span class="punctuation">)</span></span><br><span class="line">                               bws <span class="operator">&lt;-</span> vapply<span class="punctuation">(</span>xs<span class="punctuation">,</span> bw.nrd0<span class="punctuation">,</span> numeric<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">                               bw <span class="operator">&lt;-</span> mean<span class="punctuation">(</span>bws<span class="punctuation">)</span></span><br><span class="line">                               message<span class="punctuation">(</span><span class="string">&quot;Picking bandwidth of &quot;</span><span class="punctuation">,</span> <span class="built_in">signif</span><span class="punctuation">(</span>bw<span class="punctuation">,</span><span class="number">3</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">                               </span><br><span class="line">                               params<span class="operator">$</span>bandwidth <span class="operator">&lt;-</span> bw</span><br><span class="line">                               params</span><br><span class="line">                               <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">                             </span><br><span class="line">                             compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">,</span> bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                               d <span class="operator">&lt;-</span> density<span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> bw <span class="operator">=</span> bandwidth<span class="punctuation">)</span></span><br><span class="line">                               data.frame<span class="punctuation">(</span>x <span class="operator">=</span> d<span class="operator">$</span>x<span class="punctuation">,</span> y <span class="operator">=</span> d<span class="operator">$</span>y<span class="punctuation">)</span></span><br><span class="line">                               </span><br><span class="line">                             <span class="punctuation">&#125;</span></span><br><span class="line">                             <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">stat_density_common <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;line&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">                                show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span> inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span></span><br><span class="line">                                bandwidth <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span>stat <span class="operator">=</span> StatDensityCommon<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span></span><br><span class="line">        geom <span class="operator">=</span> geom<span class="punctuation">,</span> position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span></span><br><span class="line">        inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span> </span><br><span class="line">        params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>bandwidth <span class="operator">=</span> bandwidth<span class="punctuation">,</span> na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> colour <span class="operator">=</span> drv<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_density_common<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209232222057-ef558e7bfff84a63a474fd3954de8437.png" alt="stat density common"></p>
+<p>作者推推荐用<code>NULL</code>作为默认值。如果你通过自动计算的方式挑选了重要参数，那么建议通过<code>message()</code>的形式告知用户(在答应浮点值参数时，用<code>singif()</code>可以只展示部分小数点)。</p>
+<h3 id="变量名和默认图形属性"><a href="#变量名和默认图形属性" class="headerlink" title="变量名和默认图形属性"></a>变量名和默认图形属性</h3><p>这部分”stat”会阐述另外一个重要的点。当我们想要让当前”stat”对其他geoms更加有用时，我们应该返回一个变量，称之为”density”而不是”y”。之后，我们可以设置”default_aes”自动地将<code>density</code>映射到<code>y</code>, 这允许用户覆盖它从而使用不同的”geom”.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">StatDensityCommon <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatDentiy2&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span></span><br><span class="line">                             required_aes <span class="operator">=</span> <span class="string">&quot;x&quot;</span><span class="punctuation">,</span></span><br><span class="line">                             default_aes <span class="operator">=</span> aes<span class="punctuation">(</span>y <span class="operator">=</span> stat<span class="punctuation">(</span>density<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                             </span><br><span class="line">                             compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">,</span> bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                               d <span class="operator">&lt;-</span> density<span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> bw<span class="operator">=</span> bandwidth<span class="punctuation">)</span></span><br><span class="line">                               data.frame<span class="punctuation">(</span>x <span class="operator">=</span> d<span class="operator">$</span>x <span class="punctuation">,</span> density<span class="operator">=</span>d<span class="operator">$</span>y<span class="punctuation">)</span></span><br><span class="line">                             <span class="punctuation">&#125;</span></span><br><span class="line">                             <span class="punctuation">)</span></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> drv<span class="punctuation">,</span> colour <span class="operator">=</span> stat<span class="punctuation">(</span>density<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  stat_density_common<span class="punctuation">(</span>bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> geom<span class="operator">=</span><span class="string">&quot;point&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209233316547-656e91859e5043cbaf7ea23c80f0855e.png" alt="stat-area-geom"></p>
+<p>然而直接在stat中用area geom的结果可能和你想的不同。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> fill <span class="operator">=</span> drv<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_density_common<span class="punctuation">(</span>bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;area&quot;</span><span class="punctuation">,</span> position <span class="operator">=</span> <span class="string">&quot;stack&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209233525901-fca4a8492421423d87ac31a903a7c960.png" alt="StatDensity2"></p>
+<p>密度不是一个相互累加，而是单独计算，因此预测的<code>x</code>没有对齐。我们可以通过在<code>setup_params()</code>计算数据范围的方式解决该问题</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">StatDensityCommon <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;StatDensityCommon&quot;</span><span class="punctuation">,</span> Stat<span class="punctuation">,</span> </span><br><span class="line">  required_aes <span class="operator">=</span> <span class="string">&quot;x&quot;</span><span class="punctuation">,</span></span><br><span class="line">  default_aes <span class="operator">=</span> aes<span class="punctuation">(</span>y <span class="operator">=</span> stat<span class="punctuation">(</span>density<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line"></span><br><span class="line">  setup_params <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> params<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="built_in">min</span> <span class="operator">&lt;-</span> <span class="built_in">min</span><span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">)</span> <span class="operator">-</span> <span class="number">3</span> <span class="operator">*</span> params<span class="operator">$</span>bandwidth</span><br><span class="line">    <span class="built_in">max</span> <span class="operator">&lt;-</span> <span class="built_in">max</span><span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">)</span> <span class="operator">+</span> <span class="number">3</span> <span class="operator">*</span> params<span class="operator">$</span>bandwidth</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">list</span><span class="punctuation">(</span></span><br><span class="line">      bandwidth <span class="operator">=</span> params<span class="operator">$</span>bandwidth<span class="punctuation">,</span></span><br><span class="line">      <span class="built_in">min</span> <span class="operator">=</span> <span class="built_in">min</span><span class="punctuation">,</span></span><br><span class="line">      <span class="built_in">max</span> <span class="operator">=</span> <span class="built_in">max</span><span class="punctuation">,</span></span><br><span class="line">      na.rm <span class="operator">=</span> params<span class="operator">$</span>na.rm</span><br><span class="line">    <span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  </span><br><span class="line">  compute_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> scales<span class="punctuation">,</span> <span class="built_in">min</span><span class="punctuation">,</span> <span class="built_in">max</span><span class="punctuation">,</span> bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    d <span class="operator">&lt;-</span> density<span class="punctuation">(</span>data<span class="operator">$</span>x<span class="punctuation">,</span> bw <span class="operator">=</span> bandwidth<span class="punctuation">,</span> from <span class="operator">=</span> <span class="built_in">min</span><span class="punctuation">,</span> to <span class="operator">=</span> <span class="built_in">max</span><span class="punctuation">)</span></span><br><span class="line">    data.frame<span class="punctuation">(</span>x <span class="operator">=</span> d<span class="operator">$</span>x<span class="punctuation">,</span> density <span class="operator">=</span> d<span class="operator">$</span>y<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span>  </span><br><span class="line"><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> fill <span class="operator">=</span> drv<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_density_common<span class="punctuation">(</span>bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;area&quot;</span><span class="punctuation">,</span> position <span class="operator">=</span> <span class="string">&quot;stack&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209234913308-21296b26d9da4cbb84f3aeec779f937f.png" alt="stat-stack-area"></p>
+<p>使用”raster”几何形状</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> drv<span class="punctuation">,</span> fill <span class="operator">=</span> stat<span class="punctuation">(</span>density<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  stat_density_common<span class="punctuation">(</span>bandwidth <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> geom <span class="operator">=</span> <span class="string">&quot;raster&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191209234520074-8e03590584fc4d7e8557e9b71d26da78.png" alt="stat-raster"></p>
+<h3 id="练习题"><a href="#练习题" class="headerlink" title="练习题"></a>练习题</h3><ol>
+<li>拓展<code>stat_chull</code>，使其能够计算alpha hull, 类似于<code>alphahull</code>. 新的”stat”能够接受<code>alpha</code>做为参数</li>
+<li>修改最终版本的<code>StatDensityComon</code>, 使其能够接受用户定义的<code>min</code>和<code>max</code>. 你需要同时修改layer函数和<code>compute_group()</code>方法</li>
+<li>将<code>StatLm</code>和<code>ggplot2::StatSmooth</code>对比。是什么差异使得<code>StatSmooth</code>比<code>StatLm</code>更加复杂。</li>
+</ol>
+<h2 id="创建新的geom"><a href="#创建新的geom" class="headerlink" title="创建新的geom"></a>创建新的geom</h2><p>相对于创建新的”stat”, 创建新的”geom”会将难一些，因为这需要你懂得一些<code>grid</code>知识。因为ggplot2基于<code>grid</code>，所以你得要学一些用<code>grid</code>绘图的知识。如果你真的打算学习如何新增一个新的”geom”，Hadley推荐你买Paul Murrell所著的<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26792674/">R绘图系统</a>。里面介绍所有和用”grid”绘图相关的知识。</p>
+<h3 id="一个简单的geom"><a href="#一个简单的geom" class="headerlink" title="一个简单的geom"></a>一个简单的geom</h3><p>让我们先从一个简单的案例入手，尝试实现一个类似于<code>geom_point()</code>的图层</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ggproto原型</span></span><br><span class="line">GeomSimplePoint <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;GeomSimplePoint&quot;</span><span class="punctuation">,</span> Geom<span class="punctuation">,</span></span><br><span class="line">                           required_aes <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;x&quot;</span><span class="punctuation">,</span><span class="string">&quot;y&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                           default_aes <span class="operator">=</span> aes<span class="punctuation">(</span>shape <span class="operator">=</span> <span class="number">19</span><span class="punctuation">,</span> size <span class="operator">=</span> <span class="number">0.1</span><span class="punctuation">,</span> colour <span class="operator">=</span> <span class="string">&quot;black&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                           draw_key <span class="operator">=</span> draw_key_point<span class="punctuation">,</span></span><br><span class="line">                           </span><br><span class="line">                           draw_panel <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> panel_params<span class="punctuation">,</span> coord<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                             coords <span class="operator">&lt;-</span> coord<span class="operator">$</span>transform<span class="punctuation">(</span>data<span class="punctuation">,</span> panel_params<span class="punctuation">)</span></span><br><span class="line">                             grid<span class="operator">::</span>pointsGrob<span class="punctuation">(</span></span><br><span class="line">                               coords<span class="operator">$</span>x<span class="punctuation">,</span> coords<span class="operator">$</span>y<span class="punctuation">,</span></span><br><span class="line">                               pch <span class="operator">=</span> coords<span class="operator">$</span>shape<span class="punctuation">,</span></span><br><span class="line">                               size <span class="operator">=</span> unit<span class="punctuation">(</span>coords<span class="operator">$</span>size<span class="punctuation">,</span> <span class="string">&quot;char&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                               gp <span class="operator">=</span> grid<span class="operator">::</span>gpar<span class="punctuation">(</span>col<span class="operator">=</span>coords<span class="operator">$</span>colour<span class="punctuation">)</span></span><br><span class="line">                             <span class="punctuation">)</span></span><br><span class="line">                             </span><br><span class="line">                           <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 图层函数</span></span><br><span class="line">geom_simple_point <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> stat <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span></span><br><span class="line">                              position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                              inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  layer<span class="punctuation">(</span>geom <span class="operator">=</span> GeomSimplePoint<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> stat <span class="operator">=</span> stat<span class="punctuation">,</span></span><br><span class="line">        position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">        params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span>                       </span><br><span class="line"></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_simple_point<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191210102610848-e52b56010e2c473bbf2f3c971908cb02.png" alt="geom-simple-point"></p>
+<p>上面的代码和构建新的”stat”非常的相似，我们同样需要为4块内容提供属性&#x2F;方法</p>
+<ul>
+<li><code>required_aes</code>: 用户所必需的提供的美术属性</li>
+<li><code>default_aes</code>: 默认的图形属性值</li>
+<li><code>draw_key</code>: 提供在图例(legend)绘制关键信息的函数，可用<code>?draw_key</code>查看帮助文档</li>
+<li><code>draw_panel</code>: 这里就是见证奇迹的地方。该函数接受三个参数作为输入，返回一个<code>grid</code>的”grob”对象。它在每个面板(panel)运行一次。由于它是最复杂的内容，因此我们有必要详细地介绍它。</li>
+</ul>
+<p><code>draw_panel</code>有三个参数</p>
+<ul>
+<li><code>data</code>: 数据框，每一列都是一个图形属性</li>
+<li><code>panel_params</code>: 一个列表，里面是coord产生的每个面板的参数。你需要将其当做一个不透明的数据结构: 不要看里面的细节，只要将其传递给<code>coord</code>方法。</li>
+<li><code>coord</code>: 一个描述坐标系统的对象</li>
+</ul>
+<p>你需要共同使用<code>panel_params</code>和<code>coord</code>才能对数据进行转换，即<code>coords &lt;- coord$transform(data, panel_params)</code>。这会创建一个数据框，里面的位置变量会被<strong>缩放</strong>到0-1之间。得到缩放数据用于调用”grid”的grob函数。(非笛卡尔坐标系统的数据转换比较复杂，你最好是将数据转成已有ggplot2的”geom”所接受的格式，然后传递)。</p>
+<h3 id="分组geoms"><a href="#分组geoms" class="headerlink" title="分组geoms"></a>分组geoms</h3><p>上一步我们用到的是<code>draw_panel</code>，也就是为每一行元素创建一个图形元素，比如说上面的<code>GeomSimplePoint</code>就是每一行一个点，这是最常见的情况。当然，如果你想为每一个分组绘制一个图形元素，那么我们应该使用<code>draw_group()</code>。</p>
+<p>我们用一个简化版的<code>GeomPolygon</code>为例讲解这个知识点:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">GeomSimplePolygon <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;GeomPolygon&quot;</span><span class="punctuation">,</span> Geom<span class="punctuation">,</span></span><br><span class="line">                             required_aes <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;x&quot;</span><span class="punctuation">,</span> <span class="string">&quot;y&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                             default_aes <span class="operator">=</span> aes<span class="punctuation">(</span></span><br><span class="line">                               colour <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span> fill <span class="operator">=</span> <span class="string">&quot;grey20&quot;</span><span class="punctuation">,</span> size <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">,</span></span><br><span class="line">                               linetype <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> alpha <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">                             <span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                             </span><br><span class="line">                             draw_key <span class="operator">=</span> draw_key_polygon<span class="punctuation">,</span></span><br><span class="line">                             </span><br><span class="line">                             draw_group <span class="operator">=</span> <span class="keyword">function</span><span class="punctuation">(</span>data<span class="punctuation">,</span> panel_params<span class="punctuation">,</span> coord<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">                               n <span class="operator">&lt;-</span> nrow<span class="punctuation">(</span>data<span class="punctuation">)</span></span><br><span class="line">                               <span class="keyword">if</span> <span class="punctuation">(</span>n <span class="operator">&lt;=</span> <span class="number">2</span><span class="punctuation">)</span> <span class="built_in">return</span><span class="punctuation">(</span>grid<span class="operator">::</span>nullGrob<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">                               </span><br><span class="line">                               coords <span class="operator">&lt;-</span> coord<span class="operator">$</span>transform<span class="punctuation">(</span>data<span class="punctuation">,</span> panel_params<span class="punctuation">)</span></span><br><span class="line">                               </span><br><span class="line">                               first_row <span class="operator">&lt;-</span> coords<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span> <span class="punctuation">,</span> drop <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">]</span></span><br><span class="line">                               </span><br><span class="line">                               grid<span class="operator">::</span>polygonGrob<span class="punctuation">(</span></span><br><span class="line">                                 coords<span class="operator">$</span>x<span class="punctuation">,</span> coords<span class="operator">$</span>y<span class="punctuation">,</span></span><br><span class="line">                                 default.units <span class="operator">=</span> <span class="string">&quot;native&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                 gp <span class="operator">=</span> grid<span class="operator">::</span>gpar<span class="punctuation">(</span></span><br><span class="line">                                   col <span class="operator">=</span> first_row<span class="operator">$</span>colour<span class="punctuation">,</span></span><br><span class="line">                                   fill <span class="operator">=</span> scales<span class="operator">::</span>alpha<span class="punctuation">(</span>first_row<span class="operator">$</span>fill<span class="punctuation">,</span> first_row<span class="operator">$</span>alpha<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                   lwd <span class="operator">=</span> first_row<span class="operator">$</span>size <span class="operator">*</span> .pt<span class="punctuation">,</span></span><br><span class="line">                                   lty <span class="operator">=</span> first_row<span class="operator">$</span>linetype</span><br><span class="line">                                 <span class="punctuation">)</span></span><br><span class="line">                               <span class="punctuation">)</span>                                                          </span><br><span class="line">                             <span class="punctuation">&#125;</span></span><br><span class="line">                            <span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">geom_simple_polygon <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> stat <span class="operator">=</span> <span class="string">&quot;chull&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> </span><br><span class="line">                                show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span> inherit.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span></span><br><span class="line">    geom <span class="operator">=</span> GeomSimplePolygon<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> stat <span class="operator">=</span> stat<span class="punctuation">,</span></span><br><span class="line">    position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inherit.aes<span class="punctuation">,</span></span><br><span class="line">    params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_simple_polygon<span class="punctuation">(</span>aes<span class="punctuation">(</span>colour <span class="operator">=</span> <span class="built_in">class</span><span class="punctuation">)</span><span class="punctuation">,</span> fill <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里有几个注意点</p>
+<ul>
+<li>我们重写了<code>draw_group()</code>而不是<code>draw_panel()</code>, 这是因为我们希望polygon是按照绘制，而不是按行绘制。</li>
+<li>我们分组数据中不到两行，也就是没有足够的数据点去绘制polygon，因此我们返回了一个<code>nullGrob()</code>。你认为认为这是图形上的<code>NULL</code>:  这是一个grob对象，什么也不画，并且也不占任何空间</li>
+<li>在单位上，<code>x</code>和<code>y</code>都应该是<code>native</code>的单位。(默认<code>pointGrob()</code>的单位就是<code>native</code>，因此我这里没有做修改)。多边形线的宽度(lwd)取决于点的大小，而ggplot2计算的点大小返回的<strong>mm</strong>单位结果，因此作者将其和<code>.pt</code>相乘，将其调整为内部lwd接受的输入。</li>
+</ul>
+<p>如果你将我们写的和实际的<code>GeomPolygon</code>比较，你会发现后者重写了<code>draw_panel()</code>，这是因为他用了一些小技巧来创建<code>polygonGrob()</code>从而在一次运行中得到多个polygon。这虽然更加复杂，但是在性能上更优秀。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191210130735299-e1be12f12e8c4c4bb0f73eccd45ddca9.png" alt="Collective geoms"></p>
+<h3 id="从已有的Geom中继承"><a href="#从已有的Geom中继承" class="headerlink" title="从已有的Geom中继承"></a>从已有的Geom中继承</h3><p>有些时候，你只想对已有的图层做一些小的修改。在这种情况下，除了从<code>Geom</code>继承以外，你还可以从已有的子类中继承。举个例子，我们可能想要更改<code>GeomPolygon</code>的默认值，使其更好的在<code>StatChull</code>中工作:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#GeomPolygonHollow继承自GeomPolygon</span></span><br><span class="line">GeomPolygonHollow <span class="operator">&lt;-</span> ggproto<span class="punctuation">(</span><span class="string">&quot;GeomPolyHollwo&quot;</span><span class="punctuation">,</span> GeomPolygon<span class="punctuation">,</span></span><br><span class="line">                             default_aes <span class="operator">=</span> aes<span class="punctuation">(</span>colour <span class="operator">=</span> <span class="string">&quot;black&quot;</span><span class="punctuation">,</span> fill <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                                               size <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">,</span> linetype <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> </span><br><span class="line">                                               alpha <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># layer的stat来自于创建新的stat定义的StatChull</span></span><br><span class="line">geom_chull <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>mapping <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span> data <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span></span><br><span class="line">                       position <span class="operator">=</span> <span class="string">&quot;identity&quot;</span><span class="punctuation">,</span> na.rm <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span> show.legend <span class="operator">=</span> <span class="literal">NA</span><span class="punctuation">,</span></span><br><span class="line">                       inheirt.aes <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  layer<span class="punctuation">(</span>stat <span class="operator">=</span> StatChull<span class="punctuation">,</span> geom <span class="operator">=</span> GeomPolygonHollow<span class="punctuation">,</span> data <span class="operator">=</span> data<span class="punctuation">,</span> mapping <span class="operator">=</span> mapping<span class="punctuation">,</span></span><br><span class="line">        position <span class="operator">=</span> position<span class="punctuation">,</span> show.legend <span class="operator">=</span> show.legend<span class="punctuation">,</span> inherit.aes <span class="operator">=</span> inheirt.aes<span class="punctuation">,</span></span><br><span class="line">        params <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>na.rm <span class="operator">=</span> na.rm<span class="punctuation">,</span> ...<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ggplot<span class="punctuation">(</span>mpg<span class="punctuation">,</span> aes<span class="punctuation">(</span>displ<span class="punctuation">,</span> hwy<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_chull<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>尽管最终的<code>geom_chull</code>不允许你用更改”stat”对应的”geom”, 但是在当前的情况下，凸壳最应该用的”geom”应该就是多边形。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191210122514031-374ab268a92649938cd8479140c9d289.png" alt="inherit-from-existed-geom"></p>
+<h3 id="练习题-1"><a href="#练习题-1" class="headerlink" title="练习题"></a>练习题</h3><ol>
+<li>比较<code>GeomPoint</code>和<code>GeomSimplePoint</code></li>
+<li>比较<code>GeomPolygon</code>和<code>GeomSimplePolygon</code></li>
+</ol>
+<h2 id="创建你自己的主题"><a href="#创建你自己的主题" class="headerlink" title="创建你自己的主题"></a>创建你自己的主题</h2><p>如果你需要创建自己的完整主题，有以下几个件事情你需要知道</p>
+<ul>
+<li><strong>重写</strong>已有的元素，而不是修改他们</li>
+<li>有<strong>四个</strong>全局性元素影响几乎所有其他主题元素</li>
+<li>完整和不完整元素的比较</li>
+</ul>
+<h3 id="重写元素"><a href="#重写元素" class="headerlink" title="重写元素"></a>重写元素</h3><p>默认情况下，当你新增一个主题元素，它会从一个已有主题中继承参数值。例如，如下的代码设置key颜色是红色，但它继承了已有的fill颜色。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">theme_grey<span class="punctuation">(</span><span class="punctuation">)</span><span class="operator">$</span>legend.key</span><br><span class="line"><span class="comment">#&gt; List of 5</span></span><br><span class="line"><span class="comment">#&gt;  $ fill         : chr &quot;grey95&quot;</span></span><br><span class="line"><span class="comment">#&gt;  $ colour       : chr &quot;white&quot;</span></span><br><span class="line"><span class="comment">#&gt;  $ size         : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ linetype     : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ inherit.blank: logi TRUE</span></span><br><span class="line"><span class="comment">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;</span></span><br><span class="line"></span><br><span class="line">new_theme <span class="operator">&lt;-</span> theme_grey<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> theme<span class="punctuation">(</span>legend.key <span class="operator">=</span> element_rect<span class="punctuation">(</span>colour <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">new_theme<span class="operator">$</span>legend.key</span><br><span class="line"><span class="comment">#&gt; List of 5</span></span><br><span class="line"><span class="comment">#&gt;  $ fill         : chr &quot;grey95&quot;</span></span><br><span class="line"><span class="comment">#&gt;  $ colour       : chr &quot;red&quot;</span></span><br><span class="line"><span class="comment">#&gt;  $ size         : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ linetype     : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ inherit.blank: logi FALSE</span></span><br><span class="line"><span class="comment">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>为了将其彻底重写，使用<code>%+replace%</code>而不是<code>+</code>:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">new_theme <span class="operator">&lt;-</span> theme_grey<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">%+replace%</span> theme<span class="punctuation">(</span>legend.key <span class="operator">=</span> element_rect<span class="punctuation">(</span>colour <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">new_theme<span class="operator">$</span>legend.key</span><br><span class="line"><span class="comment">#&gt; List of 5</span></span><br><span class="line"><span class="comment">#&gt;  $ fill         : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ colour       : chr &quot;red&quot;</span></span><br><span class="line"><span class="comment">#&gt;  $ size         : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ linetype     : NULL</span></span><br><span class="line"><span class="comment">#&gt;  $ inherit.blank: logi FALSE</span></span><br><span class="line"><span class="comment">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="全局元素"><a href="#全局元素" class="headerlink" title="全局元素"></a>全局元素</h3><p>有四个元素会影响绘图中的全局表现</p>
+<table>
+<thead>
+<tr>
+<th align="left">Element</th>
+<th align="left">Theme function</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">line</td>
+<td align="left"><code>element_line()</code></td>
+<td align="left">all line elements</td>
+</tr>
+<tr>
+<td align="left">rect</td>
+<td align="left"><code>element_rect()</code></td>
+<td align="left">all rectangular elements</td>
+</tr>
+<tr>
+<td align="left">text</td>
+<td align="left"><code>element_text()</code></td>
+<td align="left">all text</td>
+</tr>
+<tr>
+<td align="left">title</td>
+<td align="left"><code>element_text()</code></td>
+<td align="left">all text in title elements (plot, axes &amp; legend)</td>
+</tr>
+</tbody></table>
+<p>很多特殊设置继承下来的属性都可以被以上这四个属性所修改。这对于修改整体背景颜色和总体字体非常有用。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df <span class="operator">&lt;-</span> data.frame<span class="punctuation">(</span>x <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">3</span><span class="punctuation">,</span> y <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">3</span><span class="punctuation">)</span></span><br><span class="line">base <span class="operator">&lt;-</span> ggplot<span class="punctuation">(</span>df<span class="punctuation">,</span> aes<span class="punctuation">(</span>x<span class="punctuation">,</span> y<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  geom_point<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">  theme_minimal<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">base</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191210133035454-4c09dd254ee14cd7be05001332860a5b.png" alt="base"><br>修改整体的字体颜色（不包括坐标）</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">base <span class="operator">+</span> theme<span class="punctuation">(</span>text <span class="operator">=</span> element_text<span class="punctuation">(</span>colour <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191210133053543-2097fcb7f9544d1cb0762e037ce52272.png" alt="base-text-red"></p>
+<p>建议在创建主题的起步阶段，先从修改这些值开始。</p>
+<h3 id="完整和不完整的比较"><a href="#完整和不完整的比较" class="headerlink" title="完整和不完整的比较"></a>完整和不完整的比较</h3><p>你需要理解<strong>完整主题对象</strong>和<strong>不完整主题对象</strong>之间的区别。一个完整的主题对象，就是一个主题函数中设置了<code>complete=TRUE</code>。</p>
+<p>以<code>theme_grey()</code>和<code>theme_bw()</code>为例，他们就是完整的主题对象。而调用<code>theme()</code>则会得到一个不完整的主题对象。这两个区别在于，前者是对整体的修改，而后者只是修改了部分的元素。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span>theme_grey<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;complete&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># [1] TRUE</span></span><br><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span>theme<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;complete&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># [1] FALSE</span></span><br></pre></td></tr></table></figure>
+
+<p>如果在一个完整对象上加上一个不完整对象，那么结果是一个完整对象</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">theme_test <span class="operator">&lt;-</span> theme_grey<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> theme<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line"><span class="built_in">attr</span><span class="punctuation">(</span>theme_test<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;complete&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># [1] TRUE</span></span><br></pre></td></tr></table></figure>
+
+<p>完整主题和不完整主题在添加到ggplot对象上有一些差别</p>
+<ul>
+<li>在当前主题对象上增加一个不完整的主题对象，只会修改在<code>theme()</code>中定义的元素。</li>
+<li>而在当前主题对象上增加一个完整主题对象，则会将已有主题完全覆盖成新的主题。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html">https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://ggplot2.tidyverse.org/reference/ggplot2-ggproto.html">https://ggplot2.tidyverse.org/reference/ggplot2-ggproto.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/09/ggplot2%E9%AB%98%E7%BA%A7_%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%9B%BE%E5%B1%82-ggplot2-advance-using-ggproto-to-create-your-own-layer/" data-id="cllg90y1c005ueqp28xcl0xpu" data-title="ggplot2高级:构建自己的图层" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-R语言文件读取的基础知识-R-basic-Input-Output-function" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/09/R%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-R-basic-Input-Output-function/" class="article-date">
+  <time class="dt-published" datetime="2019-12-09T15:47:47.018Z" itemprop="datePublished">2019-12-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/09/R%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-R-basic-Input-Output-function/">R语言文件读取的基础知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在使用Python读取文件的时候，通常我需要用到<code>open()</code>打开一个文件，接着是<code>readline()</code>或<code>readlines()</code>读取文件内信息，最后用<code>close()</code>关闭文件。但是在用R语言读取数据时，我就直接用到比较高层的函数，例如<code>read.table</code>或者<code>data.table::fread</code>。R语言也有比较底层的输入输出(I&#x2F;O)函数，了解这些知识，可以让我们更好的读取文件。</p>
+<h2 id="连接-Connection"><a href="#连接-Connection" class="headerlink" title="连接(Connection)"></a>连接(Connection)</h2><p>连接(connect)是R语言中用于多种I&#x2F;O操作的基本机制。R提供了9种函数用于为不同输入建立连接，file&#x2F;url&#x2F;gzfile&#x2F;bzfile&#x2F;xzfile&#x2F;unz&#x2F;pipe&#x2F;fifo&#x2F;socketConnection，基本上从名字上就能看出这些函数的使用场景。</p>
+<p>举个例子，如果想要爬取一个网页，我们可以用<code>url</code>构建目标站点的连接</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">url_con <span class="operator">&lt;-</span> url<span class="punctuation">(</span>description<span class="operator">=</span><span class="string">&quot;http://xuzhougeng.top&quot;</span><span class="punctuation">,</span> open<span class="operator">=</span><span class="string">&quot;r&quot;</span><span class="punctuation">,</span> encoding <span class="operator">=</span> <span class="string">&quot;UTF-8&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="built_in">class</span><span class="punctuation">(</span>url_con<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;url&quot;</span>        <span class="string">&quot;connection&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>该<code>url_con</code>就可以作为<code>read.table/readLines</code>的文件参数。</p>
+<p>上述的<code>description</code>就是指用于将要被建立的连接，可以是一个文件名或URL地址，例子中用的就是一个URL。也可以是其他类型输入。</p>
+<p>如果需要在命令行中使用R脚本，让R读取管道的输入，就是”stdin”</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std_in <span class="operator">&lt;-</span> file<span class="punctuation">(</span><span class="string">&quot;stdin&quot;</span><span class="punctuation">,</span> <span class="string">&quot;r&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>如果要读取剪切板的内容，则是”clipboard”</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clip_text <span class="operator">&lt;-</span> file<span class="punctuation">(</span><span class="string">&quot;clipboard&quot;</span><span class="punctuation">,</span> <span class="string">&quot;r&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>其最终返回一个”connection”对象。</p>
+<h2 id="“特殊”连接"><a href="#“特殊”连接" class="headerlink" title="“特殊”连接"></a>“特殊”连接</h2><p>这里的”特殊”连接指的是不怎么用的到建立连接的方式，可能在某些特殊的情况下使用。</p>
+<h3 id="场景一-从控制台-console-里获取输入"><a href="#场景一-从控制台-console-里获取输入" class="headerlink" title="场景一: 从控制台(console)里获取输入"></a>场景一: 从控制台(console)里获取输入</h3><p>我们可以用<code>stdin()</code>来从console中获取输入</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> a <span class="operator">&lt;-</span> readLines<span class="punctuation">(</span>stdin<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> n<span class="operator">=</span><span class="number">2</span><span class="punctuation">)</span></span><br><span class="line">hello</span><br><span class="line">world</span><br><span class="line"><span class="operator">&gt;</span> a</span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;hello&quot;</span> <span class="string">&quot;world&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>n=2</code>表示读取两行的输入。该方法不能用于shell命令行读取管道的输入</p>
+<p>与<code>stdin()</code>对应的还有<code>stdout()</code>，<code>stderr()</code>和<code>nulffile()</code>，这几个命令很少使用。</p>
+<h3 id="场景二-从复制的文本中获取输入"><a href="#场景二-从复制的文本中获取输入" class="headerlink" title="场景二: 从复制的文本中获取输入"></a>场景二: 从复制的文本中获取输入</h3><p>使用<code>clipboard</code>有些时候不清楚自己到底会从剪切板里读取什么样的输入，而且Linux命令行未必有X11支持，所以更好的方法是能够将文本粘贴到脚本中，然后进行读取。</p>
+<p>为了解决这一问题，我们需要借助于<code>textConnection</code>将字符串中转成连接。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">tmp <span class="operator">&lt;-</span> <span class="string">&quot;a   b   c   d</span></span><br><span class="line"><span class="string">1   1   1   B</span></span><br><span class="line"><span class="string">2   1   2   C</span></span><br><span class="line"><span class="string">3   1   3   C</span></span><br><span class="line"><span class="string">4   1   4   C</span></span><br><span class="line"><span class="string">5   1   5   B</span></span><br><span class="line"><span class="string">6   1   6   B</span></span><br><span class="line"><span class="string">7   1   7   C</span></span><br><span class="line"><span class="string">8   1   8   A</span></span><br><span class="line"><span class="string">9   1   9   B</span></span><br><span class="line"><span class="string">10  1   10  C</span></span><br><span class="line"><span class="string">&quot;</span></span><br><span class="line">df <span class="operator">&lt;-</span> read.table<span class="punctuation">(</span>textConnection<span class="punctuation">(</span>object <span class="operator">=</span> tmp<span class="punctuation">)</span><span class="punctuation">,</span>sep<span class="operator">=</span><span class="string">&quot;\t&quot;</span><span class="punctuation">,</span> header <span class="operator">=</span> <span class="built_in">T</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>和<code>textConnection</code>类似的，还有一个<code>rawConnection</code>用于构建<code>raw</code>对象的连接</p>
+<h2 id="读取-输出函数"><a href="#读取-输出函数" class="headerlink" title="读取&#x2F;输出函数"></a>读取&#x2F;输出函数</h2><p>构建的连接取决于模式可以进行读取和输出操作。R自带函数中和读取&#x2F;输出相关的可以分成两类</p>
+<p>文本模式: readLines, writeLines, cat, sink, scan, parse, read.dcf, dput, dump</p>
+<p>二进制模式: readBin, readChar, writeBin, writeChar, load, save</p>
+<h2 id="连接管理"><a href="#连接管理" class="headerlink" title="连接管理"></a>连接管理</h2><p>对于连接对象，除了读写以外，还有一些列的函数用于查看和管理连接。</p>
+<ul>
+<li><code>open</code>: 打开连接</li>
+<li><code>close()</code>: 关闭连接</li>
+<li><code>seek()</code>: 在连接中进行跳转</li>
+<li><code>isOpen</code>判断连接是否打开</li>
+<li><code>isIncomplete</code>判断连接的读取最后一次是否完整， 写出时是否有未输出的内容</li>
+<li><code>flush</code>刷新连接的输出流，保证内容都完全写出。用<code>close()</code>安全的关闭连接</li>
+<li><code>showConnections</code>: 显示目前的所有连接</li>
+<li><code>getConnection</code>: 获取指定连接</li>
+<li><code>closeAllConnections</code>: 关闭所有连接</li>
+</ul>
+<p>大部分函数都不好找到使用场景，除非你要编写某些数据类型的读取函数。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/09/R%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-R-basic-Input-Output-function/" data-id="cllg90y0t0046eqp25pho6cci" data-title="R语言文件读取的基础知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Hi-C数据可视化-组装角度-HiC-visualization-in-assembly" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/08/Hi-C%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96-%E7%BB%84%E8%A3%85%E8%A7%92%E5%BA%A6-HiC-visualization-in-assembly/" class="article-date">
+  <time class="dt-published" datetime="2019-12-08T22:49:33.209Z" itemprop="datePublished">2019-12-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/08/Hi-C%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96-%E7%BB%84%E8%A3%85%E8%A7%92%E5%BA%A6-HiC-visualization-in-assembly/">Hi-C数据可视化-组装角度</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Hi-C数据可视化-组装角度"><a href="#Hi-C数据可视化-组装角度" class="headerlink" title="Hi-C数据可视化-组装角度"></a>Hi-C数据可视化-组装角度</h1><blockquote>
+<p>这里讨论HiC的可视化是从组装角度出发，也就是如何展示contig和contig之间的关系</p>
+</blockquote>
+<p>Hi-C数据可视化（我所知）有下面几个</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/aidenlab/Juicebox/wiki/Download">Juicerbox</a>: 可视化图形工具，需要.hic作为输入。</li>
+<li><a target="_blank" rel="noopener" href="http://bioconductor.org/packages/release/bioc/html/HiTC.html">HiTC</a>: R包工具</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kcakdemir/HiCPlotter">HiCPlotter</a>: Python工具</li>
+<li><a target="_blank" rel="noopener" href="https://hicexplorer.readthedocs.io/en/latest/index.html">HiCExplorer</a>: Python工具</li>
+<li><a href="higlass.io">HiGlass</a>: 网页浏览器</li>
+</ul>
+<p>无论是何种分析工具，最核心的步骤就是提供它们需要的输入数据，也就是将fastq转成所需要的输入形式。虽然本质上都是对contact matrix进行展示，但问题在于部分工具定义了其特有的存放格式，需要进行一些格式转换。</p>
+<p>基于上述考虑，我在数据预处理上选择使用<a href="/archives/HiC-Pro-An-optimized-and-flexible-pipeline-for-Hi-C-data-processing">HiC-Pro</a>，因为<code>HiC-Pro</code>本身就能够将其结果转成fithic,juicebox的输入，此外<code>HiCExplorer</code>提供了<code>hicCovertFormat</code>，能够将Hic-Pro转成cool&#x2F;mcool&#x2F;h5&#x2F;homer&#x2F;ginteractions等格式。</p>
+<p>后续假定HiC-Pro输出的文件为三个文件</p>
+<ul>
+<li>input_20000.matrix: 原始上三角矩阵</li>
+<li>input_20000_abs.bed: 坐标信息</li>
+<li>input_20000_iced.matrix: ICE normalization的矩阵</li>
+</ul>
+<h2 id="HiTC"><a href="#HiTC" class="headerlink" title="HiTC"></a>HiTC</h2><p>HiTC是R包，能够直接读取HiC-pro的输出结果，对应的函数是<code>importC</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># BiocManager::install(&quot;HiTC&quot;)</span></span><br><span class="line">library<span class="punctuation">(</span>HiTC<span class="punctuation">)</span></span><br><span class="line"><span class="comment">## Load Hi-C data</span></span><br><span class="line">x <span class="operator">&lt;-</span> importC<span class="punctuation">(</span><span class="string">&quot;input_20000.matrix&quot;</span><span class="punctuation">,</span> xgi.bed <span class="operator">=</span> <span class="string">&quot;input_20000_abs.bed&quot;</span><span class="punctuation">)</span></span><br><span class="line">show<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>由于读取这一步时，它会创建NXN个 Map，如果有1,000个contig， 那么最终会得到1,000,000个map，这是一个非常可怕的计算量，R语言会因此而崩溃。因此对于contig级别的基因组而言，不应该用这个工具进行展示。</p>
+<p>在可视化方面方面，主要是<code>mapC</code>，它接受一个HTClist作为输入</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sset <span class="operator">&lt;-</span> reduce<span class="punctuation">(</span>x<span class="punctuation">,</span> chr<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;chr5&quot;</span><span class="punctuation">,</span><span class="string">&quot;chr6&quot;</span><span class="punctuation">,</span><span class="string">&quot;chr7&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">x90_500 <span class="operator">&lt;-</span> HTClist<span class="punctuation">(</span>mclapply<span class="punctuation">(</span>sset<span class="punctuation">,</span> binningC<span class="punctuation">,</span></span><br><span class="line">binsize<span class="operator">=</span><span class="number">500000</span><span class="punctuation">,</span> bin.adjust<span class="operator">=</span><span class="literal">FALSE</span><span class="punctuation">,</span> method<span class="operator">=</span><span class="string">&quot;sum&quot;</span><span class="punctuation">,</span> step<span class="operator">=</span><span class="number">1</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">mapC<span class="punctuation">(</span>imr90_500<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>考虑到矩阵以对角线对称，实际上只需要展示上三角即可</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hox <span class="operator">&lt;-</span> extractRegion<span class="punctuation">(</span>x<span class="operator">$</span>chr6chr6<span class="punctuation">,</span> chr<span class="operator">=</span><span class="string">&quot;chr6&quot;</span><span class="punctuation">,</span> from<span class="operator">=</span><span class="number">50e6</span><span class="punctuation">,</span> to<span class="operator">=</span><span class="number">58e6</span><span class="punctuation">)</span></span><br><span class="line">plot<span class="punctuation">(</span>hox<span class="punctuation">,</span> maxrange<span class="operator">=</span><span class="number">50</span><span class="punctuation">,</span> col.pos<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;white&quot;</span><span class="punctuation">,</span> <span class="string">&quot;orange&quot;</span><span class="punctuation">,</span> <span class="string">&quot;red&quot;</span><span class="punctuation">,</span> <span class="string">&quot;black&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>更多参考: <a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/HiTC/inst/doc/HiC_analysis.pdf">https://bioconductor.org/packages/release/bioc/vignettes/HiTC/inst/doc/HiC_analysis.pdf</a></p>
+<h2 id="HiCPlotter"><a href="#HiCPlotter" class="headerlink" title="HiCPlotter"></a>HiCPlotter</h2><p>HiCPlotter依赖Python2.7和对应的Numpy, Scipy,Matplotlib, 由于两年没有更新，因此GitHub里提到的版本都比较古老，经测试，Numpy&#x3D;1.15.1，Scipy&#x3D;1.1.0， Matplotlib&#x3D;2.2.3 能够正常运行。</p>
+<p>它支持HiC-pro的输出，无需做格式转换。</p>
+<p>举个例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">python HiCPlotter.py \</span><br><span class="line">    -f input_20000_iced.matrix \</span><br><span class="line">    -o Exemple \</span><br><span class="line">    -wg 1</span><br><span class="line">    -r 20000 \</span><br><span class="line">    -tri 1 \</span><br><span class="line">    -bed input_20000_abs.bed \</span><br><span class="line">    -n Test -chr chrX -ptr 1</span><br><span class="line"><span class="comment"># -r: 分辨率</span></span><br><span class="line"><span class="comment"># -f 输入矩阵</span></span><br><span class="line"><span class="comment"># -tri: HiC-Pro输入要设置为1</span></span><br><span class="line"><span class="comment"># -bed: HiC-Pro输入要指定bed</span></span><br><span class="line"><span class="comment"># -wg: 全基因组的交互</span></span><br><span class="line"><span class="comment"># -ptr: 绘制三角还是全部</span></span><br></pre></td></tr></table></figure>
+
+<p>HiCPlotter只能单个染色体或者从起始染色体到指定染色体的全基因组互作，并不能绘制给定任意多个染色体的互作关系，功能比较简单。</p>
+<h2 id="HiCExplorer可视化"><a href="#HiCExplorer可视化" class="headerlink" title="HiCExplorer可视化"></a>HiCExplorer可视化</h2><p>HiCExplorer开发deeptools的团队推出的HiC处理工具，包括格式转换，HiC矩阵质控和可视化。在功能上和性能上，HiCExplorer都比之前提及的工具强，但是如果只用需要的功能，它并不会很复杂。</p>
+<p>HiCExplorer要求contact matrix以h5格式存放，因此需要对HiC-Pro的结果进行转换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hicConvertFormat \</span><br><span class="line">	-m input_20000_iced.matrix \</span><br><span class="line">	-o input_20000 \</span><br><span class="line">	--bedFileHicpro input_20000_abs.bed \</span><br><span class="line">	--inputFormat hicpro --outputFormat h5</span><br></pre></td></tr></table></figure>
+
+<p>输出的是input_20000.h5文件，该h5文件便是后续分析的矩阵输入文件</p>
+<p>使用<code>hicPlotMatrix</code>绘制热图展示HiC数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 绘制单条染色体</span></span><br><span class="line">hicPlotMatrix --matrix input_20000.h5 -out chrX_chrY \</span><br><span class="line">    --region chrX </span><br><span class="line"><span class="comment"># chrX和chrY的交互</span></span><br><span class="line">hicPlotMatrix --matrix input_20000.h5 -out chrX_chrY \</span><br><span class="line">    --region chrX \</span><br><span class="line">    --region2 chrY</span><br><span class="line"><span class="comment"># 展示指定的2个染色体</span></span><br><span class="line">hicPlotMatrix --matrix input_20000.h5 -out chrXchrY \</span><br><span class="line">    --chromosomeOrder chrX chrY</span><br></pre></td></tr></table></figure>
+
+<p>更多信息参考: <a target="_blank" rel="noopener" href="https://hicexplorer.readthedocs.io/en/latest/content/tools/hicPlotMatrix.html">https://hicexplorer.readthedocs.io/en/latest/content/tools/hicPlotMatrix.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/08/Hi-C%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96-%E7%BB%84%E8%A3%85%E8%A7%92%E5%BA%A6-HiC-visualization-in-assembly/" data-id="cllg90xzi001beqp25kpx7wxf" data-title="Hi-C数据可视化-组装角度" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Canu的graph和contig生成过程-Canu-Contig-and-GFA" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/06/Canu%E7%9A%84graph%E5%92%8Ccontig%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B-Canu-Contig-and-GFA/" class="article-date">
+  <time class="dt-published" datetime="2019-12-06T18:22:21.020Z" itemprop="datePublished">2019-12-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/06/Canu%E7%9A%84graph%E5%92%8Ccontig%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B-Canu-Contig-and-GFA/">Canu的graph和contig生成过程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这篇文章是我发现canu输出的contig可能存在misassembly(错误组装), 为了探索这种错误是如何产生的，我尝试解决如下问题</p>
+<ul>
+<li>Canu输出contig的基本步骤</li>
+<li>contig和GFA是什么关系</li>
+<li>如何提取contig对应的read</li>
+<li>如何检查contig的graph</li>
+</ul>
+<h2 id="contig的构建过程"><a href="#contig的构建过程" class="headerlink" title="contig的构建过程"></a>contig的构建过程</h2><p>Canu的流程分为三个步骤，前两步是原始输入的纠错，最后一步是基于纠错后的reads来构建contigs。</p>
+<p>步骤三的流程图</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191206100241398-c5b8e2076fcb4120a969dea2ad203eda.png" alt="Step3"></p>
+<p>步骤三的输出文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0-mercounts</span><br><span class="line">1-overlapper</span><br><span class="line">3-overlapErrorAdjustment</span><br><span class="line">4-unitigger</span><br><span class="line">5-consensus</span><br><span class="line">prefix.ctgStore</span><br><span class="line">prefix.ctgStore.coverageStat.<span class="built_in">log</span></span><br><span class="line">prefix.ctgStore.coverageStat.stats</span><br><span class="line">prefix.ovlStore</span><br><span class="line">prefix.ovlStore.config</span><br><span class="line">prefix.ovlStore.config.txt</span><br><span class="line">prefix.ovlStore.per-read.log</span><br><span class="line">prefix.ovlStore.summary</span><br><span class="line">prefix.utgStore</span><br></pre></td></tr></table></figure>
+
+<p><strong>注</strong>: prefix表示文件名前缀。</p>
+<p>根据流程和输出文件可知这一步骤可以细分为5步 </p>
+<ul>
+<li>构建read之间的overlap得到ovlStore</li>
+<li>分析overlap检测错误</li>
+<li>重新计算overlap的alignment</li>
+<li>使用bogart构建contig</li>
+<li>对contig进行consensus</li>
+<li>构建输出, graph, layout, sequences</li>
+</ul>
+<p>这里面最核心的是<code>bogart</code>, 它根据overlap情况构建graph，<code>4-unitigger</code>有如下的GFA文件，就是运行时产生的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">prefix.best.edges.gfa</span><br><span class="line">prefix.initial.assembly.gfa</span><br><span class="line">prefix.final.assembly.gfa</span><br><span class="line">prefix.contigs.gfa</span><br><span class="line">prefix.unitigs.gfa</span><br><span class="line">prefix.unitigs.aligned.gfa</span><br><span class="line">prefix.contigs.aligned.gfa</span><br></pre></td></tr></table></figure>
+
+<p><code>bogart</code>基于graph寻找最优路径, 最终得到unitig和contig两个结果，其中unitig更加碎一些，但更加准一些（Contigs, split at alternate paths in the graph）。</p>
+<p>最终的contig还需要进一步的consensus，得到最终的输出</p>
+<ul>
+<li>prefix.contigs&#x2F;unitigs.fasta: Fasta序列</li>
+<li>prefix.contigs&#x2F;unitigs.gfa: contig.gfa已经在Canu1.9之后被移除，并非记录Fasta的构建过程</li>
+<li>prefix.contigs&#x2F;unitigs.layout: 上述GFA并不存放序列，实际序列在layout中</li>
+<li>prefix.contigs&#x2F;unitigs.layout.readToTig: contig ID和read ID的对应关系</li>
+<li>prefix.contigs&#x2F;unitigs.layout.tigInfo: 每个contig的信息</li>
+<li>prefix.unitigs.bed: untig和contig的对应关系</li>
+</ul>
+<h2 id="Contig和GFA的关系"><a href="#Contig和GFA的关系" class="headerlink" title="Contig和GFA的关系"></a>Contig和GFA的关系</h2><p>对于主目录输出结果中contig&#x2F;untigs对应的fasta和gfa，我们需要明白其中fasta并非是由gfa生成，而是记录了contig与之前contig的overlap关系。</p>
+<p>因此，如果用bandage可视化Canu 1.8之前的GFA文件，实际上你看到的是最终的contig之间的关系，而非read之间的关系。在Canu 1.9的更改日志中写道，</p>
+<ul>
+<li>Output file ‘contigs.gfa’ was removed because it was misleading</li>
+</ul>
+<p>我们实际需要的是canu通过解析read之间的overlap关系图来得到最终的contig的gfa文件。而Canu并没有提供符合我们需求的文件，因为Canu输出的GFA文件中都没有以P为开头的记录，即没有记录contig的路径。</p>
+<p>假如我对其中一个contig存在怀疑，那么我应该如何检查该contig对应read的overlap关系呢？</p>
+<h2 id="提取contig对应的read信息"><a href="#提取contig对应的read信息" class="headerlink" title="提取contig对应的read信息"></a>提取contig对应的read信息</h2><blockquote>
+<p><strong>注意</strong>，不同版本的Canu输出数据库未必兼容，也就是用和建立数据库不同版本的工具会报错。</p>
+</blockquote>
+<p>以我自己的一个数据为例，对于.gfa中的一个编号，例如tig00000007，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">S       tig00000007     *       LN:i:62235</span><br></pre></td></tr></table></figure>
+
+<p>我们可知他的实际ID是7。它对应的read信息可以在.layout.readToTig找到。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ awk <span class="string">&#x27;$2==7&#x27;</span> prefix.contigs.layout.readToTig | <span class="built_in">head</span> -n 2</span><br><span class="line">632820	7	ungapped	0	37356</span><br><span class="line">56109	7	ungapped	507	38683</span><br></pre></td></tr></table></figure>
+
+<p>第一列即是contig对应的readID，例如632820</p>
+<p>利用<code>ovStoreDump</code>我们就可以提取和此read overlap的所有read</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ovStoreDump -S prefix.seqStore -O unitigging/prefix.ovlStore -picture 632820</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>ovStoreDump可以以多种形式输出overlap的信息，例如-picture就是以ASCII展示overlap</p>
+</blockquote>
+<p>或者根据readID用<code>sqStoreDumpFASTQ</code>提取实际的序列</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sqStoreDumpFASTQ -S prefix.seqStore -o - -fasta -r 632820 -raw | seqkit <span class="built_in">seq</span> - | <span class="built_in">head</span></span><br><span class="line">sqStoreDumpFASTQ -S prefix.seqStore -o - -fasta -r 632820 -corrected | seqkit <span class="built_in">seq</span> - | <span class="built_in">head</span></span><br><span class="line">sqStoreDumpFASTQ -S prefix.seqStore -o - -fasta -r 632820 -trimmed | seqkit <span class="built_in">seq</span> - | <span class="built_in">head</span></span><br></pre></td></tr></table></figure>
+
+<p><code>-raw/-corrected/-trimmed</code>表示提取不同阶段的结果</p>
+<p>输出结果里使用的实际输入序列的ID编号，可以在<code>prefix.seqStore/readNames.txt</code>中找到readID和原始编号的对应关系。</p>
+<p>掌握上述的操作，就可以提取指定的contig的read，然后将read回帖到该contig上，利用IGV可视化。</p>
+<h2 id="可视化检查contig的GFA"><a href="#可视化检查contig的GFA" class="headerlink" title="可视化检查contig的GFA"></a>可视化检查contig的GFA</h2><p>提取contig对应的readID, 然后根据readID抽取gfa</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">contigID=<span class="variable">$1</span></span><br><span class="line">prefix=<span class="variable">$2</span></span><br><span class="line">readtotig=<span class="variable">$prefix</span>.contigs.layout.readToTig</span><br><span class="line">gfa=unitigging/4-unitigger/<span class="variable">$prefix</span>.initial.assembly.gfa</span><br><span class="line">awk -v <span class="built_in">id</span>=<span class="variable">$contigID</span> <span class="string">&#x27;$2==id &#123;printf(&quot;read%08d\n&quot;,$1)&#125;&#x27;</span> <span class="variable">$readtotig</span> &gt; readid.txt</span><br><span class="line">grep -f readid.txt <span class="variable">$gfa</span> &gt; <span class="variable">$contigID</span>.gfa</span><br></pre></td></tr></table></figure>
+
+<p>输出的.gfa就可以用Bandage进行可视化。但实际上发现这个操作并不太可行，不如直接上一节用IGV可视化alignment来的直接。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-1159448c64c74434a433fdd87ada707f.png" alt="GFA可视化"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/06/Canu%E7%9A%84graph%E5%92%8Ccontig%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B-Canu-Contig-and-GFA/" data-id="cllg90xz7000reqp2gb6jblrs" data-title="Canu的graph和contig生成过程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-SALSA_基于Hi-C辅助组装长读长组装结果-scaffolding-assembly-with-salsa" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/04/SALSA_%E5%9F%BA%E4%BA%8EHi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E9%95%BF%E8%AF%BB%E9%95%BF%E7%BB%84%E8%A3%85%E7%BB%93%E6%9E%9C-scaffolding-assembly-with-salsa/" class="article-date">
+  <time class="dt-published" datetime="2019-12-04T16:28:34.687Z" itemprop="datePublished">2019-12-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/04/SALSA_%E5%9F%BA%E4%BA%8EHi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E9%95%BF%E8%AF%BB%E9%95%BF%E7%BB%84%E8%A3%85%E7%BB%93%E6%9E%9C-scaffolding-assembly-with-salsa/">SALSA:基于Hi-C辅助组装长读长组装结果</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>SALSA最初是在<a target="_blank" rel="noopener" href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-017-3879-z">BMC genomics</a>上发表，应该是当时最早提出利用Hi-C对contig进行纠错的软件，随后3D-DNA引入了这一策略。而最近升级之后的SALSA又在<a target="_blank" rel="noopener" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1007273">PLoS Computational Biology</a>发表，可能是目前第一个用组装软件输出的GFA信息的工具。</p>
+<p>使用Hi-C辅助组装，有以下的可能问题</p>
+<ol>
+<li>原先的contig存在错误，scaffold引入了之前的错误</li>
+<li>输入contig过短时，朝向错误引起inversion</li>
+</ol>
+<p>SALSA2的优势</p>
+<ol>
+<li>整合了assembly graph</li>
+<li>能够对原始的contig进行纠错</li>
+</ol>
+<p>它的工作流程如下：</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-20191204144204518-6ca15eb1dc044f0083a2e02c441e1877.png" alt="workflow"></p>
+<p>SALSA2从PacBio&#x2F;ONT的组装结果开始，建议提供记录模棱两可重建位置的GFA文件。Hi-C数据回贴到contig上，contig根据Hi-C的覆盖度分析潜在的组装错误，然后被打断。之后根据GFA和Hi-C信息构建hybrid scaffold graph，最后scaffold根据该graph进行重建。</p>
+<p>SALSA提出了一种新的染色体划分方式，也就是检查每次迭代后是否存在错误的合并(mis-join)，如果发现大部分的join都是错误的，也意味着目前scaffold划分是最佳的，就可以停止了。</p>
+<blockquote>
+<p>A mis-join detection step is performed after each iteration to check if any of the joins made during this round are incorrect. Incorrect joins are broken and the edges blacklisted during subsequent iterations. This process continues<br>until the majority of joins made in the prior iteration are incorrect. This provides a natural stopping condition, when accurate Hi-C links have been exhausted. </p>
+</blockquote>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>SALSA2的依赖环境如下:</p>
+<ul>
+<li>Python 2.7 </li>
+<li>Networkx version &lt; 1.2</li>
+<li>BOOST libraries</li>
+</ul>
+<p>通过编译的方法进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/marbl/SALSA.git</span><br><span class="line"><span class="built_in">cd</span> SALSA</span><br><span class="line">make -j8 </span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p>软件要求以下几个输入文件:</p>
+<ul>
+<li>三代组装结果: contigs.fasta</li>
+<li>Hi-C比对后BAM: alignment.bam</li>
+<li>(可选) GFA文件: contigs_graph.gfa</li>
+</ul>
+<p><strong>第一步</strong>: 将Hi-C回贴到组装结果中，这一步主要用bowtie2&#x2F;bwa比对原始的fastq文件，之后对Hi-C的比对结果进行一些预处理。目前已经有一些流程工具可以实现这一步</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/ArimaGenomics">https://github.com/ArimaGenomics</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/nservant/HiC-Pro">https://github.com/nservant/HiC-Pro</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Zhong-Lab-UCSD/HiCtool">https://github.com/Zhong-Lab-UCSD/HiCtool</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/XiaoTaoWang/HiC_pipeline">https://github.com/XiaoTaoWang/HiC_pipeline</a></li>
+</ul>
+<p><strong>第二步</strong>: 将BAM转成BED，并按照Read Name进行排序。假设上一步的输出是<code>alignment.bam</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bamToBed -i alignment.bam &gt; alignment.bed</span><br><span class="line"><span class="built_in">sort</span> -k 4 alignment.bed &gt; tmp &amp;&amp; <span class="built_in">mv</span> tmp alignment.bed</span><br></pre></td></tr></table></figure>
+
+<p>如果经<a href="/archives/HiC-Pro-An-optimized-and-flexible-pipeline-for-Hi-C-data-processing">HiC-Pro</a>处理的数据，那么在hic_results下有一个.allValidPairs, 可以通过awk进行转换成所需要的bed</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;BEGIN&#123;OFS=&quot;\t&quot;&#125; &#123;print $2,$3,$3+50,$1&quot;/1&quot;,&quot;60&quot;,$4&#125; &#123;print $5,$6,$6+50,$1&quot;/2&quot;,&quot;60&quot;,$7&#125;&#x27;</span> input.allValidPairs &gt; alignment.bed</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>: 关于这个alignment.bed文件，经过我的测试，只需要按照Read Names排序即可，并不需要保证两行两行的配对，SALSA会预先处理。</p>
+</blockquote>
+<p><strong>第三步</strong>: 构建contig长度文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">samtools faidx contigs.fasta</span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步</strong>: 根据需求挑选命令运行. 注意<code>-e &#123;Your Enzyme&#125;</code>需要根据实际情况修改，如果是MboI，就写<code>-e GATC</code>.</p>
+<p>需求1: 不需要纠错，最基本的组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e &#123;Your Enzyme&#125; -o scaffolds </span><br></pre></td></tr></table></figure>
+
+<p>需求2: 使用Hi-C对输入assembly进行纠错(加入参数<code>-m yes</code>)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e &#123;Your Enzyme&#125; -o scaffolds -m <span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
+
+<p>断裂位点位置存放在输出的<code>input_breaks</code></p>
+<p><strong>注意</strong>: 关于纠错，建议阅读下<a target="_blank" rel="noopener" href="https://github.com/marbl/SALSA/issues/34">assembly error detection isn’t much efficient on my data</a>，这里面在讨论了，Hi-C信号选择对结果的影响。我也在实践中发现使用过滤后的信号会影响最终的breaks位点的数目。</p>
+<p>需求3: 使用GFA文件辅助组装(加入了参数<code>-g contigs_graph.gfa</code>)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python run_pipeline.py -a contigs.fasta -l contigs.fasta.fai -b alignment.bed -e &#123;Your Enzyme&#125; -o scaffolds -m <span class="built_in">yes</span> -g contigs_graph.gfa</span><br></pre></td></tr></table></figure>
+
+<p>需求4: 使用更加准的unitigs和unitigs GFA. 组装软件，例如Canu会输出<code>xxx.unitigs.fasta</code>和<code>xxx.unitigs.gfa</code>, 里面的序列相对于contig更短，但是错误更少，在某些情况下更适合用于scaffold。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python run_pipeline.py -a unitigs.fasta -l unitigs.fasta.fai -b alignment.bed -e &#123;Your Enzyme&#125; -o scaffolds -m <span class="built_in">yes</span> -g unitigs_graph.gfa</span><br></pre></td></tr></table></figure>
+
+<p>最终在<code>-o</code>指定的目录下输出结果，其中<code>scaffolds_FINAL.fasta</code>和<code>scaffolds_FINAL.agp</code>是两个最主要的结果。</p>
+<p>如果你因为用了unitigs导致scaffolds中gap太多，那么SALSA可以根据contigs.fasta来关闭gap</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python stitch.py -c contigs.fasta -u unitigs.fasta -p scaffolds_iteration_x.p -o output_scaffolds.fasta</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>scaffolds_iteration_x.p</code>里的x取决于你的迭代次数。</p>
+<p>假如你需要在Juicebox中可视化结果，SALSA提供了<code>conver.sh</code>用于数据转换。你需要先从<a target="_blank" rel="noopener" href="https://github.com/aidenlab/juicer/wiki/Download">https://github.com/aidenlab/juicer/wiki/Download</a>下载Juicer tools jarw.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.14.08.jar</span><br></pre></td></tr></table></figure>
+
+<p>然后修改SALSA的<code>convert.sh</code>中的<strong>JUICER_JAR</strong>为你实际路径，最后运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash /path/to/SALSA/convert.sh SALSA_OUTDIR</span><br></pre></td></tr></table></figure>
+
+<p>输出文件是<code>salsa_scaffolds.hic</code></p>
+<p>SALSA的所有参数说明如下:</p>
+<ul>
+<li>-a&#x2F;–assembly: 初始的组装结果，header中不能有<code>:</code></li>
+<li>-l&#x2F;–length: contigs的长度</li>
+<li>-b&#x2F;–bed: BAM文件转换后的bed</li>
+<li>-o&#x2F;–output: 输出文件夹</li>
+<li>-c&#x2F;–cutoff:  用于scaffold的contig最短长度</li>
+<li>-g&#x2F;–gfa: GFA文件</li>
+<li>-e&#x2F;–enzyme: 限制性内切酶</li>
+<li>-i&#x2F;–iter: 迭代数</li>
+<li>-x&#x2F;–dup: 存放重复的contig信息</li>
+<li>-s&#x2F;–exp: 期望的基因组大小</li>
+<li>-m&#x2F;–clean: 是否检查Mis-assembly</li>
+</ul>
+<h2 id="不客观的测评"><a href="#不客观的测评" class="headerlink" title="不客观的测评"></a>不客观的测评</h2><p>SALSA这个工具无论是安装还是使用上，都非常的简洁易懂。我在使用过程中就没有遇到过安装错误，并且运行效率高（基于Python和C++）。最终的组装结果可能和文章说的那样，得到相对最优的scaffolds，无法得到染色体级别的输出结果。</p>
+<blockquote>
+<p>Building on this work, SALSA2 does not require manual parameter tuning and is able to utilize all the contact information from the Hi-C data to generate near optimal sized scaffolds permitted by the data using a novel iterative scaffolding method  </p>
+</blockquote>
+<p>SALSA的结果的确是比较可靠的，在contig的朝向上出错更少。不过，对于mis-assembly的鉴定，目前SALSA可能有些问题，在我实践中发现有些明显的错误它没有找到。</p>
+<p>此外，在我的几个项目实战中，我发现3D-DNA能够得到染色体水平的结果的情况，而SALSA却无法得到相同的结果。或许是输入的HiC信号不同，之后会尝试用Juicer的输出作为SALSA的输入信号，进行比较。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>Integrating Hi-C links with assembly graphs for chromosome-scale assembly  </li>
+<li><a target="_blank" rel="noopener" href="https://github.com/marbl/SALSA">https://github.com/marbl/SALSA</a></li>
+</ul>
+<p>其他我写过的HiC工具</p>
+<ul>
+<li><a href="/archives/Assemble-genome-using-ALLHiC-with-HiC-Data">使用ALLHiC基于HiC数据辅助基因组组装</a></li>
+<li><a href="/archives/ALLHiC-scaffolding-of-a-simple-diploid-genome">ALLHiC: 辅助组装简单的二倍体基因组</a></li>
+<li><a href="/archives/HiC-Pro-An-optimized-and-flexible-pipeline-for-Hi-C-data-processing">HiC-Pro: Hi-C数据预处理高效工具</a></li>
+<li><a href="/archives/Scaffolding-genome-using-3D-DNA-workflow">利用3D-DNA流程组装基因组</a></li>
+<li><a href="/archives/scaffolding-contig-with-LACHESIS">使用LACHESIS利用HiC数据进行基因组组装</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/04/SALSA_%E5%9F%BA%E4%BA%8EHi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E9%95%BF%E8%AF%BB%E9%95%BF%E7%BB%84%E8%A3%85%E7%BB%93%E6%9E%9C-scaffolding-assembly-with-salsa/" data-id="cllg90y0w004geqp2akfjaka4" data-title="SALSA:基于Hi-C辅助组装长读长组装结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我对inferCNV鉴定CNV的思考-我对inferCNV鉴定CNV的思考" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/04/%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83-%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83/" class="article-date">
+  <time class="dt-published" datetime="2019-12-04T10:03:53.468Z" itemprop="datePublished">2019-12-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/04/%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83-%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83/">我对inferCNV鉴定CNV的思考</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这篇是<a href="/archives/Single-Cell-RNA-seq-CNV-analysis-with-inferCNV">使用inferCNV分析单细胞转录组中拷贝数变异</a>的后续，关于inferCNV在鉴定CNV上的一些思考。</p>
+<p>用单细胞转录组分析CNV最早应该是2014年发表在science上的文章”Single-cell RNA-seq highlights intratumoral heterogeneity in primary glioblastoma”</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-b948cd6fb9f84f22add393d140d20e32.png" alt="2014-science"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-b7936931fecd4525aa663c4ff0a0593c.png" alt="2016-nature"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-b1360f30dd8642348b293fbc6635dd68.png" alt="2017-science"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-46e276d7e31a481686d06f7702a3233b.png" alt="2017-cell"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-0ff374cbf89a4054a4897b28527394d2.png" alt="2019-cell-research"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/04/%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83-%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83/" data-id="cllg90y6800i5eqp2czdwg5z0" data-title="我对inferCNV鉴定CNV的思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-PBMC简介-A-Brief-Review-of-PBMC" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/25/PBMC%E7%AE%80%E4%BB%8B-A-Brief-Review-of-PBMC/" class="article-date">
+  <time class="dt-published" datetime="2019-11-25T15:20:32.709Z" itemprop="datePublished">2019-11-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/25/PBMC%E7%AE%80%E4%BB%8B-A-Brief-Review-of-PBMC/">PBMC简介</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>外周血单核细胞(Peripheral blood monoculear cell, PBMC), 包括淋巴细胞(T细胞，B细胞和自然杀伤(NK)细胞)和单核细胞。而红细胞和血小板没有细胞核，而粒细胞(granulocytes) 包括中性粒细胞、嗜碱性粒细胞和嗜酸性粒细胞，有多叶核，所以不包括在PBMC中。</p>
+<p>人类的PBMC主要由淋巴细胞组成，之后是单核细胞以及一小部分的树突状细胞(dendritic cells， DC).</p>
+<p>PBMC的提取方法: 利用Ficoll将全血分层，之后进行梯度离心， 血液就会分离成一层血浆，然后是一层PBMCs和一层多形核细胞(polymorphonuclear )，如中性粒细胞和嗜酸性粒细胞，和底层红细胞。通过溶解红细胞可以进一步分离多形核细胞。嗜碱性粒细胞有时出现在密度较高的组分中和PBMC组分中。</p>
+<p><strong>注</strong>: Ficoll: 一种亲水性多糖(hydrophillic  polysaccharide )</p>
+<h2 id="PBMC的细胞发育过程"><a href="#PBMC的细胞发育过程" class="headerlink" title="PBMC的细胞发育过程"></a>PBMC的细胞发育过程</h2><p> PBMC起源于位于骨髓(bone marrow)的造血干细胞( hematopoietic stem cells, HSCs)。在造血干细胞的造血过程中，它们会产生髓系细胞（单核细胞、巨噬细胞、粒细胞、巨核细胞、树突状细胞、红细胞）和淋巴系细胞（T细胞、B细胞、NK细胞）。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/AdobeStock_171095311-1-d3a4c9537baf4ffdb85cc1acaf1bd5f2.jpeg" alt="peripheral blood mononuclear cells hematopoiesis"></p>
+<p>图解:</p>
+<ul>
+<li>Haematopoietic stem cell: 造血干细胞</li>
+<li>common myeloid progenitor: 髓系祖细胞</li>
+<li>common lymphoid progenitor: 淋巴祖细胞</li>
+<li>myeloblast: 成髓细胞, 骨髓母细胞</li>
+<li>Lymphoblast: 成淋巴细胞, 淋巴母细胞</li>
+<li>lymphocytes: 淋巴细胞</li>
+<li>erythrocytes: 红细胞</li>
+<li>plateletes: 血小板</li>
+<li>basophils: 嗜碱性粒细胞</li>
+<li>neutrophils: 中性粒细胞</li>
+<li>eosinophils: 嗜酸性粒细胞</li>
+<li>monocytes: 单核细胞</li>
+</ul>
+<h2 id="人类PBMC的不同细胞类型的比例"><a href="#人类PBMC的不同细胞类型的比例" class="headerlink" title="人类PBMC的不同细胞类型的比例"></a>人类PBMC的不同细胞类型的比例</h2><p>PBMC中大部分都是淋巴细胞，包括B细胞和T细胞，其中CD3+ T细胞又占了淋巴细胞中绝大部分(45-70%)。这些T细胞都处于初始(naive)状态，即已经成熟了但没有受到抗原刺激。 在正常人中，只有非常小的一部分初始T细胞会因抗原识别而被激活。同样的B细胞也都处于初始状态。</p>
+<p>相对于淋巴细胞，单核细胞的比例在10-30%，收到刺激之后会发育成树突状细胞(DC)或巨噬细胞。</p>
+<p>干细胞的比例非常低，只有0.1-0.2%，因此很难从全血样本中分离到。分子标记是CD34+。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/PBMC-Frequency-99b5863ef1af4b06bddfa276a4c394db.jpg" alt="Frequency of Peripheral Blood Mononuclear Cells"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p> <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell">https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell</a> </p>
+<p> <a target="_blank" rel="noopener" href="https://www.stemexpress.com/blogs/peripheral-blood-mononuclear-cells/">https://www.stemexpress.com/blogs/peripheral-blood-mononuclear-cells/</a> </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/25/PBMC%E7%AE%80%E4%BB%8B-A-Brief-Review-of-PBMC/" data-id="cllg90y07003deqp24agz4dsk" data-title="PBMC简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如果你需要我回答你的问题-how-to-ask-a-question" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/22/%E5%A6%82%E6%9E%9C%E4%BD%A0%E9%9C%80%E8%A6%81%E6%88%91%E5%9B%9E%E7%AD%94%E4%BD%A0%E7%9A%84%E9%97%AE%E9%A2%98-how-to-ask-a-question/" class="article-date">
+  <time class="dt-published" datetime="2019-11-22T15:00:51.987Z" itemprop="datePublished">2019-11-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/22/%E5%A6%82%E6%9E%9C%E4%BD%A0%E9%9C%80%E8%A6%81%E6%88%91%E5%9B%9E%E7%AD%94%E4%BD%A0%E7%9A%84%E9%97%AE%E9%A2%98-how-to-ask-a-question/">如果你需要我回答你的问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>我的生物信息学技能基本上都是自学的，在刚开始的阶段我也和大部分的人一样，会遇到很多问题，然后想着去一些群里提问希望得到解答，当然结果也是和大部分人的一样，问题不会得到答案。</p>
+<p>后来，我通过看书和搜索慢慢的有了一些基础，通过项目实践对生信有了一点了解，加上自己也喜欢把自己的学习笔记公开出来，就逐渐有人开始向我提问。有些问题我会想去回答，而有些问题会被我直接忽视。如同当年我提出的问题一样，有些能够有人解答，而有些则石沉大海。我稍微的总结了一些，如果你希望让我或者别人回答你的问题，或许可以参考一下。</p>
+<h2 id="我不回答能够被搜索到的问题"><a href="#我不回答能够被搜索到的问题" class="headerlink" title="我不回答能够被搜索到的问题"></a>我不回答能够被搜索到的问题</h2><p>以我自己为例吧，我每天都会遇到很多问题，大部分的问题可以通过直接复制报错搜索的方式解决。有一些问题不是普遍性问题，我会通过提取报错中的关键信息进行检索。由于搜索的次数多了，我看到别人提问的时候，我差不多就能判断出这个问题需要经过几次搜索才能找到答案。对于能够通过简单搜索找到答案的问题，我就无视掉了。当然如果你在提问中指出你做了哪些搜索上的尝试，那么我会提供一些关键字，或者我会帮你去搜索下，如果发现是软件本身写的太差导致搜索不到的问题，那么我会建议你换个软件。</p>
+<h2 id="我不回答我不擅长的问题"><a href="#我不回答我不擅长的问题" class="headerlink" title="我不回答我不擅长的问题"></a>我不回答我不擅长的问题</h2><p>术业有专攻，没有经验就贸然回答，也是对提问人的不负责。比方说，我没有任何芯片数据处理的经验，也没有挖掘过GEO数据库或TCGA数据库。因此，当你问我如何合并不同平台的芯片数据时，我也只会说我不会，这不是推脱，是真的不会。</p>
+<h2 id="我不回答我之后遇不到的问题"><a href="#我不回答我之后遇不到的问题" class="headerlink" title="我不回答我之后遇不到的问题"></a>我不回答我之后遇不到的问题</h2><p>比方说一些工具类的报错，这些工具要么是我不会用到，要么是这个问题是某些平台所特有的，我很难重复出这个问题，那么我也不会花很多时间去重复这个问题。如果我以后遇到了这个问题，那么我会去解决，并给出解决方案。但是当下并不是我所在乎的，所以我就不会管它。</p>
+<h2 id="我喜欢在邮件上回答问题，而不是即时通讯类工具（例如微信）"><a href="#我喜欢在邮件上回答问题，而不是即时通讯类工具（例如微信）" class="headerlink" title="我喜欢在邮件上回答问题，而不是即时通讯类工具（例如微信）"></a>我喜欢在邮件上回答问题，而不是即时通讯类工具（例如微信）</h2><p>因为我一般会用手机看微信，如果我要回答你的问题，我就需要用手机打字。但问题手机的输入不如电脑的方便，而且容易出错，我会觉得很麻烦，就懒回答问题了。而我收邮件一般在电脑端，那么我用键盘打字就会很舒畅，当有些问题我也不太会的时候，也很容易搜索，我就不会感觉回答问题成为了一个负担，那么就会倾向于回答问题。</p>
+<h2 id="我喜欢回答一句话或者几个字能够解决的问题"><a href="#我喜欢回答一句话或者几个字能够解决的问题" class="headerlink" title="我喜欢回答一句话或者几个字能够解决的问题"></a>我喜欢回答一句话或者几个字能够解决的问题</h2><p>这类问题一个特征就是，它是一个选择题而不是一道简答题或者论述题。而且这类问题的描述一般会比较多，把问题的背景和自己的解答过程都写了出来，然后问你这样子做，合理吗？如果我觉得没问题，就只要回复一个“没问题”。如果我觉得有问题，那么我还会指出哪里不对，应该如何做。</p>
+<h2 id="我会回答提供了测试数据集的问题"><a href="#我会回答提供了测试数据集的问题" class="headerlink" title="我会回答提供了测试数据集的问题"></a>我会回答提供了测试数据集的问题</h2><p>以R语言为例吧，当你在某个问题出错时，如果能把代码和数据集都整理成一个压缩包，并且在出问题的地方，还加上提示，那么我就能很容易定位到问题，从而解决问题。</p>
+<p>还有一类提问方式，就是知识付费形式的提问，这类问题大家都喜欢，你用自己辛辛苦苦学到的知识改善了自己的生活，这会让你感觉自己的努力没有白费。如果你以后在群里提问的时候附上红包，那么这个问题应该会有人看到吧。</p>
+<p>最后，有问题的话可以发送邮件向我提问，至于我的邮箱地址，可以在我的简书上找到。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E6%9E%9C%E4%BD%A0%E9%9C%80%E8%A6%81%E6%88%91%E5%9B%9E%E7%AD%94%E4%BD%A0%E7%9A%84%E9%97%AE%E9%A2%98-how-to-ask-a-question/" data-id="cllg90y5j00hqeqp2f68p1370" data-title="如果你需要我回答你的问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-如何在Mac或Linux的RStudio上切换R版本-Using-different-R-version-in-RStudion-linux-macOS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" class="article-date">
+  <time class="dt-published" datetime="2019-11-22T13:04:06.818Z" itemprop="datePublished">2019-11-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/">如何在MacOS/Linux的RStudio上切换R版本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在MacOS或Linux上使用RStudio有一点不足，就是不能方便在RStudio上切换R版本。</p>
+<p>虽然不方便，但还是可以切换。</p>
+<p>首先，我们需要通过编译到方式安装不同版本的R，参考<a href="/archives/Install-R-in-Linux">如何在服务器上安装最新的R</a></p>
+<p>我习惯将软件安装在<code>/opt/sysoft</code>下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mkdir</span> -p /opt/sysoft</span><br><span class="line">sudo <span class="built_in">chown</span> `<span class="built_in">whoami</span>` /opt/sysoft</span><br></pre></td></tr></table></figure>
+
+<p>下载源代码，并安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.5.3.tar.gz</span><br><span class="line">tar xf R-3.5.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.5.3</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.5.3 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br><span class="line"><span class="comment">#</span></span><br><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.6.1.tar.gz</span><br><span class="line">tar xf R-3.6.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.6.1</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.6.1 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>在安装完成之后，之后切换R语言，只需要用不同版本的R覆盖<code>/usr/local/bin</code>下面的R即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.5.3/bin/R /usr/local/bin</span><br><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.6.1/bin/R /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+<p>之后打开RStudio就是更换版本后的R</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" data-id="cllg90y5000fueqp20tcwgp21" data-title="如何在MacOS/Linux的RStudio上切换R版本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用inferCNV分析单细胞转录组中拷贝数变异-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/" class="article-date">
+  <time class="dt-published" datetime="2019-11-18T16:25:09.924Z" itemprop="datePublished">2019-11-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/">使用inferCNV分析单细胞转录组中拷贝数变异</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>inferCNV</code>用与探索肿瘤单细胞RNA-seq数据，分析其中的体细胞大规模染色体拷贝数变化(copy number  alterations, CNA), 例如整条染色体或大片段染色体的增加或丢失(gain or deletions)。工作原理是，以一组”正常”细胞作为参考，分析肿瘤基因组上各个位置的基因表达量强度变化. 通过热图的形式展示每条染色体上的基因相对表达量，相对于正常细胞，肿瘤基因组总会过表达或者低表达。</p>
+<p><code>inferCNV</code>提供了一些过滤参数，通过调整参数来降低噪音，更好的揭示支持CNA的信号。此外<code>inferCNV</code>还包括预测CNA区间的方法以及根据异质性模式定义细胞类群的方法。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>尽管<code>inferCNV</code>是一个R包，但是在安装inferCNV之前还需要先下载安装<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/">JAGS</a> ，好在它有Windows，MacOS和Linux版本，所以<code>inferCNV</code>在各个平台都能用。</p>
+<p>Windows和MacOS的JAGS容易安装，而Linux的JAGS需要编译</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 手动安装BLAS和LAPACK不推荐</span></span><br><span class="line"><span class="comment"># yum install blas-devel lapack-devel</span></span><br><span class="line">tar xf JAGS-4.3.0.tar.gz </span><br><span class="line"><span class="built_in">cd</span> JAGS-4.3.0</span><br><span class="line">./configure --libdir=/usr/local/lib64</span><br><span class="line">make -j 20 &amp;&amp; make install </span><br></pre></td></tr></table></figure>
+
+<p>安装R包</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;rjags&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;BiocManager&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">     install.packages<span class="punctuation">(</span><span class="string">&quot;BiocManager&quot;</span><span class="punctuation">)</span></span><br><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;infercnv&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>测试安装</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>infercnv<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">infercnv_obj <span class="operator">=</span> CreateInfercnvObject<span class="punctuation">(</span>raw_counts_matrix<span class="operator">=</span>system.file<span class="punctuation">(</span><span class="string">&quot;extdata&quot;</span><span class="punctuation">,</span> <span class="string">&quot;oligodendroglioma_expression_downsampled.counts.matrix.gz&quot;</span><span class="punctuation">,</span> package <span class="operator">=</span> <span class="string">&quot;infercnv&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                    annotations_file<span class="operator">=</span>system.file<span class="punctuation">(</span><span class="string">&quot;extdata&quot;</span><span class="punctuation">,</span> <span class="string">&quot;oligodendroglioma_annotations_downsampled.txt&quot;</span><span class="punctuation">,</span> package <span class="operator">=</span> <span class="string">&quot;infercnv&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                    delim<span class="operator">=</span><span class="string">&quot;\t&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                    gene_order_file<span class="operator">=</span>system.file<span class="punctuation">(</span><span class="string">&quot;extdata&quot;</span><span class="punctuation">,</span> <span class="string">&quot;gencode_downsampled.EXAMPLE_ONLY_DONT_REUSE.txt&quot;</span><span class="punctuation">,</span> package <span class="operator">=</span> <span class="string">&quot;infercnv&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                    ref_group_names<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;Microglia/Macrophage&quot;</span><span class="punctuation">,</span><span class="string">&quot;Oligodendrocytes (non-malignant)&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line"></span><br><span class="line">infercnv_obj <span class="operator">=</span> infercnv<span class="operator">::</span>run<span class="punctuation">(</span>infercnv_obj<span class="punctuation">,</span></span><br><span class="line">                             cutoff<span class="operator">=</span><span class="number">1</span><span class="punctuation">,</span> <span class="comment"># cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics</span></span><br><span class="line">                             out_dir<span class="operator">=</span>tempfile<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">                             cluster_by_groups<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">,</span> </span><br><span class="line">                             denoise<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">,</span></span><br><span class="line">                             HMM<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>如果没有报错，就说明安装成功。</p>
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><h3 id="准备输入文件"><a href="#准备输入文件" class="headerlink" title="准备输入文件"></a>准备输入文件</h3><p>需要准备3个输入数据</p>
+<ol>
+<li>单细胞RNA-seq表达量的原始矩阵</li>
+<li>注释文件，记录肿瘤和正常细胞</li>
+<li>基因或染色体位置文件</li>
+</ol>
+<p>第一个是Genes x Cells的表达矩阵(matrix)，行名是基因，列名是细胞编号。</p>
+<table>
+<thead>
+<tr>
+<th>MGH54_P16_F12</th>
+<th>MGH54_P12_C10</th>
+<th>MGH54_P11_C11</th>
+<th>MGH54_P15_D06</th>
+<th>MGH54_P16_A03</th>
+<th>…</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A2M</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>…</td>
+</tr>
+<tr>
+<td>A4GALT</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>…</td>
+</tr>
+<tr>
+<td>AAAS</td>
+<td>0</td>
+<td>37</td>
+<td>30</td>
+<td>21</td>
+<td>0</td>
+<td>…</td>
+</tr>
+<tr>
+<td>AACS</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>…</td>
+</tr>
+<tr>
+<td>AADAT</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>…</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<p>第二个是样本注释信息文件，命名为”cellAnnotations.txt”。一共两列，第一列是对应第一个文件的列名，第二列是细胞的分组</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MGH54_P2_C12    Microglia<span class="operator">/</span>Macrophage</span><br><span class="line">MGH36_P6_F03    Microglia<span class="operator">/</span>Macrophage</span><br><span class="line">MGH54_P16_F12   Oligodendrocytes <span class="punctuation">(</span>non<span class="operator">-</span>malignant<span class="punctuation">)</span></span><br><span class="line">MGH54_P12_C10   Oligodendrocytes <span class="punctuation">(</span>non<span class="operator">-</span>malignant<span class="punctuation">)</span></span><br><span class="line">MGH36_P1_B02    malignant_MGH36</span><br><span class="line">MGH36_P1_H10    malignant_MGH36</span><br></pre></td></tr></table></figure>
+
+<p>第三个是基因位置信息文件，命名为”geneOrderingFile.txt”。一共四列，第一列对应第一个文件的行名，其余三列则是基因的位置。<strong>注</strong>：基因名不能有重复</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WASH7P  chr1    <span class="number">14363</span>   <span class="number">29806</span></span><br><span class="line">LINC00115       chr1    <span class="number">761586</span>  <span class="number">762902</span></span><br><span class="line">NOC2L   chr1    <span class="number">879584</span>  <span class="number">894689</span></span><br><span class="line">MIR200A chr1    <span class="number">1103243</span> <span class="number">1103332</span></span><br><span class="line">SDF4    chr1    <span class="number">1152288</span> <span class="number">1167411</span></span><br><span class="line">UBE2J2  chr1    <span class="number">1189289</span> <span class="number">1209265</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="两步法"><a href="#两步法" class="headerlink" title="两步法"></a>两步法</h3><p>最复杂的工作就是准备输入文件，而一旦上述三个文件已经创建完成，那么分析只要两步以及根据结果对参数进行调整。</p>
+<p>第一步，根据上述的三个文件创建<code>inferCNV</code>对象</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">infercnv_obj <span class="operator">=</span> CreateInfercnvObject<span class="punctuation">(</span>raw_counts_matrix<span class="operator">=</span>matrix<span class="punctuation">,</span> <span class="comment"># 可以直接提供矩阵对象</span></span><br><span class="line">                                    annotations_file<span class="operator">=</span><span class="string">&quot;cellAnnotations.txt&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                    delim<span class="operator">=</span><span class="string">&quot;\t&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                    gene_order_file<span class="operator">=</span><span class="string">&quot;gene_ordering_file.txt&quot;</span><span class="punctuation">,</span></span><br><span class="line">                                    ref_group_names<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;normal&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这一步的一个关键参数是<code>ref_group_name</code>, 用于设置参考组。假如你并不知道哪个组是正常，哪个组不正常，那么设置为<code>ref_group_name=NULL</code>, 那么<code>inferCNV</code>会以全局平均值作为基线，这适用于有足够细胞存在差异的情况。此外，这里的<code>raw_count_matrix</code>是排除了低质量细胞的count矩阵。</p>
+<p>第二步，运行标准的<code>inferCNV</code>流程。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># perform infercnv operations to reveal cnv signal</span></span><br><span class="line">infercnv_obj <span class="operator">=</span> infercnv<span class="operator">::</span>run<span class="punctuation">(</span>infercnv_obj<span class="punctuation">,</span></span><br><span class="line">                             cutoff<span class="operator">=</span><span class="number">1</span><span class="punctuation">,</span>  <span class="comment"># use 1 for smart-seq, 0.1 for 10x-genomics</span></span><br><span class="line">                             out_dir<span class="operator">=</span><span class="string">&quot;output_dir&quot;</span><span class="punctuation">,</span>  <span class="comment"># 输出文件夹</span></span><br><span class="line">                             cluster_by_groups<span class="operator">=</span><span class="built_in">T</span><span class="punctuation">,</span>   <span class="comment"># 聚类</span></span><br><span class="line">                             denoise<span class="operator">=</span><span class="built_in">T</span><span class="punctuation">,</span> <span class="comment">#去噪</span></span><br><span class="line">                             HMM<span class="operator">=</span><span class="built_in">T</span><span class="punctuation">)</span> <span class="comment"># 是否基于HMM预测CNV</span></span><br></pre></td></tr></table></figure>
+
+<p>关键参数是<code>cutoff</code>, 用于选择哪些基因会被用于分析（在所有细胞的平均表达量需要大于某个阈值）。这个需要根据具体的测序深度来算，官方教程建议10X设置为0.1，smart-seq设置为1。你可以先评估下不同阈值下的保留基因数，决定具体值。<code>cluster_by_groups</code>用于声明是否根据细胞注释文件的分组对肿瘤细胞进行分群。</p>
+<p>最终会输出很多文件在<code>out_dir</code>的目录下，而实际有用的是下面几个</p>
+<ul>
+<li>infercnv.preliminary.png : 初步的inferCNV展示结果（未经去噪或HMM预测）</li>
+<li>infercnv.png : 最终inferCNV产生的去噪后的热图.</li>
+<li>infercnv.references.txt : 正常细胞矩阵.</li>
+<li>infercnv.observations.txt : 肿瘤细胞矩阵.</li>
+<li>infercnv.observation_groupings.txt : 肿瘤细胞聚类后的分组关系.</li>
+<li>infercnv.observations_dendrogram.txt : NEWICK格式，展示细胞间的层次关系.</li>
+</ul>
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><p><code>Infercnv::run</code>的参数非常之多，总体上分为如下几类</p>
+<ul>
+<li>基本设置</li>
+<li>平滑参数</li>
+<li>基于肿瘤亚群的下游分析(HMM或non-DE-masking)</li>
+<li>根据 BayesNet P(Normal) 过滤低可信度HMM预测结果</li>
+<li>肿瘤亚群细分</li>
+<li>去噪参数</li>
+<li>离群值修剪</li>
+<li>其他选项</li>
+<li>实验性参数（不稳定）</li>
+<li>差异表达分析的实验性参数</li>
+</ul>
+<p>你可以按照具体的需求修改不同步骤的参数，例如聚类默认<code>cluster_by_groups=FALSE</code>会根据<code>k_obs_groups</code>聚类成指定的组数，而层次聚类方法用于计算组间相似度的参数则是<code>hclust_method</code>.</p>
+<p>此外，设置<code>HMM=TRUE</code> 的计算时间会长于<code>HMM=FALSE</code>,因此可以先设置<code>HMM=FALSE</code>快速查看结果。</p>
+<p>在运行过程中它会显示每个步骤的信息，官方文档给出了示意图帮助理解。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/11/InferCNV_procedure-e29ea5dab7b042f58bdc0600cb7ff489.png" alt="InferCNV_procedure"></p>
+<h3 id="提取信息"><a href="#提取信息" class="headerlink" title="提取信息"></a>提取信息</h3><p><code>inferCNV</code>会输出一个” map_metadata_from_infercnv .txt”文件用于记录每个细胞的元信息，所有信息都可以从该文件中进行提取。或者使用<code>infercnv::add_to_seurat</code>将信息直接增加到原来的seurat对象中。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>软件安装: <a target="_blank" rel="noopener" href="https://github.com/broadinstitute/inferCNV/wiki/Installing-infercnv">https://github.com/broadinstitute/inferCNV/wiki/Installing-infercnv</a></li>
+<li>文件定义:  <a target="_blank" rel="noopener" href="https://github.com/broadinstitute/inferCNV/wiki/File-Definitions">https://github.com/broadinstitute/inferCNV/wiki/File-Definitions</a> </li>
+<li>运行inferCNV: <a target="_blank" rel="noopener" href="https://github.com/broadinstitute/inferCNV/wiki/Running-InferCNV">https://github.com/broadinstitute/inferCNV/wiki/Running-InferCNV</a> </li>
+<li><strong>引用</strong>: inferCNV of the Trinity CTAT Project.  <a target="_blank" rel="noopener" href="https://github.com/broadinstitute/inferCNV">https://github.com/broadinstitute/inferCNV</a></li>
+</ul>
+<p>关于<code>inferCNV</code>的算法原理在如下几篇文章中有说明</p>
+<ul>
+<li>Anoop P. Patel, Itay Tirosh, et al. Single-cell RNA-seq highlights intratumoral heterogeneity in primary glioblastoma. Science. 2014 Jun 20: 1396-1401</li>
+<li>Tirosh I et al. Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq. Science. 2016 Apr 8;352(6282):189-96</li>
+<li>Tirosh I et al. Single-cell RNA-seq supports a developmental hierarchy in human oligodendroglioma. Nature. 2016 Nov 10;539(7628):309-313. PubMed PMID: 27806376; PubMed Central PMCID: PMC5465819.</li>
+<li>Venteicher AS, Tirosh I, et al. Decoupling genetics, lineages, and microenvironment in IDH-mutant gliomas by single-cell RNA-seq. Science. 2017 Mar 31;355(6332).PubMed PMID: 28360267; PubMed Central PMCID: PMC5519096.</li>
+<li>Puram SV, Tirosh I, et al. Single-Cell Transcriptomic Analysis of Primary and Metastatic Tumor Ecosystems in Head and Neck Cancer. Cell. 2017 Dec 14;171(7):1611-1624.e24. PubMed PMID: 29198524; PubMed Central PMCID: PMC5878932.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/" data-id="cllg90y4a00d6eqp2g3gu4q6s" data-title="使用inferCNV分析单细胞转录组中拷贝数变异" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/14/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/16/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

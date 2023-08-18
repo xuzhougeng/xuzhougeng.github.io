@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/4/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-「macOS」为什么我的时间机器的备份磁盘无法被推出？-macos-why-my-driver-can-not-eject" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/06/14/%E3%80%8CmacOS%E3%80%8D%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84%E6%97%B6%E9%97%B4%E6%9C%BA%E5%99%A8%E7%9A%84%E5%A4%87%E4%BB%BD%E7%A3%81%E7%9B%98%E6%97%A0%E6%B3%95%E8%A2%AB%E6%8E%A8%E5%87%BA%EF%BC%9F-macos-why-my-driver-can-not-eject/" class="article-date">
+  <time class="dt-published" datetime="2022-06-14T09:53:24.508Z" itemprop="datePublished">2022-06-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/06/14/%E3%80%8CmacOS%E3%80%8D%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84%E6%97%B6%E9%97%B4%E6%9C%BA%E5%99%A8%E7%9A%84%E5%A4%87%E4%BB%BD%E7%A3%81%E7%9B%98%E6%97%A0%E6%B3%95%E8%A2%AB%E6%8E%A8%E5%87%BA%EF%BC%9F-macos-why-my-driver-can-not-eject/">「macOS」为什么我的时间机器的备份磁盘无法被推出？</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天我用时间机器备份我的Mac上的数据后，打算推出我的磁盘，但是遇到了如下提示</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/06/image-eb51acc2729b40a4bbd6183b11120c1f.png" alt="image.png"></p>
+<p>一般这种情况，我们有一个国际通用的解决方案，那就是关机。但是，我不想关机啊，我想找到到底是什么程序占用了这个磁盘，但是它不能顺利的被推出。</p>
+<p>作为一个略懂linux的半个码农，我熟练的使用lsof 查看了磁盘的占用进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo lsof  /Volumes/Time-Machine</span><br><span class="line">COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">mds     334 root   27r   DIR   1,29      160    2 /Volumes/Time-Machine</span><br></pre></td></tr></table></figure>
+
+<p>结果显示，有一个PID为334的mds的进程正在使用硬盘。那么问题来了，这个mds是啥呢？ 使用百度加上 <code>man mds</code>, 我发现这是MacOS上的一个索引工具，同时我还找到一位跟我有类似经历的<a target="_blank" rel="noopener" href="https://apple.stackexchange.com/questions/438329/why-is-mds-accessing-my-time-machine-drive-all-the-time">文章</a>。简单说，就是因为时间机器备份需要进行文件的比对，为了实现这种快速的文件件对比，那么我们就需要建立文件索引。</p>
+<p>强制干掉mds进程会影响我们索引的完整性，所以，最后我还是关机了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/06/14/%E3%80%8CmacOS%E3%80%8D%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84%E6%97%B6%E9%97%B4%E6%9C%BA%E5%99%A8%E7%9A%84%E5%A4%87%E4%BB%BD%E7%A3%81%E7%9B%98%E6%97%A0%E6%B3%95%E8%A2%AB%E6%8E%A8%E5%87%BA%EF%BC%9F-macos-why-my-driver-can-not-eject/" data-id="cllg90y2s007feqp20ts2eaaa" data-title="「macOS」为什么我的时间机器的备份磁盘无法被推出？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-「流畅的Python」关于函数参数，自省和闭包的一些记录-流畅的python关于函数参数自省和闭包的一些记录" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/06/04/%E3%80%8C%E6%B5%81%E7%95%85%E7%9A%84Python%E3%80%8D%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%EF%BC%8C%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95-%E6%B5%81%E7%95%85%E7%9A%84python%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/" class="article-date">
+  <time class="dt-published" datetime="2022-06-04T13:34:21.804Z" itemprop="datePublished">2022-06-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/06/04/%E3%80%8C%E6%B5%81%E7%95%85%E7%9A%84Python%E3%80%8D%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%EF%BC%8C%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95-%E6%B5%81%E7%95%85%E7%9A%84python%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/">「流畅的Python」关于函数参数，自省和闭包的一些记录</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>「流畅的Python」英文原版出版于2015年，2017年出版了中文版，我看到一些人推荐，于是就买了。但是遗憾的是那时候Python的道行太浅，发现每个字都认识，但是连起来就是读不懂。现在是2022年，由于疫情缘故，我终于有时间去深入学习一些Python知识。并且，经过几年的编程积累，我也终于有能力阅读这本书了。</p>
+</blockquote>
+<p>“在Python中，函数是一等对象”。（最初看到这句话时，我脑海里想的是，编程语言还分个三六九等吗？）<strong>一等对象</strong>(first-class object, 又称第一类对象)是编程语言理论家定义的，符合下述要求的<strong>程序实体</strong>。</p>
+<ul>
+<li>在运行时创建</li>
+<li>能赋值给变量或数据结构的元素</li>
+<li>能作为参数传给函数</li>
+<li>能作为函数的返回结果</li>
+</ul>
+<p>Python的函数之所以是一等对象，就是因为它满足上述条件，也就是能够实现下面这些操作</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">foo</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;foo&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#作为函数的参数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bar</span>(<span class="params">func</span>):</span><br><span class="line">    func()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;bar&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#作为函数的返回</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">zoo</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="keyword">return</span> func</span><br><span class="line"></span><br><span class="line">f = foo <span class="comment">#能赋值给变量</span></span><br><span class="line">f()</span><br><span class="line"></span><br><span class="line">ff = zoo(foo)</span><br><span class="line">ff()</span><br></pre></td></tr></table></figure>
+
+<p>当一个函数能够接受函数作为参数，或者能够将函数作为结果进行返回，那么它就是一个<strong>高阶函数</strong>(higher-order function).因此上面代码的 <code>bar</code>, <code>zoo</code> 就是高阶函数。 </p>
+<p>我们常用的sorted函数也是高阶函数, 我们可以通过传入自定义的函数来改变默认行为，下面的案例代码使得我们可以根据value对字典的key排序。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">d = &#123;<span class="string">&#x27;a&#x27;</span>: <span class="number">100</span>, <span class="string">&#x27;b&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;c&#x27;</span>: <span class="number">2</span>&#125;</span><br><span class="line"><span class="comment"># lambda是一个匿名函数, 这里是用来获取字典的值, </span></span><br><span class="line"><span class="built_in">sorted</span>(d, key = <span class="keyword">lambda</span> x : d[x] )</span><br></pre></td></tr></table></figure>
+
+<p>sorted中的key后面用到了lambda匿名函数，是一种非常简单的表达式，不支持try&#x2F;catch, while,for等语句。由于lambda还会带来阅读上的困难，我们会更建议定义一个有名字的函数来替代。</p>
+<p>Python函数支持非常灵活的参数处理机制，我们可以使用 <code>*</code>和<code>**</code>来展开可迭代对象，映射到单个参数中。例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#案例代码</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_arguments</span>(<span class="params">first, *middle, **last</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;first is: <span class="subst">&#123;first&#125;</span>&quot;</span>) </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i,j <span class="keyword">in</span> <span class="built_in">enumerate</span>(middle):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;the <span class="subst">&#123;i&#125;</span> of middle is <span class="subst">&#123;j&#125;</span>&quot;</span>)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> k,v <span class="keyword">in</span> last.items():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;key <span class="subst">&#123;k&#125;</span> is value <span class="subst">&#123;v&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># middle捕获了b,c,d, 存成一个列表, last将k=1,k2=2存成一个字典, &#123;&quot;k&quot;:1,&quot;k2&quot;:2&#125;</span></span><br><span class="line">test_arguments(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>, k=<span class="number">1</span>, k2=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#first is: a</span></span><br><span class="line"><span class="comment">#the 0 of middle is b</span></span><br><span class="line"><span class="comment">#the 1 of middle is c</span></span><br><span class="line"><span class="comment">#the 2 of middle is d</span></span><br><span class="line"><span class="comment">#key k is value 1</span></span><br><span class="line"><span class="comment">#key k2 is value 2</span></span><br></pre></td></tr></table></figure>
+
+<p>因为Python一切皆对象，因此函数也是对象，既然是对象，我们就可以查看其属性（<strong>函数自省</strong>）。 Python使用 <code>dir</code>函数可以查看函数的所有属性, 如 <code>dir(sorted)</code></p>
+<blockquote>
+<p>这里的自省是一个计算机科学术语，是在程序运行时检查对象类型的一种能力，通常也称之为’运行时类型检查‘。我一开始还以为函数能自我反省，所以面对不理解的名词（包括后面出现的闭包），要果断去查，而不是由着自己乱想，。</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/06/04/%E3%80%8C%E6%B5%81%E7%95%85%E7%9A%84Python%E3%80%8D%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%EF%BC%8C%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95-%E6%B5%81%E7%95%85%E7%9A%84python%E5%85%B3%E4%BA%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E8%87%AA%E7%9C%81%E5%92%8C%E9%97%AD%E5%8C%85%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%B0%E5%BD%95/" data-id="cllg90y2z0087eqp2dlssgdkb" data-title="「流畅的Python」关于函数参数，自省和闭包的一些记录" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-log化的TPM能做差异分析吗-differential-analysis-in-log-tpm-data" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/04/22/log%E5%8C%96%E7%9A%84TPM%E8%83%BD%E5%81%9A%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90%E5%90%97-differential-analysis-in-log-tpm-data/" class="article-date">
+  <time class="dt-published" datetime="2022-04-22T02:43:10.256Z" itemprop="datePublished">2022-04-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/04/22/log%E5%8C%96%E7%9A%84TPM%E8%83%BD%E5%81%9A%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90%E5%90%97-differential-analysis-in-log-tpm-data/">log化的TPM能做差异分析吗</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>有人提了一个问题: 我用log2TPM做差异，log2本来就是对TPM标准化的嘛，我看样品表达分布还是不是特别齐，还需要再进一步标准化吗</p>
+<p>对于这个问题，我的回答如下: </p>
+<p>首先，我们如果要对转录组做差异分析，那么最好的数据应该就是raw count，而不是这些转换后的数据。这是因为差异分析的本质是做统计检验，而我们应该都知道统计检验都会对数据有一些基础假设，例如，我们平常用的t-test，默认假设是数据服从正态分布。常用的DESeq2, limma(voom), edgeR之所以都要求输入数据是count，就是因为它们的统计假设是基于count。</p>
+<p>其次，如果我们只能拿到TPM或log2TPM的数据，那在这个基础上做差异分析所能用的统计检验方法就建议是无参方法，例如wilcoxon秩和检验。尽管log2转换会让偏倚的数据更符合钟形曲线（正态分布），但你不能在基础上用t-test。 举个例子, </p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">x <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">100</span><span class="punctuation">,</span> <span class="number">200</span><span class="punctuation">,</span> <span class="number">300</span><span class="punctuation">)</span> </span><br><span class="line">y <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">1000</span><span class="punctuation">,</span> <span class="number">2000</span><span class="punctuation">,</span> <span class="number">3000</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">t.test<span class="punctuation">(</span>x<span class="punctuation">,</span>y<span class="punctuation">)</span> <span class="comment"># p=0.08787</span></span><br><span class="line">t.test<span class="punctuation">(</span><span class="built_in">log</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">,</span> <span class="built_in">log</span><span class="punctuation">(</span>y<span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># p=0.0071</span></span><br><span class="line"></span><br><span class="line">wilcox.test<span class="punctuation">(</span>x<span class="punctuation">,</span>y<span class="punctuation">)</span> <span class="comment"># p=0.1</span></span><br><span class="line">wilcox.test<span class="punctuation">(</span><span class="built_in">log</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">,</span> <span class="built_in">log</span><span class="punctuation">(</span>y<span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># p=0.1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在我构建的两个数据中，经log转换，t-test从p&gt;0.05变成了p&lt;0.01, 而秩和检验没有变化。</p>
+<p>最后，我们在转录组分析中会用到TPM归一化和log2转换的目的并不是为了差异分析，而是为了后续的可视化。比如说绘制热图，我们就不希望数据里面不要有太高和太低的值，使得整体的颜色极端化。</p>
+<blockquote>
+<p>In order to test for differential expression, we operate on raw counts and use discrete distributions as described in the previous section on differential expression. However for other downstream analyses – e.g. for visualization or clustering – it might be useful to work with transformed versions of the count data.<br><a target="_blank" rel="noopener" href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">Analyzing RNA-seq data with DESeq2</a></p>
+</blockquote>
+<p>综上，我们用log2TPM做差异应该采用无参的方法，而无参的方法并不考虑样本的分布。</p>
+<p>推荐阅读:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://kaopubear.top/blog/2022-03-20-donot-use-deseq2-edger-in-human-population-samples/">别再用DEseq2和edgeR进行大样本差异表达基因分析了
+</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/04/22/log%E5%8C%96%E7%9A%84TPM%E8%83%BD%E5%81%9A%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90%E5%90%97-differential-analysis-in-log-tpm-data/" data-id="cllg90y1f0063eqp2fcpxgspj" data-title="log化的TPM能做差异分析吗" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用非负最小二乘回归进行细胞类型转移-label-transfer-with-nnls" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/03/28/%E4%BD%BF%E7%94%A8%E9%9D%9E%E8%B4%9F%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E5%9B%9E%E5%BD%92%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E7%B1%BB%E5%9E%8B%E8%BD%AC%E7%A7%BB-label-transfer-with-nnls/" class="article-date">
+  <time class="dt-published" datetime="2022-03-28T09:02:39.141Z" itemprop="datePublished">2022-03-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/03/28/%E4%BD%BF%E7%94%A8%E9%9D%9E%E8%B4%9F%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E5%9B%9E%E5%BD%92%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E7%B1%BB%E5%9E%8B%E8%BD%AC%E7%A7%BB-label-transfer-with-nnls/">使用非负最小二乘回归进行细胞类型转移</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>2019年发表在Nature上的文章【The single-cell transcriptional landscape of mammalian organogenesis】在方法部分提到，使用NNLS(non-negative linear-square)回归的方法分析两个细胞图谱数据集中相关细胞类型。</p>
+<p>这个方法，在我搜索的中文教程中都没有出现过，所以这里以两个pbmc的数据集为例进行介绍，如何复现文章的方法。</p>
+<p>10x的细胞数据集的预处理部分不做过多介绍， 如下代码以10x官网提供的数据为例</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Seurat<span class="punctuation">)</span></span><br><span class="line">pbmc.data <span class="operator">&lt;-</span> Read10X_h5<span class="punctuation">(</span><span class="string">&quot;./data/10x/10k_PBMC_3p_nextgem_Chromium_X_filtered_feature_bc_matrix.h5&quot;</span><span class="punctuation">)</span></span><br><span class="line">seu.obj <span class="operator">&lt;-</span> CreateSeuratObject<span class="punctuation">(</span>counts <span class="operator">=</span> pbmc.data<span class="punctuation">,</span> </span><br><span class="line">                              project <span class="operator">=</span> <span class="string">&quot;pbmc10k&quot;</span><span class="punctuation">,</span> </span><br><span class="line">                              min.cells <span class="operator">=</span> <span class="number">3</span><span class="punctuation">,</span> </span><br><span class="line">                              min.features <span class="operator">=</span> <span class="number">200</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>dplyr<span class="punctuation">)</span></span><br><span class="line">seu.obj <span class="operator">&lt;-</span> seu.obj  <span class="operator">%&gt;%</span></span><br><span class="line">  Seurat<span class="operator">::</span>NormalizeData<span class="punctuation">(</span>verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span>  <span class="comment">#归一化</span></span><br><span class="line">  FindVariableFeatures<span class="punctuation">(</span>selection.method <span class="operator">=</span> <span class="string">&quot;vst&quot;</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span>  <span class="comment">#筛选特征,找高变基因</span></span><br><span class="line">  ScaleData<span class="punctuation">(</span>verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span>  <span class="comment">#标准化</span></span><br><span class="line">  RunPCA<span class="punctuation">(</span>pc.genes <span class="operator">=</span> seu.obj<span class="operator">@</span>var.genes<span class="punctuation">,</span> npcs <span class="operator">=</span> <span class="number">100</span><span class="punctuation">,</span> verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span>  <span class="operator">%&gt;%</span> <span class="comment">#降维，降噪</span></span><br><span class="line">  FindNeighbors<span class="punctuation">(</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span> <span class="comment">#建立SNN</span></span><br><span class="line">  FindClusters<span class="punctuation">(</span> resolution <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span> <span class="comment">#分群</span></span><br><span class="line">  RunUMAP<span class="punctuation">(</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">)</span> <span class="comment"># 非线性降维</span></span><br></pre></td></tr></table></figure>
+
+
+<p>相同的处理流程我们应用到<a target="_blank" rel="noopener" href="https://satijalab.org/seurat/articles/pbmc3k_tutorial.html">Seurat 3k教程</a>里. 最终我们得到两个Seurat对象</p>
+<ul>
+<li>seu.obj1: 10x的10k pmbc</li>
+<li>seu.obj2: 10x的3k pbmc</li>
+</ul>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/03/image-672b2bad56834eb7b519a0c2cfde1964.png" alt="结果对比"></p>
+<p>基本上看多了PBMC数据的UMAP结果，大概就能通过UMAP的拓扑结构推断不同的细胞类型，比如说两个数据集的cluster3, 肯定都是B细胞了。</p>
+<p>接着，我们基于文章的描述来实现代码</p>
+<p>第一步是对数据按照cluster进行合并，并进行标准化</p>
+<blockquote>
+<p>To identify correlated cell types between two cell atlas datasets, we first aggregated the cell-type-specific UMI counts, normalized by the total count, multiplied by 100,000 and log-transformed after adding a pseudocount</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 确保两个数据集的特征数相等</span></span><br><span class="line">shared_gene <span class="operator">&lt;-</span> intersect<span class="punctuation">(</span>rownames<span class="punctuation">(</span>seu.obj<span class="punctuation">)</span><span class="punctuation">,</span> row.names<span class="punctuation">(</span>seu.obj2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 计算各个cluster之和并标准化</span></span><br><span class="line">seu.obj.mat <span class="operator">&lt;-</span> Seurat<span class="operator">::</span>AggregateExpression<span class="punctuation">(</span>seu.obj<span class="punctuation">,</span> assays <span class="operator">=</span> <span class="string">&quot;RNA&quot;</span><span class="punctuation">,</span>  features <span class="operator">=</span> shared_gene<span class="punctuation">,</span>slot <span class="operator">=</span> <span class="string">&quot;count&quot;</span><span class="punctuation">)</span><span class="operator">$</span>RNA</span><br><span class="line">seu.obj.mat <span class="operator">&lt;-</span> seu.obj.mat <span class="operator">/</span> <span class="built_in">rep</span><span class="punctuation">(</span>colSums<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">)</span><span class="punctuation">,</span> each <span class="operator">=</span> nrow<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">seu.obj.mat <span class="operator">&lt;-</span> log10<span class="punctuation">(</span>seu.obj.mat <span class="operator">*</span> <span class="number">100000</span> <span class="operator">+</span> <span class="number">1</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">seu.obj.mat2 <span class="operator">&lt;-</span> Seurat<span class="operator">::</span>AggregateExpression<span class="punctuation">(</span>seu.obj2<span class="punctuation">,</span> assays <span class="operator">=</span> <span class="string">&quot;RNA&quot;</span><span class="punctuation">,</span> features <span class="operator">=</span> shared_gene<span class="punctuation">,</span> slot <span class="operator">=</span> <span class="string">&quot;count&quot;</span><span class="punctuation">)</span><span class="operator">$</span>RNA</span><br><span class="line">seu.obj.mat2 <span class="operator">&lt;-</span> seu.obj.mat2 <span class="operator">/</span> <span class="built_in">rep</span><span class="punctuation">(</span>colSums<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">)</span><span class="punctuation">,</span> each <span class="operator">=</span> nrow<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">seu.obj.mat2 <span class="operator">&lt;-</span> log10<span class="punctuation">(</span>seu.obj.mat2 <span class="operator">*</span> <span class="number">100000</span> <span class="operator">+</span> <span class="number">1</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>第二步是筛选基因. 文章为了提高准确性，先根据目标数据集中给定细胞类型和整体细胞类型中位数的倍数变化，选择前200个；然后给根据目标数据集中给定细胞类型和其他细胞类型最大值的倍数变化，选择前200个，对两个结果进行合并。（我使用差异富集的marker的前100个，发现效果也差不多）</p>
+<blockquote>
+<p>To improve accuracy and specificity, we selected cell-type-specific genes for each target cell type by (1) ranking genes on the basis of the expression fold-change between the target cell type versus the median expression across all cell types, and then selecting the top 200 genes; (2) ranking genes on the basis of the expression fold-change between the target cell type versus the cell type with maximum expression among all other cell types, and then selecting the top 200 genes; and (3) merging the gene lists from steps (1) and (2).</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以cluster3为例</span></span><br><span class="line">cluster <span class="operator">&lt;-</span> 3</span><br><span class="line"></span><br><span class="line">seu.obj.gene <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span><span class="punctuation">,</span> cluster <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> median<span class="punctuation">)</span></span><br><span class="line">gene_list1 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span><span class="punctuation">(</span>cluster<span class="operator">+</span><span class="number">1</span><span class="punctuation">)</span><span class="punctuation">]</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="built_in">max</span><span class="punctuation">)</span></span><br><span class="line">gene_list2 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">gene_list <span class="operator">&lt;-</span> unique<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span>gene_list1<span class="punctuation">,</span> gene_list2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>第三步: 是在相关系数不为负的限制下，求解 $T_a &#x3D; \beta_0a + \beta_{1a}M_b$. 其中 $M_b$ 是预测数据集的基因表达量, $\beta_{1a}$就是对应系数。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Ta <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span>gene_list<span class="punctuation">,</span> cluster<span class="operator">+</span><span class="number">1</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">Mb <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span>gene_list<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">library<span class="punctuation">(</span>lsei<span class="punctuation">)</span></span><br><span class="line">solv <span class="operator">&lt;-</span> nnls<span class="punctuation">(</span>Mb<span class="punctuation">,</span> Ta<span class="punctuation">)</span></span><br><span class="line">corr <span class="operator">&lt;-</span> solv<span class="operator">$</span>x</span><br></pre></td></tr></table></figure>
+
+<p>这里算出预测数据集的cluster3系数最高，为0.93, 其他都是0.</p>
+<p>第四步: 调换预测数据集和目标数据集，重新进行第二步和第三步</p>
+<blockquote>
+<p>Similarly, we then switch the order of datasets A and B, and predict the gene expression of target cell type (Tb) in dataset B with the gene expression of all cell types (Ma) in dataset A.</p>
+</blockquote>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  predict a with b</span></span><br><span class="line">seu.obj.gene <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span><span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> median<span class="punctuation">)</span></span><br><span class="line">gene_list1 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span>cluster<span class="punctuation">]</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="built_in">max</span><span class="punctuation">)</span></span><br><span class="line">gene_list2 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">gene_list <span class="operator">&lt;-</span> unique<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span>gene_list1<span class="punctuation">,</span> gene_list2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">Ta <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span>gene_list<span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line">Mb <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span>gene_list<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line">solv <span class="operator">&lt;-</span> nnls<span class="punctuation">(</span>Mb<span class="punctuation">,</span> Ta<span class="punctuation">)</span></span><br><span class="line">corr2 <span class="operator">&lt;-</span> solv<span class="operator">$</span>x</span><br></pre></td></tr></table></figure>
+
+
+<p>第五步: 经过上面运算后，我们就得到对于数据集A中的各个细胞类型，数据集B各个细胞类型对应的回归系数，记作 $\beta_{ab}$ 以及对于数据集B中的各个细胞类型，数据集A各个细胞类型对应的回归系数, $\beta_{ba}$, 通过如下公式整合两个参数, $\beta &#x3D; 2(\beta_{ab} + 0.01)(\beta_{ba} + 0.01)$</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 批量计算各个类群的回归系数</span></span><br><span class="line">list1 <span class="operator">&lt;-</span> <span class="built_in">list</span><span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line"><span class="keyword">for</span> <span class="punctuation">(</span>cluster <span class="keyword">in</span> seq<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span> ncol<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">#  predict a with b</span></span><br><span class="line">  seu.obj.gene <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span><span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> median<span class="punctuation">)</span></span><br><span class="line">  gene_list1 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span>cluster<span class="punctuation">]</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="built_in">max</span><span class="punctuation">)</span></span><br><span class="line">  gene_list2 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  gene_list <span class="operator">&lt;-</span> unique<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span>gene_list1<span class="punctuation">,</span> gene_list2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  Ta <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span>gene_list<span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line">  Mb <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span>gene_list<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line">  solv <span class="operator">&lt;-</span> nnls<span class="punctuation">(</span>Mb<span class="punctuation">,</span> Ta<span class="punctuation">)</span></span><br><span class="line">  corr <span class="operator">&lt;-</span> solv<span class="operator">$</span>x</span><br><span class="line">  </span><br><span class="line">  list1<span class="punctuation">[[</span>cluster<span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> corr</span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line">list2 <span class="operator">&lt;-</span> <span class="built_in">list</span><span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line"><span class="keyword">for</span> <span class="punctuation">(</span>cluster <span class="keyword">in</span> seq<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span> ncol<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">#  predict a with b</span></span><br><span class="line">  seu.obj.gene <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span><span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> median<span class="punctuation">)</span></span><br><span class="line">  gene_list1 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  gene_fc <span class="operator">&lt;-</span> seu.obj.gene <span class="operator">/</span> apply<span class="punctuation">(</span>seu.obj.mat2<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span>cluster<span class="punctuation">]</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="built_in">max</span><span class="punctuation">)</span></span><br><span class="line">  gene_list2 <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>gene_fc<span class="punctuation">,</span> decreasing <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  gene_list <span class="operator">&lt;-</span> unique<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span>gene_list1<span class="punctuation">,</span> gene_list2<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  Ta <span class="operator">&lt;-</span> seu.obj.mat2<span class="punctuation">[</span>gene_list<span class="punctuation">,</span> cluster<span class="punctuation">]</span></span><br><span class="line">  Mb <span class="operator">&lt;-</span> seu.obj.mat<span class="punctuation">[</span>gene_list<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line">  solv <span class="operator">&lt;-</span> nnls<span class="punctuation">(</span>Mb<span class="punctuation">,</span> Ta<span class="punctuation">)</span></span><br><span class="line">  corr <span class="operator">&lt;-</span> solv<span class="operator">$</span>x</span><br><span class="line">  </span><br><span class="line">  list2<span class="punctuation">[[</span>cluster<span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> corr</span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并结果</span></span><br><span class="line">mat1 <span class="operator">&lt;-</span> do.call<span class="punctuation">(</span>rbind<span class="punctuation">,</span> list1<span class="punctuation">)</span></span><br><span class="line">mat2 <span class="operator">&lt;-</span> do.call<span class="punctuation">(</span>rbind<span class="punctuation">,</span> list2<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算系数</span></span><br><span class="line">beta <span class="operator">&lt;-</span> 2<span class="operator">*</span><span class="punctuation">(</span>mat1 <span class="operator">+</span> <span class="number">0.01</span><span class="punctuation">)</span> <span class="operator">*</span>  t<span class="punctuation">(</span>mat2<span class="operator">+</span><span class="number">0.01</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">row.names<span class="punctuation">(</span>beta<span class="punctuation">)</span> <span class="operator">&lt;-</span> paste0<span class="punctuation">(</span><span class="string">&quot;C&quot;</span><span class="punctuation">,</span> <span class="number">1</span><span class="operator">:</span>nrow<span class="punctuation">(</span>beta<span class="punctuation">)</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">colnames<span class="punctuation">(</span>beta<span class="punctuation">)</span> <span class="operator">&lt;-</span> paste0<span class="punctuation">(</span><span class="string">&quot;C&quot;</span><span class="punctuation">,</span> <span class="number">1</span><span class="operator">:</span>ncol<span class="punctuation">(</span>beta<span class="punctuation">)</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 可视化</span></span><br><span class="line">pheatmap<span class="operator">::</span>pheatmap<span class="punctuation">(</span>beta<span class="punctuation">,</span> cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span>cluster_cols <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>结果如下:</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/03/image-68e3301ca1be43c79ef29faa4d2d04d5.png" alt="image.png"></p>
+<p>观察发现: 3k数据集UMAP上邻居的C4,6对应10k数据集的C6和C8也是临近关系, 说明基于NNLS的预测方法，也是相对比较准确。</p>
+<p>当然文章也通过对多个数据集的相互比较验证了这个分析方法。</p>
+<blockquote>
+<p>For validation, we first applied cell-type correlation analysis to independently generated and annotated analyses of the adult mouse kidney (sci-RNA-seq component of sci-CAR19 versus Microwell-seq). We subsequently compared cell subclusters from this study (with detected doublet-cell ratio ≤10%) to fetus-related cell types (those with annotations including the term ‘fetus’) from the Microwell-seq-based MCA. A similar comparison was performed against cell types annotated in BCA.</p>
+</blockquote>
+<p>但是，文章并没有解释他可以用NNLS回归的方法做标记的迁移，鉴于他没有引述参考文章，我们可以认为这是作者第一次提出的标记迁移思路。所以，不妨让我做一些推测吧。</p>
+<p>我们比较耳熟能详的分析是，线性回归里面的最小二乘法，也就是给定两组变量a和b, 通过最小二乘的方法求解a &#x3D; bx + c中的系数x和c. 那么，假设存在三个细胞类型A, B,C. 其中A和B是同一类型，A和C不是同一类型。对于同一种细胞类型的两个数据，只不过由于实验，测序和分析等各种因素，导致基因表达值并不相同，但是存在着一定关联。我们可以通过求解 A &#x3D; Bx + Cy 中的系数x, y，通过比较系数来评估A和哪个细胞类型最类似。进一步, 显然我们不能让一个细胞类型的贡献为负，最少是无作用，也就是0， 因此我们就得 <strong>限定系数不为负</strong>，也就是非负最小二乘(non-negative linear square, NNLS)回归。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/03/28/%E4%BD%BF%E7%94%A8%E9%9D%9E%E8%B4%9F%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E5%9B%9E%E5%BD%92%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E7%B1%BB%E5%9E%8B%E8%BD%AC%E7%A7%BB-label-transfer-with-nnls/" data-id="cllg90y4i00dyeqp2133c7zvz" data-title="使用非负最小二乘回归进行细胞类型转移" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-苹果的通用控制初体验-the-first-experience-of-apple-universal-control" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/03/15/%E8%8B%B9%E6%9E%9C%E7%9A%84%E9%80%9A%E7%94%A8%E6%8E%A7%E5%88%B6%E5%88%9D%E4%BD%93%E9%AA%8C-the-first-experience-of-apple-universal-control/" class="article-date">
+  <time class="dt-published" datetime="2022-03-15T09:02:25.614Z" itemprop="datePublished">2022-03-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/03/15/%E8%8B%B9%E6%9E%9C%E7%9A%84%E9%80%9A%E7%94%A8%E6%8E%A7%E5%88%B6%E5%88%9D%E4%BD%93%E9%AA%8C-the-first-experience-of-apple-universal-control/">苹果的通用控制初体验</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天(3.15)我更新了我MacOS系统到12.3, iPadOS系统到13.4, 用上了苹果的通用控制功能. 经过几个小时的使用之后, 我先简单聊聊自己使用体验.</p>
+<p>打开通用控制非常简单, 只需要在升级后的MacOS上以此点开【设置】-&gt;【显示器】，就会看到多出了一个通用控制的按钮。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/03/image-dd713d89f63c4ca3be97c67585302175.png" alt="显示器"></p>
+<p>点击通用控制后，勾选前两个选项就算启用了通用控制(目前还是BETA版本)</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/03/image-84efa24977784917911dfe964afc2605.png" alt="通用控制"></p>
+<p>之后你就可以在将鼠标移动到屏幕边缘，就会惊喜的发现鼠标居然移动到另一台苹果设备上，实现对另一台设备的控制。接着，你就可以直接将各种文件拖动到另一台设备上，仿佛在使用同一台设备一样.</p>
+<p>由于我只有一台MacBook Pro和一台iPad Pro，所以交互仅限于MacOS系统和iPadOS系统。我尝试了如下的操作</p>
+<ul>
+<li>使用MacBook的键盘进行交互</li>
+<li>使用外接键盘进行交互</li>
+<li>使用iPad的妙控键盘进行交互</li>
+<li>将PDF文件拖动到iPad的应用上,如MarginNote3, GoodReader</li>
+<li>将图片拖动到iPad的应用上, 如备忘录, keynote,</li>
+</ul>
+<p>在键盘使用上，我感觉到很强的割裂感。为iPad Pro配备妙控键盘能够跨设备编辑，能够使用cmd + c&#x2F;v 在不同设备间复制粘贴文字，使用shift 输入标点符号，使用地球键切换输入法，使用Caps切换搜狗输入法的大小写，唯一遗憾的是 没有Esc键(除非用地球键替换成Esc). 但是当你用Macbook自带的键盘或者外接的键盘时，这些常用的快捷键都失效了。此外，如果你将妙控键盘地球键替换成Esc键，你会发现MacOS的键盘的CTRL和CAPS LOCK都会变成中英文切换键。</p>
+<p>在触控板和鼠标的使用上，妙控键盘自带触控板，MacBook的触控板和鼠标体验上差不多。</p>
+<p>在文件交互上，通用控制表现的相对不错，我可以直接从Mac往iPad上拖动文件，也可以从iPad上【文件】应用里将文件拖动到Mac上。你可以认为是非常方便的隔空投递。</p>
+<p>当然也有几点不足: 第一，iPad将文件拖动到屏幕边缘的时候，逻辑上很有可能会变成iPad的分屏，所以一定要拖动的快一点。第二，文件传输速度虽然有80m&#x2F;s, 但是我在拖动iPad上图片到Mac上时能看到读条，有一些延迟。第三，部分应用还没有跟上这套逻辑，比如说，我没能把iPad的图片拖拽到Mac浏览器里面实现图片上传；</p>
+<p>总的来说，我感觉目前的通用控制更像是简化版的隔空投递，以及能够自动切换设备的无线键鼠套装。如果后续能够更进一步，能够交互MacOS和iPad之间或者MacOS和MacOS之间的应用，那可能才会让我更加觉得有用，举个简单的例子，我一台设备装了Photoshop，另外的设备没有安装，最好的情况当然你直接把应用拖到另一个设备的时候，直接能在另一台设备上查看了，而不是再装一个PS。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/03/15/%E8%8B%B9%E6%9E%9C%E7%9A%84%E9%80%9A%E7%94%A8%E6%8E%A7%E5%88%B6%E5%88%9D%E4%BD%93%E9%AA%8C-the-first-experience-of-apple-universal-control/" data-id="cllg90y6x00kceqp22ljubwkz" data-title="苹果的通用控制初体验" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-macOS的configd占了我好多内存-macos-configd-use-too-much-memory" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/" class="article-date">
+  <time class="dt-published" datetime="2022-02-27T02:03:28.200Z" itemprop="datePublished">2022-02-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/">macOS的configd占了我好多内存</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在我没有启动多少应用的时候，macOS已经显示它使用了22.09GB内存。其中App内存是15.81GB, 我并没有打开那么多App.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/02/image-acb7830d509c43618a863043d689420e.png" alt="内存状态1"></p>
+<p>这估计跟configd有关，因为configd占用了20.55G内存。那么configd是真的占用了内存，还是就是声明自己会用到那么多内存呢？</p>
+<p>我尝试着调用了比较多的内存，直接用了29.3Gb内存</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cols <span class="operator">&lt;-</span> 8189</span><br><span class="line">rows <span class="operator">&lt;-</span> 320127</span><br><span class="line">mat1 <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span>data <span class="operator">=</span> <span class="number">0</span><span class="punctuation">,</span> nrow<span class="operator">=</span><span class="number">320127</span><span class="punctuation">,</span> ncol <span class="operator">=</span> <span class="number">8189</span><span class="punctuation">)</span></span><br><span class="line">print<span class="punctuation">(</span>object.size<span class="punctuation">(</span>mat1<span class="punctuation">)</span><span class="punctuation">,</span> unit<span class="operator">=</span><span class="string">&quot;GB&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 19.5 Gb</span></span><br><span class="line">mat2 <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span>data <span class="operator">=</span> <span class="number">0L</span><span class="punctuation">,</span> nrow<span class="operator">=</span><span class="number">320127</span><span class="punctuation">,</span> ncol <span class="operator">=</span> <span class="number">8189</span><span class="punctuation">)</span></span><br><span class="line">print<span class="punctuation">(</span>object.size<span class="punctuation">(</span>mat2<span class="punctuation">)</span><span class="punctuation">,</span> unit<span class="operator">=</span><span class="string">&quot;GB&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 9.8 Gb</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>此时看内存，发现rsession-arm64内存到了29.55GB, 而configd还是20.55GB，<strong>已使用内存</strong>仅仅比之前多了不到4GB。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/02/image-4c6c151de883487486c74b189992c246.png" alt="内存状态2"></p>
+<p>在我操作的前后，内存压力始终是绿色，说明系统没啥压力，那看来，有压力的显然是我。</p>
+<p>我显然是之前用Windows系统，被某些软件的绿色气泡给吓到了，当气泡变红时，我就压力变大，就得点这个球释放内存。</p>
+<p>而Unix系统的思路是调度所有内存，所有内存都要尽可能去干活，不要空着。</p>
+<p>通过查阅文档，我们也可以知道configd是macOS特有的系统配置的后台驻留程序(System Configuration Daemon).configd管理本地系统的各类配置，维持数据映射到目标位置和当前系统状态，当数据发生改变时给应用程序发送信息，同时以  loadable bundles 形式托管一组配置代理。</p>
+<p>最后，既然内存没压力，就不要自己给自己找压力，想着释放内存了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/" data-id="cllg90y1f0067eqp25l3udwe1" data-title="macOS的configd占了我好多内存" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-MacOS原生Arm64架构的R解决依赖编译问题-how-to-compile-r-package-in-arm64-macos" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" class="article-date">
+  <time class="dt-published" datetime="2022-02-21T09:51:46.786Z" itemprop="datePublished">2022-02-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/">MacOS原生Arm64架构的R解决依赖编译问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>目前(截止到2022年2月份), Arm64架构的R能够直接安装CRAN绝大部分的R包，但是Bioconductor的R包都需要编译（这也就为什么我推荐用Intel架构的R，可以避免遇到要编译R包里的坑）。</p>
+<p>编译R包最怕遇到的问题，就是遇到R以外的底层库的依赖，比如说Rhtslib, 就要求编译htslib, 而htslib依赖lzma是MacOS默认没有安装，因此我们会因为缺少xz库的支持，导致htslib编译失败，从而导致Rhtslib安装失败，间接导致所有依赖于Rhtslib的R包无法使用。还有一些R包编译需要gsl库，就会因为找不到 <code>gsl-config</code> 而报错。</p>
+<p>经过我不断踩坑后，我整理了解决方案。后续，如果你也打算在Arm64的Mac上安装原生的R，就按照我的思路来配置</p>
+<p>首先，你需要安装homebrew, 国内用户推荐按照清华镜像里的方案来配置，<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/">https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/</a> , 能够避免网络问题导致的坑。在海外的朋友，就按照官方站点, brew.sh 的命令来配置。</p>
+<p>homebrew会安装在 <code>/opt/homebrew</code>下，该目录里面包括后续安装的软件(bin), 头文件(include)和动态链接库(lib). </p>
+<p>之后，我们需要为R配置相关环节，使得R能够调用到homebrew安装的环境。</p>
+<p>我们需要打开R，然后运行如下命令</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file.edit<span class="punctuation">(</span>file.path<span class="punctuation">(</span>Sys.getenv<span class="punctuation">(</span><span class="string">&quot;R_HOME&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;etc&quot;</span><span class="punctuation">,</span> <span class="string">&quot;Makeconf&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>如此就能打开R的Makeconf文件，R就通过该文件里面的参数来进行R包和底层依赖的编译。我们搜索搜索 CFLAG, 添加  <code>-I/opt/homebrew/inlucde</code>， 搜索LDFLAGS, 添加 <code>-L/opt/homebrew/lib</code>, 效果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS = -I/opt/homebrew/include -falign-functions=64 -Wall -g -O2 $(LTO)</span><br><span class="line">LDFLAGS = -L/opt/R/arm64/lib -L/opt/homebrew/lib</span><br></pre></td></tr></table></figure>
+
+<p>重启R&#x2F;RStudio之后，你就能编译安装Rhtslib（当然你需要先运行 <code>brew install xz</code>，把lzma.h 装好&#96;)</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;Rhtslib&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>此外你可能还会遇到<code>gsl-config not found</code>报错，尽管你明明用<code>brew install gsl</code>安装了软件，也能够在命令行中成功调用 <code>gsl-config</code>，但是R就是视而不见。 这是因为R读取的变量，默认<strong>就来自于</strong>MacOS的环境变量来自于 <code>/etc/path</code>文件和 <code>/ect/path.d</code>目录里。 因此，你即便在.zshrc, 或者.bashrc里面加入了 homebrew 的路径，R也是不认的。</p>
+<p>解决方案，打开R，然后运行如下命令,</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file.edit<span class="punctuation">(</span><span class="string">&quot;~/.Rprofile&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>添加如下内容，修改R启动时的环境变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Sys.setenv(&quot;PATH&quot;=paste0( &quot;/opt/homebrew/bin:/opt/homebrew/sbin:&quot;,  Sys.getenv(&quot;PATH&quot;)))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>重启R&#x2F;Rstudio之后，R就能够用到homebrew安装的程序了。</p>
+<p>或者，我们也可以下载到本地，用 <code>R CMD INSTALL</code>进行编译安装，以DirichletMultinomial为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/bioconductor/packages/3.14/bioc/src/contrib/DirichletMultinomial_1.36.0.tar.gz</span><br><span class="line">R CMD INSTALL DirichletMultinomial_1.36.0.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>总结一下:</p>
+<ol>
+<li>通过homebrew来安装依赖环境</li>
+<li>编译R的Makeconf使得R能够调用homebrew里的include和lib</li>
+<li>编译R的.Rprofile修改PATH，使得R能够用到hombrew的bin的程序</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" data-id="cllg90xzy002ueqp2a2mt3j8j" data-title="MacOS原生Arm64架构的R解决依赖编译问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-吐槽下biopython的SeqIO.write导出fasta-biopython-seqio-write-are-not-good" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" class="article-date">
+  <time class="dt-published" datetime="2022-02-17T08:40:38.045Z" itemprop="datePublished">2022-02-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/">吐槽下biopython的SeqIO.write导出fasta</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>当使用biopython的SeqIO模块加载fasta之后，每条fasta都会记录成 <code>Bio.SeqRecord.SeqRecord</code>, 会有id, name, description, dbxrefs 等属性.</p>
+<p>举个例子，输入数据是 test.fa</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># test.fa</span></span><br><span class="line"><span class="comment">#&gt;a|b c</span></span><br><span class="line"><span class="comment">#ATCG</span></span><br><span class="line">seq = SeqIO.read(<span class="string">&quot;test.fa&quot;</span>, <span class="string">&quot;fasta&quot;</span>)</span><br><span class="line">seq</span><br><span class="line">SeqRecord(seq=Seq(<span class="string">&#x27;ATCG&#x27;</span>), <span class="built_in">id</span>=<span class="string">&#x27;a|b&#x27;</span>, name=<span class="string">&#x27;a|b&#x27;</span>, description=<span class="string">&#x27;a|b c&#x27;</span>, dbxrefs=[])</span><br></pre></td></tr></table></figure>
+
+<p>我们可以将其保存成另一个文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;test2.fa&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    SeqIO.write(seq, f, <span class="string">&quot;fasta&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>输出的header和输入的header是完全一样的。</p>
+<p>假如，你想修改他的名字, 比如说把 “a|b” 改成 “a”, 你会发现一个非常诡异的事情，就是它完全不会按照你想的来.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">seq.<span class="built_in">id</span> = <span class="string">&quot;a&quot;</span></span><br><span class="line"><span class="comment"># 输出 a a|b c</span></span><br><span class="line">seq.name = <span class="string">&quot;a&quot;</span></span><br><span class="line"><span class="comment"># 输出a|b c</span></span><br><span class="line">seq.description = <span class="string">&quot;a c&quot;</span></span><br><span class="line"><span class="comment"># 输出 a|b a c</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你改了他的ID，他会输出 ID + description, 如果你改了name，相当于没改，如果你改了description，就真的只有description（即header中空格后的信息）会发生变化。</p>
+<p>假如我想输出 “&gt;a c”, 那我就必须下面这个形式</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">seq.<span class="built_in">id</span> = <span class="string">&quot;a&quot;</span></span><br><span class="line">seq.description = <span class="string">&quot;c&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我实在是没想懂他背后的逻辑, 修改输出的header居然如此不符合预期</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="cllg90y4n00eieqp26zsjakf2" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-我的生信自学心得分享-my-experience-bioinformatic-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" class="article-date">
+  <time class="dt-published" datetime="2022-02-16T14:26:33.456Z" itemprop="datePublished">2022-02-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/">我的生信自学心得分享</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="cllg90y6a00i9eqp21vek566t" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-RAP-DB版本的水稻注释文件的优化-optimizeannotationgffofrice" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" class="article-date">
+  <time class="dt-published" datetime="2022-02-14T07:17:21.226Z" itemprop="datePublished">2022-02-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/">RAP-DB版本的水稻注释文件的优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>代码和数据都在GitHub上，见 <a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/rice_annotation">https://github.com/xuzhougeng/rice_annotation</a></p>
+</blockquote>
+<p>水稻有两个主要的注释项目组</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://rapdb.dna.affrc.go.jp/">RAP-DB</a>: 编号格式形如Os01g0100100</li>
+<li><a target="_blank" rel="noopener" href="http://rice.uga.edu/">RGAP</a>:  编号格式形如LOC_Os0101010</li>
+</ul>
+<p>虽然这两个注释项目组使用的是同一个水稻基因组，但是注释结果却存在一些差异。你可以使用任意一套注释进行分析，通过ID的对应关系，将其中一套编号转换成另外一套编号，我用的是RAP-DB版本，这是因为KEGG数据库使用的就是RAP-DB的编号形式。</p>
+<p>RAP-DB的网站上提供了很多数据方便我们使用，比如说光基因序列文件就至少提供了为UTR+CDS, UTR+CDS+Intron, CDS三类，非常贴心。美中不足的一点是，他们提供的GFF文件并不规整。</p>
+<p>他们提供了2个下载链接，分别对应GFF和GTF</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_representative_2021-11-11.tar.gz">Gene structure and function information in GFF format</a>.</li>
+<li><a target="_blank" rel="noopener" href="https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_representative_transcript_exon_2021-11-11.gtf.gz">Gene structure (only exon) information in GTF format</a>.</li>
+</ul>
+<p>GFF下载之后是一个压缩包，解压能得到locus.gff, transcripts_exon.gff, transcripts.gff. GTF下载之后只有一个gtf文件。</p>
+<p>然而，无论是GFF还是GTF文件，他们都没有提供完整信息。GTF里面只有transcript和exon. GFF要么只有gene(locus.gff), 要么只有mRNA和exon(transcripts_exon.gff), 要么是mRNA,UTR和CDS(transcripts.gff). 我就非常纳闷了，为什么没有一个文件，同时有gene, mRNA, UTR, CDS, exon这些完整信息呢？</p>
+<p>算了，既然他们没有给，我就自己动手，于是我写了一些代码，基于他们提供loucs.gff和transcripts.gff进行整理，代码我上传到GitHub。</p>
+<p>我在代码中，将chr01-12改成了Chr1-Chr12, 所以对应的基因组文件，我也手动调整了。整理好的FASTA, GTF, GFF文件，我都一并上传到GitHub上，方便后续使用，地址为 <a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/rice_annotation">https://github.com/xuzhougeng/rice_annotation</a></p>
+<p>既然整理好了FASTA和GFF文件，为了方便后续在R语言里面使用，我还生成了对应BSgenome和TxDb，安装方法如下（生成代码和输出R包都在GitHub上）</p>
+<p>安装方式(以BSgenome为例):</p>
+<ol>
+<li>在R里安装：<code>install.pakcages(&quot;/路径/到/BSgenome.Osativa.MSU.xzg_1.0.tar.gz&quot;, repos=NULL, type=&quot;source) </code></li>
+<li>在命令行里安装: <code>R CMD INSTALL BSgenome.Osativa.MSU.xzg_1.0.tar.gz</code></li>
+</ol>
+<p>为了避免和Biocondutor其他MSU的包冲突，所以我用自己名字的缩写xzg作为后缀。</p>
+<p>安装之后，就可以通过library进行加载</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>BSgenome.Osativa.MSU.xzg<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>TxDb.Osativa.MSU.xzg<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="cllg90y08003geqp26f50afki" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/3/">&laquo; 上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/5/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
+          </li>
+        
+          <li>
+            <a href="/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/">我不知道说些什么</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
