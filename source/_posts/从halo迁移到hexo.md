@@ -49,5 +49,7 @@ for file in md_file:
 hexo generate
 git add *
 git commit -m "从halo迁移到hexo"
+# $Env:http_proxy="http://127.0.0.1:7890";$Env:https_proxy="http://127.0.0.1:7890"
+# export http_proxy="http://127.0.0.1:7890";export https_proxy="http://127.0.0.1:7890"
 git push -u origin main
 ```
