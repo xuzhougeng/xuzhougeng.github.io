@@ -73,6 +73,89 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用jcvi绘制微共线性(Microsynteny)-plot-microsynteny-with-jcvi" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" class="article-date">
+  <time class="dt-published" datetime="2022-10-18T10:13:25.558Z" itemprop="datePublished">2022-10-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/">使用jcvi绘制微共线性(Microsynteny)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本文主要介绍如何使用JCVI的synteny子命令基于已有的共线性分析结果，展现局部的共线性。</p>
+<p>需要准备的三个输入文件</p>
+<ul>
+<li>记录物种内或者物种间的共线性基因对</li>
+<li>记录基因坐标的bed文件</li>
+<li>布局文件</li>
+</ul>
+<p>第一步，基于已有的共线性分析结果(WGDI, MCscan, MCscanX等软件的分析结果），整理出你需要展示的区间的基因对。注意分隔符是制表符，我们保存为blocks.txt</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">AL1G16390	AT1G06380</span><br><span class="line">AL1G16400	AT1G06390</span><br><span class="line">AL1G16410	AT1G06400</span><br><span class="line">AL1G16420	AT1G06410</span><br><span class="line">AL1G16430	AT1G06420</span><br><span class="line">AL1G16440	AT1G06430</span><br><span class="line">AL1G16450	AT1G06440</span><br><span class="line">AL1G16460	AT1G06450</span><br><span class="line">AL1G16470	AT1G06460</span><br><span class="line">AL1G16480	AT1G06470</span><br><span class="line">AL1G16490	AT1G06475</span><br><span class="line">AL1G16510	AT1G06490</span><br><span class="line">AL1G16520	AT1G06500</span><br><span class="line">AL1G16530	AT1G06515</span><br><span class="line">AL1G16540	AT1G06510</span><br><span class="line">AL1G16550	AT1G06520</span><br><span class="line">AL1G16560	AT1G06530</span><br><span class="line">AL1G16570	AT1G06540</span><br><span class="line">AL1G16580	AT1G06550</span><br><span class="line">AL1G16590	AT1G06560</span><br><span class="line">AL1G16600	AT1G06570</span><br><span class="line">AL1G16610	AT1G06580</span><br></pre></td></tr></table></figure>
+
+<p>第二步，整理记录基因坐标的bed文件。bed要求是6列，记录基因的坐标和朝向，第五列填0即可。 我们命名为genes.bed</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1	3631	5899	AT1G01010	0	+</span><br><span class="line">1	6788	9130	AT1G01020	0	-</span><br><span class="line">...</span><br><span class="line">scaffold_9	1792941	1795545	AL9U12210	0	-</span><br><span class="line">scaffold_9	1796870	1801565	AL9U12220	0	-</span><br><span class="line">scaffold_9	1810180	1812874	AL9U12230	0	+</span><br><span class="line">scaffold_9	1836100	1837535	AL9U12240	0	-</span><br></pre></td></tr></table></figure>
+
+<p>两个要求: </p>
+<ul>
+<li>第4列的基因名必须对应共线性对的基因</li>
+<li>文件里必须包含你需要展示物种的所有基因（至少是共线性区块的基因）</li>
+</ul>
+<p>第三步，提供布局文件, 命名为layout.csv</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># x,  y, rotation,  ha,  va, color, ratio,  label</span><br><span class="line">0.5, 0.4, 0, center,top,  ,  1, A.lyrata Chr1</span><br><span class="line">0.5, 0.3, 0, center, top,  ,  1,  A.thaliana Chr1</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br></pre></td></tr></table></figure>
+
+<p>该文件分为两个部分：上半部分是track在图中的相对位置(x,y)和旋转角度(rotation)，以及label的对齐方式， ha( left, center, right) va( top, button) 和颜色(color)</p>
+<p>下半部分是不同track的共线性关系，e,0,1表示第一个和第二个track有关联。</p>
+<p>最后运行程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.graphics.synteny blocks.txt  genes.bed layout.csv</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为一个pdf，如下所示</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-c2a65bc34e60499a8efeaea04cfc675e.png" alt="micro synteny"></p>
+<p>因为我们的共线性基因里面是A.lyrata是第一列，所以画图的时候也是A.lyrata在第一行。</p>
+<p>案例仅展示了2条序列之间的共线性，实际上<code>jcvi.graphics.synteny</code>是可以展示多条序列的结果，比如说jcvi案例展示graph, peach, cacao三者之间的共线性，提供的两两之间的共线性如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GSVIVT01012261001 . .</span><br><span class="line">GSVIVT01012259001 . .</span><br><span class="line">GSVIVT01012258001 . .</span><br><span class="line">GSVIVT01012257001 . .</span><br><span class="line">GSVIVT01012255001 Prupe.1G290900.1 Thecc1EG011472t1</span><br><span class="line">GSVIVT01012253001 Prupe.1G290800.2 Thecc1EG011473t1</span><br><span class="line">GSVIVT01012252001 Prupe.1G290700.1 Thecc1EG011474t1</span><br><span class="line">GSVIVT01012250001 Prupe.1G290600.1 Thecc1EG011475t1</span><br><span class="line">GSVIVT01012249001 Prupe.1G290500.1 Thecc1EG011478t1</span><br><span class="line">GSVIVT01012248001 Prupe.1G290400.1 Thecc1EG011482t1</span><br></pre></td></tr></table></figure>
+
+<p>通过调整布局(注意布局文件里面的坐标x,y, 以及edge)</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># x,   y, rotation,     ha,     va, color, ratio,            label</span><br><span class="line">0.5, 0.6,  0, center, top,   ,  1,  grape Chr1</span><br><span class="line">0.3, 0.4, 0, center, bottom,  , .5, peach scaffold_1</span><br><span class="line">0.7, 0.4,  0, center, bottom,   ,   .5, cacao scaffold_2</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br><span class="line">e, 0, 2</span><br></pre></td></tr></table></figure>
+
+<p>就能输出如下效果的共线性</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-ff7ce9b688a74fb887db099977f4a254.png" alt="synteny among three species "></p>
+<p>参考资料</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)">https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" data-id="cllpwkjz300cse0p22ar3ccwr" data-title="使用jcvi绘制微共线性(Microsynteny)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何安装操作系统-如何安装操作系统" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="article-date">
@@ -100,7 +183,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" data-id="cllgasdve00gfdkov7kqbhaqc" data-title="如何安装操作系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" data-id="cllpwkk1600gce0p2d4jx6fl8" data-title="如何安装操作系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -203,7 +286,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" data-id="cllgasdx900kndkovbfjiafch" data-title="计算分子进化-搞懂PAML的正选择分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" data-id="cllpwkk2n00kje0p26y7945tu" data-title="计算分子进化-搞懂PAML的正选择分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -267,7 +350,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/20/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02-computational-molecular-evoluiton-learnning-note-2/" data-id="cllgasdx700kjdkov6v9f4z7p" data-title="计算分子进化-学习笔记2" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/20/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02-computational-molecular-evoluiton-learnning-note-2/" data-id="cllpwkk2m00kfe0p2aa8v79g3" data-title="计算分子进化-学习笔记2" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -325,7 +408,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/19/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01-computational-molecular-evoluiton-learnning-note-1/" data-id="cllgasdx600kgdkovd5uj9230" data-title="计算分子进化-学习笔记1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/19/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01-computational-molecular-evoluiton-learnning-note-1/" data-id="cllpwkk2l00kce0p2bhlxexbu" data-title="计算分子进化-学习笔记1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -379,7 +462,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/03/%E6%94%BE%E5%BC%83conda%E6%8B%A5%E6%8A%B1mamba-use-mamba-instead-of-conda/" data-id="cllgasdwc00ildkov1yjnchmj" data-title="放弃conda拥抱mamba" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/03/%E6%94%BE%E5%BC%83conda%E6%8B%A5%E6%8A%B1mamba-use-mamba-instead-of-conda/" data-id="cllpwkk1x00ihe0p23ilrbjqo" data-title="放弃conda拥抱mamba" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -422,7 +505,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/25/%E5%AD%A6%E4%B9%A0Python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97-%E5%AD%A6%E4%B9%A0python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97/" data-id="cllgasdvz00hudkove1zn2lex" data-title="学习Python的面向对象编程心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/25/%E5%AD%A6%E4%B9%A0Python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97-%E5%AD%A6%E4%B9%A0python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97/" data-id="cllpwkk1l00hqe0p2a5chb2vz" data-title="学习Python的面向对象编程心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -479,7 +562,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/20/%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97%E6%B3%A8%E9%87%8A%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%BF%83%E5%BE%97-my-opinion-on-repeat-annotation/" data-id="cllgasdv000f8dkovfikc3aud" data-title="基因组的重复序列注释的个人心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/20/%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97%E6%B3%A8%E9%87%8A%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%BF%83%E5%BE%97-my-opinion-on-repeat-annotation/" data-id="cllpwkjzx00ete0p22utqd7vs" data-title="基因组的重复序列注释的个人心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -537,7 +620,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/04/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E7%BB%99Seurat%E5%AF%B9%E8%B1%A1%E7%98%A6%E7%98%A6%E8%BA%AB-trick-how-to-slim-seurat-memory/" data-id="cllgasdrl006zdkovca5wg1mu" data-title="「小技巧」给Seurat对象瘦瘦身" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/04/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E7%BB%99Seurat%E5%AF%B9%E8%B1%A1%E7%98%A6%E7%98%A6%E8%BA%AB-trick-how-to-slim-seurat-memory/" data-id="cllpwkjx0006ue0p2guugavy0" data-title="「小技巧」给Seurat对象瘦瘦身" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -600,7 +683,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/03/Arm%E6%9E%B6%E6%9E%84%E7%9A%84macOS%E5%AE%89%E8%A3%85conda-arm64-mac-install-conda/" data-id="cllgasdot000pdkov8qll9861" data-title="Arm架构的macOS安装conda" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/03/Arm%E6%9E%B6%E6%9E%84%E7%9A%84macOS%E5%AE%89%E8%A3%85conda-arm64-mac-install-conda/" data-id="cllpwkjty000ie0p2d8n9hvba" data-title="Arm架构的macOS安装conda" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -614,82 +697,11 @@
 
 
   
-    <article id="post-上手了一个自然语言模型BLOOM-first-glance-into-bloom" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/06/27/%E4%B8%8A%E6%89%8B%E4%BA%86%E4%B8%80%E4%B8%AA%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8BBLOOM-first-glance-into-bloom/" class="article-date">
-  <time class="dt-published" datetime="2022-06-27T10:12:07.110Z" itemprop="datePublished">2022-06-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/06/27/%E4%B8%8A%E6%89%8B%E4%BA%86%E4%B8%80%E4%B8%AA%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8BBLOOM-first-glance-into-bloom/">上手了一个自然语言模型BLOOM</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在2年前，OpenAI搞了一个1750亿个参数的神经网络模型, 即GPT-3(是它的前辈GPT-2, 约15亿个参数, 的100多倍)。可惜的是, GPT-3并没有开源它预训练的参数数据集，使用者只能调用他们提供的API，由于这个API必须要申请，所以我还没机会用到。不过，已经有很多公司基于GPT-3开发了一些应用，比如说GitHub就开放一个GitHub Copilot用于智能补全代码，大家感兴趣的可以去试试。</p>
-<p>通常而言，GPT-3这种级别的神经网络模型只有OpenAI, 谷歌这种巨头科技公司能够开发和训练，毕竟1750个参数可不是一个小数目。但是，一个由约1000多个学术志愿者组成的国际志愿者不信邪，他们正在用价值700万美元的公共资金赞助的计算时间去训练一个具有1760亿个参数的自然语言模型，BLOOM。</p>
-<p>出于兴趣爱好，我在自己的Macbook Pro上测试了这个BLOOM-1b3模型，顾名思义就是该模型有13亿参数。为什么不测试完整的1750亿个参数呢？因为光读取13亿参数到Python中，就需要占用6G左右的内存，完整的1750亿个参数，起码得是一个1T内存的服务器才行。而且完整参数版还没有完工，仍在训练中。</p>
-<p>BLOOM是基于Transformers，而Transformers的安装要求满足如下三点</p>
-<ul>
-<li>Python 3.6+</li>
-<li>Flax 0.3.2+&#x2F; PyTorch 1.3.1+ &#x2F; TensorFlow 2.3+ 任一框架</li>
-<li>Rust(用于编译tokenizers)</li>
-</ul>
-<p>在Mac上，我们可以通过homebrew来安装rust</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install rust</span><br></pre></td></tr></table></figure>
-
-<p>在深度学习框架上，我选择了PyTorch, 因为近期支持使用M1芯片的GPU进行加速</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装虚拟环境</span></span><br><span class="line">python3 -m pip install --user --upgrade pip</span><br><span class="line">python3 -m pip install --user virtualenv</span><br><span class="line"><span class="comment"># 创建虚拟环境</span></span><br><span class="line">python3 -m venv pytorch</span><br><span class="line"><span class="built_in">source</span> pytorch/bin/activate</span><br><span class="line"><span class="comment"># 安装pytorch</span></span><br><span class="line">pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu</span><br><span class="line"><span class="comment"># 安装transformers</span></span><br><span class="line">pip3 install transformers</span><br></pre></td></tr></table></figure>
-
-<p>之后打开python, 加载我们的模型(第一次运行时, transformers会自动帮忙下载模型)</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForCausalLM</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分词</span></span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(<span class="string">&#x27;bigscience/bloom-1b3&#x27;</span>)</span><br><span class="line"><span class="comment"># 模型</span></span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(<span class="string">&#x27;bigscience/bloom-1b3&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>由于我对自然语义处理一窍不通，所以只能根据示例代码，使用transformres的pipeline, 构建一个文本生成工具。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> pipeline</span><br><span class="line">generator = pipeline(task=<span class="string">&quot;text-generation&quot;</span>, model=model, tokenizer=tokenizer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 英文输入</span></span><br><span class="line">generator(<span class="string">&quot;bioinformatics is &quot;</span>, max_length=<span class="number">30</span>, num_return_sequence=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line">[&#123;<span class="string">&#x27;generated_text&#x27;</span>: <span class="string">&#x27;bioinformatics is  a branch of computer science that deals with the analysis of data and the design of algorithms that can be used to solve problems in&#x27;</span>&#125;]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 中文输入</span></span><br><span class="line">generator(<span class="string">&quot;生物信息学是一门&quot;</span>)</span><br><span class="line"><span class="comment"># 输出结果</span></span><br><span class="line">[&#123;<span class="string">&#x27;generated_text&#x27;</span>: <span class="string">&#x27;生物信息学是一门新兴的交叉学科，它涉及生物信息学、计算机科学、数学&#x27;</span>&#125;]</span><br></pre></td></tr></table></figure>
-
-<p>从结果来看，13亿参数的BLOOM模型的表现已经非常符合我的预期，远超出之前摸索Transformers时测试的默认GPT-2模型。</p>
-<p>可惜我的能力有限，对BLOOM的探索就止步于此了，等到后续我对Transformers有更多的掌握后，再更新相关的内容吧。</p>
-<p>参考资料</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://www.nature.com/articles/d41586-022-01705-z">https://www.nature.com/articles/d41586-022-01705-z</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/06/27/%E4%B8%8A%E6%89%8B%E4%BA%86%E4%B8%80%E4%B8%AA%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8BBLOOM-first-glance-into-bloom/" data-id="cllgasdsc008cdkova7wh9p9o" data-title="上手了一个自然语言模型BLOOM" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/2/">&laquo; 上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/4/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; 上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/4/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -742,6 +754,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -755,10 +771,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

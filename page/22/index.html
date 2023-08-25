@@ -73,6 +73,212 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-SAMtools_ SAM格式的处理利器-samtools-usage-documents" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" class="article-date">
+  <time class="dt-published" datetime="2019-08-27T19:50:29.749Z" itemprop="datePublished">2019-08-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/">SAMtools:SAM格式的处理利器</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="SAM格式介绍"><a href="#SAM格式介绍" class="headerlink" title="SAM格式介绍"></a>SAM格式介绍</h2><p>SAM全称是Sequence Alignment&#x2F;Map, 是目前最常用的存放比对或联配数据的格式。无论是重测序，还是转录组，还是表观组，几乎所有流程都会产生SAM&#x2F;BAM文件作为中间步骤，然后是后续专门的分析过程。</p>
+<p>以一个简单的例子介绍.第一幅图表示read和参考基因组比对可能出现的情况。r001&#x2F;2表示paired end数据。r003是嵌合read，r004则是原序列打断后比对结果。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-0bd4d534d1e2a601-3b9976cd770a443f93b11b5e58d8acee.jpg" alt="原始数据"></p>
+<p>经过专门的比对软件，如BWA,BOWTIE2等，得到的SAM文件如下所示,需要研究的就是如下这几行。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-1db9c0789e0e4e07-c8be7037bbd4477d9828cd462df64849.jpg" alt="比对后存放形式"></p>
+<h3 id="术语和概念"><a href="#术语和概念" class="headerlink" title="术语和概念"></a>术语和概念</h3><p>在学习SAM格式之前，请确认自己是否对如下概念有清楚的认识|</p>
+<ul>
+<li>read: 测序仪返回的原始序列.一个read可以包括多个segment。read之间的先后顺序表示被测序仪读到的时间前后关系.</li>
+<li>segment:  一段连续的序列或子序列</li>
+<li>linear alignment: 线性联配表示一个read比对到单个参考序列，可以存在插入，缺失，跳过(skip),剪切(clip), 但是不存在方向改变的情况(比如说一部分和正向链联配，另一个位置则是和负向链联配）。最简单的判断的方式就是，一个linear alignment只用一行记录。</li>
+<li>chimeric alignment: 嵌合联配需要多行记录。比如说r003第一个记录是后6个匹配，第二个记录则是反向序列的后5个匹配。第一个被称之为”representative”,其他都是”supplementary”</li>
+<li>read alignment: 无论是linear alignment, 还是chimeric alignment, 只要能完整表示一个read，都成为是read alignment</li>
+<li>multiple mapping: 由于存在重复区，一个read 可能比对到参考基因组的不同区域。其中一个被认为是primary，其他都是secondary.</li>
+<li>两个系统|1-based coordinate system（SAM,VCF,GFF,wiggle)和0-based coordinate system(BAM, BCFv2, BED, PSL).自行用R和Python感受一下两者的不同。</li>
+</ul>
+<blockquote>
+<p>chimeric alignment 可能是结构变异，基因融合，参考序列误组装，RNA-Seq，实验protocol等因素造成。对于chimeric alignment的里面每一个linear alignment而言，由于相互之前不存在重叠，故而联配质量较高，适合用于SNP&#x2F;INDEL calling.相反, multiple mapping则是因为重复造成(read越长出现的概率越低), 相互之间存在重叠，仅有其中一条有最优的匹配，其他联配质量过低会被SNP&#x2F;INDEL caller忽略。</p>
+</blockquote>
+<h3 id="第一部分-SAM-Header-非强制"><a href="#第一部分-SAM-Header-非强制" class="headerlink" title="第一部分| SAM Header(非强制)"></a>第一部分| SAM Header(非强制)</h3><p>这个部分能够被<code>/^@[A-Z][A-Z](t[A-Za-z][A-Za-z0-9]:[ -~]+)+$/</code>或<code>/^@COt.*/</code>这两个表达式进行匹配。比如说你随便有一个BAM文件（包含header）,就能被这个表达式进行匹配。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view -h S43S1-M_H3K5FDMXX_L1_sort.bam </span><br><span class="line">| awk &#x27;$0 ~ /^@[A-Z][A-Z](t[A-Za-z][A-Za-z0-9]:[ -~]+)+$/ &#123; print $0&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-6b45ac06bb250dd7-e15291c1683440f99f97ba9eae1bedd0.jpg" alt="header"></p>
+<p>其中第一行<code>@HD</code>，表示参考基因组的排序情况. 然后<code>@SQ</code>则是参考基因组的每一条序列的具体信息，命名和长度。<code>@PG</code>记录运行的命令，以便你检查代码。对于GATK还需要提供<code>@RG</code>给出每个read所在group的信息，只要保证是独一即可。</p>
+<h3 id="第二部分-联配必要信息"><a href="#第二部分-联配必要信息" class="headerlink" title="第二部分| 联配必要信息"></a>第二部分| 联配必要信息</h3><p>第二部分具体记录每一个read的联配结果，一共有11+n列。我将第二张图的信息复制保存到test.sam中，仅仅看第一行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam | head -n1 | tr &#x27;t&#x27; &#x27;n&#x27; | nl</span><br><span class="line">   1  r001                   # QNAME: read信息</span><br><span class="line">   2  99                     # FLAG: 信息量大</span><br><span class="line">   3  ref                    # RNAME: 参考序列</span><br><span class="line">   4  7                      # POS:比对到的位置</span><br><span class="line">   5  30                     # MAPQ: 比对质量</span><br><span class="line">   6  8M2I4M1D3M             # CIGAR: 信息量大</span><br><span class="line">   7  =                      # RNEXT: 配对read所在序列，=表示同一条序列</span><br><span class="line">   8  37                     # PNEXT: 配对read所在位置</span><br><span class="line">   9  39                     # TLENT: 观察到的模板长度</span><br><span class="line">  10  TTAGATAAAGGATACTG      # SEQ: segment序列</span><br><span class="line">  11  *                      # QUAL: segment的质量</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">*表示信息不存在</span></span><br></pre></td></tr></table></figure>
+
+<p>简单解释TLENT: 通过IGV可视化展示克制，TLENT相当于read发现了参考序列那些区域。如果是PE数据还可以推断出文库平均大小。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-e9bf3249407e89c5-7310bdf13fbe4e5291323ec4d0e31b47.jpg" alt="一个PE数据"><br><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-ade968d846e1503b-a08ed8269aa84adfa0af0c67dd2dea13.jpg" alt="IGV展示"></p>
+<p>详细介绍FLAG: FLAG的主要目的就是用较少的记录长度表示当前记录的序列的匹配情况。相当于开关，仅有有无两个状态，有某个数值就表示序列符合某个情况。</p>
+<table>
+<thead>
+<tr>
+<th align="center">flag</th>
+<th align="center">代表</th>
+<th align="left">具体含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1(0x1)</td>
+<td align="center">PAIRED</td>
+<td align="left">代表这个序列采用的是PE双端测序</td>
+</tr>
+<tr>
+<td align="center">2(0x2)</td>
+<td align="center">PROPER_PAIR</td>
+<td align="left">代表这个序列和参考序列完全匹配，没有插入缺失</td>
+</tr>
+<tr>
+<td align="center">4(0x4)</td>
+<td align="center">UNMAP</td>
+<td align="left">代表这个序列没有mapping到参考序列上</td>
+</tr>
+<tr>
+<td align="center">8(0x8)</td>
+<td align="center">MUNMAP</td>
+<td align="left">代表这个序列的另一端序列没有比对到参考序列上，比如这条序列是R1,它对应的R2端序列没有比对到参考序列上</td>
+</tr>
+<tr>
+<td align="center">16(0x10)</td>
+<td align="center">REVERSE</td>
+<td align="left">代表这个序列比对到参考序列的负链上</td>
+</tr>
+<tr>
+<td align="center">32(0x20)</td>
+<td align="center">MREVERSE</td>
+<td align="left">代表这个序列对应的另一端序列比对到参考序列的负链上</td>
+</tr>
+<tr>
+<td align="center">64(0x40)</td>
+<td align="center">READ1</td>
+<td align="left">代表这个序列是R1端序列， read1;</td>
+</tr>
+<tr>
+<td align="center">128(0x80)</td>
+<td align="center">READ2</td>
+<td align="left">代表这个序列是R2端序列，read2；</td>
+</tr>
+<tr>
+<td align="center">256(0x100)</td>
+<td align="center">SECONDARY</td>
+<td align="left">代表这个序列不是主要的比对，一条序列可能比对到参考序列的多个位置，只有一个是首要的比对位置，其他都是次要的</td>
+</tr>
+<tr>
+<td align="center">512(0x200)</td>
+<td align="center">QCFAIL</td>
+<td align="left">代表这个序列在QC时失败了，被过滤不掉了（# 这个标签不常用）</td>
+</tr>
+<tr>
+<td align="center">1024(0x400)</td>
+<td align="center">DUP</td>
+<td align="left">代表这个序列是PCR重复序列（#这个标签不常用）</td>
+</tr>
+<tr>
+<td align="center">2048(0x800)</td>
+<td align="center">SUPPLEMENTARY</td>
+<td align="left">代表这个序列是补充的比对（#这个标签具体什么意思，没搞清楚，但是不常用）</td>
+</tr>
+</tbody></table>
+<p>举例说明，比如说实例中的99&#x3D;64+32+2+1, 也就是这个记录所代表的read是来自于双端测序R1，且匹配的非常好，对应的另一条链匹配到了负链(自己是正链)。而147&#x3D;128+16+2+1则是表示这个记录来自于双端测序的R2,完全匹配到负链. 如果是163和83，你会发现163&#x3D;147-16+32, 83&#x3D;99-32+16,也就是刚好和前面的不同，也就是说R1匹配负链，R2匹配正链。如果是81和161，由于161&#x3D;163-2,81&#x3D;83-2. 表明这些read不是完全匹配，存在插入缺失</p>
+<p>那么问题来了,如下是我某一次比对的flag的统计情况，你能看出什么来</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-0bc3d3108151aea9-ea0a8dac31c34f52862b7840e65d2555.jpg" alt="小测试"></p>
+<p><strong>常见的FLAGs</strong>:</p>
+<ul>
+<li>其中一条reads没有map上: 73, 133, 89 121, 165, 181, 101, 117, 153, 185, 59, 137</li>
+<li>两条reads都没有map上: 77,141</li>
+<li>比对上了，方向也对，也在插入大小(insert size)内: 99, 147, 83, 163</li>
+<li>比对上了，也在插入大小(insert size)内， 但是反向不对:67, 131, 115, 179</li>
+<li>单一配对，就是插入大小(insert size)不对: 81, 161, 97, 145, 65, 129, 113, 177</li>
+</ul>
+<p>FLAG仅仅存储比对的大致情况，每条比对上的read的实际情况则是要用CIGAR进行记录. 依旧举几个例子,比如说，这是双端测序的一条read比对情况，其中一个是117表示没有匹配上，所以记录就是<code>*</code>,另一个是185表示这条序列完美匹配，所以记录是<code>150M</code>.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ST-E00600:109:H3K5FALXX:2:1103:17996:34788      117     Chr1    38      0       *       =       38      0       TTTATACACTATGATTTTCAAAGTGAGAATCCGGTTTGTGGTTTATTGTTTTAGGTATTTAGTTATTAATGTATTTTGGATTTATTGATTTAGTGTTTTAGTGATTAATTATTCATTGTTTTAGTGTTTATGGTTTAGTGTTTAGGGTTT  J-7-J------JJJ7JJJ-J-J---JJ-----JJJJJ--J-JJJJ-----JJ--JJJJJJ-J--JJJ7JJ-7-J-J-777JJJJ777JJ7JJ77J7JJJJ7777JJ77777JJJ777J77J77J7JJJJ77JJJJJJJ7JJJJJJFFFAA  MC:Z:150M       AS:i:0  XS:i:0</span><br><span class="line">ST-E00600:109:H3K5FALXX:2:1103:17996:34788      185     Chr1    38      60      150M    =       38      0       CATTAATCCCTAAATCCCTAAATCTTTAAATCCTACATCCATGAATCCCTAAATAACTAATTCCCTAAACCCGAAACCTGTTTCTCTGGTTGAAAATCATTGTGTATATAATGATAATTTTATCGTTTTTATGTAATTGCTTATTGTTTT  J-JJ7JJJ-JJJ7JJ--JJJ--JJ-JJJJJJ-JJJJJJ--J-JJJJJJJJJ--JJ-JJJJJJJ-JJJJ--J----J-J--JJJJJJ777JJJ77J7JJJJJJJ7JJJJJ7JJJJJ77JJJJJJ7JJ7JJJ7JJJJJJJJJJJJJJFFF&lt;A  NM:i:4  MD:Z:1C53C22G69G1       AS:i:136        XS:i:0</span><br></pre></td></tr></table></figure>
+
+<p>来一个复杂的例子<code>69H10M3I31M37H</code>，表示150bp的读长，先删掉69个碱基，后面是10个匹配，后面相比较参考基因组有3个插入，随后是31个匹配，最后再剔除37个基因,通过IGV查看在参考基因组的情况如下图所示。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-90fdafbe0c86de64-28e3859cf8ed4fc1bcef912acd3e2d6f.jpg" alt="IGV查看FLAGS"></p>
+<p>我还发现这段区域存在特别多的clip，加载GFF查看注释信息后发现这是内含子区域。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-a3cec89579792559-b2d659fc3dba4625b3c3e50bf41da961.jpg" alt="IGV检查"></p>
+<p>实际上，CIGAR一共有9个字符，分别是M(alignment match),I(insertion),D(deletion),N(skip),S(soft clip),H(hard clip),P(padding),&#x3D;(sequence match), X(sequence mismatch).值得提醒就是M表示序列能够联配，但是存在碱基不一致，&#x3D;表示碱基相同。S和H一般用于read前后出现大部分的错配，但是中间能够联配的情况，其中S表示序列会出现在SEQ中，H则不会出现在SEQ列中。</p>
+<h3 id="第三部分，可选信息"><a href="#第三部分，可选信息" class="headerlink" title="第三部分，可选信息"></a>第三部分，可选信息</h3><p>除了之前的11列必须要有的信息外，后面的其他列都是不同的比对软件自定义的额外信息，称之为标签（TAG)。标签的格式一般为<code>TAG:TYPE:VALUE</code>，比如说<code>NM:i:4 MD:Z:1C53C22G69G1 AS:i:136 XS:i:0</code>。这部分内容见<a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMtags.pdf">http://samtools.github.io/hts-specs/SAMtags.pdf</a>. 介绍几个比较常见的标签</p>
+<ul>
+<li>NM: 编辑距离(edit distance)</li>
+<li>MD: 错配位置&#x2F;碱基(mismatching positions&#x2F;bases)</li>
+<li>AS: 联配得分(Alignment score)</li>
+<li>BC: 条码序列（barcode sequence)</li>
+<li>XS: 次优联配得分(suboptimal alignment score)</li>
+</ul>
+<h2 id="能用于处理SAM格式的工具们"><a href="#能用于处理SAM格式的工具们" class="headerlink" title="能用于处理SAM格式的工具们"></a>能用于处理SAM格式的工具们</h2><p>后续演示所用数据通过如下方法获取</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># efetch下载参考基因组</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/biostar/refs/ebola</span><br><span class="line"><span class="built_in">cd</span> ~/biostar</span><br><span class="line">efetch -db=nuccore -format=fasta -<span class="built_in">id</span>=AF086833 &gt; ~/refs/ebola/1976.fa</span><br><span class="line">REF=~/biostar/refs/ebola/1976.fa</span><br><span class="line"><span class="comment"># 构建索引</span></span><br><span class="line">bwa index <span class="variable">$REF</span></span><br><span class="line">bowtie2-build <span class="variable">$REF</span> <span class="variable">$REF</span></span><br><span class="line"><span class="comment"># 获取10000行的fastq PE数据</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/biostar/fastq</span><br><span class="line"><span class="built_in">cd</span> ~/biostar/fastq</span><br><span class="line">fastq-dump -X 10000 --split-files SRR1972739</span><br><span class="line">R1=~/biostar/fastq/SRR1972739_1.fastq</span><br><span class="line">R2=~/biostar/fastq/SRR1972739_2.fastq</span><br></pre></td></tr></table></figure>
+
+<p>处理SAM的命令行工具有<code>samtools</code>,<code>bamtools</code>,<code>picard</code>,<code>sambamba</code>,<code>samblaster</code>等，其中<code>samtools</code>和<code>bamtools</code>和<code>picard</code>比较全能，功能中存在重叠，更多是互补，而<code>sambamba</code>和<code>samblaster</code>则是运行速度更快，功能不太全。</p>
+<h3 id="使用SAMtools创建SAM-BAM和CRAM"><a href="#使用SAMtools创建SAM-BAM和CRAM" class="headerlink" title="使用SAMtools创建SAM,BAM和CRAM"></a>使用SAMtools创建SAM,BAM和CRAM</h3><p>SAM格式是目前用来存放大量核酸比对结果信息的通用格式，也是人类能够“直接”阅读的格式类型，而BAM和CRAM是为了方便传输，降低存储压力将SAM进行压缩得到的格式形式。 为了高效处理SAM文件，李恒写了配套的SAMtools, 文章在2009年发表在bioinformatics上，由于samtools的版本经常更新，如果有些工具用不了，你或许要更新版本了。</p>
+<p>如果不加任何其他参数，比对软件就能得到“标准”的SAM格式的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bwa mem <span class="variable">$REF</span> <span class="variable">$R1</span> <span class="variable">$R2</span> &gt; bwa.sam</span><br><span class="line">bowtie2 -x <span class="variable">$REF</span> -1 <span class="variable">$R1</span> -2 <span class="variable">$R2</span> &gt; bowtie.sam</span><br></pre></td></tr></table></figure>
+
+<p>原始SAM格式体积又大，没有排序，不利于后续的分析操作，所以需要经过几步的格式转换成为BAM。1.3版本之后的samtools可以一步进行格式转换和排序.</p>
+<p><strong>注</strong>，BAM格式必须要建立索引才能快速读取指定位置的信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.3版本前</span></span><br><span class="line">samtools view -bS bwa.sam &gt; bwa.bam</span><br><span class="line">samtools <span class="built_in">sort</span> bwa.bam &gt; bwa_sorted.bam</span><br><span class="line">samtools index bwa_sorted.bam</span><br><span class="line"><span class="comment"># 1.3版本后</span></span><br><span class="line">samtools <span class="built_in">sort</span> bwa.sam &gt; bwa_sorted.bam</span><br><span class="line">samtools index bwa_sorted.bam</span><br></pre></td></tr></table></figure>
+
+<p>CRAM是比BAM压缩更加高压的格式，原因是它是基于一个参考序列，这样子就能去掉很多冗余的内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools <span class="built_in">sort</span> --reference <span class="variable">$REF</span> -O cram bwa.sam &gt; bwa.cram</span><br><span class="line">samtools index bwa.cram</span><br></pre></td></tr></table></figure>
+
+<p>这一小节学习了两个samtools子命令:<code>sort</code>和<code>index</code>，前者能一边排序一边进行格式转换，后者则是对BAM进行索引。</p>
+<h3 id="使用SAMtool查看-过滤-转换SAM-BAM-CRAM文件"><a href="#使用SAMtool查看-过滤-转换SAM-BAM-CRAM文件" class="headerlink" title="使用SAMtool查看&#x2F;过滤&#x2F;转换SAM&#x2F;BAM&#x2F;CRAM文件"></a>使用SAMtool查看&#x2F;过滤&#x2F;转换SAM&#x2F;BAM&#x2F;CRAM文件</h3><p>上一节得到的SAM&#x2F;BAM&#x2F;CRAM文件都可以用samtools的<code>view</code>进行更加复杂的操作，只不过要注意读取CRAM格式需要提供参考序列，不然打不开。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view bwa_sorted.bam</span><br><span class="line">samtools view -T <span class="variable">$REF</span> bwa.cram</span><br></pre></td></tr></table></figure>
+
+<p>samtools的<code>view</code>在增加额外参数后能实现更多的操作，比如说SAM和BAM&#x2F;CRAM之间的格式转换(-b, -c, -T)，过滤或提取出目标联配(-t,-L ,-r,-R,-q,-l,-m,-f,-F,-G), 举几个例子说明</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保留mapping quality 大于 10的结果</span></span><br><span class="line">samtools view -q 10 bwa_sorted.bam -b -o bwa_sorted_mq10.bam</span><br><span class="line"><span class="comment"># 统计结果中恰当配对的结果(0x3 3 PARIED,PROPER_PAIR)</span></span><br><span class="line">samtools view -c -f 3 bwa_sorted.bam</span><br><span class="line"><span class="comment"># 或反向选择</span></span><br><span class="line">samtools view -c -F 3 bwa_sorted.bam</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用PrettySam更好的可视化SAM文件"><a href="#使用PrettySam更好的可视化SAM文件" class="headerlink" title="使用PrettySam更好的可视化SAM文件"></a>使用PrettySam更好的可视化SAM文件</h3><p>尽管我上面说SAM是适合人类阅读的数据，但是直接读SAM还是挺费脑子的。GitHub上有一个PrettySam能够更好的展示SAM&#x2F;BAM文件，虽然感觉没多大实际效果，但是有利于我们方便了解SAM格式，项目地址为<a target="_blank" rel="noopener" href="http://lindenb.github.io/jvarkit/PrettySam.html">http://lindenb.github.io/jvarkit/PrettySam.html</a>.</p>
+<p>他的安装比较麻烦，需要JDK版本为1.8且是Oracle, 以及GNU Make &gt;&#x3D;3.81, curl&#x2F;wget, git 和 xslproc.安装如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> <span class="string">&quot;https://github.com/lindenb/jvarkit.git&quot;</span></span><br><span class="line"><span class="built_in">cd</span> jvarkit</span><br><span class="line">make prettysam</span><br><span class="line"><span class="built_in">cp</span> dist/prettysam.jar ~/usr/jars/</span><br></pre></td></tr></table></figure>
+
+<p>使用起来非常简单，效果也比较酷炫，比较适合演示用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar usr/jars/prettysam.jar ~/biostar/ebola.sam --colors</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-cc3914ebeb956c14-4fefa542d581406db0bd6a048d49e97c.jpg" alt="PrettySam"></p>
+<h3 id="为SAM-BAM添加Read-Groups"><a href="#为SAM-BAM添加Read-Groups" class="headerlink" title="为SAM&#x2F;BAM添加Read Groups"></a>为SAM&#x2F;BAM添加Read Groups</h3><p>使用GATK分析BAM文件时需要BAM文件的header里有RG部分，<code>@RG</code>至少由三个记录(ID,LB,SM)组成，需要根据实际情况增加。RG可以在前期比对时添加RG部分，也可以在后续处理时增加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TAG=<span class="string">&#x27;@RG\tID:xzg\tSM:Ebola\tLB:patient_100&#x27;</span></span><br><span class="line"><span class="comment"># Add the tags during alignment</span></span><br><span class="line">bwa mem -R <span class="variable">$TAG</span> <span class="variable">$REF</span> <span class="variable">$R1</span> <span class="variable">$R2</span> | samtools <span class="built_in">sort</span> &gt; bwa.bam</span><br><span class="line">samtools index bwa.bam</span><br><span class="line"><span class="comment"># Add tags with samtools addreplacerg</span></span><br><span class="line">samtools addreplacerg -r <span class="variable">$TAG</span> bwa_sorted.bam -o bwa_sorted_with_rg.bam</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMv1.pdf">Sequence Alignment&#x2F;Map Format Specification</a></li>
+<li><a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMtags.pdf">SAM tags</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" data-id="cllpwkjvl004de0p2bk24g1uw" data-title="SAMtools:SAM格式的处理利器" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用Snakemake搭建分析流程-using-snakemake-to-build-pipeline" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/27/%E4%BD%BF%E7%94%A8Snakemake%E6%90%AD%E5%BB%BA%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-using-snakemake-to-build-pipeline/" class="article-date">
@@ -286,7 +492,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Snakemake%E6%90%AD%E5%BB%BA%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-using-snakemake-to-build-pipeline/" data-id="cllgasdud00czdkov8z8z625u" data-title="使用Snakemake搭建分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Snakemake%E6%90%AD%E5%BB%BA%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-using-snakemake-to-build-pipeline/" data-id="cllpwkjyx00cbe0p23mal425q" data-title="使用Snakemake搭建分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -450,7 +656,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/LTR_retriever_%20%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E5%87%86%E7%9A%84LTR%E6%95%B4%E5%90%88%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-LTR_retriever-accurate-identification-of-LTR-retrotransposons/" data-id="cllgasdp8001rdkovcwpcahpo" data-title="LTR_retriever:一个更加准的LTR整合分析工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/LTR_retriever_%20%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E5%87%86%E7%9A%84LTR%E6%95%B4%E5%90%88%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-LTR_retriever-accurate-identification-of-LTR-retrotransposons/" data-id="cllpwkjuf001ke0p22vc54am0" data-title="LTR_retriever:一个更加准的LTR整合分析工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -571,7 +777,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/26/HiC-Pro_%20Hi-C%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E9%AB%98%E6%95%88%E5%B7%A5%E5%85%B7-hic-pro-an-optimized-and-flexible-pipeline-for-hi-c-data-processing/" data-id="cllgasdp6001kdkov5el164s6" data-title="HiC-Pro:Hi-C数据预处理高效工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/26/HiC-Pro_%20Hi-C%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E9%AB%98%E6%95%88%E5%B7%A5%E5%85%B7-hic-pro-an-optimized-and-flexible-pipeline-for-hi-c-data-processing/" data-id="cllpwkjuc001de0p23hfl2ldc" data-title="HiC-Pro:Hi-C数据预处理高效工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -662,7 +868,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/26/%E3%80%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A%E3%80%8D%E4%BD%BF%E7%94%A8RepeatModeler%E4%BB%8E%E5%A4%B4%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Repeat-annotation-with-RepeatModeler/" data-id="cllgasdrk006sdkovfndh3zsn" data-title="「基因组注释」使用RepeatModeler从头注释基因组的重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/26/%E3%80%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A%E3%80%8D%E4%BD%BF%E7%94%A8RepeatModeler%E4%BB%8E%E5%A4%B4%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Repeat-annotation-with-RepeatModeler/" data-id="cllpwkjwy006ne0p291tiaprd" data-title="「基因组注释」使用RepeatModeler从头注释基因组的重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -844,7 +1050,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/25/%E5%88%A9%E7%94%A83D-DNA%E6%B5%81%E7%A8%8B%E7%BB%84%E8%A3%85%E5%9F%BA%E5%9B%A0%E7%BB%84-scaffolding-genome-using-3d-dna-workflow/" data-id="cllgasduq00e7dkovgoia4pv6" data-title="利用3D-DNA流程组装基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/25/%E5%88%A9%E7%94%A83D-DNA%E6%B5%81%E7%A8%8B%E7%BB%84%E8%A3%85%E5%9F%BA%E5%9B%A0%E7%BB%84-scaffolding-genome-using-3d-dna-workflow/" data-id="cllpwkjzg00dre0p2ahck2w2x" data-title="利用3D-DNA流程组装基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -919,7 +1125,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/25/%E6%A0%B7%E6%9C%AC%E8%B6%B3%E5%A4%9F%E5%A4%9A%E6%97%B6%E5%88%AB%E7%94%A8DESeq2%EF%BC%8C%E7%94%A8%E9%9D%9E%E5%8F%82%E6%95%B0%E6%A3%80%E9%AA%8C%E9%83%BD%E8%A1%8C-DESeq2-vs-wilcox-in-DE-analysis/" data-id="cllgasdwm00jedkovf920bytl" data-title="样本足够多时别用DESeq2，用非参数检验都行" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/25/%E6%A0%B7%E6%9C%AC%E8%B6%B3%E5%A4%9F%E5%A4%9A%E6%97%B6%E5%88%AB%E7%94%A8DESeq2%EF%BC%8C%E7%94%A8%E9%9D%9E%E5%8F%82%E6%95%B0%E6%A3%80%E9%AA%8C%E9%83%BD%E8%A1%8C-DESeq2-vs-wilcox-in-DE-analysis/" data-id="cllpwkk2600jae0p24r1d2h3o" data-title="样本足够多时别用DESeq2，用非参数检验都行" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -994,7 +1200,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" data-id="cllgasdvd00gcdkov9f3tccit" data-title="如何安装perl模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" data-id="cllpwkk1500g9e0p2e0otdlqe" data-title="如何安装perl模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1242,7 +1448,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" data-id="cllgasdop000gdkovdw5xfued" data-title="3分的水稻转录组分析实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" data-id="cllpwkjts000ae0p2h989bi1s" data-title="3分的水稻转录组分析实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1305,7 +1511,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/22/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84GitHub%E8%83%BD%E8%A2%AB%E5%BC%95%E7%94%A8-How-to-citate-my-GitHub-repository/" data-id="cllgasdvw00hldkovg1j6fzfu" data-title="如何让你的GitHub能被引用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/22/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84GitHub%E8%83%BD%E8%A2%AB%E5%BC%95%E7%94%A8-How-to-citate-my-GitHub-repository/" data-id="cllpwkk1j00hhe0p2c95kgxbj" data-title="如何让你的GitHub能被引用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1319,138 +1525,11 @@
 
 
   
-    <article id="post-MECAT2_ 三代高效组装工具-MECAT2-genome-assembly-tools" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" class="article-date">
-  <time class="dt-published" datetime="2019-08-21T14:16:16.702Z" itemprop="datePublished">2019-08-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/">MECAT2:三代高效组装工具</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="MECAT2-三代高效组装工具"><a href="#MECAT2-三代高效组装工具" class="headerlink" title="MECAT2: 三代高效组装工具"></a>MECAT2: 三代高效组装工具</h1><p>MECAT2是三代测序数据PacBio的高效组装工具，是之前<a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT">MECAT</a>的改进版, 修复了之前的很多bug, 使用基于string graph的<code>fsa</code>替换了之前的<code>mecat2canu</code>。</p>
-<p>MECAT2由4个模块组成:</p>
-<ul>
-<li><code>mecat2pw</code>: SMART reads快速和准确地配对比对工具</li>
-<li><code>mecat2ref</code>: SMART reads的参考基因组比对工具</li>
-<li><code>mecat2cns</code>: 基于配对的重叠对存在噪音的reads进行纠错</li>
-<li><code>fsa</code>: 基于string graph的组装工具</li>
-</ul>
-<p>目前MECAT2只支持PacBio数据，对于Nanopore数据，肖老师他们开发了<code>NECAT</code></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>MECAT2软件安装非常简单，不存在上一代MECAT的安装难问题了</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="operator">-</span>p <span class="operator">~</span><span class="operator">/</span>opt<span class="operator">/</span>biosoft</span><br><span class="line">cd <span class="operator">~</span><span class="operator">/</span>opt<span class="operator">/</span>biosoft</span><br><span class="line">git clone https<span class="operator">:</span><span class="operator">/</span><span class="operator">/</span>github.com<span class="operator">/</span>xiaochuanle<span class="operator">/</span>MECAT2.git</span><br><span class="line">cd MECAT2</span><br><span class="line">make <span class="operator">-</span>j <span class="number">4</span></span><br></pre></td></tr></table></figure>
-
-<p>唯一要注意的是尽量要用新版的perl，经测试，Perl 5.26 是可以正常运行脚本。 </p>
-<p>最后加入到环境变量<code>PATH</code>中</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=~/opt/biosoft/MECAT2/Linux-amd64/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p>我们以 <em>E. coli</em> 数据集作为案例，介绍MECAT2应该如何使用。</p>
-<p><strong>第一步</strong>，我们要下载数据</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/ecoli</span><br><span class="line"><span class="built_in">cd</span> ~/ecoli</span><br><span class="line">wget http://gembox.cbcb.umd.edu/mhap/raw/ecoli_filtered.fastq.gz</span><br><span class="line">gunzip ecoli_filtered.fastq.gz</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意</strong>: 目前MECAT2还不支持gz压缩文件，如果你直接用gz作为输入，会提示core dumped。</p>
-<p>MECAT2不是根据文件名来确定输入的序列格式, 也就是如果你把 ecoli_filtered.fastq 命名为  ecoli_filtered.fasta, 组装也不会出错。</p>
-<p><strong>第二步</strong>, 准备模板的config文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl config ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
-
-<p>使用<code>vim</code>修改config文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PROJECT=ecoli</span><br><span class="line">RAWREADS=ecoli_filtered.fastq</span><br><span class="line">GENOME_SIZE=4800000</span><br><span class="line">THREADS=4</span><br><span class="line">MIN_READ_LENGTH=2000</span><br><span class="line">CNS_OVLP_OPTIONS=<span class="string">&quot;&quot;</span></span><br><span class="line">CNS_OPTIONS=<span class="string">&quot;-r 0.6 -a 1000 -c 4 -l 2000&quot;</span></span><br><span class="line">TRIM_OVLP_OPTIONS=<span class="string">&quot;-B&quot;</span></span><br><span class="line">ASM_OVLP_OPTIONS=<span class="string">&quot;-n 100 -z 10 -b 2000 -e 0.5 -j 1 -u 0 -a 400&quot;</span></span><br><span class="line">FSA_OL_FILTER_OPTIONS=<span class="string">&quot;--max_overhang=-1 --min_identity=-1&quot;</span></span><br><span class="line">FSA_ASSEMBLE_OPTIONS=<span class="string">&quot;&quot;</span></span><br><span class="line">USE_GRID=<span class="literal">false</span></span><br><span class="line">CLEANUP=0</span><br><span class="line">CNS_OUTPUT_COVERAGE=30</span><br><span class="line">GRID_NODE=0</span><br></pre></td></tr></table></figure>
-
-<p><strong>第三步</strong>: 原始数据纠错</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl correct ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
-
-<p><strong>第四步</strong>: 对纠错后的reads进行组装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl assemble ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
-
-<p>输出结果:</p>
-<ul>
-<li>纠错后的reads： <code>ecoli/1-consensus/cns_reads.fasta</code>.</li>
-<li>最长30X纠错后用于trimming的reads:  <code>ecoli/1-consensus/cns_final.fasta</code>.</li>
-<li>trimmed reads:  <code>ecoli/2-trim_bases/trimReads.fasta</code></li>
-<li>组装的contigs: <code>ecoli/4-fsa/contigs.fasta</code></li>
-</ul>
-<p>最终的组装结果为</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Count: 1</span><br><span class="line">Tatal: 4630437</span><br><span class="line">Max: 4630437</span><br><span class="line">Min: 4630437</span><br><span class="line">N25: 4630437</span><br><span class="line">L25: 1</span><br></pre></td></tr></table></figure>
-
-<p>能够完美的就装出一条序列</p>
-<h2 id="配置文件介绍"><a href="#配置文件介绍" class="headerlink" title="配置文件介绍"></a>配置文件介绍</h2><p>MECAT2的组装过程的参数都在配置文件中, 也就是之前的<code>ecoli_config_file.txt</code>。我按照不同部分对这些参数进行介绍</p>
-<h3 id="基本参数"><a href="#基本参数" class="headerlink" title="基本参数"></a>基本参数</h3><p>这些参数属于改起来不怎么纠结的参数</p>
-<ul>
-<li><code>PROJECT=ecoli</code>: 项目名，之后的所有输出文件都在该项目名的目录下</li>
-<li><code>RAWREADS=</code>: 原始数据的位置，可以是Fasta或者是Fastq， H5格式要先转成Fasta (参考 <a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT2#S-input-format">Input Format</a>).</li>
-<li><code>GENOME_SIZE=</code>: 基因组大小，单位是bp，如果是120M，那么就是120000000.</li>
-<li><code>THREADS=</code>: 线程数</li>
-<li><code>MIN_READ_LENGTH=</code>: 用于纠错和trim的reads的最低长度. 数据质量好，就长一点，比如说1000到2000</li>
-<li><code>USE_GRID=false</code>: 是否有多个计算节点</li>
-<li><code>CLEANUP=0</code>: 运行结束后删除MECAT2的中间文件, 大基因组的临时文件很大，所以要设置为1.</li>
-<li><code>GRID_NODE=0</code>, 当<code>USE_GRID=1</code>时，设置用到的计算节点数，如果是单节点服务器，不需要设置。</li>
-</ul>
-<h3 id="纠错和修剪阶段"><a href="#纠错和修剪阶段" class="headerlink" title="纠错和修剪阶段"></a>纠错和修剪阶段</h3><p>纠错阶段(correct stage)和修剪阶段(trimming stage)，MECAT2调用的<code>mecat2pw</code>和<code>mecat2cns</code>， 与之相关的配置如下</p>
-<ul>
-<li><code>CNS_OVLP_OPTIONS=&quot;&quot;</code>, 在纠错阶段是检测候选重叠的参数, 会传给<code>mecat2pw</code></li>
-<li><code>CNS_OPTIONS=&quot;&quot;</code>：原始reads纠错参数，会传递给<code>mecat2cns</code>, </li>
-<li><code>TRIM_OVLP_OPTIONS=&quot;&quot;</code>: 在trim阶段，用于检测重叠的参数,会传给<code>v2asmpm</code></li>
-</ul>
-<p>但是我发现<code>v2asmpm</code>没有文档说明，和软件开发者讨论之后，给出的说明如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">V2asmpm -Pworkpath -Tt -Sx -Ey -B</span><br><span class="line"></span><br><span class="line">-Pworkpath 工作目录是workpath</span><br><span class="line">-Tt 用t个CPU线程</span><br><span class="line">-Sx -Ey 这两个参数一起表示只计算第x到第y卷(包括第y卷), 通常工作目录下会有000001.fasta, 000002.fasta这样的分卷</span><br><span class="line">-B 如果有这个选项, 就输出二进制格式的比对结果; 如果没有这个选项, 就输出文本格式的比对结果</span><br></pre></td></tr></table></figure>
-<p>因此用默认的<code>-B</code>就行了。</p>
-<h3 id="组装阶段"><a href="#组装阶段" class="headerlink" title="组装阶段"></a>组装阶段</h3><p>组装阶段相关的参数如下</p>
-<ul>
-<li><code>CNS_OUTPUT_COVERAGE=30</code>: 选择多少覆盖度的最长纠错后reads进行trim和组装。举个例子，4.8M的 <em>E. coli</em> 30X, 是144MB。 一般选择20~40之间就行， 会传递给<code>mecat2elr</code></li>
-<li><code>ASM_OVLP_OPTIONS=&quot;&quot;</code>: 在组装阶段，用于检测重叠的参数，传给<code>v2asmpm.sh</code></li>
-<li><code>FSA_OL_FILTER_OPTIONS=&quot;&quot;</code>, 过滤重叠的参数，传递给<code>fsa_ol_filter</code></li>
-<li><code>FSA_ASSEMBLE_OPTIONS=&quot;&quot;</code>, 组装trimm reads的参数, 传给<code>v2asmpm</code></li>
-</ul>
-<p>这些参数调整起来都很复杂，只能建议看函数帮助文档了。举个例子<code>FSA_OL_FILTER_OPTIONS=&quot;--max_overhang=-1 --min_identity=-1&quot;</code>根据阅读<code>fsa_ol_filter</code>的帮助发现，<code>-1</code>表示让程序自己决定</p>
-<p>而<code>ASM_OVLP_OPTIONS=&quot;-n 100 -z 10 -b 2000 -e 0.5 -j 1 -u 0 -a 400&quot;</code>， 根据和软件开发者的讨论，是<strong>不需要额外调整</strong>，用默认的即可。</p>
-<p>MECAT2是基于比对纠错的组装工具，组装速度上比同类型的Canu和Falcon都快。仅看组装结果的N50参数，MECAT2结果和Canu, Falcon结果都是差不多的。</p>
-<p>考虑到BUSCO完整度，Canu是三者最高。不过用三代数据和二代数据进行几轮Polish后会提高到Canu相同水平。三个软件上的BUSCO（embryophyta_odb10）值如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Canu: C:98.8%[S:96.3%,D:2.5%],F:0.5%,M:0.7%,n:1375</span><br><span class="line">MECAT2: C:93.5%[S:91.6%,D:1.9%],F:4.6%,M:1.9%,n:1375</span><br><span class="line">Falcon: C:96.8%[S:95.1%,D:1.7%],F:2.0%,M:1.2%,n:1375</span><br></pre></td></tr></table></figure>
-
-<p>因此，如果你原本你是用Falcon做组装，那么可以改成MECAT2了，效果差不多，速度还更快了。对于越大的物种，在有限的资源下，更推荐用MECAT2。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT2">https://github.com/xiaochuanle/MECAT2</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" data-id="cllgasdpn002tdkov391cc5r3" data-title="MECAT2:三代高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/21/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/23/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/21/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/23/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1503,6 +1582,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1516,10 +1599,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

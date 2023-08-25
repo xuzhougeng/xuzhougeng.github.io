@@ -73,6 +73,93 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何用binmapr进行遗传定位-build-binmap-with-binmapr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" class="article-date">
+  <time class="dt-published" datetime="2019-10-01T21:27:06.707Z" itemprop="datePublished">2019-10-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/">如何用binmapr进行遗传定位</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>binmapr目前代码正在重构，目前无法从CRAN进行下载，本篇教程仅为存档用。</p>
+</blockquote>
+<p>binmapr是我折腾的一个R包，它能够将NGS测序得到SNP数据基于binmap进行纠错，用于更好的遗传定位。</p>
+<p>在阅读本文之前，请先花点时间看看<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/x6zRylSiPn0LmNtmEGbdAA">Bin, Bin, Bin！Map, Map, Map Now!</a>, 我只是将里面的步骤整理成R包方便调用而已。</p>
+<p>首先你得安装并加载R包。因为这个R包目前主要是方便自己使用，所以托管在GitHub上，需要用devtools进行安装</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;xuzhougeng/binmapr&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>之后就可以和其他R包一样正常使用</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>binmapr<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>R包的使用非常简单，就是调用<code>batchCallGeno</code> 将原本的genotype矩阵按照15bp对snp进行纠正</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">geno <span class="operator">&lt;-</span> batchCallGeno<span class="punctuation">(</span>GT_flt<span class="punctuation">,</span> CHROM <span class="operator">=</span> CHROM<span class="punctuation">,</span> </span><br><span class="line">                      outdir <span class="operator">=</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">                      pos.start <span class="operator">=</span> <span class="number">7</span><span class="punctuation">,</span> fix.size <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>因此，你只要提供一个符合要求的输入即可。</p>
+<p>以李广伟师兄的数据为例，我已经将其整理成示例数据，因此可以可以通过下面两行命令读取</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data<span class="punctuation">(</span>geno<span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span>pheno<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这两个都是数据框，其中geno存放的是基因型数据，而pheno存放的是表型数据</p>
+<p>为了能够让batchCallGeno运行，我们需要将<code>geno</code>数据转成一个矩阵，其中行名是位置信息，列名是样本信息</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GT <span class="operator">&lt;-</span> as.matrix<span class="punctuation">(</span>geno<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">1</span><span class="operator">:</span><span class="operator">-</span><span class="number">4</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">row.names<span class="punctuation">(</span>GT<span class="punctuation">)</span> <span class="operator">&lt;-</span> paste0<span class="punctuation">(</span>geno<span class="operator">$</span>CHR<span class="punctuation">,</span> <span class="string">&quot;_&quot;</span><span class="punctuation">,</span> geno<span class="operator">$</span>POS<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>由于每个位点都在所有样本中都不一定存在，因此可以考虑过滤一些缺失比较多的位点.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">miss_ratio <span class="operator">&lt;-</span> rowSums<span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>GT<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">/</span> ncol<span class="punctuation">(</span>GT<span class="punctuation">)</span></span><br><span class="line">GT_flt <span class="operator">&lt;-</span> GT<span class="punctuation">[</span>miss_ratio <span class="operator">&lt;</span> <span class="number">0.20</span><span class="punctuation">,</span> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>我这里过滤掉缺失大于20%的位点，原本是打算用5%，未曾想到这个标准过滤下去，90%的数据都快没了，吓得我赶紧用<code>summary(miss_ratio)</code>看了一波分布，改了下标准。</p>
+<p>有了合适的数据类型后，就可以调用batchCallGeno函数了。运行结束后，除了得到一个列表外存放基因型外，还会在当前目录下输出csv和pdf文件。其中csv是表型数据，而pdf则是纠错前后的基因型分布。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CHROM <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>geno<span class="operator">$</span>CHR<span class="punctuation">)</span></span><br><span class="line">geno_out <span class="operator">&lt;-</span> batchCallGeno<span class="punctuation">(</span>GT_flt<span class="punctuation">,</span> CHROM <span class="operator">=</span> CHROM<span class="punctuation">,</span> </span><br><span class="line">                      pos.start <span class="operator">=</span> <span class="number">7</span><span class="punctuation">,</span> fix.size <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>介绍下几个参数</p>
+<ul>
+<li><code>CHROM</code>:  用于构建binmap的染色体</li>
+<li><code>pos.start</code>， 该参数用于绘图时从行名中提取坐标，例如<code>Chr1_1245</code>需要设置为pos.start&#x3D;6, 这里命名为<code>chr01_12345</code>所以要设置为pos.start&#x3D;7</li>
+<li><code>fix.size</code>, 它和纠错有关，比如说你的基因型是00000100000, 中间的1很可能是错误的，因为它只出现了一次。<code>fix.size</code>需要根据具体数据来调整。</li>
+</ul>
+<p>下一步，我们就可以用方差分析的方法来寻找和表型相关的区间</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Load phenotype</span></span><br><span class="line">anova_analysis <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">,</span> phenotype<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  p.lmout <span class="operator">&lt;-</span> lm<span class="punctuation">(</span>phenotype <span class="operator">~</span> x<span class="punctuation">,</span> na.action <span class="operator">=</span> na.exclude<span class="punctuation">)</span></span><br><span class="line">  p <span class="operator">&lt;-</span> anova<span class="punctuation">(</span>p.lmout<span class="punctuation">)</span><span class="punctuation">[</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">]</span><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>p<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">geno_mt <span class="operator">&lt;-</span> geno_out<span class="punctuation">[[</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">]</span></span><br><span class="line">geno_mt_reorder <span class="operator">&lt;-</span> geno_mt<span class="punctuation">[</span><span class="punctuation">,</span>pheno<span class="operator">$</span>ID<span class="punctuation">]</span></span><br><span class="line">pvals <span class="operator">&lt;-</span> apply<span class="punctuation">(</span>geno_mt_reorder<span class="punctuation">,</span> </span><br><span class="line">               <span class="number">1</span><span class="punctuation">,</span> </span><br><span class="line">               anova_analysis<span class="punctuation">,</span> </span><br><span class="line">               phenotype <span class="operator">=</span> pheno<span class="operator">$</span>PH<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接着画图</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pos <span class="operator">&lt;-</span> <span class="built_in">as.numeric</span><span class="punctuation">(</span>substring<span class="punctuation">(</span>row.names<span class="punctuation">(</span>geno_mt_reorder<span class="punctuation">)</span><span class="punctuation">,</span> <span class="number">7</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">plotQtl<span class="punctuation">(</span>pos <span class="operator">=</span> pos<span class="punctuation">,</span> </span><br><span class="line">        pvalue <span class="operator">=</span> pvals<span class="punctuation">,</span> </span><br><span class="line">        chr.name <span class="operator">=</span> <span class="string">&quot;chr_01&quot;</span><span class="punctuation">,</span></span><br><span class="line">        ymax <span class="operator">=</span> <span class="number">11</span><span class="punctuation">,</span></span><br><span class="line">        threshold <span class="operator">=</span> <span class="number">3</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/QTL-mapping-e8e24a5d5f2b460c9892908c7c1e38eb.png" alt="QTL mapping"></p>
+<p>我们可以从中看到一个非常显著的峰，里面的基因中就有一个碰巧是水稻里的绿色革命基因，sd1 LOC_Os01g66100 物理区间是 38382382-38385504，距QTL最显著位置只有258kb的距离，对于一个只有172个个体的F2群体而言，结果是不是已经很不错了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" data-id="cllpwkk1d00h0e0p2fflkghvr" data-title="如何用binmapr进行遗传定位" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何在服务器上安装最新的R-install-r-in-linux" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" class="article-date">
@@ -167,7 +254,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" data-id="cllgasdva00g2dkov5tq06p0m" data-title="如何在服务器上安装最新的R" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" data-id="cllpwkk1200g0e0p2hq3ecgxt" data-title="如何在服务器上安装最新的R" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -357,7 +444,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" data-id="cllgasdwh00iydkova898f28m" data-title="无root权限解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" data-id="cllpwkk2100iue0p27n4oe5js" data-title="无root权限解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -438,7 +525,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/18/%E4%BD%BF%E7%94%A8RepeatModeler%E5%92%8CRepeatMasker%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Annotate-repeat-in-genome-with-RepeatModeler-and-RepeatMasker/" data-id="cllgasdtj00c6dkovd2qch5b6" data-title="使用RepeatModeler和RepeatMasker注释基因组重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/18/%E4%BD%BF%E7%94%A8RepeatModeler%E5%92%8CRepeatMasker%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Annotate-repeat-in-genome-with-RepeatModeler-and-RepeatMasker/" data-id="cllpwkjyt00c2e0p228sk962q" data-title="使用RepeatModeler和RepeatMasker注释基因组重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -579,7 +666,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/15/%E4%BD%BF%E7%94%A8wgd%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%A4%8D%E5%88%B6%E5%88%86%E6%9E%90-wgd-simple-command-line-tools-for-the-analysis-of-ancient-whole-genome%20duplications/" data-id="cllgasdum00dudkov914x1r7w" data-title="使用wgd进行全基因组复制分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/15/%E4%BD%BF%E7%94%A8wgd%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%A4%8D%E5%88%B6%E5%88%86%E6%9E%90-wgd-simple-command-line-tools-for-the-analysis-of-ancient-whole-genome%20duplications/" data-id="cllpwkjz900dae0p25eee7jvu" data-title="使用wgd进行全基因组复制分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -619,7 +706,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/10/2019-09-10T05_45_43.377Z-2019-09-10T05_45_43.377Z/" data-id="cllgasdoo000ddkov59rp79x4" data-title="Tue Sep 10 2019 05:45:43 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/10/2019-09-10T05_45_43.377Z-2019-09-10T05_45_43.377Z/" data-id="cllpwkjtr0009e0p2e0iq86iz" data-title="Tue Sep 10 2019 05:45:43 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -693,7 +780,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/09/%E4%BD%BF%E7%94%A8refgenie%E7%AE%A1%E7%90%86%E4%BD%A0%E7%9A%84%E5%8F%82%E8%80%83%E5%9F%BA%E5%9B%A0%E7%BB%84-Manage-reference-genome-with-refgenie/" data-id="cllgasdul00dqdkovcuc8azaz" data-title="使用refgenie管理你的参考基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/09/%E4%BD%BF%E7%94%A8refgenie%E7%AE%A1%E7%90%86%E4%BD%A0%E7%9A%84%E5%8F%82%E8%80%83%E5%9F%BA%E5%9B%A0%E7%BB%84-Manage-reference-genome-with-refgenie/" data-id="cllpwkjz800d6e0p2cu0f0t97" data-title="使用refgenie管理你的参考基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -737,7 +824,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/09/2019-09-09T04_04_28.482Z-2019-09-09T04_04_28.482Z/" data-id="cllgasdon000bdkov2siv2ose" data-title="Mon Sep 09 2019 04:04:28 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/09/2019-09-09T04_04_28.482Z-2019-09-09T04_04_28.482Z/" data-id="cllpwkjtp0006e0p29gny3g23" data-title="Mon Sep 09 2019 04:04:28 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -833,7 +920,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/07/%E5%9C%A8iPad%E4%B8%8A%E9%98%85%E8%AF%BB%E6%96%87%E7%8C%AE%E5%92%8C%E5%9B%BE%E4%B9%A6-Read-book-or-literature-in-iPad/" data-id="cllgasduw00eudkov3l6r1can" data-title="在iPad上阅读文献和图书" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/07/%E5%9C%A8iPad%E4%B8%8A%E9%98%85%E8%AF%BB%E6%96%87%E7%8C%AE%E5%92%8C%E5%9B%BE%E4%B9%A6-Read-book-or-literature-in-iPad/" data-id="cllpwkjzs00efe0p282o307tg" data-title="在iPad上阅读文献和图书" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -887,7 +974,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/07/%E4%BD%BF%E7%94%A8%E5%9D%9A%E6%9E%9C%E4%BA%91%E4%BD%9C%E4%B8%BAZotero%E7%9A%84%E5%AD%98%E5%82%A8-Use-jianguoyun-as-sync-server-of-Zotero/" data-id="cllgasdun00dxdkovcdlj3tgb" data-title="使用坚果云作为Zotero的存储" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/07/%E4%BD%BF%E7%94%A8%E5%9D%9A%E6%9E%9C%E4%BA%91%E4%BD%9C%E4%B8%BAZotero%E7%9A%84%E5%AD%98%E5%82%A8-Use-jianguoyun-as-sync-server-of-Zotero/" data-id="cllpwkjza00dde0p222268qrg" data-title="使用坚果云作为Zotero的存储" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -901,140 +988,11 @@
 
 
   
-    <article id="post-服务器硬盘管理笔记-A-simple-disk-management-note" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/09/05/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E7%9B%98%E7%AE%A1%E7%90%86%E7%AC%94%E8%AE%B0-A-simple-disk-management-note/" class="article-date">
-  <time class="dt-published" datetime="2019-09-05T22:50:20.564Z" itemprop="datePublished">2019-09-05</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/05/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E7%9B%98%E7%AE%A1%E7%90%86%E7%AC%94%E8%AE%B0-A-simple-disk-management-note/">服务器硬盘管理笔记</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="服务器硬盘分区和挂载"><a href="#服务器硬盘分区和挂载" class="headerlink" title="服务器硬盘分区和挂载"></a>服务器硬盘分区和挂载</h1><h2 id="文件系统简介"><a href="#文件系统简介" class="headerlink" title="文件系统简介"></a>文件系统简介</h2><p>以ext4文件系统为例，设计的时候分为4个部分</p>
-<ul>
-<li>超级块: 最开头部分，记录整个文件系统&#x2F;分区中的文件数，<code>df</code>根据该信息进行统计磁盘占用</li>
-<li>超级块副本: 对超级块进行备份，存在多个备份</li>
-<li>i节点(inode): 记录每个文件信息，名称&#x2F;大小&#x2F;编号&#x2F;权限。 用<code>ls -i</code>获取i节点信息</li>
-<li>数据块(datablock): 事实上的数据存储点，i节点以链接式结构记录数据块的信息，因此找到i节点，就能读取对应的数据。</li>
-</ul>
-<p>由于<code>ls -l</code>获取的是i节点记录的数据使用的数据块个数，而<code>du</code>则是通过i节点获取实际大小, 所以<code>ls -l</code>和<code>du</code>显示的数据大小不同。</p>
-<h2 id="RAID"><a href="#RAID" class="headerlink" title="RAID"></a>RAID</h2><p>RAID全称是Redundant Array of Independent Disks，也就是磁盘阵列，通过整合多块硬盘从而提升服务器数据的安全性，以及提高数据处理时的I&#x2F;O性能。</p>
-<p>RAID目前常用的是RAID5, 至少需要3块硬盘，其中一块硬盘用于奇偶校验，保证数据安全，其余硬盘同时读写，提高性能。此外，你还需要知道最原始的是RAID0，同时将数据读写到所有硬盘里，速度就变成了原来的N倍。RAID1至少需要两块盘，其中一块硬盘是另外硬盘的镜像。它不提高读写效率，只提高了数据安全性。RAID10是RAID0和RAID1的组合。</p>
-<p>目前的服务器都配备了硬件RAID卡，因此在为服务器增加或更换硬盘时，需要<strong>格外注意</strong>，</p>
-<ul>
-<li>插入的硬盘必须先做RAID才能被服务器识别</li>
-<li>RAID5中的所有硬盘应当被视为一个硬盘，不能只更换其中一部分</li>
-</ul>
-<h2 id="硬盘分区"><a href="#硬盘分区" class="headerlink" title="硬盘分区"></a>硬盘分区</h2><p>fdisk只能对不多于2TB的硬盘进行分区</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fdisk /dev/sdb</span><br></pre></td></tr></table></figure>
-
-<p>假如你的硬盘大于2TB，那么会输出如下信息</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Welcome to fdisk (util-linux 2.23.2).</span><br><span class="line"></span><br><span class="line">Changes will remain <span class="keyword">in</span> memory only, <span class="keyword">until</span> you decide to write them.</span><br><span class="line">Be careful before using the write <span class="built_in">command</span>.</span><br><span class="line"></span><br><span class="line">Device does not contain a recognized partition table</span><br><span class="line">Building a new DOS disklabel with disk identifier 0x405fb398.</span><br><span class="line"></span><br><span class="line">WARNING: The size of this disk is 10.0 TB (10000294477824 bytes).</span><br><span class="line">DOS partition table format can not be used on drives <span class="keyword">for</span> volumes</span><br><span class="line">larger than (2199023255040 bytes) <span class="keyword">for</span> 512-byte sectors. Use parted(1) and GUID</span><br><span class="line">partition table format (GPT).</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">The device presents a logical sector size that is smaller than</span><br><span class="line">the physical sector size. Aligning to a physical sector (or optimal</span><br><span class="line">I/O) size boundary is recommended, or performance may be impacted.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>):</span><br></pre></td></tr></table></figure>
-
-<p>提示信息中的警告中，就建议”Use parted(1) and GUID  partition table format (GPT).”</p>
-<p>因此，对于大于2TB的硬盘就需要用<code>parted</code>进行分区</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">parted /dev/sdb</span><br></pre></td></tr></table></figure>
-
-<p>输出信息如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GNU Parted 3.1</span><br><span class="line">Using /dev/sdb</span><br><span class="line">Welcome to GNU Parted! Type <span class="string">&#x27;help&#x27;</span> to view a list of commands.</span><br></pre></td></tr></table></figure>
-
-<p>创建新的GPT标签，例如</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mklabel gpt</span><br></pre></td></tr></table></figure>
-
-<p>设置单位</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unit TB</span><br></pre></td></tr></table></figure>
-
-<p>创建分区, 比如我将原来的10T分成2TB和8TB</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mkpart PART-TYPE [FS-TYPE] START END</span></span><br><span class="line">mkpart primary  ext4 0.00TB 2.00TB</span><br><span class="line">mkpart primary  ext4 2.00TB 10.00TB</span><br></pre></td></tr></table></figure>
-
-<p>查看分区表</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span></span><br></pre></td></tr></table></figure>
-
-<p>输出如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Model: AVAGO MR9361-8i (scsi)</span><br><span class="line">Disk /dev/sdb: 10.0TB</span><br><span class="line">Sector size (logical/physical): 512B/4096B</span><br><span class="line">Partition Table: gpt</span><br><span class="line">Disk Flags: </span><br><span class="line"></span><br><span class="line">Number  Start   End     Size    File system  Name     Flags</span><br><span class="line"> 1      1049kB  2000GB  2000GB               primary</span><br><span class="line"> 2      2000GB  10.0TB  8000GB               primary</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>退出</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">quit</span><br></pre></td></tr></table></figure>
-
-<p>此时会提示”Information: You may need to update &#x2F;etc&#x2F;fstab.” <code>/etc/fstab</code>用于设置开机硬盘自动挂载。如果硬盘被拔走了，而<code>/etc/fstab</code>没有修改，那么会就提示进行修复模式。</p>
-<h2 id="硬盘格式化"><a href="#硬盘格式化" class="headerlink" title="硬盘格式化"></a>硬盘格式化</h2><p>在挂载硬盘之前，需要先对磁盘进行格式化。使用的命令为<code>mkfs</code>, 使用<code>-t</code>指定文件系统，或者用<code>mkfs.xxx</code>，其中xxx就是对应的文件系统。文件系统有如下几类</p>
-<ul>
-<li>传统文件系统: ext2, minix, msdos, fat, vfat</li>
-<li>日志文件系统: ext3, xfs, ext4</li>
-<li>网络文件系统: nfs</li>
-</ul>
-<p>目前最流行的是ext4和xfs，足够稳定。其中xfs是CentOS7之后的默认文件系统。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkfs.ext4 /dev/sdb1</span><br><span class="line">mkfs.ext4 /dev/sdb2</span><br></pre></td></tr></table></figure>
-
-<h2 id="硬盘挂载"><a href="#硬盘挂载" class="headerlink" title="硬盘挂载"></a>硬盘挂载</h2><p>之后用<code>mount</code>进行硬盘挂载，分别两种情况考虑</p>
-<p>一种是新建一个文件路径，进行挂载。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> data2</span><br><span class="line">mount /dev/sdb2 /data2/</span><br></pre></td></tr></table></figure>
-
-<p>另一种是挂载一个已有目录，比如说临时文件目录<code>/tmp</code>挂载到新的设备中。</p>
-<p>第一步: 新建一个挂载点，将原有数据移动到该目录下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /storage</span><br><span class="line">mount /dev/sdb1  /storage</span><br><span class="line"><span class="built_in">cp</span> -pdr /tmp/* /storage</span><br></pre></td></tr></table></figure>
-
-<p>第二步: 删除原来的<code>/tmp</code>下内容</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /tmp/*</span><br></pre></td></tr></table></figure>
-
-<p>第三步: 重新挂载</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">umount /dev/sdb1</span><br><span class="line">mount /dev/sdb1 /tmp</span><br></pre></td></tr></table></figure>
-
-<p>和mount相关的文件如下</p>
-<ul>
-<li>&#x2F;etc&#x2F;fstab: 文件系统表， 开机的时候会根据里面的记录进行硬盘挂载</li>
-<li>&#x2F;etc&#x2F;mtab: 记录着已经挂载的文件系统</li>
-<li>&#x2F;etc&#x2F;mtab~: 锁定文件</li>
-<li>&#x2F;etc&#x2F;mtab.tmp: 临时文件</li>
-<li>&#x2F;etc&#x2F;filesystems: 系统支持的文件系统</li>
-</ul>
-<p>此外mount在挂载的时候还可以设置文件系统参数，例如是否支持磁盘配额，对应<code>-o</code>参数</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>第零步: 检查服务器是否具备RAID阵列卡，如果有，则需要先为硬盘做RAID。</p>
-<p>第一步: 使用<code>fdisk -l</code>检查硬盘是否能被系统检测到</p>
-<p>第二步(可选):  假如需要<strong>硬盘分区</strong>，则用<code>fdisk/gdisk/parted</code>对硬盘划分磁盘</p>
-<p>第三步: 使用mkfs进行磁盘<strong>格式化</strong>，有如下几种可选，</p>
-<p>第四步: 用mkdir新建一个目录，然后用mount将格式化的硬盘挂载到指定目录下。卸载硬盘，则是<code>umout</code></p>
-<p>第五步: 修改<code>/etc/fstab </code>将硬盘在重启的时候自动挂载。<strong>注意</strong>: 如果硬盘不在了，则需要将对应行注释掉，否则会进入到emergency模式。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/05/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E7%9B%98%E7%AE%A1%E7%90%86%E7%AC%94%E8%AE%B0-A-simple-disk-management-note/" data-id="cllgasdwk00j7dkovdy5d6pgy" data-title="服务器硬盘管理笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/18/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/20/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/18/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/20/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1087,6 +1045,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1100,10 +1062,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

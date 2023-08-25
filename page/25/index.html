@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>洲更的第二大脑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="洲更的第二大脑">
+<meta property="og:url" content="http://xuzhougeng.top/page/25/index.html">
+<meta property="og:site_name" content="洲更的第二大脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="xuzhougeng">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="洲更的第二大脑" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">洲更的第二大脑</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://xuzhougeng.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-通过grep来学习正则表达式-通过grep来学习正则表达式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/07/25/%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="article-date">
+  <time class="dt-published" datetime="2019-07-25T21:43:07.724Z" itemprop="datePublished">2019-07-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/07/25/%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">通过grep来学习正则表达式</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>正则表达式(regular expression, regex)是一个重要且实用的概念，我时常提起却从未细谈。一怕能力不够说不清楚反而会误导人，二是已经有无数前人撰文介绍。考虑日常用到的<code>grep</code>,<code>sed</code>,<code>awk</code>里经常需要用到正则表达式，于是开一个小系列，介绍如何在<code>grep</code>，<code>sed</code>,<code>awk</code>中适用正则。</p>
+<h2 id="什么是正则表达式"><a href="#什么是正则表达式" class="headerlink" title="什么是正则表达式"></a>什么是正则表达式</h2><p><strong>正则表达式</strong>(regular expression)的概念，最初来自于20世纪40年代的两位神经学家(Warren McCulloch, Walter Pitts)研究神经元时提出的想法。后来数学家Stephen Kleene在代数学中正式描述了这种被他称之为“<strong>正则集合</strong>”的模型。并且，他还发明了一套简洁的方法表示正则集合，也就是正则表达式。</p>
+<p>目前最快速的文本搜索工具<code>grep</code>就内置了正则表达式。<code>grep</code>起源于Unix中的ed编辑器的一条命令<code>g/Regular Expression/p</code>， 读作“Global Reular Expression Print”，即运用正则表达式的全局输出。由于这个功能太过实用，于是就从ed中独立出来，演变成了<code>grep</code>以及扩展版本的<code>egrep</code>。都知道grep因为有正则表达式所以很强大，但是正则表达式为何如此强大呢？</p>
+<p>正则表达式的强大之处在于它是一套<strong>语法</strong>，分为两个部分，<strong>元字符(metacharacters)<strong>和</strong>普通文本字符(normal text characters）</strong>。</p>
+<p>以语言类比，“我爱正则表达式”这句话可以<strong>抽象</strong>成“主谓宾”结构，主语是”我”，谓语是”爱”，宾语是“正则表达式”。这种语法还适用于其他语言，比如说英语就是”I love regular expression”. 这种语法结构就是元字符，而构成句子的语言就是普通文字字符。</p>
+<h2 id="元字符一览"><a href="#元字符一览" class="headerlink" title="元字符一览"></a>元字符一览</h2><p>正则表达式有很多流派，不同流派之间的差异在于对元字符的支持程度。以下的元字符适用于GNU版本的grep, sed, awk. mac自带的是BSD版本。</p>
+<p><strong>匹配单个字符的元字符</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>匹配对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.</td>
+<td>匹配单个任意字符</td>
+</tr>
+<tr>
+<td>[…]</td>
+<td>匹配单个列出的字符</td>
+</tr>
+<tr>
+<td>[^…]</td>
+<td>匹配单个未列出的字符</td>
+</tr>
+<tr>
+<td>\char</td>
+<td>转义元字符成普通字符</td>
+</tr>
+</tbody></table>
+<p><strong>提供技术功能的元字符</strong></p>
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>匹配对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>？</td>
+<td>匹配0或1次</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配0到n次</td>
+</tr>
+<tr>
+<td>+</td>
+<td>至少一次，最多不限</td>
+</tr>
+<tr>
+<td>{min,max}</td>
+<td>至少min次， 最多max次</td>
+</tr>
+</tbody></table>
+<p><strong>匹配位置的元字符</strong></p>
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>匹配对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>^</td>
+<td>匹配一行的开头</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配一行的结尾</td>
+</tr>
+</tbody></table>
+<p><strong>其他元字符</strong></p>
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>匹配对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>竖线</td>
+<td>匹配任意分割的表达式</td>
+</tr>
+<tr>
+<td>(…)</td>
+<td>限定多选结构的范围，标注量词的作用范围，为反向引用捕获元素</td>
+</tr>
+<tr>
+<td>\1, \2</td>
+<td>反向引用元素</td>
+</tr>
+</tbody></table>
+<h2 id="在grep中使用正则表达式"><a href="#在grep中使用正则表达式" class="headerlink" title="在grep中使用正则表达式"></a>在grep中使用正则表达式</h2><p>grep的强大之处它所做的事情就只有在文本搜索”正则表达式“定义的**模式(pattern)**，如果找到就打印出来。可以使用<code>man egrep</code>查看所支持的参数。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">egrep [options] pattern [file]</span><br><span class="line">egrep [options] [-e pattern]... [-f FILE]... [FILE...]</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">参数参数</span></span><br><span class="line">-e PATTERN: 定义多个模式</span><br><span class="line">-f FILE: 从文本中读取模式</span><br><span class="line">-w: 匹配整个单词</span><br><span class="line">-v: 反向匹配</span><br><span class="line">-i: 忽略大小写</span><br><span class="line">-x: 仅仅选择整行匹配结果</span><br><span class="line">-c: 计数</span><br><span class="line">-n: 输出表明行号</span><br><span class="line">-A/-B NUM: 同时输出后/前几行</span><br></pre></td></tr></table></figure>
+
+<p><strong>注</strong>： grep有基础和扩展两个模式，基础模式支持的元字符较少，而<code>egrep</code>表示扩展的grep，支持的元字符较多。</p>
+<h3 id="检查测序结果的接头"><a href="#检查测序结果的接头" class="headerlink" title="检查测序结果的接头"></a>检查测序结果的接头</h3><p>在分析的质控阶段，需要检查给出的结果是否含有接头(adapter)。除了fastqc, 还能用grep检测是否有接头序列。</p>
+<p>你可以去illumina的官网根据公司测序的protocol查找对应的接头：</p>
+<p><a target="_blank" rel="noopener" href="https://support.illumina.com/downloads/illumina-customer-sequence-letter.html">https://support.illumina.com/downloads/illumina-customer-sequence-letter.html</a></p>
+<p>或者是直接看FASTQC的配置文件中检测的接头</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-e645cfbae7aff75b-6a2378e921da41d39215e2ad732c844d.png" alt="adapter"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载测试数据</span></span><br><span class="line">fastq-dump -X 10000 SRR1553606 --split-files</span><br></pre></td></tr></table></figure>
+
+<p>然后用部分的接头对fastq文件进行搜索</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep -B1 &#x27;TCGGAA&#x27; SRR1553606_1.fastq</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-7ad1f2d6a64f8df6-0015707007f84d0eadeebfce245d8902.png" alt="pattern search"></p>
+<p>被找到的序列并非出现最开头，你可能希望是开头有几个其他碱基，然后跟着接头序列.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep -B1 &#x27;^[ATGC]&#123;0,5&#125;TCGGAA&#x27; SRR1553606_1.fastq</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-15f6cff4e34a8497-4b3038d105fb4be4b58279d4db89d445.png" alt="enhance pattern"></p>
+<h3 id="基因搜索"><a href="#基因搜索" class="headerlink" title="基因搜索"></a>基因搜索</h3><p>一般而言，大家都回去TAIR上查找基因的区间。但是实际上我们可以先下载好拟南芥参考基因组及其注释文件，然后直接用正则表达式确定区间，用<code>bedtools</code>提取序列进行了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载序列</span></span><br><span class="line">wget -c -4 -q http://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas  </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载GFF文件</span></span><br><span class="line">wget -c -4 -q http://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_gff3/TAIR10_GFF3_genes.gff </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">基因的信息</span></span><br><span class="line">wget http://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/gene_description_20131231.txt.gz</span><br></pre></td></tr></table></figure>
+
+<p>在注释文件中查找某一个基因如SPL9, 并获取他的位置信息.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -i -w &#x27;spl9&#x27; gene_description_20131231.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-e4564a50b3da4b7e-0e1d8f790f0a48ab856793ea53d3cad7.png" alt="image.png"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep  -e &#x27;AT2G42200.1&#x27; TAIR10_GFF3_genes.gff | grep &#x27;mRNA&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-708c70292021ae01-30b973dd145e492482c1e1fdf7b96aca.png" alt="image.png"></p>
+<p>当然以上命令可以连成管道, 并且和bedtools合用，就可用直接获取DNA序列。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bedtools getfasta -fi TAIR10.fa -bed  &lt;(grep -i -w &#x27;spl9&#x27; gene_description_20131231.txt | cut -f 1 | xargs -i grep -i &#123;&#125; TAIR10_GFF3_genes.gff | grep mRNA | cut -f &#x27;1,4,5&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>你可以将其定义成一个函数，存放在配置文件中, 随后就能进行调用该函数。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-481f5540f5154587-e91a6a5a671a46b4ba1cba41b3477089.png" alt="bash function"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/2013053-029d39b29afc0269-0f3526951897466d9017303fbcc281a4.png" alt="use function"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/07/25/%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-id="cllpwkk2x00l9e0p2e62e0js2" data-title="通过grep来学习正则表达式" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/24/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><span class="page-number current">25</span>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/R/">R</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Rust/">Rust</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E9%98%85%E8%AF%BB/">文献阅读</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0/">文章重现</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" rel="tag">ATAC-seq | 差异分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" rel="tag">ATAC-seq | 表观组 | ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 表观组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigWig/" rel="tag">BigWig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-C-%E7%AE%97%E6%B3%95/" rel="tag">C&#x2F;C++ | 算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub/" rel="tag">GitHub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hi-C/" rel="tag">Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS/" rel="tag">NGS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBMC/" rel="tag">PBMC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">Seurat | 单细胞 | 数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web%E5%BC%80%E5%8F%91/" rel="tag">Web开发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/biocondutor/" rel="tag">biocondutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conda/" rel="tag">conda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typora/" rel="tag">typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" rel="tag">个人博客</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="tag">可视化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" rel="tag">可视化 | JCVI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" rel="tag">基因组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" rel="tag">小技巧 | SSH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" rel="tag">数据挖掘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">水稻 | 转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">注释 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">注释 | 流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" rel="tag">流程工具 | 基因家族</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">流程工具 | 服务器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" rel="tag">源码解读 | hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" rel="tag">环境配置 | WSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" rel="tag">系统发育</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" rel="tag">组装 | 转录组 | 注释</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" rel="tag">表观组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">转录组 | 单细胞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" rel="tag">转录组 | 序列比对</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 20px;">ATAC-seq | 单细胞</a> <a href="/tags/ATAC-seq-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90/" style="font-size: 10px;">ATAC-seq | 差异分析</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-ChIP-seq/" style="font-size: 10px;">ATAC-seq | 表观组 | ChIP-seq</a> <a href="/tags/ATAC-seq-%E8%A1%A8%E8%A7%82%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">ATAC-seq | 表观组 | 单细胞</a> <a href="/tags/BigWig/" style="font-size: 10px;">BigWig</a> <a href="/tags/BioNano/" style="font-size: 10px;">BioNano</a> <a href="/tags/C-C/" style="font-size: 19px;">C/C++</a> <a href="/tags/C-C-%E7%AE%97%E6%B3%95/" style="font-size: 10px;">C/C++ | 算法</a> <a href="/tags/ChIP-seq/" style="font-size: 10px;">ChIP-seq</a> <a href="/tags/GitHub/" style="font-size: 11px;">GitHub</a> <a href="/tags/Hi-C/" style="font-size: 10px;">Hi-C</a> <a href="/tags/JCVI/" style="font-size: 10px;">JCVI</a> <a href="/tags/MacOS/" style="font-size: 16px;">MacOS</a> <a href="/tags/NGS/" style="font-size: 11px;">NGS</a> <a href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">NGS | 遗传定位</a> <a href="/tags/PBMC/" style="font-size: 10px;">PBMC</a> <a href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 10px;">Perl | 软件安装</a> <a href="/tags/QT-MSVC/" style="font-size: 10px;">QT | MSVC</a> <a href="/tags/Seurat/" style="font-size: 10px;">Seurat</a> <a href="/tags/Seurat-%E5%8D%95%E7%BB%86%E8%83%9E-%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 10px;">Seurat | 单细胞 | 数据挖掘</a> <a href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">Seurat | 转录组 | 单细胞</a> <a href="/tags/Web%E5%BC%80%E5%8F%91/" style="font-size: 11px;">Web开发</a> <a href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" style="font-size: 11px;">Zotero | 文献 | 坚果云</a> <a href="/tags/biocondutor/" style="font-size: 10px;">biocondutor</a> <a href="/tags/conda/" style="font-size: 11px;">conda</a> <a href="/tags/samtools/" style="font-size: 10px;">samtools</a> <a href="/tags/typora/" style="font-size: 10px;">typora</a> <a href="/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">个人博客</a> <a href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 13px;">单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96/" style="font-size: 12px;">可视化</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" style="font-size: 14px;">可视化 | CIRCOS</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-JCVI/" style="font-size: 12px;">可视化 | JCVI</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 10px;">可视化 | 单细胞</a> <a href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">可视化 | 比较基因组学</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 11px;">基因家族</a> <a href="/tags/%E5%9F%BA%E5%9B%A0%E7%BB%84/" style="font-size: 11px;">基因组</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" style="font-size: 17px;">小技巧</a> <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7-SSH/" style="font-size: 10px;">小技巧 | SSH</a> <a href="/tags/%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">序列比对</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/" style="font-size: 11px;">数据挖掘</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 12px;">数据结构</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" style="font-size: 16px;">数据结构 | C/C++</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 12px;">服务器</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" style="font-size: 10px;">正则表达式 | 字符串处理</a> <a href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" style="font-size: 10px;">比较基因组学</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 10px;">水稻 | 转录组</a> <a href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">水稻 | 转录组 | 遗传定位</a> <a href="/tags/%E6%B3%A8%E9%87%8A/" style="font-size: 12px;">注释</a> <a href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" style="font-size: 13px;">注释 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">注释 | 序列比对</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">注释 | 流程工具</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" style="font-size: 10px;">注释 | 流程工具 | MAKER</a> <a href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">注释 | 重复序列</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" style="font-size: 17px;">流程工具</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E5%9F%BA%E5%9B%A0%E5%AE%B6%E6%97%8F/" style="font-size: 10px;">流程工具 | 基因家族</a> <a href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 10px;">流程工具 | 服务器</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" style="font-size: 10px;">源码解读</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB-hash/" style="font-size: 10px;">源码解读 | hash</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" style="font-size: 10px;">环境变量</a> <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-WSL/" style="font-size: 10px;">环境配置 | WSL</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 11px;">算法</a> <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8F%91%E8%82%B2/" style="font-size: 12px;">系统发育</a> <a href="/tags/%E7%BB%84%E8%A3%85/" style="font-size: 18px;">组装</a> <a href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" style="font-size: 16px;">组装 | Hi-C</a> <a href="/tags/%E7%BB%84%E8%A3%85-%E8%BD%AC%E5%BD%95%E7%BB%84-%E6%B3%A8%E9%87%8A/" style="font-size: 10px;">组装 | 转录组 | 注释</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" style="font-size: 11px;">编程语言</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 11px;">自然语言 | 深度学习</a> <a href="/tags/%E8%A1%A8%E8%A7%82%E7%BB%84/" style="font-size: 10px;">表观组</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 11px;">读书</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" style="font-size: 11px;">转录组</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" style="font-size: 11px;">转录组 | 单细胞</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" style="font-size: 10px;">转录组 | 差异分析 | TCGA</a> <a href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9/" style="font-size: 10px;">转录组 | 序列比对</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" style="font-size: 15px;">软件安装</a> <a href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" style="font-size: 10px;">遗传定位</a> <a href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" style="font-size: 12px;">重复序列</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 10px;">随笔</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
+            <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 xuzhougeng<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

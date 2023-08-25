@@ -73,6 +73,62 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-谈谈Markdown语法中段内换行-line-breaks-inside-paragraphs-in-markdown" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" class="article-date">
+  <time class="dt-published" datetime="2021-08-27T08:06:39.121Z" itemprop="datePublished">2021-08-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/">谈谈Markdown语法中段内换行</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在使用markdown语法写作时，我们会发现Markdown编辑器的展示效果和网页的展示效果并不一致。</p>
+<p>在markdown中，我们会用一个空行表示一个段落的结束。不同段落之前会换行。<br>如果没有空行，那么即便使用回车键换行，仍旧是一段，不会换行。</p>
+<p>上面这段话在编辑中被分成了两行（如下图），但是在网页展示中却应该是一段，前后相连。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/08/image-2a7e4e3073ef43a2a9998fd2ba87a345.png" alt="编辑器效果"></p>
+<p>但此时就有会有人提出一个需求说，我能不能让段落里面有三句话，这三句话每一句话都是另起一行，但属于一个段落。</p>
+<p>这个貌似合理的需求，默认所有人用的都是相同的浏览器，所以所有人看到的都是3行，一行一句话。但实际上，如果你把浏览器放大几倍，那么原来的一行就会因为空间不够而自动换行。</p>
+<p>之所以在编辑中允许段落换行，是因为某些编辑器不支持自动换行。也就是如果你不人为换行，那么这个一段就真的是一行。即，编辑器的段内换行是为了方便编辑。</p>
+<p>那么如果你<br>一定要实现段内换行。</br>我们就只能使用html语法了。</p>
+<p>上面这段话的对应的代码是</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">那么如果你<span class="tag">&lt;<span class="name">br</span>&gt;</span>一定要实现段内换行。<span class="tag">&lt;/<span class="name">br</span>&gt;</span>我们就只能使用html语法了。</span><br></pre></td></tr></table></figure>
+
+<p>也就是利用 <code>&lt;br&gt; &lt;/br&gt;</code>这个标签，将中间的文字在段落中另起一行。我个人特别不喜欢这种做法。因为我认为既然是一个段落，他的前后语义需要前后衔接。我们看完上一句话，会自然而然的看下一句话。那么让浏览器自动根据访问设备大小自动对段落进行换行，是一个非常合理的设计。</p>
+<p>但是既然有了这个标签，说明它也是有一定用途。我觉得它最大使用场景就是展示诗了。</p>
+<p>毕竟<br>我们都是</br>诗人<br>Love and peace</br></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" data-id="cllpwkk2r00kue0p2fgvpgp2d" data-title="谈谈Markdown语法中段内换行" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-记录近年来我的个人博客托管的折腾之旅-my-travel-to-host-my-blog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/08/26/%E8%AE%B0%E5%BD%95%E8%BF%91%E5%B9%B4%E6%9D%A5%E6%88%91%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%89%98%E7%AE%A1%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-my-travel-to-host-my-blog/" class="article-date">
@@ -116,7 +172,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/26/%E8%AE%B0%E5%BD%95%E8%BF%91%E5%B9%B4%E6%9D%A5%E6%88%91%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%89%98%E7%AE%A1%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-my-travel-to-host-my-blog/" data-id="cllgasdxc00krdkovhcal6w5k" data-title="记录近年来我的个人博客托管的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/26/%E8%AE%B0%E5%BD%95%E8%BF%91%E5%B9%B4%E6%9D%A5%E6%88%91%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%89%98%E7%AE%A1%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-my-travel-to-host-my-blog/" data-id="cllpwkk2p00kne0p2cgzn0o3a" data-title="记录近年来我的个人博客托管的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -177,7 +233,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" data-id="cllgasds1007ydkov2wbh1fmx" data-title="一次路由器刷固件安插件的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" data-id="cllpwkjxf007te0p262rebidq" data-title="一次路由器刷固件安插件的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -314,7 +370,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" data-id="cllgasdqn005hdkovf2c5ddeb" data-title="hifiasm对HiFi PacBio进行组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" data-id="cllpwkjw7005ce0p28n5m8mpx" data-title="hifiasm对HiFi PacBio进行组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -354,7 +410,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" data-id="cllgasdsf008jdkovddghbob9" data-title="人类的本质是复读机" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" data-id="cllpwkjxn008ee0p2fxb968w3" data-title="人类的本质是复读机" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -426,7 +482,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" data-id="cllgasdux00exdkovggdgcaeh" data-title="在windows下编译bwa和samtools" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" data-id="cllpwkjzt00ehe0p2dfd8heov" data-title="在windows下编译bwa和samtools" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -512,7 +568,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" data-id="cllgasduu00endkov74tt2eoz" data-title="在Windows上配置类Unix环境(MSYS2)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" data-id="cllpwkjzp00e7e0p21wyl7gky" data-title="在Windows上配置类Unix环境(MSYS2)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -584,7 +640,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="cllgasdqi0051dkov5xfmg9z8" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="cllpwkjw1004we0p2fs9uhoqc" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -634,7 +690,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="cllgasdqw0064dkov55g0c62v" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="cllpwkjwf005ze0p2gbpp8pe0" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -723,7 +779,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="cllgasdv900fxdkov3zgt362f" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="cllpwkk1000fxe0p20rwvctar" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -737,135 +793,11 @@
 
 
   
-    <article id="post-Centos的Slurm安装笔记-install-slurm-in-centos" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" class="article-date">
-  <time class="dt-published" datetime="2021-04-21T11:49:05.177Z" itemprop="datePublished">2021-04-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/">Centos的Slurm安装笔记</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>因为有一些软件必须要用Slurm，所以不得不在我的主机上配置slurm。</p>
-</blockquote>
-<p>Slurm的安装依赖于root权限</p>
-<h3 id="munge配置"><a href="#munge配置" class="headerlink" title="munge配置"></a>munge配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz</span><br><span class="line">rpmbuild -tb --without verify munge-0.5.14.tar.xz</span><br><span class="line"><span class="built_in">cd</span> /root/rpmbuild/RPMS/x86_64</span><br><span class="line">rpm -ivh munge-0.5.14-1.el7.x86_64.rpm \</span><br><span class="line">    munge-devel-0.5.14-1.el7.x86_64.rpm munge-libs-0.5.14-1.el7.x86_64.rpm</span><br></pre></td></tr></table></figure>
-
-<p>创建密钥</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo -u munge /usr/sbin/mungekey -v</span><br><span class="line"><span class="comment"># mungekey: Info: Created &quot;/etc/munge/munge.key&quot; with 1024-bit key </span></span><br></pre></td></tr></table></figure>
-
-<p>生成的 munge.key 文件需要分发到所有的计算节点。</p>
-<p>启动守护进程(daemon)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> munge</span><br><span class="line">systemctl start  munge</span><br><span class="line"><span class="comment"># 检查状态</span></span><br><span class="line">systemctl status munge </span><br></pre></td></tr></table></figure>
-
-<h3 id="方法1-RPM安装"><a href="#方法1-RPM安装" class="headerlink" title="方法1: RPM安装"></a>方法1: RPM安装</h3><p>下载页面， <a target="_blank" rel="noopener" href="https://www.schedmd.com/downloads.php">https://www.schedmd.com/downloads.php</a></p>
-<p>因为是CentOS7, 因此我下载的是19.05版本。 而20.11可能不再支持Python2。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://download.schedmd.com/slurm/slurm-19.05.8.tar.bz2</span><br><span class="line">yum install pam-devel perl-Switch -y</span><br><span class="line">rpmbuild -ta slurm-19.05.8.tar.bz2</span><br><span class="line"><span class="built_in">cd</span> /root/rpmbuild/RPMS/x86_64</span><br><span class="line">rpm --install slurm-*.rpm</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>创建用户 slurm</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adduser slurm</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>创建配置文件（非常关键）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/slurm</span><br><span class="line"><span class="built_in">touch</span> /etc/slurm/slurm.conf </span><br></pre></td></tr></table></figure>
-
-<p>etc中slurm.conf文件里面的配置信息来自于<a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a> 生成，需要配置如下选项</p>
-<ul>
-<li><p>SlurmctldHost: 信息来自于 <code>hostname -f </code></p>
-</li>
-<li><p>NodeName: 信息来自于 <code>hostname -f</code>, 只不过是子节点的服务器信息，如果只有单个主机，那么同上</p>
-</li>
-<li><p>ComputeNodeAddress: 计算节点的IP地址，仅有单个节点时，信息为空</p>
-</li>
-<li><p>PartitionName: 任务分配名，改成batch</p>
-</li>
-<li><p>CPUs: 设置为空</p>
-</li>
-<li><p>CoresPerSocket: 实际的物理CPU数，例如96</p>
-</li>
-<li><p>ThreadsPerCore: 如果超线程，设置为2</p>
-</li>
-<li><p>RealMemory: 服务器内存大小，单位为Mb</p>
-</li>
-<li><p>SlurmUser: slurm要求有一个专门的用户，</p>
-</li>
-<li><p>StateSaveLocation: 一定要改成 &#x2F;var&#x2F;spool&#x2F;slurmd， 否则会出现权限问题</p>
-</li>
-</ul>
-<p>最后还需要增加一行 <code>CgroupMountpoint=/sys/fs/cgroup</code></p>
-<p>启动 slurmctld, slurmd 的守护进程(deamon)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 控制节点</span></span><br><span class="line">systemctl <span class="built_in">enable</span> slurmctld</span><br><span class="line">systemctl start slurmctld</span><br><span class="line">systemctl status slurmctld </span><br><span class="line"><span class="comment"># 计算节点 </span></span><br><span class="line">systemctl <span class="built_in">enable</span> slurmd</span><br><span class="line">systemctl start slurmd</span><br><span class="line">systemctl status slurmd  </span><br></pre></td></tr></table></figure>
-
-<h3 id="方法2-通过OpenHPC仓库"><a href="#方法2-通过OpenHPC仓库" class="headerlink" title="方法2: 通过OpenHPC仓库"></a>方法2: 通过OpenHPC仓库</h3><h3 id="测试安装"><a href="#测试安装" class="headerlink" title="测试安装"></a>测试安装</h3><p>安装结果后，我们创建一个 test.sbatch, 信息如下，用于测试</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#SBATCH -J test # Job name</span></span><br><span class="line"><span class="comment">#SBATCH -o job.%j.out # Name of stdout output file (%j expands to %jobId)</span></span><br><span class="line"><span class="comment">#SBATCH -N 1 # Total number of nodes requested</span></span><br><span class="line"><span class="comment">#SBATCH -n 2 # Total number of mpi tasks #requested</span></span><br><span class="line"><span class="comment">#SBATCH -t 01:30:00 # Run time (hh:mm:ss) - 1.5 hours</span></span><br><span class="line"><span class="comment"># Launch MPI-based executable</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Test output from Slurm Testjob&quot;</span></span><br><span class="line">NODEFILE=`generate_pbs_nodefile`</span><br><span class="line"><span class="built_in">cat</span> <span class="variable">$NODEFILE</span></span><br><span class="line"><span class="built_in">sleep</span> 20</span><br></pre></td></tr></table></figure>
-
-<p>递交任务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sbatch ./test.sbatch </span><br><span class="line"><span class="comment"># Submitted batch job 2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>查看状态</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">squeue</span><br></pre></td></tr></table></figure>
-
-<p>如果能输出一个job.X.out 文件，说明我们的SLURM已经配置成功。</p>
-<h2 id="可能报错和解决方案"><a href="#可能报错和解决方案" class="headerlink" title="可能报错和解决方案"></a>可能报错和解决方案</h2><p>使用 <code>rpm --install</code>的时候可能会遇到如下的报错。这表示你需要安装perl的Switch模块</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">error: Failed dependencies:</span><br><span class="line">  perl(Switch) is needed by slurm-openlava-19.05.8-1.el7.x86_64</span><br><span class="line">  perl(Switch) is needed by slurm-torque-19.05.8-1.el7.x86_64</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>启动 slurmd的deamon失败</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># systemctl start slurmd</span></span><br><span class="line">Job <span class="keyword">for</span> slurmd.service failed because the control process exited with error code. </span><br><span class="line">See <span class="string">&quot;systemctl status slurmd.service&quot;</span> and <span class="string">&quot;journalctl -xe&quot;</span> <span class="keyword">for</span> details.</span><br></pre></td></tr></table></figure>
-
-<p>按照提示运行 <code>systemctl status slurmd.service</code> 发现error信息如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">error: Node configuration differs from hardware: Procs=1:192(hw) Boards=1:1(hw) SocketsPerBoard=1:4(hw) ...e=1:2(hw)</span><br><span class="line">error: cgroup namespace <span class="string">&#x27;freezer&#x27;</span> not mounted. aborting</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>第一个error原因是在<a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a> 填写 “Compute Machines” 的硬件信息出现错误</p>
-<p>第二个error原因是配置文件的默认配置表现不佳，需要做如下替换</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> CgroupMountpoint=/sys/fs/cgroup &gt;&gt; /etc/slurm/cgroup.conf</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>参考: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/62641323/error-cgroup-namespace-freezer-not-mounted-aborting">https://stackoverflow.com/questions/62641323/error-cgroup-namespace-freezer-not-mounted-aborting</a></p>
-</blockquote>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>配置slurm: <a target="_blank" rel="noopener" href="https://slurm.schedmd.com/configurator.html">https://slurm.schedmd.com/configurator.html</a></p>
-<p>单节点slurm: <a target="_blank" rel="noopener" href="http://docs.nanomatch.de/technical/SimStackRequirements/SingleNodeSlurm.html">http://docs.nanomatch.de/technical/SimStackRequirements/SingleNodeSlurm.html</a></p>
-<p>munge配置:<a target="_blank" rel="noopener" href="https://github.com/dun/munge/wiki/Installation-Guide">https://github.com/dun/munge/wiki/Installation-Guide</a></p>
-<p>Slurm安装与使用: <a target="_blank" rel="noopener" href="http://wiki.casjc.com/?p=378">http://wiki.casjc.com/?p=378</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" data-id="cllgasdoy000ydkov407jbd2i" data-title="Centos的Slurm安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/6/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/8/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/6/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/8/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -918,6 +850,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -931,10 +867,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

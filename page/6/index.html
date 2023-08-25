@@ -73,6 +73,64 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-「荐书」Python神经网络编程，入门神经网络的儿童读本-a-good-book-for-who-want-to-learn-deep-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" class="article-date">
+  <time class="dt-published" datetime="2021-11-20T07:28:16.729Z" itemprop="datePublished">2021-11-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/">「荐书」Python神经网络编程，入门神经网络的儿童读本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>之前计划学习「深度学习」相关内容，于是我在JD上买了很多和这个主题有关的书，其中就包括这篇文章推荐的「Python神经网络编程」。</p>
+<p>为什么我在标题中，称其为”入门神经网络的儿童读本”呢？ 因为同时期我还买了一本书，深度学习（DEEP LEARNING），由于封面是一个花园，所以它一般也被称为”花书”。花书大约500页，每页都是密密麻麻的字，和一堆数学公式，如果你计划直接阅读花书来入门深度学习的话，就相当于让一个刚识字的孩子直接去看四大名著，可能字都认识，连起来不明白它到底想表达什么意思。</p>
+<p>而这本书200多页，一共22多万字，分为3个主要章节和2个附录，由于文字浅显易懂，读起来不会有太多障碍，因此一个周末的时间就能读完。看这本书，相当于让孩子在直接读四大名著前，先看注音白话版（含插画），先增加自信心，提起后续继续的阅读的兴趣。</p>
+<p>举个例子，在「深度学习」和「Python神经网络编程」都有一个关于XOR(异或)的案例，用于说明线性分类器（线性模型: y&#x3D;ax+b）的局限性。在读「深度学习」的时候，我只是知道XOR不行，但是不知道为什么作者要举XOR这个例子。而「Python神经网络编程」的作者解决了我这个疑惑。</p>
+<p>下图中，我们可以发现AND和OR能够使用一条直线，根据输入x1和x2判断输出是0还是1.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/11/image-1081312981754182bc066bf4f2a08cfa.png" alt="AND和OR"></p>
+<p>但是对于XOR，你无法借助于一条直线将图中的红色和绿色点进行区分，所以为什么不去试试神奇的”神经网络”呢?</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/11/image-717962a5393643d99c53f2dd9b56043a.png" alt="XOR"></p>
+<p>另外一个例子，就是我理解了为什么线性代数在神经网络中那么重要。在「Python神经网络编程」的1.7节中，作者先带着我们一步一步在神经网络中追踪信号的传递, 先计算了第二层的第一个节点，也就是x&#x3D;(第一个节点的输出 * 链接权重 ) + (第二个节点的输出 * 链接权重），然后再按照相同的思路计算了其他节点。在1.7节的最后，作者说到</p>
+<blockquote>
+<p>…好在，即使是面对一个具有很多层，众多节点的神经网络，数学可以帮助我们以非常简洁的方式写下计算出所有输出值的命令。由于这种简洁性，指令变得非常短，执行起来也更有效率，因此这种简洁性不仅仅是对人类读者有益处，对计算机而言，也一样大有裨益。这一简洁方式就是使用矩阵…</p>
+</blockquote>
+<p>在1.8节中，作者引入了矩阵的计算方式，然后将之前的繁琐的计算过程化简成 $X  &#x3D; W \cdot I$, 使得我知其然并知其所以然。</p>
+<p>最后，我花了3天晚上把这本书看完了，让我从”花书”的打击中走了出来。这一幕就跟当年不知好歹，想通过「算法导论」 入门算法一样，最后还是靠着「图解算法」活了过去。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="cllpwkjxa007ie0p24vb4gwa7" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何向GitHub上传超过100MB的大文件-upload-large-file-to-github" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" class="article-date">
@@ -127,7 +185,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="cllgasdv700ftdkovdnnc94cz" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="cllpwkk0500fie0p24jj843yo" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -172,7 +230,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="cllgasdw000hydkovan5o3myz" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="cllpwkk1n00hue0p22bhkfkuo" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -264,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="cllgasdq40040dkov3kuq6oh5" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="cllpwkjvf003xe0p25fdub19p" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -328,7 +386,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="cllgasdq1003udkov5u4p3uc3" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="cllpwkjva003qe0p2djdsg5i0" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -401,7 +459,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="cllgasdq2003xdkov852c9wp1" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="cllpwkjvb003te0p2glooaao4" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -466,7 +524,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="cllgasdqj0054dkovd0w29223" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="cllpwkjw2004ye0p26rk18z4b" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -506,7 +564,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="cllgasdv500fodkovg6r507qw" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="cllpwkk0300fbe0p268lm6h09" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -544,7 +602,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" data-id="cllgasdrz007sdkov30xd40ko" data-title="【杂谈】说说编程语言学习的道与术" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" data-id="cllpwkjxd007oe0p20x1gbyjh" data-title="【杂谈】说说编程语言学习的道与术" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -620,7 +678,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" data-id="cllgasdw700i9dkovfvjgbfup" data-title="我的Rust第一课" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" data-id="cllpwkk1s00i5e0p2gpx16tk9" data-title="我的Rust第一课" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -634,67 +692,11 @@
 
 
   
-    <article id="post-谈谈Markdown语法中段内换行-line-breaks-inside-paragraphs-in-markdown" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" class="article-date">
-  <time class="dt-published" datetime="2021-08-27T08:06:39.121Z" itemprop="datePublished">2021-08-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/">谈谈Markdown语法中段内换行</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在使用markdown语法写作时，我们会发现Markdown编辑器的展示效果和网页的展示效果并不一致。</p>
-<p>在markdown中，我们会用一个空行表示一个段落的结束。不同段落之前会换行。<br>如果没有空行，那么即便使用回车键换行，仍旧是一段，不会换行。</p>
-<p>上面这段话在编辑中被分成了两行（如下图），但是在网页展示中却应该是一段，前后相连。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/08/image-2a7e4e3073ef43a2a9998fd2ba87a345.png" alt="编辑器效果"></p>
-<p>但此时就有会有人提出一个需求说，我能不能让段落里面有三句话，这三句话每一句话都是另起一行，但属于一个段落。</p>
-<p>这个貌似合理的需求，默认所有人用的都是相同的浏览器，所以所有人看到的都是3行，一行一句话。但实际上，如果你把浏览器放大几倍，那么原来的一行就会因为空间不够而自动换行。</p>
-<p>之所以在编辑中允许段落换行，是因为某些编辑器不支持自动换行。也就是如果你不人为换行，那么这个一段就真的是一行。即，编辑器的段内换行是为了方便编辑。</p>
-<p>那么如果你<br>一定要实现段内换行。</br>我们就只能使用html语法了。</p>
-<p>上面这段话的对应的代码是</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">那么如果你<span class="tag">&lt;<span class="name">br</span>&gt;</span>一定要实现段内换行。<span class="tag">&lt;/<span class="name">br</span>&gt;</span>我们就只能使用html语法了。</span><br></pre></td></tr></table></figure>
-
-<p>也就是利用 <code>&lt;br&gt; &lt;/br&gt;</code>这个标签，将中间的文字在段落中另起一行。我个人特别不喜欢这种做法。因为我认为既然是一个段落，他的前后语义需要前后衔接。我们看完上一句话，会自然而然的看下一句话。那么让浏览器自动根据访问设备大小自动对段落进行换行，是一个非常合理的设计。</p>
-<p>但是既然有了这个标签，说明它也是有一定用途。我觉得它最大使用场景就是展示诗了。</p>
-<p>毕竟<br>我们都是</br>诗人<br>Love and peace</br></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" data-id="cllgasdxh00kydkovf2rm0jlh" data-title="谈谈Markdown语法中段内换行" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/5/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/7/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/5/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/7/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -747,6 +749,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -760,10 +766,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

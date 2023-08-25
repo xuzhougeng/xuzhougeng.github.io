@@ -73,6 +73,87 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-我跟GPT合作写了一个genbank文件处理的脚本-write-genebank-process-script-with-gpt" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" class="article-date">
+  <time class="dt-published" datetime="2023-03-28T06:35:38.757Z" itemprop="datePublished">2023-03-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/">我跟GPT合作写了一个genbank文件处理的脚本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>事情起因是这样子，我有个genbank文件，里面记录的是线粒体的注释的坐标信息。由于这个注释是来源同源注释，可能存在错误，因此还需要后续的手动修改。我没去找到专门的工具，只是根据分析结果，手动改了里面一些基因的坐标，就导致里面的translation这一栏跟坐标对不上，需要更新一下。虽然我有能力写这个代码去更新结果，但是我希望给GPT(模型turbo 3.5)一个机会，让他处理下。</p>
+<p>首先，我问了它关于genbank的格式定义，确保它后续能够进行处理。他的回答非常正确，符合我的认知（下面是对话截图）</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-fb5074c39d144572afff9b49cb1c4d4b.png" alt="image.png"></p>
+<p>接下来我就开始问问题了，我让他编写脚本，让我调整坐标，它写了一段python 的代码，通过调用BioPython模块来实现我刚才说的功能。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-28b85f1c26b84904a9934b61916c8eac.png" alt="image.png"></p>
+<p>但是这代码有问题，因为通用性比较差，所以我让他改写代码，有一个遍历过程，先得到新的CDS，然后和原来的translation进行比较，如果存在不同则替换</p>
+<p>它的工作非常棒，下面是它给的结果。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取GenBank文件</span></span><br><span class="line">record = SeqIO.read(<span class="string">&quot;your_genbank_file.gb&quot;</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遍历所有CDS区域</span></span><br><span class="line"><span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">    <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">        <span class="comment"># 获取原始位置信息</span></span><br><span class="line">        old_start = feature.location.start</span><br><span class="line">        old_end = feature.location.end</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 修改位置信息为新的位置</span></span><br><span class="line">        new_start = <span class="number">100</span>  <span class="comment"># 新的起始位置</span></span><br><span class="line">        new_end = <span class="number">500</span>  <span class="comment"># 新的终止位置</span></span><br><span class="line">        feature.location = feature.location._shifted(new_start - old_start)</span><br><span class="line">        feature.location = feature.location._shifted(new_end - old_end)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 更新翻译信息</span></span><br><span class="line">        old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line">        new_sequence = feature.extract(record.seq)  <span class="comment"># 提取新序列</span></span><br><span class="line">        new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)  <span class="comment"># 计算新的翻译信息</span></span><br><span class="line">        new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line">        <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">            feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写回GenBank文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;modified_genbank_file.gb&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">    SeqIO.write(record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>不过它总是念念不忘他的new_start 和 new_ned，这显然不是我需要的，所以，我让他把这部分去掉。下面截图是我的提问和它的回答。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-93c5ad8901564dd3b6b28bfe27c7e78c.png" alt="image.png"></p>
+<p>这次代码简洁多了。不过他还不是一个合格的代码，因为调用只能是固定的文件名，我希望它能进一步提高通用性，所以我的提问是“好的，进一步提供他的通用性，使得我们可以在命令行通过 python remake.py input.gb output.gb来实现文件的重新生成”</p>
+<p>这次他的回答更加的棒，它用了argparse模块，并将原来的代码函数化，下面是他的回答。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">            <span class="comment"># 获取CDS区域原始序列和翻译信息</span></span><br><span class="line">            old_sequence = feature.extract(record.seq)</span><br><span class="line">            old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取CDS区域新位置</span></span><br><span class="line">            start, end = new_positions.get(feature.qualifiers[<span class="string">&#x27;gene&#x27;</span>][<span class="number">0</span>], (feature.location.start, feature.location.end))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 调整CDS区域位置并计算新翻译信息</span></span><br><span class="line">            feature.location = feature.location._shifted(start - feature.location.start)</span><br><span class="line">            feature.location = feature.location._shifted(end - feature.location.end)</span><br><span class="line">            new_sequence = feature.extract(record.seq)</span><br><span class="line">            new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)</span><br><span class="line">            new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 如果翻译信息不同，则更新qualifiers字段</span></span><br><span class="line">            <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">                feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    record = SeqIO.read(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    new_positions = &#123;gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">0</span>]: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">1</span>].split(<span class="string">&quot;-&quot;</span>))) <span class="keyword">for</span> gene_pos <span class="keyword">in</span> args.positions.strip().split()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(args.output, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">        SeqIO.write(updated_record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>更惊喜的是，在它的解释中，它还扩展了功能，它说道</p>
+<blockquote>
+<p>此代码使用argparse模块解析命令行参数，并根据提供的输入文件名和输出文件名读取和写入GenBank记录。它还允许通过命令行参数-p&#x2F;–positions指定每个基因的新起始和终止位置，方式为’gene1:100-500 gene2:200-600’。如果不提供此参数，则使用每个CDS区域的原始位置。最后，它调用update_cds_translation函数来更新所有CDS区域的翻译信息，然后将修改后的GenBank记录写回到输出文件中。</p>
+</blockquote>
+<p>我觉得差不多了，并复制了代码，开始运行，然后我报错了。错误信息如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">我运行了代码，出现了如下报错，我应该如何处理</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/Users/xuzhougeng/Downloads/remake.py&quot;, line 48, in &lt;module&gt;</span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">  File &quot;/Users/xuzhougeng/Downloads/remake.py&quot;, line 22, in update_cds_translation</span><br><span class="line">    feature.location = feature.location._shifted(start - feature.location.start)</span><br><span class="line">AttributeError: &#x27;FeatureLocation&#x27; object has no attribute &#x27;_shifted&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>我直接复制了这段代码，问gpt怎么办，它推断是biopython的版本问题，还给我写了一个更加通用的代码，新的代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO, SeqFeature</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&quot;CDS&quot;</span>:</span><br><span class="line">            <span class="comment"># 获取CDS区域原始序列和翻译信息</span></span><br><span class="line">            old_sequence = feature.extract(record.seq)</span><br><span class="line">            old_translation = feature.qualifiers.get(<span class="string">&quot;translation&quot;</span>, [<span class="string">&quot;&quot;</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取CDS区域新位置</span></span><br><span class="line">            start, end = new_positions.get(feature.qualifiers[<span class="string">&#x27;gene&#x27;</span>][<span class="number">0</span>], (feature.location.start, feature.location.end))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 调整CDS区域位置并计算新翻译信息</span></span><br><span class="line">            offset_start = start - feature.location.start</span><br><span class="line">            offset_end = end - feature.location.end</span><br><span class="line">            new_location = SeqFeature.FeatureLocation(</span><br><span class="line">                feature.location.start + offset_start,</span><br><span class="line">                feature.location.end + offset_end,</span><br><span class="line">                feature.location.strand</span><br><span class="line">            )</span><br><span class="line">            new_sequence = feature.extract(record.seq)</span><br><span class="line">            new_translation = new_sequence.translate(to_stop=<span class="literal">True</span>)</span><br><span class="line">            new_translation_str = <span class="built_in">str</span>(new_translation)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 如果翻译信息不同，则更新qualifiers字段</span></span><br><span class="line">            <span class="keyword">if</span> new_translation_str != old_translation:</span><br><span class="line">                feature.qualifiers[<span class="string">&quot;translation&quot;</span>] = [new_translation_str]</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 更新位置信息</span></span><br><span class="line">            feature.location = new_location</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    record = SeqIO.read(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    new_positions = &#123;gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">0</span>]: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, gene_pos.split(<span class="string">&quot;:&quot;</span>)[<span class="number">1</span>].split(<span class="string">&quot;-&quot;</span>))) <span class="keyword">for</span> gene_pos <span class="keyword">in</span> args.positions.strip().split()&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    updated_record = update_cds_translation(record, new_positions)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(args.output, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> output_handle:</span><br><span class="line">        SeqIO.write(updated_record, output_handle, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个代码对不对呢？至少我跑完是没有报错的，我进一步的检查了它的分析结果。发现很多CDS的长度明显短了，我觉得这可能是我没有说清楚，我给的是线粒体基因组。我讲这个结果反馈给了gpt，它认可了我的推测，下面是他的回答。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-995e22c2f8cb4308a93fd91d4bb9c12d.png" alt="image.png"></p>
+<p>后来我们又反反复复商量了好几轮，对代码反复打磨，通常都是它给出了建议，我询问他是不是有另一种解决思路，比如说有些genbank文件里的cds长度有问题，不一定是3的倍数，他建议我对处理来的文件，我觉得可以考虑捕获报错，他也执行的特别好。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/03/image-2bc04800e2a549bd882fb7d6594190a0.png" alt="image.png"></p>
+<p>下面的代码目前我最为满意的版本了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">from</span> Bio <span class="keyword">import</span> SeqIO, Data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update_cds_translation</span>(<span class="params">record, new_positions</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    更新GenBank记录中所有CDS区域的翻译信息并返回修改后的记录。</span></span><br><span class="line"><span class="string">    :param record: GenBank记录对象</span></span><br><span class="line"><span class="string">    :param new_positions: 包含每个CDS区域新起始和终止位置的dict对象</span></span><br><span class="line"><span class="string">    :return: 修改后的GenBank记录对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 遍历每个特征</span></span><br><span class="line">    <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">        <span class="comment"># 如果是CDS区域</span></span><br><span class="line">        <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&#x27;CDS&#x27;</span>:</span><br><span class="line">            <span class="comment"># 获取特征的名称</span></span><br><span class="line">            gene = feature.qualifiers.get(<span class="string">&#x27;gene&#x27;</span>, [<span class="string">&#x27;&#x27;</span>])[<span class="number">0</span>]</span><br><span class="line">            <span class="comment"># 获取CDS区域的起始和终止位置</span></span><br><span class="line">            start, end = feature.location.start, feature.location.end</span><br><span class="line">            <span class="comment"># 如果有新位置信息，则使用新位置信息</span></span><br><span class="line">            <span class="keyword">if</span> gene <span class="keyword">in</span> new_positions:</span><br><span class="line">                start, end = new_positions[gene]</span><br><span class="line">            <span class="comment"># 获取CDS区域的序列</span></span><br><span class="line">            cds_seq = record.seq[start:end]</span><br><span class="line">            <span class="comment"># 判断序列的方向</span></span><br><span class="line">            <span class="keyword">if</span> feature.strand == -<span class="number">1</span>:</span><br><span class="line">                cds_seq = cds_seq.reverse_complement()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 获取codon_start和transl_table信息</span></span><br><span class="line">            codon_start = <span class="built_in">int</span>(feature.qualifiers.get(<span class="string">&#x27;codon_start&#x27;</span>, [<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">            transl_table = <span class="built_in">int</span>(feature.qualifiers.get(<span class="string">&#x27;transl_table&#x27;</span>, [<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">            <span class="comment"># 翻译CDS区域</span></span><br><span class="line">            table = Data.CodonTable.unambiguous_dna_by_id[transl_table]</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                cds_protein = cds_seq[codon_start - <span class="number">1</span>:].translate(table=table, cds=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">except</span> Data.CodonTable.TranslationError:</span><br><span class="line">                cds_protein = <span class="string">&#x27;&#x27;</span></span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;Warning: Unable to translate CDS region <span class="subst">&#123;gene&#125;</span> in record <span class="subst">&#123;record.<span class="built_in">id</span>&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="comment"># 更新CDS区域的翻译信息</span></span><br><span class="line">            feature.qualifiers[<span class="string">&#x27;translation&#x27;</span>] = [<span class="built_in">str</span>(cds_protein)]</span><br><span class="line">    <span class="keyword">return</span> record</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="comment"># 解析命令行参数</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;Update CDS translations in a GenBank file.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;input&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Input GenBank file name&quot;</span>, <span class="built_in">type</span>=argparse.FileType(<span class="string">&#x27;r&#x27;</span>))</span><br><span class="line">    parser.add_argument(<span class="string">&quot;output&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;Output GenBank file name&quot;</span>, <span class="built_in">type</span>=argparse.FileType(<span class="string">&#x27;w&#x27;</span>))</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-p&quot;</span>, <span class="string">&quot;--positions&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;New start and end positions for each gene, e.g. &#x27;gene1:100-500 gene2:200-600&#x27;&quot;</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取GenBank文件和新位置信息</span></span><br><span class="line">    records = (record <span class="keyword">for</span> record <span class="keyword">in</span> SeqIO.parse(args.<span class="built_in">input</span>, <span class="string">&quot;genbank&quot;</span>))</span><br><span class="line">    new_positions = &#123;gene: <span class="built_in">tuple</span>(<span class="built_in">map</span>(<span class="built_in">int</span>, pos.split(<span class="string">&#x27;-&#x27;</span>))) <span class="keyword">for</span> gene, _, pos <span class="keyword">in</span> <span class="built_in">map</span>(<span class="built_in">str</span>.partition, args.positions.split())&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 更新CDS翻译信息并写回GenBank文件</span></span><br><span class="line">    untranslated_cds_count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> record <span class="keyword">in</span> records:</span><br><span class="line">        record = update_cds_translation(record, new_positions)</span><br><span class="line">        <span class="comment"># 统计无法翻译的CDS区域个数</span></span><br><span class="line">        <span class="keyword">for</span> feature <span class="keyword">in</span> record.features:</span><br><span class="line">            <span class="keyword">if</span> feature.<span class="built_in">type</span> == <span class="string">&#x27;CDS&#x27;</span> <span class="keyword">and</span> <span class="keyword">not</span> feature.qualifiers.get(<span class="string">&#x27;translation&#x27;</span>, [<span class="string">&#x27;&#x27;</span>])[<span class="number">0</span>]:</span><br><span class="line">                untranslated_cds_count += <span class="number">1</span></span><br><span class="line">        SeqIO.write(record, args.output, <span class="string">&quot;genbank&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 提示用户有多少个CDS区域无法翻译为蛋白质序列</span></span><br><span class="line">    <span class="keyword">if</span> untranslated_cds_count &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Warning: Failed to translate <span class="subst">&#123;untranslated_cds_count&#125;</span> CDS regions.&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>我运行了这个代码，发现结果非常好。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ python remake.py mitoscaf.fa.gbf new.gff</span><br><span class="line">Warning: Unable to translate CDS region COX2 in record XZG</span><br><span class="line">Warning: Failed to translate 1 CDS regions.</span><br></pre></td></tr></table></figure>
+
+<p>其实早在几年前，openAI推出GPT3的时候，我就知道了，我也提交了申请，但是一直没被通过，也就被我忘了。后来chatGPT横空出世，我开始也聊了几句，后面也就放在一边了。直到最近，它又火了，并且还出现了一个非常优秀的github项目，chatgpt-web，使得我能搭建了一个自己的专属GPT，之后我还搞定了付费API。</p>
+<p>虽然他也会出错（未来的4.0 API或许会好很多），但这样子说的仿佛人不出错一样。我现在就把它当做一个合作搭档，我有一个想法，让我帮我快速实现一下，然后我根据结果进行修改，并反馈给他，他也能迅速的给我一个反馈，这不挺好吗？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" data-id="cllpwkk1v00iae0p22wi30du7" data-title="我跟GPT合作写了一个genbank文件处理的脚本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">自然语言 | 深度学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-基于SpringBoot和React的一个文件上传案例-springboot-and-react-file-upload" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" class="article-date">
@@ -175,7 +256,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" data-id="cllgasduy00f0dkovdm9j0gon" data-title="基于SpringBoot和React的一个文件上传案例" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" data-id="cllpwkjzu00ele0p256w41u5o" data-title="基于SpringBoot和React的一个文件上传案例" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -269,7 +350,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" data-id="cllgasdus00egdkovcgf0ctwp" data-title="又快又好的Hi-C辅助组装流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" data-id="cllpwkjzn00e0e0p26h3c9rzp" data-title="又快又好的Hi-C辅助组装流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -327,7 +408,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" data-id="cllgasdov000tdkov3ku6hsru" data-title="Bioconductor安装的网络问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" data-id="cllpwkju0000me0p2e98bepja" data-title="Bioconductor安装的网络问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -517,7 +598,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" data-id="cllgasdwg00ivdkovactt54ru" data-title="无root权限下解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" data-id="cllpwkk2000ire0p26sd799fm" data-title="无root权限下解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -571,7 +652,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" data-id="cllgasdqk0057dkov0yvt40ey" data-title="chatGPT会替代我们吗？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" data-id="cllpwkjw30053e0p2ab5be9tl" data-title="chatGPT会替代我们吗？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -631,7 +712,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" data-id="cllgasdvb00g5dkovfwwqf9jw" data-title="如何在脚本中调用conda创建环境的命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" data-id="cllpwkk1200g3e0p25lsu87yq" data-title="如何在脚本中调用conda创建环境的命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -673,7 +754,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" data-id="cllgasdn40000dkov2z1v2wj6" data-title="MacOS原生Arm64架构的R语言环境配置-简明版" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" data-id="cllpwkjuy002te0p26svx4dvz" data-title="MacOS原生Arm64架构的R语言环境配置-简明版" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -762,7 +843,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/11/07/%E6%88%91%E7%9B%AE%E5%89%8D%E5%AF%B9Web%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5-my-knowledge-of-web-development/" data-id="cllgasdw900icdkovfsu0cf2o" data-title="我目前对Web开发的一些认知" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/11/07/%E6%88%91%E7%9B%AE%E5%89%8D%E5%AF%B9Web%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5-my-knowledge-of-web-development/" data-id="cllpwkk1u00i8e0p28yns1etz" data-title="我目前对Web开发的一些认知" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -826,7 +907,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" data-id="cllgasdsh008udkov02bb8gna" data-title="从一则12年前的提问中学习:从配对序列联配到多序列联配" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" data-id="cllpwkjxq008oe0p23045d4d8" data-title="从一则12年前的提问中学习:从配对序列联配到多序列联配" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -840,94 +921,11 @@
 
 
   
-    <article id="post-使用jcvi绘制微共线性(Microsynteny)-plot-microsynteny-with-jcvi" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" class="article-date">
-  <time class="dt-published" datetime="2022-10-18T10:13:25.558Z" itemprop="datePublished">2022-10-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/">使用jcvi绘制微共线性(Microsynteny)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>本文主要介绍如何使用JCVI的synteny子命令基于已有的共线性分析结果，展现局部的共线性。</p>
-<p>需要准备的三个输入文件</p>
-<ul>
-<li>记录物种内或者物种间的共线性基因对</li>
-<li>记录基因坐标的bed文件</li>
-<li>布局文件</li>
-</ul>
-<p>第一步，基于已有的共线性分析结果(WGDI, MCscan, MCscanX等软件的分析结果），整理出你需要展示的区间的基因对。注意分隔符是制表符，我们保存为blocks.txt</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">AL1G16390	AT1G06380</span><br><span class="line">AL1G16400	AT1G06390</span><br><span class="line">AL1G16410	AT1G06400</span><br><span class="line">AL1G16420	AT1G06410</span><br><span class="line">AL1G16430	AT1G06420</span><br><span class="line">AL1G16440	AT1G06430</span><br><span class="line">AL1G16450	AT1G06440</span><br><span class="line">AL1G16460	AT1G06450</span><br><span class="line">AL1G16470	AT1G06460</span><br><span class="line">AL1G16480	AT1G06470</span><br><span class="line">AL1G16490	AT1G06475</span><br><span class="line">AL1G16510	AT1G06490</span><br><span class="line">AL1G16520	AT1G06500</span><br><span class="line">AL1G16530	AT1G06515</span><br><span class="line">AL1G16540	AT1G06510</span><br><span class="line">AL1G16550	AT1G06520</span><br><span class="line">AL1G16560	AT1G06530</span><br><span class="line">AL1G16570	AT1G06540</span><br><span class="line">AL1G16580	AT1G06550</span><br><span class="line">AL1G16590	AT1G06560</span><br><span class="line">AL1G16600	AT1G06570</span><br><span class="line">AL1G16610	AT1G06580</span><br></pre></td></tr></table></figure>
-
-<p>第二步，整理记录基因坐标的bed文件。bed要求是6列，记录基因的坐标和朝向，第五列填0即可。 我们命名为genes.bed</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1	3631	5899	AT1G01010	0	+</span><br><span class="line">1	6788	9130	AT1G01020	0	-</span><br><span class="line">...</span><br><span class="line">scaffold_9	1792941	1795545	AL9U12210	0	-</span><br><span class="line">scaffold_9	1796870	1801565	AL9U12220	0	-</span><br><span class="line">scaffold_9	1810180	1812874	AL9U12230	0	+</span><br><span class="line">scaffold_9	1836100	1837535	AL9U12240	0	-</span><br></pre></td></tr></table></figure>
-
-<p>两个要求: </p>
-<ul>
-<li>第4列的基因名必须对应共线性对的基因</li>
-<li>文件里必须包含你需要展示物种的所有基因（至少是共线性区块的基因）</li>
-</ul>
-<p>第三步，提供布局文件, 命名为layout.csv</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># x,  y, rotation,  ha,  va, color, ratio,  label</span><br><span class="line">0.5, 0.4, 0, center,top,  ,  1, A.lyrata Chr1</span><br><span class="line">0.5, 0.3, 0, center, top,  ,  1,  A.thaliana Chr1</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br></pre></td></tr></table></figure>
-
-<p>该文件分为两个部分：上半部分是track在图中的相对位置(x,y)和旋转角度(rotation)，以及label的对齐方式， ha( left, center, right) va( top, button) 和颜色(color)</p>
-<p>下半部分是不同track的共线性关系，e,0,1表示第一个和第二个track有关联。</p>
-<p>最后运行程序</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.graphics.synteny blocks.txt  genes.bed layout.csv</span><br></pre></td></tr></table></figure>
-
-<p>输出结果为一个pdf，如下所示</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-c2a65bc34e60499a8efeaea04cfc675e.png" alt="micro synteny"></p>
-<p>因为我们的共线性基因里面是A.lyrata是第一列，所以画图的时候也是A.lyrata在第一行。</p>
-<p>案例仅展示了2条序列之间的共线性，实际上<code>jcvi.graphics.synteny</code>是可以展示多条序列的结果，比如说jcvi案例展示graph, peach, cacao三者之间的共线性，提供的两两之间的共线性如下</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GSVIVT01012261001 . .</span><br><span class="line">GSVIVT01012259001 . .</span><br><span class="line">GSVIVT01012258001 . .</span><br><span class="line">GSVIVT01012257001 . .</span><br><span class="line">GSVIVT01012255001 Prupe.1G290900.1 Thecc1EG011472t1</span><br><span class="line">GSVIVT01012253001 Prupe.1G290800.2 Thecc1EG011473t1</span><br><span class="line">GSVIVT01012252001 Prupe.1G290700.1 Thecc1EG011474t1</span><br><span class="line">GSVIVT01012250001 Prupe.1G290600.1 Thecc1EG011475t1</span><br><span class="line">GSVIVT01012249001 Prupe.1G290500.1 Thecc1EG011478t1</span><br><span class="line">GSVIVT01012248001 Prupe.1G290400.1 Thecc1EG011482t1</span><br></pre></td></tr></table></figure>
-
-<p>通过调整布局(注意布局文件里面的坐标x,y, 以及edge)</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># x,   y, rotation,     ha,     va, color, ratio,            label</span><br><span class="line">0.5, 0.6,  0, center, top,   ,  1,  grape Chr1</span><br><span class="line">0.3, 0.4, 0, center, bottom,  , .5, peach scaffold_1</span><br><span class="line">0.7, 0.4,  0, center, bottom,   ,   .5, cacao scaffold_2</span><br><span class="line"># edges</span><br><span class="line">e, 0, 1</span><br><span class="line">e, 0, 2</span><br></pre></td></tr></table></figure>
-
-<p>就能输出如下效果的共线性</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/10/image-ff7ce9b688a74fb887db099977f4a254.png" alt="synteny among three species "></p>
-<p>参考资料</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)">https://github.com/tanghaibao/jcvi/wiki/MCscan-(Python-version)</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" data-id="cllgasduh00dedkov6vnebea9" data-title="使用jcvi绘制微共线性(Microsynteny)" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">可视化 | 比较基因组学</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/3/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/3/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -980,6 +978,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -993,10 +995,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

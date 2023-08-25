@@ -73,6 +73,93 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-为ChIPseeker增加了一个subset函数-Add-subset-for-ChIPseeker" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" class="article-date">
+  <time class="dt-published" datetime="2019-08-30T12:12:50.724Z" itemprop="datePublished">2019-08-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/">为ChIPseeker增加了一个subset函数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>有一天我的师弟提了一个需求：</p>
+<p>对于ChIP的下游分析，我很喜欢DiffBind做差异分析然后用ChIPseeker做注释这一套流程（因为ChIPseeker的输入格式是GRange格式，而DiffBind的dba.report输出也恰好是GRange格式，两者可以无缝衔接）。我之前的套路，一直都是无脑输出所有的DiffBind结果，然后放入ChIPSeeker里面做注释，完了之后转成data.frame，然后对data.frame做subset，做后续的GO分析（）。但今天突然想对ChIPseeker的注释结果直接做subset，然后分别对上下调的结果画plotAnnoPie等ChipSeeker内置的画图函数。但发现subset无法对ChipSeeker annotatePeak函数的输出结果做筛选。</p>
+<blockquote>
+<p>当然，对于DiffBind的结果用subset，分别提取上下调，然后再注释也是可以的，不过这样感觉更麻烦。</p>
+</blockquote>
+<p>面对需求，如果无法解决提出需求的人，那么就只能写代码实现这个需求了。于是经过一个下午的努力，我给ChIPseeker加上了subset的功能。</p>
+<p>先来介绍下如何使用。我们需要用<code>devtools</code>安装最新的ChIPseeker</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;TxDb.Hsapiens.UCSC.hg19.knownGene&quot;</span><span class="punctuation">)</span></span><br><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;ggupset&quot;</span><span class="punctuation">)</span></span><br><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;ggimage&quot;</span><span class="punctuation">)</span></span><br><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;YuLab-SMU/ChIPseeker&quot;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>ChIPseeker<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们以测试数据集来演示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>TxDb.Hsapiens.UCSC.hg19.knownGene<span class="punctuation">)</span></span><br><span class="line">txdb <span class="operator">&lt;-</span> TxDb.Hsapiens.UCSC.hg19.knownGene</span><br><span class="line">peakfile <span class="operator">&lt;-</span> system.file<span class="punctuation">(</span><span class="string">&quot;extdata&quot;</span><span class="punctuation">,</span> <span class="string">&quot;sample_peaks.txt&quot;</span><span class="punctuation">,</span> package<span class="operator">=</span><span class="string">&quot;ChIPseeker&quot;</span><span class="punctuation">)</span></span><br><span class="line">peakAnno <span class="operator">&lt;-</span> annotatePeak<span class="punctuation">(</span>peakfile<span class="punctuation">,</span> tssRegion<span class="operator">=</span><span class="built_in">c</span><span class="punctuation">(</span><span class="operator">-</span><span class="number">3000</span><span class="punctuation">,</span> <span class="number">3000</span><span class="punctuation">)</span><span class="punctuation">,</span> TxDb<span class="operator">=</span>txdb<span class="punctuation">)</span></span><br><span class="line">peakAnno</span><br></pre></td></tr></table></figure>
+
+<p>此时会输出peakAnno里的描述统计信息</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Annotated peaks generated by ChIPseeker</span><br><span class="line"><span class="number">150</span><span class="operator">/</span><span class="number">150</span>  peaks were annotated</span><br><span class="line">Genomic Annotation Summary<span class="operator">:</span></span><br><span class="line">              Feature Frequency</span><br><span class="line"><span class="number">8</span>    Promoter <span class="punctuation">(</span><span class="operator">&lt;=</span><span class="number">1</span>kb<span class="punctuation">)</span>  <span class="number">4.666667</span></span><br><span class="line"><span class="number">9</span>    Promoter <span class="punctuation">(</span><span class="number">1</span><span class="operator">-</span><span class="number">2</span>kb<span class="punctuation">)</span>  <span class="number">4.000000</span></span><br><span class="line"><span class="number">10</span>   Promoter <span class="punctuation">(</span><span class="number">2</span><span class="operator">-</span><span class="number">3</span>kb<span class="punctuation">)</span>  <span class="number">2.000000</span></span><br><span class="line"><span class="number">3</span>              <span class="number">5</span><span class="string">&#x27; UTR  1.333333</span></span><br><span class="line"><span class="string">2              3&#x27;</span> UTR  <span class="number">2.666667</span></span><br><span class="line"><span class="number">6</span>          Other Exon  <span class="number">8.000000</span></span><br><span class="line"><span class="number">1</span>          <span class="number">1</span>st Intron <span class="number">13.333333</span></span><br><span class="line"><span class="number">7</span>        Other Intron <span class="number">32.000000</span></span><br><span class="line"><span class="number">5</span>  Downstream <span class="punctuation">(</span><span class="operator">&lt;=</span><span class="number">300</span><span class="punctuation">)</span>  <span class="number">1.333333</span></span><br><span class="line"><span class="number">4</span>   Distal Intergenic <span class="number">30.666667</span></span><br></pre></td></tr></table></figure>
+
+<p>peakAnno可以直接用来画图</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">plotAnnoPie(peakAnno)</span><br><span class="line">upsetplot(peakAnno)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567135740633-d32edd83e7ab47a78ce5424cdd884000.png" alt="Pie"></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567135775415-6ac349ff24894dcab0ee5aa4c38d5973.png" alt="upset"></p>
+<p>假如你突发奇想，我能不能就看看某一条染色体的作图结果，或者对于MACS2的结果，想根据FDR筛选下peak，然后看下peak的变化。</p>
+<p>在之前我们无法直接对peakAnno背后的<code>csAnno</code>对象进行操作，所以需要先对输入的GRanges进行过滤然后再用<code>annotatePeak</code>进行注释，然后画图。</p>
+<p>但是现在我们有了<code>subset</code>, 这一切就变得稍微简单起来了</p>
+<p>我们可以按照染色体编号进行筛选</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">peakAnno_subset <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>peakAnno<span class="punctuation">,</span> seqnames <span class="operator">==</span> <span class="string">&quot;chr1&quot;</span><span class="punctuation">)</span></span><br><span class="line">upsetplot<span class="punctuation">(</span>peakAnno_subset<span class="punctuation">,</span> vennpie <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span> </span><br></pre></td></tr></table></figure>
+
+<p>可以按照peak宽度进行筛选</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">peakAnno_subset <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>peakAnno<span class="punctuation">,</span> <span class="built_in">length</span> <span class="operator">&gt;</span> <span class="number">500</span><span class="punctuation">)</span></span><br><span class="line">upsetplot<span class="punctuation">(</span>peakAnno_subset<span class="punctuation">,</span> vennpie <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567138190094-6a8899fc9ed74d669aa0cfba57525a67.png" alt="filter"></p>
+<p>如果筛选之后没有任何结果，那么就会报错</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> subset<span class="punctuation">(</span>peakAnno<span class="punctuation">,</span> FDR... <span class="operator">&lt;</span> <span class="number">.05</span><span class="punctuation">)</span></span><br><span class="line">Error <span class="keyword">in</span> <span class="built_in">names</span><span class="punctuation">(</span>x<span class="punctuation">)</span> <span class="operator">&lt;-</span> value <span class="operator">:</span> </span><br><span class="line">  <span class="string">&#x27;names&#x27;</span> attribute <span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> must be the same <span class="built_in">length</span> as the vector <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>那么问题就是，这些筛选条件的名字怎么获知。</p>
+<p>只要将peakAnno转成GRanges格式，所以可以看到的列都是你可以筛选的标准。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">gr <span class="operator">&lt;-</span> as.GRanges<span class="punctuation">(</span>peakAnno<span class="punctuation">)</span></span><br><span class="line">head<span class="punctuation">(</span>gr<span class="punctuation">)</span></span><br><span class="line">GRanges object with <span class="number">2</span> ranges and <span class="number">15</span> metadata columns<span class="operator">:</span></span><br><span class="line">      seqnames              ranges strand <span class="operator">|</span>    <span class="built_in">length</span>    summit      tags</span><br><span class="line">         <span class="operator">&lt;</span>Rle<span class="operator">&gt;</span>           <span class="operator">&lt;</span>IRanges<span class="operator">&gt;</span>  <span class="operator">&lt;</span>Rle<span class="operator">&gt;</span> <span class="operator">|</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>    chr10 <span class="number">105137981</span><span class="operator">-</span><span class="number">105138593</span>      <span class="operator">*</span> <span class="operator">|</span>       <span class="number">614</span>       <span class="number">174</span>         <span class="number">7</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>    chr10   <span class="number">42644417</span><span class="operator">-</span><span class="number">42645383</span>      <span class="operator">*</span> <span class="operator">|</span>       <span class="number">968</span>       <span class="number">669</span>        <span class="number">27</span></span><br><span class="line">      X.10.log10.pvalue. fold_enrichment    FDR...</span><br><span class="line">               <span class="operator">&lt;</span>numeric<span class="operator">&gt;</span>       <span class="operator">&lt;</span>numeric<span class="operator">&gt;</span> <span class="operator">&lt;</span>numeric<span class="operator">&gt;</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>               <span class="number">52.8</span>           <span class="number">15.32</span>      <span class="operator">&lt;</span><span class="literal">NA</span><span class="operator">&gt;</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>              <span class="number">77.15</span>            <span class="number">9.13</span>      <span class="number">0.79</span></span><br><span class="line">                                annotation   geneChr geneStart   geneEnd</span><br><span class="line">                               <span class="operator">&lt;</span>character<span class="operator">&gt;</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span> <span class="operator">&lt;</span>integer<span class="operator">&gt;</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> Exon <span class="punctuation">(</span>uc001kwv.3<span class="operator">/</span><span class="number">6877</span><span class="punctuation">,</span> exon <span class="number">3</span> of <span class="number">11</span><span class="punctuation">)</span>        <span class="number">10</span> <span class="number">105127724</span> <span class="number">105148822</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>                    Distal Intergenic        <span class="number">10</span>  <span class="number">42827314</span>  <span class="number">42863493</span></span><br><span class="line">      geneLength geneStrand      geneId transcriptId distanceToTSS</span><br><span class="line">       <span class="operator">&lt;</span>integer<span class="operator">&gt;</span>  <span class="operator">&lt;</span>integer<span class="operator">&gt;</span> <span class="operator">&lt;</span>character<span class="operator">&gt;</span>  <span class="operator">&lt;</span>character<span class="operator">&gt;</span>     <span class="operator">&lt;</span>numeric<span class="operator">&gt;</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>      <span class="number">21099</span>          <span class="number">1</span>        <span class="number">6877</span>   uc010qqq.2         <span class="number">10257</span></span><br><span class="line">  <span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>      <span class="number">36180</span>          <span class="number">2</span>      <span class="number">441666</span>   uc010qey.2        <span class="number">218110</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>给ChIPseeker增加subset的功能，应该是我第一次在GitHub进行pull requests操作。写这个函数，需要先去理解csAnno对象到底是什么，以及如何保证csAnno这个对象在操作前后不会发生变化。</p>
+<p>其实这个函数挺简单的，就是下面几行</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##&#x27; @importFrom S4Vectors subset</span></span><br><span class="line"><span class="comment">##&#x27; @importFrom BiocGenerics start</span></span><br><span class="line"><span class="comment">##&#x27; @importFrom BiocGenerics end</span></span><br><span class="line"><span class="comment">##&#x27; @method subset csAnno</span></span><br><span class="line"><span class="comment">##&#x27; @export</span></span><br><span class="line">subset.csAnno <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">,</span> ... <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  index <span class="operator">&lt;-</span> paste<span class="punctuation">(</span>seqnames<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span>start<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span>end<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span> sep <span class="operator">=</span> <span class="string">&quot;_&quot;</span><span class="punctuation">)</span></span><br><span class="line">  <span class="comment"># subset the GRanges</span></span><br><span class="line">  x<span class="operator">@</span>anno <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">,</span> ...<span class="punctuation">)</span></span><br><span class="line">  index2 <span class="operator">&lt;-</span> paste<span class="punctuation">(</span>seqnames<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span>start<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span>end<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span><span class="punctuation">,</span> sep <span class="operator">=</span> <span class="string">&quot;_&quot;</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># the tssRgion, level, hsaGenomicAnnotation keep unchanged</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># change the detailGenomicAnnotation</span></span><br><span class="line">  x<span class="operator">@</span>detailGenomicAnnotation <span class="operator">&lt;-</span> x<span class="operator">@</span>detailGenomicAnnotation<span class="punctuation">[</span>index <span class="operator">%in%</span> index2<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># change the annotation stat </span></span><br><span class="line">  x<span class="operator">@</span>annoStat <span class="operator">&lt;-</span> getGenomicAnnoStat<span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># change peak number</span></span><br><span class="line">  x<span class="operator">@</span>peakNum <span class="operator">&lt;-</span>  <span class="built_in">length</span><span class="punctuation">(</span>x<span class="operator">@</span>anno<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>因为有很多功能是ChIPseeker已经有了的，比如说<code>getGenomicAnnoStat</code>, 还有一些是S4Vectors和BiocGenerics包提供的，比如说subset,  start和end。 </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" data-id="cllpwkjxm008ae0p22b63cjn9" data-title="为ChIPseeker增加了一个subset函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ChIP-seq/" rel="tag">ChIP-seq</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-三代组装软件miniasm笔记-Assemble-nanopore-using-minimap-and-miniasm" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" class="article-date">
@@ -149,7 +236,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="cllgasdsa0085dkov34urbdbr" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="cllpwkjxh0080e0p2hr9ach3k" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -284,7 +371,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="cllgasduk00dndkov366a01hn" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="cllpwkjz700d3e0p28kadhxd2" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -382,7 +469,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="cllgasduf00d7dkov6ust4pq5" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="cllpwkjz100cle0p29hkp35gs" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -464,7 +551,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="cllgasdp4001edkovdtj2fyz8" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="cllpwkjua0017e0p20lzc0sg1" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -549,7 +636,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="cllgasdt600bddkov864t2hb7" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="cllpwkjyk00b9e0p2hbbea96t" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -663,7 +750,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="cllgasds20082dkovc4651yku" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="cllpwkjxf007we0p2bgkm2pur" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -763,7 +850,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="cllgasdue00d3dkov0tq4fwxr" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="cllpwkjz000cie0p292csg3o3" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -883,7 +970,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="cllgasdtc00brdkov0kfrezri" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="cllpwkjyp00bne0p2dxsadrx8" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1040,216 +1127,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" data-id="cllgasdv400fkdkov30kk2ubv" data-title="如何使用MUMmer比对大片段序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" data-id="cllpwkk0200f6e0p2bytf1r44" data-title="如何使用MUMmer比对大片段序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-SAMtools_ SAM格式的处理利器-samtools-usage-documents" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" class="article-date">
-  <time class="dt-published" datetime="2019-08-27T19:50:29.749Z" itemprop="datePublished">2019-08-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/">SAMtools:SAM格式的处理利器</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="SAM格式介绍"><a href="#SAM格式介绍" class="headerlink" title="SAM格式介绍"></a>SAM格式介绍</h2><p>SAM全称是Sequence Alignment&#x2F;Map, 是目前最常用的存放比对或联配数据的格式。无论是重测序，还是转录组，还是表观组，几乎所有流程都会产生SAM&#x2F;BAM文件作为中间步骤，然后是后续专门的分析过程。</p>
-<p>以一个简单的例子介绍.第一幅图表示read和参考基因组比对可能出现的情况。r001&#x2F;2表示paired end数据。r003是嵌合read，r004则是原序列打断后比对结果。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-0bd4d534d1e2a601-3b9976cd770a443f93b11b5e58d8acee.jpg" alt="原始数据"></p>
-<p>经过专门的比对软件，如BWA,BOWTIE2等，得到的SAM文件如下所示,需要研究的就是如下这几行。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-1db9c0789e0e4e07-c8be7037bbd4477d9828cd462df64849.jpg" alt="比对后存放形式"></p>
-<h3 id="术语和概念"><a href="#术语和概念" class="headerlink" title="术语和概念"></a>术语和概念</h3><p>在学习SAM格式之前，请确认自己是否对如下概念有清楚的认识|</p>
-<ul>
-<li>read: 测序仪返回的原始序列.一个read可以包括多个segment。read之间的先后顺序表示被测序仪读到的时间前后关系.</li>
-<li>segment:  一段连续的序列或子序列</li>
-<li>linear alignment: 线性联配表示一个read比对到单个参考序列，可以存在插入，缺失，跳过(skip),剪切(clip), 但是不存在方向改变的情况(比如说一部分和正向链联配，另一个位置则是和负向链联配）。最简单的判断的方式就是，一个linear alignment只用一行记录。</li>
-<li>chimeric alignment: 嵌合联配需要多行记录。比如说r003第一个记录是后6个匹配，第二个记录则是反向序列的后5个匹配。第一个被称之为”representative”,其他都是”supplementary”</li>
-<li>read alignment: 无论是linear alignment, 还是chimeric alignment, 只要能完整表示一个read，都成为是read alignment</li>
-<li>multiple mapping: 由于存在重复区，一个read 可能比对到参考基因组的不同区域。其中一个被认为是primary，其他都是secondary.</li>
-<li>两个系统|1-based coordinate system（SAM,VCF,GFF,wiggle)和0-based coordinate system(BAM, BCFv2, BED, PSL).自行用R和Python感受一下两者的不同。</li>
-</ul>
-<blockquote>
-<p>chimeric alignment 可能是结构变异，基因融合，参考序列误组装，RNA-Seq，实验protocol等因素造成。对于chimeric alignment的里面每一个linear alignment而言，由于相互之前不存在重叠，故而联配质量较高，适合用于SNP&#x2F;INDEL calling.相反, multiple mapping则是因为重复造成(read越长出现的概率越低), 相互之间存在重叠，仅有其中一条有最优的匹配，其他联配质量过低会被SNP&#x2F;INDEL caller忽略。</p>
-</blockquote>
-<h3 id="第一部分-SAM-Header-非强制"><a href="#第一部分-SAM-Header-非强制" class="headerlink" title="第一部分| SAM Header(非强制)"></a>第一部分| SAM Header(非强制)</h3><p>这个部分能够被<code>/^@[A-Z][A-Z](t[A-Za-z][A-Za-z0-9]:[ -~]+)+$/</code>或<code>/^@COt.*/</code>这两个表达式进行匹配。比如说你随便有一个BAM文件（包含header）,就能被这个表达式进行匹配。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view -h S43S1-M_H3K5FDMXX_L1_sort.bam </span><br><span class="line">| awk &#x27;$0 ~ /^@[A-Z][A-Z](t[A-Za-z][A-Za-z0-9]:[ -~]+)+$/ &#123; print $0&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-6b45ac06bb250dd7-e15291c1683440f99f97ba9eae1bedd0.jpg" alt="header"></p>
-<p>其中第一行<code>@HD</code>，表示参考基因组的排序情况. 然后<code>@SQ</code>则是参考基因组的每一条序列的具体信息，命名和长度。<code>@PG</code>记录运行的命令，以便你检查代码。对于GATK还需要提供<code>@RG</code>给出每个read所在group的信息，只要保证是独一即可。</p>
-<h3 id="第二部分-联配必要信息"><a href="#第二部分-联配必要信息" class="headerlink" title="第二部分| 联配必要信息"></a>第二部分| 联配必要信息</h3><p>第二部分具体记录每一个read的联配结果，一共有11+n列。我将第二张图的信息复制保存到test.sam中，仅仅看第一行</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">samtools view test.sam | head -n1 | tr &#x27;t&#x27; &#x27;n&#x27; | nl</span><br><span class="line">   1  r001                   # QNAME: read信息</span><br><span class="line">   2  99                     # FLAG: 信息量大</span><br><span class="line">   3  ref                    # RNAME: 参考序列</span><br><span class="line">   4  7                      # POS:比对到的位置</span><br><span class="line">   5  30                     # MAPQ: 比对质量</span><br><span class="line">   6  8M2I4M1D3M             # CIGAR: 信息量大</span><br><span class="line">   7  =                      # RNEXT: 配对read所在序列，=表示同一条序列</span><br><span class="line">   8  37                     # PNEXT: 配对read所在位置</span><br><span class="line">   9  39                     # TLENT: 观察到的模板长度</span><br><span class="line">  10  TTAGATAAAGGATACTG      # SEQ: segment序列</span><br><span class="line">  11  *                      # QUAL: segment的质量</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">*表示信息不存在</span></span><br></pre></td></tr></table></figure>
-
-<p>简单解释TLENT: 通过IGV可视化展示克制，TLENT相当于read发现了参考序列那些区域。如果是PE数据还可以推断出文库平均大小。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-e9bf3249407e89c5-7310bdf13fbe4e5291323ec4d0e31b47.jpg" alt="一个PE数据"><br><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-ade968d846e1503b-a08ed8269aa84adfa0af0c67dd2dea13.jpg" alt="IGV展示"></p>
-<p>详细介绍FLAG: FLAG的主要目的就是用较少的记录长度表示当前记录的序列的匹配情况。相当于开关，仅有有无两个状态，有某个数值就表示序列符合某个情况。</p>
-<table>
-<thead>
-<tr>
-<th align="center">flag</th>
-<th align="center">代表</th>
-<th align="left">具体含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">1(0x1)</td>
-<td align="center">PAIRED</td>
-<td align="left">代表这个序列采用的是PE双端测序</td>
-</tr>
-<tr>
-<td align="center">2(0x2)</td>
-<td align="center">PROPER_PAIR</td>
-<td align="left">代表这个序列和参考序列完全匹配，没有插入缺失</td>
-</tr>
-<tr>
-<td align="center">4(0x4)</td>
-<td align="center">UNMAP</td>
-<td align="left">代表这个序列没有mapping到参考序列上</td>
-</tr>
-<tr>
-<td align="center">8(0x8)</td>
-<td align="center">MUNMAP</td>
-<td align="left">代表这个序列的另一端序列没有比对到参考序列上，比如这条序列是R1,它对应的R2端序列没有比对到参考序列上</td>
-</tr>
-<tr>
-<td align="center">16(0x10)</td>
-<td align="center">REVERSE</td>
-<td align="left">代表这个序列比对到参考序列的负链上</td>
-</tr>
-<tr>
-<td align="center">32(0x20)</td>
-<td align="center">MREVERSE</td>
-<td align="left">代表这个序列对应的另一端序列比对到参考序列的负链上</td>
-</tr>
-<tr>
-<td align="center">64(0x40)</td>
-<td align="center">READ1</td>
-<td align="left">代表这个序列是R1端序列， read1;</td>
-</tr>
-<tr>
-<td align="center">128(0x80)</td>
-<td align="center">READ2</td>
-<td align="left">代表这个序列是R2端序列，read2；</td>
-</tr>
-<tr>
-<td align="center">256(0x100)</td>
-<td align="center">SECONDARY</td>
-<td align="left">代表这个序列不是主要的比对，一条序列可能比对到参考序列的多个位置，只有一个是首要的比对位置，其他都是次要的</td>
-</tr>
-<tr>
-<td align="center">512(0x200)</td>
-<td align="center">QCFAIL</td>
-<td align="left">代表这个序列在QC时失败了，被过滤不掉了（# 这个标签不常用）</td>
-</tr>
-<tr>
-<td align="center">1024(0x400)</td>
-<td align="center">DUP</td>
-<td align="left">代表这个序列是PCR重复序列（#这个标签不常用）</td>
-</tr>
-<tr>
-<td align="center">2048(0x800)</td>
-<td align="center">SUPPLEMENTARY</td>
-<td align="left">代表这个序列是补充的比对（#这个标签具体什么意思，没搞清楚，但是不常用）</td>
-</tr>
-</tbody></table>
-<p>举例说明，比如说实例中的99&#x3D;64+32+2+1, 也就是这个记录所代表的read是来自于双端测序R1，且匹配的非常好，对应的另一条链匹配到了负链(自己是正链)。而147&#x3D;128+16+2+1则是表示这个记录来自于双端测序的R2,完全匹配到负链. 如果是163和83，你会发现163&#x3D;147-16+32, 83&#x3D;99-32+16,也就是刚好和前面的不同，也就是说R1匹配负链，R2匹配正链。如果是81和161，由于161&#x3D;163-2,81&#x3D;83-2. 表明这些read不是完全匹配，存在插入缺失</p>
-<p>那么问题来了,如下是我某一次比对的flag的统计情况，你能看出什么来</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-0bc3d3108151aea9-ea0a8dac31c34f52862b7840e65d2555.jpg" alt="小测试"></p>
-<p><strong>常见的FLAGs</strong>:</p>
-<ul>
-<li>其中一条reads没有map上: 73, 133, 89 121, 165, 181, 101, 117, 153, 185, 59, 137</li>
-<li>两条reads都没有map上: 77,141</li>
-<li>比对上了，方向也对，也在插入大小(insert size)内: 99, 147, 83, 163</li>
-<li>比对上了，也在插入大小(insert size)内， 但是反向不对:67, 131, 115, 179</li>
-<li>单一配对，就是插入大小(insert size)不对: 81, 161, 97, 145, 65, 129, 113, 177</li>
-</ul>
-<p>FLAG仅仅存储比对的大致情况，每条比对上的read的实际情况则是要用CIGAR进行记录. 依旧举几个例子,比如说，这是双端测序的一条read比对情况，其中一个是117表示没有匹配上，所以记录就是<code>*</code>,另一个是185表示这条序列完美匹配，所以记录是<code>150M</code>.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ST-E00600:109:H3K5FALXX:2:1103:17996:34788      117     Chr1    38      0       *       =       38      0       TTTATACACTATGATTTTCAAAGTGAGAATCCGGTTTGTGGTTTATTGTTTTAGGTATTTAGTTATTAATGTATTTTGGATTTATTGATTTAGTGTTTTAGTGATTAATTATTCATTGTTTTAGTGTTTATGGTTTAGTGTTTAGGGTTT  J-7-J------JJJ7JJJ-J-J---JJ-----JJJJJ--J-JJJJ-----JJ--JJJJJJ-J--JJJ7JJ-7-J-J-777JJJJ777JJ7JJ77J7JJJJ7777JJ77777JJJ777J77J77J7JJJJ77JJJJJJJ7JJJJJJFFFAA  MC:Z:150M       AS:i:0  XS:i:0</span><br><span class="line">ST-E00600:109:H3K5FALXX:2:1103:17996:34788      185     Chr1    38      60      150M    =       38      0       CATTAATCCCTAAATCCCTAAATCTTTAAATCCTACATCCATGAATCCCTAAATAACTAATTCCCTAAACCCGAAACCTGTTTCTCTGGTTGAAAATCATTGTGTATATAATGATAATTTTATCGTTTTTATGTAATTGCTTATTGTTTT  J-JJ7JJJ-JJJ7JJ--JJJ--JJ-JJJJJJ-JJJJJJ--J-JJJJJJJJJ--JJ-JJJJJJJ-JJJJ--J----J-J--JJJJJJ777JJJ77J7JJJJJJJ7JJJJJ7JJJJJ77JJJJJJ7JJ7JJJ7JJJJJJJJJJJJJJFFF&lt;A  NM:i:4  MD:Z:1C53C22G69G1       AS:i:136        XS:i:0</span><br></pre></td></tr></table></figure>
-
-<p>来一个复杂的例子<code>69H10M3I31M37H</code>，表示150bp的读长，先删掉69个碱基，后面是10个匹配，后面相比较参考基因组有3个插入，随后是31个匹配，最后再剔除37个基因,通过IGV查看在参考基因组的情况如下图所示。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-90fdafbe0c86de64-28e3859cf8ed4fc1bcef912acd3e2d6f.jpg" alt="IGV查看FLAGS"></p>
-<p>我还发现这段区域存在特别多的clip，加载GFF查看注释信息后发现这是内含子区域。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-a3cec89579792559-b2d659fc3dba4625b3c3e50bf41da961.jpg" alt="IGV检查"></p>
-<p>实际上，CIGAR一共有9个字符，分别是M(alignment match),I(insertion),D(deletion),N(skip),S(soft clip),H(hard clip),P(padding),&#x3D;(sequence match), X(sequence mismatch).值得提醒就是M表示序列能够联配，但是存在碱基不一致，&#x3D;表示碱基相同。S和H一般用于read前后出现大部分的错配，但是中间能够联配的情况，其中S表示序列会出现在SEQ中，H则不会出现在SEQ列中。</p>
-<h3 id="第三部分，可选信息"><a href="#第三部分，可选信息" class="headerlink" title="第三部分，可选信息"></a>第三部分，可选信息</h3><p>除了之前的11列必须要有的信息外，后面的其他列都是不同的比对软件自定义的额外信息，称之为标签（TAG)。标签的格式一般为<code>TAG:TYPE:VALUE</code>，比如说<code>NM:i:4 MD:Z:1C53C22G69G1 AS:i:136 XS:i:0</code>。这部分内容见<a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMtags.pdf">http://samtools.github.io/hts-specs/SAMtags.pdf</a>. 介绍几个比较常见的标签</p>
-<ul>
-<li>NM: 编辑距离(edit distance)</li>
-<li>MD: 错配位置&#x2F;碱基(mismatching positions&#x2F;bases)</li>
-<li>AS: 联配得分(Alignment score)</li>
-<li>BC: 条码序列（barcode sequence)</li>
-<li>XS: 次优联配得分(suboptimal alignment score)</li>
-</ul>
-<h2 id="能用于处理SAM格式的工具们"><a href="#能用于处理SAM格式的工具们" class="headerlink" title="能用于处理SAM格式的工具们"></a>能用于处理SAM格式的工具们</h2><p>后续演示所用数据通过如下方法获取</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># efetch下载参考基因组</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/biostar/refs/ebola</span><br><span class="line"><span class="built_in">cd</span> ~/biostar</span><br><span class="line">efetch -db=nuccore -format=fasta -<span class="built_in">id</span>=AF086833 &gt; ~/refs/ebola/1976.fa</span><br><span class="line">REF=~/biostar/refs/ebola/1976.fa</span><br><span class="line"><span class="comment"># 构建索引</span></span><br><span class="line">bwa index <span class="variable">$REF</span></span><br><span class="line">bowtie2-build <span class="variable">$REF</span> <span class="variable">$REF</span></span><br><span class="line"><span class="comment"># 获取10000行的fastq PE数据</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/biostar/fastq</span><br><span class="line"><span class="built_in">cd</span> ~/biostar/fastq</span><br><span class="line">fastq-dump -X 10000 --split-files SRR1972739</span><br><span class="line">R1=~/biostar/fastq/SRR1972739_1.fastq</span><br><span class="line">R2=~/biostar/fastq/SRR1972739_2.fastq</span><br></pre></td></tr></table></figure>
-
-<p>处理SAM的命令行工具有<code>samtools</code>,<code>bamtools</code>,<code>picard</code>,<code>sambamba</code>,<code>samblaster</code>等，其中<code>samtools</code>和<code>bamtools</code>和<code>picard</code>比较全能，功能中存在重叠，更多是互补，而<code>sambamba</code>和<code>samblaster</code>则是运行速度更快，功能不太全。</p>
-<h3 id="使用SAMtools创建SAM-BAM和CRAM"><a href="#使用SAMtools创建SAM-BAM和CRAM" class="headerlink" title="使用SAMtools创建SAM,BAM和CRAM"></a>使用SAMtools创建SAM,BAM和CRAM</h3><p>SAM格式是目前用来存放大量核酸比对结果信息的通用格式，也是人类能够“直接”阅读的格式类型，而BAM和CRAM是为了方便传输，降低存储压力将SAM进行压缩得到的格式形式。 为了高效处理SAM文件，李恒写了配套的SAMtools, 文章在2009年发表在bioinformatics上，由于samtools的版本经常更新，如果有些工具用不了，你或许要更新版本了。</p>
-<p>如果不加任何其他参数，比对软件就能得到“标准”的SAM格式的文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bwa mem <span class="variable">$REF</span> <span class="variable">$R1</span> <span class="variable">$R2</span> &gt; bwa.sam</span><br><span class="line">bowtie2 -x <span class="variable">$REF</span> -1 <span class="variable">$R1</span> -2 <span class="variable">$R2</span> &gt; bowtie.sam</span><br></pre></td></tr></table></figure>
-
-<p>原始SAM格式体积又大，没有排序，不利于后续的分析操作，所以需要经过几步的格式转换成为BAM。1.3版本之后的samtools可以一步进行格式转换和排序.</p>
-<p><strong>注</strong>，BAM格式必须要建立索引才能快速读取指定位置的信息。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.3版本前</span></span><br><span class="line">samtools view -bS bwa.sam &gt; bwa.bam</span><br><span class="line">samtools <span class="built_in">sort</span> bwa.bam &gt; bwa_sorted.bam</span><br><span class="line">samtools index bwa_sorted.bam</span><br><span class="line"><span class="comment"># 1.3版本后</span></span><br><span class="line">samtools <span class="built_in">sort</span> bwa.sam &gt; bwa_sorted.bam</span><br><span class="line">samtools index bwa_sorted.bam</span><br></pre></td></tr></table></figure>
-
-<p>CRAM是比BAM压缩更加高压的格式，原因是它是基于一个参考序列，这样子就能去掉很多冗余的内容。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools <span class="built_in">sort</span> --reference <span class="variable">$REF</span> -O cram bwa.sam &gt; bwa.cram</span><br><span class="line">samtools index bwa.cram</span><br></pre></td></tr></table></figure>
-
-<p>这一小节学习了两个samtools子命令:<code>sort</code>和<code>index</code>，前者能一边排序一边进行格式转换，后者则是对BAM进行索引。</p>
-<h3 id="使用SAMtool查看-过滤-转换SAM-BAM-CRAM文件"><a href="#使用SAMtool查看-过滤-转换SAM-BAM-CRAM文件" class="headerlink" title="使用SAMtool查看&#x2F;过滤&#x2F;转换SAM&#x2F;BAM&#x2F;CRAM文件"></a>使用SAMtool查看&#x2F;过滤&#x2F;转换SAM&#x2F;BAM&#x2F;CRAM文件</h3><p>上一节得到的SAM&#x2F;BAM&#x2F;CRAM文件都可以用samtools的<code>view</code>进行更加复杂的操作，只不过要注意读取CRAM格式需要提供参考序列，不然打不开。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools view bwa_sorted.bam</span><br><span class="line">samtools view -T <span class="variable">$REF</span> bwa.cram</span><br></pre></td></tr></table></figure>
-
-<p>samtools的<code>view</code>在增加额外参数后能实现更多的操作，比如说SAM和BAM&#x2F;CRAM之间的格式转换(-b, -c, -T)，过滤或提取出目标联配(-t,-L ,-r,-R,-q,-l,-m,-f,-F,-G), 举几个例子说明</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保留mapping quality 大于 10的结果</span></span><br><span class="line">samtools view -q 10 bwa_sorted.bam -b -o bwa_sorted_mq10.bam</span><br><span class="line"><span class="comment"># 统计结果中恰当配对的结果(0x3 3 PARIED,PROPER_PAIR)</span></span><br><span class="line">samtools view -c -f 3 bwa_sorted.bam</span><br><span class="line"><span class="comment"># 或反向选择</span></span><br><span class="line">samtools view -c -F 3 bwa_sorted.bam</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用PrettySam更好的可视化SAM文件"><a href="#使用PrettySam更好的可视化SAM文件" class="headerlink" title="使用PrettySam更好的可视化SAM文件"></a>使用PrettySam更好的可视化SAM文件</h3><p>尽管我上面说SAM是适合人类阅读的数据，但是直接读SAM还是挺费脑子的。GitHub上有一个PrettySam能够更好的展示SAM&#x2F;BAM文件，虽然感觉没多大实际效果，但是有利于我们方便了解SAM格式，项目地址为<a target="_blank" rel="noopener" href="http://lindenb.github.io/jvarkit/PrettySam.html">http://lindenb.github.io/jvarkit/PrettySam.html</a>.</p>
-<p>他的安装比较麻烦，需要JDK版本为1.8且是Oracle, 以及GNU Make &gt;&#x3D;3.81, curl&#x2F;wget, git 和 xslproc.安装如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> <span class="string">&quot;https://github.com/lindenb/jvarkit.git&quot;</span></span><br><span class="line"><span class="built_in">cd</span> jvarkit</span><br><span class="line">make prettysam</span><br><span class="line"><span class="built_in">cp</span> dist/prettysam.jar ~/usr/jars/</span><br></pre></td></tr></table></figure>
-
-<p>使用起来非常简单，效果也比较酷炫，比较适合演示用。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar usr/jars/prettysam.jar ~/biostar/ebola.sam --colors</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-cc3914ebeb956c14-4fefa542d581406db0bd6a048d49e97c.jpg" alt="PrettySam"></p>
-<h3 id="为SAM-BAM添加Read-Groups"><a href="#为SAM-BAM添加Read-Groups" class="headerlink" title="为SAM&#x2F;BAM添加Read Groups"></a>为SAM&#x2F;BAM添加Read Groups</h3><p>使用GATK分析BAM文件时需要BAM文件的header里有RG部分，<code>@RG</code>至少由三个记录(ID,LB,SM)组成，需要根据实际情况增加。RG可以在前期比对时添加RG部分，也可以在后续处理时增加</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TAG=<span class="string">&#x27;@RG\tID:xzg\tSM:Ebola\tLB:patient_100&#x27;</span></span><br><span class="line"><span class="comment"># Add the tags during alignment</span></span><br><span class="line">bwa mem -R <span class="variable">$TAG</span> <span class="variable">$REF</span> <span class="variable">$R1</span> <span class="variable">$R2</span> | samtools <span class="built_in">sort</span> &gt; bwa.bam</span><br><span class="line">samtools index bwa.bam</span><br><span class="line"><span class="comment"># Add tags with samtools addreplacerg</span></span><br><span class="line">samtools addreplacerg -r <span class="variable">$TAG</span> bwa_sorted.bam -o bwa_sorted_with_rg.bam</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMv1.pdf">Sequence Alignment&#x2F;Map Format Specification</a></li>
-<li><a target="_blank" rel="noopener" href="http://samtools.github.io/hts-specs/SAMtags.pdf">SAM tags</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" data-id="cllgasdq9004idkov575rdo57" data-title="SAMtools:SAM格式的处理利器" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samtools/" rel="tag">samtools</a></li></ul>
-
     </footer>
   </div>
   
@@ -1262,7 +1143,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/20/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/22/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/20/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/22/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1315,6 +1196,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1328,10 +1213,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

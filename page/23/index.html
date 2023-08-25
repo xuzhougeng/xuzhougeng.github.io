@@ -73,6 +73,133 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-MECAT2_ 三代高效组装工具-MECAT2-genome-assembly-tools" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" class="article-date">
+  <time class="dt-published" datetime="2019-08-21T14:16:16.702Z" itemprop="datePublished">2019-08-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/">MECAT2:三代高效组装工具</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="MECAT2-三代高效组装工具"><a href="#MECAT2-三代高效组装工具" class="headerlink" title="MECAT2: 三代高效组装工具"></a>MECAT2: 三代高效组装工具</h1><p>MECAT2是三代测序数据PacBio的高效组装工具，是之前<a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT">MECAT</a>的改进版, 修复了之前的很多bug, 使用基于string graph的<code>fsa</code>替换了之前的<code>mecat2canu</code>。</p>
+<p>MECAT2由4个模块组成:</p>
+<ul>
+<li><code>mecat2pw</code>: SMART reads快速和准确地配对比对工具</li>
+<li><code>mecat2ref</code>: SMART reads的参考基因组比对工具</li>
+<li><code>mecat2cns</code>: 基于配对的重叠对存在噪音的reads进行纠错</li>
+<li><code>fsa</code>: 基于string graph的组装工具</li>
+</ul>
+<p>目前MECAT2只支持PacBio数据，对于Nanopore数据，肖老师他们开发了<code>NECAT</code></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>MECAT2软件安装非常简单，不存在上一代MECAT的安装难问题了</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="operator">-</span>p <span class="operator">~</span><span class="operator">/</span>opt<span class="operator">/</span>biosoft</span><br><span class="line">cd <span class="operator">~</span><span class="operator">/</span>opt<span class="operator">/</span>biosoft</span><br><span class="line">git clone https<span class="operator">:</span><span class="operator">/</span><span class="operator">/</span>github.com<span class="operator">/</span>xiaochuanle<span class="operator">/</span>MECAT2.git</span><br><span class="line">cd MECAT2</span><br><span class="line">make <span class="operator">-</span>j <span class="number">4</span></span><br></pre></td></tr></table></figure>
+
+<p>唯一要注意的是尽量要用新版的perl，经测试，Perl 5.26 是可以正常运行脚本。 </p>
+<p>最后加入到环境变量<code>PATH</code>中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=~/opt/biosoft/MECAT2/Linux-amd64/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p>我们以 <em>E. coli</em> 数据集作为案例，介绍MECAT2应该如何使用。</p>
+<p><strong>第一步</strong>，我们要下载数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/ecoli</span><br><span class="line"><span class="built_in">cd</span> ~/ecoli</span><br><span class="line">wget http://gembox.cbcb.umd.edu/mhap/raw/ecoli_filtered.fastq.gz</span><br><span class="line">gunzip ecoli_filtered.fastq.gz</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>: 目前MECAT2还不支持gz压缩文件，如果你直接用gz作为输入，会提示core dumped。</p>
+<p>MECAT2不是根据文件名来确定输入的序列格式, 也就是如果你把 ecoli_filtered.fastq 命名为  ecoli_filtered.fasta, 组装也不会出错。</p>
+<p><strong>第二步</strong>, 准备模板的config文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl config ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>vim</code>修改config文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PROJECT=ecoli</span><br><span class="line">RAWREADS=ecoli_filtered.fastq</span><br><span class="line">GENOME_SIZE=4800000</span><br><span class="line">THREADS=4</span><br><span class="line">MIN_READ_LENGTH=2000</span><br><span class="line">CNS_OVLP_OPTIONS=<span class="string">&quot;&quot;</span></span><br><span class="line">CNS_OPTIONS=<span class="string">&quot;-r 0.6 -a 1000 -c 4 -l 2000&quot;</span></span><br><span class="line">TRIM_OVLP_OPTIONS=<span class="string">&quot;-B&quot;</span></span><br><span class="line">ASM_OVLP_OPTIONS=<span class="string">&quot;-n 100 -z 10 -b 2000 -e 0.5 -j 1 -u 0 -a 400&quot;</span></span><br><span class="line">FSA_OL_FILTER_OPTIONS=<span class="string">&quot;--max_overhang=-1 --min_identity=-1&quot;</span></span><br><span class="line">FSA_ASSEMBLE_OPTIONS=<span class="string">&quot;&quot;</span></span><br><span class="line">USE_GRID=<span class="literal">false</span></span><br><span class="line">CLEANUP=0</span><br><span class="line">CNS_OUTPUT_COVERAGE=30</span><br><span class="line">GRID_NODE=0</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步</strong>: 原始数据纠错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl correct ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步</strong>: 对纠错后的reads进行组装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mecat.pl assemble ecoli_config_file.txt</span><br></pre></td></tr></table></figure>
+
+<p>输出结果:</p>
+<ul>
+<li>纠错后的reads： <code>ecoli/1-consensus/cns_reads.fasta</code>.</li>
+<li>最长30X纠错后用于trimming的reads:  <code>ecoli/1-consensus/cns_final.fasta</code>.</li>
+<li>trimmed reads:  <code>ecoli/2-trim_bases/trimReads.fasta</code></li>
+<li>组装的contigs: <code>ecoli/4-fsa/contigs.fasta</code></li>
+</ul>
+<p>最终的组装结果为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Count: 1</span><br><span class="line">Tatal: 4630437</span><br><span class="line">Max: 4630437</span><br><span class="line">Min: 4630437</span><br><span class="line">N25: 4630437</span><br><span class="line">L25: 1</span><br></pre></td></tr></table></figure>
+
+<p>能够完美的就装出一条序列</p>
+<h2 id="配置文件介绍"><a href="#配置文件介绍" class="headerlink" title="配置文件介绍"></a>配置文件介绍</h2><p>MECAT2的组装过程的参数都在配置文件中, 也就是之前的<code>ecoli_config_file.txt</code>。我按照不同部分对这些参数进行介绍</p>
+<h3 id="基本参数"><a href="#基本参数" class="headerlink" title="基本参数"></a>基本参数</h3><p>这些参数属于改起来不怎么纠结的参数</p>
+<ul>
+<li><code>PROJECT=ecoli</code>: 项目名，之后的所有输出文件都在该项目名的目录下</li>
+<li><code>RAWREADS=</code>: 原始数据的位置，可以是Fasta或者是Fastq， H5格式要先转成Fasta (参考 <a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT2#S-input-format">Input Format</a>).</li>
+<li><code>GENOME_SIZE=</code>: 基因组大小，单位是bp，如果是120M，那么就是120000000.</li>
+<li><code>THREADS=</code>: 线程数</li>
+<li><code>MIN_READ_LENGTH=</code>: 用于纠错和trim的reads的最低长度. 数据质量好，就长一点，比如说1000到2000</li>
+<li><code>USE_GRID=false</code>: 是否有多个计算节点</li>
+<li><code>CLEANUP=0</code>: 运行结束后删除MECAT2的中间文件, 大基因组的临时文件很大，所以要设置为1.</li>
+<li><code>GRID_NODE=0</code>, 当<code>USE_GRID=1</code>时，设置用到的计算节点数，如果是单节点服务器，不需要设置。</li>
+</ul>
+<h3 id="纠错和修剪阶段"><a href="#纠错和修剪阶段" class="headerlink" title="纠错和修剪阶段"></a>纠错和修剪阶段</h3><p>纠错阶段(correct stage)和修剪阶段(trimming stage)，MECAT2调用的<code>mecat2pw</code>和<code>mecat2cns</code>， 与之相关的配置如下</p>
+<ul>
+<li><code>CNS_OVLP_OPTIONS=&quot;&quot;</code>, 在纠错阶段是检测候选重叠的参数, 会传给<code>mecat2pw</code></li>
+<li><code>CNS_OPTIONS=&quot;&quot;</code>：原始reads纠错参数，会传递给<code>mecat2cns</code>, </li>
+<li><code>TRIM_OVLP_OPTIONS=&quot;&quot;</code>: 在trim阶段，用于检测重叠的参数,会传给<code>v2asmpm</code></li>
+</ul>
+<p>但是我发现<code>v2asmpm</code>没有文档说明，和软件开发者讨论之后，给出的说明如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">V2asmpm -Pworkpath -Tt -Sx -Ey -B</span><br><span class="line"></span><br><span class="line">-Pworkpath 工作目录是workpath</span><br><span class="line">-Tt 用t个CPU线程</span><br><span class="line">-Sx -Ey 这两个参数一起表示只计算第x到第y卷(包括第y卷), 通常工作目录下会有000001.fasta, 000002.fasta这样的分卷</span><br><span class="line">-B 如果有这个选项, 就输出二进制格式的比对结果; 如果没有这个选项, 就输出文本格式的比对结果</span><br></pre></td></tr></table></figure>
+<p>因此用默认的<code>-B</code>就行了。</p>
+<h3 id="组装阶段"><a href="#组装阶段" class="headerlink" title="组装阶段"></a>组装阶段</h3><p>组装阶段相关的参数如下</p>
+<ul>
+<li><code>CNS_OUTPUT_COVERAGE=30</code>: 选择多少覆盖度的最长纠错后reads进行trim和组装。举个例子，4.8M的 <em>E. coli</em> 30X, 是144MB。 一般选择20~40之间就行， 会传递给<code>mecat2elr</code></li>
+<li><code>ASM_OVLP_OPTIONS=&quot;&quot;</code>: 在组装阶段，用于检测重叠的参数，传给<code>v2asmpm.sh</code></li>
+<li><code>FSA_OL_FILTER_OPTIONS=&quot;&quot;</code>, 过滤重叠的参数，传递给<code>fsa_ol_filter</code></li>
+<li><code>FSA_ASSEMBLE_OPTIONS=&quot;&quot;</code>, 组装trimm reads的参数, 传给<code>v2asmpm</code></li>
+</ul>
+<p>这些参数调整起来都很复杂，只能建议看函数帮助文档了。举个例子<code>FSA_OL_FILTER_OPTIONS=&quot;--max_overhang=-1 --min_identity=-1&quot;</code>根据阅读<code>fsa_ol_filter</code>的帮助发现，<code>-1</code>表示让程序自己决定</p>
+<p>而<code>ASM_OVLP_OPTIONS=&quot;-n 100 -z 10 -b 2000 -e 0.5 -j 1 -u 0 -a 400&quot;</code>， 根据和软件开发者的讨论，是<strong>不需要额外调整</strong>，用默认的即可。</p>
+<p>MECAT2是基于比对纠错的组装工具，组装速度上比同类型的Canu和Falcon都快。仅看组装结果的N50参数，MECAT2结果和Canu, Falcon结果都是差不多的。</p>
+<p>考虑到BUSCO完整度，Canu是三者最高。不过用三代数据和二代数据进行几轮Polish后会提高到Canu相同水平。三个软件上的BUSCO（embryophyta_odb10）值如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Canu: C:98.8%[S:96.3%,D:2.5%],F:0.5%,M:0.7%,n:1375</span><br><span class="line">MECAT2: C:93.5%[S:91.6%,D:1.9%],F:4.6%,M:1.9%,n:1375</span><br><span class="line">Falcon: C:96.8%[S:95.1%,D:1.7%],F:2.0%,M:1.2%,n:1375</span><br></pre></td></tr></table></figure>
+
+<p>因此，如果你原本你是用Falcon做组装，那么可以改成MECAT2了，效果差不多，速度还更快了。对于越大的物种，在有限的资源下，更推荐用MECAT2。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/xiaochuanle/MECAT2">https://github.com/xiaochuanle/MECAT2</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" data-id="cllpwkjut002me0p256a4g3yd" data-title="MECAT2:三代高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-「三代组装」使用新版Falcon进行三代测序基因组组装-Falcon-genome-assembly-tools" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" class="article-date">
@@ -172,7 +299,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" data-id="cllgasdrj006pdkovfdey956q" data-title="「三代组装」使用新版Falcon进行三代测序基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" data-id="cllpwkjwx006je0p2ej2p4ouw" data-title="「三代组装」使用新版Falcon进行三代测序基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -360,7 +487,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" data-id="cllgasdoz0011dkov702n9tl5" data-title="Cicero:单细胞共开放分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" data-id="cllpwkju5000ve0p2dbt0cd9c" data-title="Cicero:单细胞共开放分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -447,7 +574,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/17/motifmatchr_%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%88%86%E6%9E%90peak%E4%B8%AD%E9%87%8C%E6%98%AF%E5%90%A6%E6%9C%89motif%E5%8C%B9%E9%85%8D-motifmatchr-peak-motif-search-in-R/" data-id="cllgasdn90001dkov46qp908t" data-title="motifmatchr:在R语言中分析peak中里是否有motif匹配" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/17/motifmatchr_%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%88%86%E6%9E%90peak%E4%B8%AD%E9%87%8C%E6%98%AF%E5%90%A6%E6%9C%89motif%E5%8C%B9%E9%85%8D-motifmatchr-peak-motif-search-in-R/" data-id="cllpwkjs80000e0p21ag8fzv1" data-title="motifmatchr:在R语言中分析peak中里是否有motif匹配" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -525,7 +652,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/17/R%E8%AF%AD%E8%A8%80%E7%9A%84%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95-R-Sparse-Matrix-Note/" data-id="cllgasdq7004cdkov61hoh9bj" data-title="R语言的稀疏矩阵学习记录" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/17/R%E8%AF%AD%E8%A8%80%E7%9A%84%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95-R-Sparse-Matrix-Note/" data-id="cllpwkjvj0048e0p20dpb8lgs" data-title="R语言的稀疏矩阵学习记录" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -650,7 +777,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/16/chromVAR_%20%E4%BB%8E%E5%8D%95%E7%BB%86%E8%83%9E%E8%A1%A8%E8%A7%82%E6%95%B0%E6%8D%AE%E4%B8%AD%E6%8E%A8%E6%96%AD%E8%BD%AC%E5%BD%95%E5%9B%A0%E5%AD%90%E7%9B%B8%E5%85%B3%E5%BC%80%E6%94%BE%E5%8C%BA%E5%9F%9F-chromVAR-inferring-transcription-factor-associated-accessibility-from-single-cell-epigenomic-data/" data-id="cllgasdql005bdkov5tf0gzdm" data-title="chromVAR:从单细胞表观数据中推断转录因子相关开放区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/16/chromVAR_%20%E4%BB%8E%E5%8D%95%E7%BB%86%E8%83%9E%E8%A1%A8%E8%A7%82%E6%95%B0%E6%8D%AE%E4%B8%AD%E6%8E%A8%E6%96%AD%E8%BD%AC%E5%BD%95%E5%9B%A0%E5%AD%90%E7%9B%B8%E5%85%B3%E5%BC%80%E6%94%BE%E5%8C%BA%E5%9F%9F-chromVAR-inferring-transcription-factor-associated-accessibility-from-single-cell-epigenomic-data/" data-id="cllpwkjw40056e0p2bmpfeb9m" data-title="chromVAR:从单细胞表观数据中推断转录因子相关开放区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -699,7 +826,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/15/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86-%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E6%95%B4%E7%90%86/" data-id="cllgasdwz00judkov4u9j8jmg" data-title="生物信息学格式和转换工具整理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/15/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86-%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E6%95%B4%E7%90%86/" data-id="cllpwkk2c00jqe0p2epzte7pt" data-title="生物信息学格式和转换工具整理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -779,7 +906,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" data-id="cllgasdw000hwdkov3vbvfhjm" data-title="实现Seurat 2 和 Seurat3 在同一个环境下共存" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" data-id="cllpwkk1m00hse0p26ymd21ml" data-title="实现Seurat 2 和 Seurat3 在同一个环境下共存" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -853,7 +980,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/13/%E7%94%A8rtracklayer%E8%AF%BB%E5%8F%96%E5%92%8C%E8%BE%93%E5%87%BABigWig-rtracklayer-BigWig/" data-id="cllgasdx200k2dkov939f6i60" data-title="用rtracklayer读取和输出BigWig" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/13/%E7%94%A8rtracklayer%E8%AF%BB%E5%8F%96%E5%92%8C%E8%BE%93%E5%87%BABigWig-rtracklayer-BigWig/" data-id="cllpwkk2f00jye0p2exhu9n24" data-title="用rtracklayer读取和输出BigWig" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1100,7 +1227,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/10/%E3%80%8C%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0%E3%80%8D2019%E5%8F%91%E8%A1%A8%E5%9C%A8NBT%E7%9A%8410x%20sc-ATAC-seq%E5%88%86%E6%9E%90%E9%87%8D%E7%8E%B0-2019-NBT-10x-sc-ATAC-seq-analysis/" data-id="cllgasdrp007adkov5gp8cq29" data-title="「文章重现」2019发表在NBT的10x sc-ATAC-seq分析重现" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/10/%E3%80%8C%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0%E3%80%8D2019%E5%8F%91%E8%A1%A8%E5%9C%A8NBT%E7%9A%8410x%20sc-ATAC-seq%E5%88%86%E6%9E%90%E9%87%8D%E7%8E%B0-2019-NBT-10x-sc-ATAC-seq-analysis/" data-id="cllpwkjx30075e0p22mc5b1a6" data-title="「文章重现」2019发表在NBT的10x sc-ATAC-seq分析重现" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1114,145 +1241,11 @@
 
 
   
-    <article id="post-「生信基础课」初学者入门Linux最少必要的知识点-「生信基础课」初学者入门Linux最少必要的知识点" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/07/%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9-%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/" class="article-date">
-  <time class="dt-published" datetime="2019-08-07T11:22:24.381Z" itemprop="datePublished">2019-08-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/07/%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9-%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/">「生信基础课」初学者入门Linux最少必要的知识点</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>这是我在<a target="_blank" rel="noopener" href="https://space.bilibili.com/249108235">哔哩哔哩</a>上课程的文字稿版本。我有点完美主义的倾向，所以为了避免自己因为觉得自己某个部分的说话不利索，不清楚，所以总是会写稿子。<br><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/Linux%E5%85%A5%E9%97%A8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90-e7a9613d7c074c9dbd0d20be3ecadd3b.jpg" alt="素材库"></p>
-</blockquote>
-<p>这次课程的主题是生信入门必须学习的几个Linux操作。</p>
-<h2 id="为什么要学习Linux"><a href="#为什么要学习Linux" class="headerlink" title="为什么要学习Linux"></a>为什么要学习Linux</h2><p>如果你要学习生物信息学，那么你一定要学会使用Linux。这是因为，绝大部分的生信软件都需要运行在Linux平台，并且有些时候，你会要用到服务器去处理大量的数据，而这些服务器几乎都是Linux环境。</p>
-<p>当然，你可以说，我可以用云平台呀，毕竟现在很多公司都开发了云平台，我们拖拖拽拽就可以搞分析了呀。是的，现在的云平台也来越成熟，使用体验也很棒，我也很喜欢。不过我还是建议大家学Linux，因为当你学会Linux之后，你会变得更加自由，不再受限于别人的平台，而且能让日常工作变得高效起来。</p>
-<h2 id="如何学习Linux"><a href="#如何学习Linux" class="headerlink" title="如何学习Linux"></a>如何学习Linux</h2><p>那么如何学习呢？通常你问别人如何学Linux的时候，对方十有八九会给你推荐鸟哥的书，这没啥毛病，因为我也是靠鸟哥的书入门的，那本书已经被我翻成了这副模样。</p>
-<p>学习没有捷径，但是可以少走几步路。我们不需要精通Linux，成为Linux大牛，靠Linux吃饭，我们只需要掌握一些基本操作，搞得定日常基本操作就行。就像绝大部分人用Windows的时候，也不知道如何配置Windows里的环境变量，但是一点不妨碍基本使用呀。</p>
-<p>通过我对自己平时操作的总结，我认为学Linux起码要掌握下面这三方面内容。</p>
-<ul>
-<li>操作迁移，就是把Windows上的常见操作都在Linux里找到对应的操作</li>
-<li>TAB补全，不但可以让你的操作更快，而且还能让你避免大部分的报错</li>
-<li>环境变量，学习Linux一定要理解环境变量，否则你就装不好软件。</li>
-</ul>
-<p>不过，最重要的是，你得先有一个Linux环境。我在哔哩哔哩上录制了两个视频，教大家如何在Windows平台上配置你的Linux环境，如何在Mac上配置Linux环境。</p>
-<p>先看Vim视频:</p>
-<ul>
-<li><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av58673256">https://www.bilibili.com/video/av58673256</a><br>  再配置Linux环境：</p>
-</li>
-<li><p>Windows10&#x2F;Linux: <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av58541835">https://www.bilibili.com/video/av58541835</a></p>
-</li>
-<li><p>MacOS: <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av58541835">https://www.bilibili.com/video/av58541835</a></p>
-</li>
-</ul>
-<p>本次视频的操作虽然是在mac上录制，但是适用于大部分的Linux环境，包括Ubuntu和CentOS，如果有什么问题，欢迎在留言区提问交流。</p>
-<h2 id="TAB补全"><a href="#TAB补全" class="headerlink" title="TAB补全"></a>TAB补全</h2><p>在演示Linux操作之前，我一定要先强调下tab补全的重要性，它是我认为最重要的一个操作。</p>
-<p>初学者在学习Linux的时候，最常见的状态就是，按照教程内容，一个一个字符的敲。由于刚学习，敲代码还不熟练，因此，十有八九会出现敲错的情况，那么结果就是代码运行失败。运行失败怎么办？可能也不会去看报错，然后检查自己的输入，估计就是截图或者拍照发到群里提问了。</p>
-<p>因此，在正式开始敲代码之前，大家先在键盘上找到tab，多敲几次，感受到它的存在。</p>
-<p>后面，我还会不断强调它，直到它刻在你的脑子里。</p>
-<h2 id="操作迁移"><a href="#操作迁移" class="headerlink" title="操作迁移"></a>操作迁移</h2><p>接下来，我们来讲讲这次课程的主要内容，<strong>操作迁移</strong>。</p>
-<p>我们在Windows上最常做的操作是什么呢？我觉得，最常见的操作应该是下面这些吧</p>
-<ul>
-<li>浏览目录</li>
-<li>切换目录</li>
-<li>新建文件夹&#x2F;删除文件夹</li>
-<li>新建文件&#x2F;删除文件</li>
-<li>查看文本</li>
-<li>了解资源使用情况</li>
-<li>数据下载</li>
-<li>安装软件</li>
-</ul>
-<p>那么这些操作在Linux里的对应命令是什么呢？我们先浏览一下命令，然后通过一个模拟的项目来一个个了解他们。</p>
-<ul>
-<li>浏览目录: ls</li>
-<li>切换目录: cd, pwd</li>
-<li>新建文件夹&#x2F;删除文件夹: mkdir &#x2F; rmdir &#x2F; rm -r</li>
-<li>新建文件&#x2F;删除文件: vim &#x2F; rm</li>
-<li>查看文本: less, head, tail, cat</li>
-<li>了解资源使用情况: top</li>
-<li>数据下载: wget &#x2F; curl</li>
-<li>安装软件: apt-get&#x2F;yum&#x2F;conda</li>
-</ul>
-<p>那么这些命令应该怎么用呢？其实很简单，就是输入命令名，后面的参数，看情况加。强调一点，如果要用到参数，那么命令名和参数之间是需要空格分隔的。</p>
-<p>我们以一个项目为例，去学习使用最常见的Linux命令。这个任务内容如下</p>
-<p>1, 在家目录下<strong>创建</strong>文件夹，名为 abc</p>
-<p>2, 将abc<strong>重命名</strong>为 study</p>
-<p>3, 下载拟南芥的注释GFF文件， 解压缩</p>
-<p>4, 使用less<strong>查看</strong>文件内容</p>
-<p>5, 删除gff 文件</p>
-<p>6, <strong>删除</strong> study<strong>文件夹</strong></p>
-<p>具体操作阅读原文看我的视频。大约在5分20秒处</p>
-<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>环境变量也是Linux学习中非常重要的知识点，不了解他甚至都不能用好软件。</p>
-<p>不过环境变量属于哪种你不知道，你觉得很高级，一旦知道后，却发现很简单的存在。其实我们从小学或者初中开始就通过数学了解到它。比如说x  + 3 &#x3D;5， x+ 4&#x3D;5，其中的x就是变量，就是会变的量。</p>
-<p>在计算机里，它就用来存储其他的值一个名字，相当于一个中介。</p>
-<p>变量有可以分为环境变量和局部变量，环境变量就是比局部变量作用更广泛的一个变量。举个例子，当我说到爱因斯坦这个名字时，这会让你想到的是一个物理学家，但是如果你家里有一只猫，它也叫爱因斯坦，他就是一个局部变量。局部变量可以覆盖环境变量。</p>
-<p>接下来我们将会通过一个例子，通过PATH这个环境变量来理解。</p>
-<ul>
-<li><p>查看环境变量PATH</p>
-</li>
-<li><p>新建一个目录存放软件</p>
-</li>
-<li><p>将目录加入环境变量PATH</p>
-</li>
-<li><p>下载软件</p>
-</li>
-<li><p>给软件添加执行权限</p>
-</li>
-<li><p>测试软件</p>
-</li>
-</ul>
-<p>具体操作阅读原文看我的视频。在15分钟的时候。</p>
-<p>视频我传到了哔哩哔哩，假如你不喜欢哔哩哔哩，想要下载我的2880 x 1800（大约3G）的视频，这是百度盘地址，链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/17yxk78_kpeL5BA-3P0i06Q">https://pan.baidu.com/s/17yxk78_kpeL5BA-3P0i06Q</a>  密码:7ro0。相信我，你哔哩哔哩已经够高清了，你真的不需要20分钟3G的视频。</p>
-<p>对于入门而言，知道的越少越好，因为细节无穷无尽。你先要上手，会敲命令了。那么后期继续深入反而就只是时间问题了。</p>
-<p>之后，我会更新一系列入门提高的视频，介绍Linux的各种细节，比如说，</p>
-<ul>
-<li>括号的用法</li>
-<li>变量操作</li>
-<li>shell脚本</li>
-<li>…</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/07/%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9-%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/" data-id="cllgasdrw007jdkovg72ngq7g" data-title="「生信基础课」初学者入门Linux最少必要的知识点" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" rel="tag">环境变量</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/22/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="page-number current">23</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/24/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/22/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="page-number current">23</span><a class="page-number" href="/page/24/">24</a><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/24/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1305,6 +1298,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1318,10 +1315,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

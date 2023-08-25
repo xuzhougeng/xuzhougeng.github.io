@@ -73,6 +73,121 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用EDTA进行TE注释-annotate-te-with-edta-pipeline" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" class="article-date">
+  <time class="dt-published" datetime="2020-01-08T16:16:47.328Z" itemprop="datePublished">2020-01-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/">使用EDTA进行TE注释</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>一句话评价：重复序列注释用EDTA就完事了。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>EDTA, 全称是 Extensive de-novo TE Annotator, 一个综合性的流程工具，它整合了目前LTR预测工具结果，TIR预测工具结果，MITE预测工具结果，Helitrons预测工具结果, 从而构建出一高可信，非冗余的TE数据库，用做基因组的注释。流程图如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-450f4b170c1f42eb9450676772fb5a5a.png" alt="EDTA流程"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>如果没有管理员权限，可以用conda进行安装。如果有管理员权限，可以尝试用docker或者singularity进行安装。</p>
+<p>PS: 如果之前用过EDTA的话，可以更新一下版本，因为从1.7.0开始，EDTA把intact TE和homology based注释结合在一起，最终产生了很高质量的gff，合并了所有注释；1.7.1版把包含基因的intact也去掉了，进一步过滤。（来自于作者的建议）</p>
+<h3 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h3><p>使用conda的安装方法如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">conda create -n EDTA</span><br><span class="line">conda activate EDTA</span><br><span class="line">python2 -m pip install --user numpy==1.14.3 biopython==1.74 pp</span><br><span class="line">conda config --<span class="built_in">env</span> --add channels anaconda --add channels conda-forge --add channels biocore --add channels bioconda --add channels cyclus</span><br><span class="line">conda install -n EDTA -y cd-hit repeatmodeler muscle mdust repeatmasker=4.0.9_p2 blast-legacy java-jdk perl perl-text-soundex multiprocess regex tensorflow=1.14.0 keras=2.2.4 scikit-learn=0.19.0 biopython pandas glob2 python=3.6 trf</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/oushujun/EDTA</span><br><span class="line">./EDTA/EDTA.pl</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的一点是，bioconda建议添加国内镜像站点, 否则可能会下载失败。</p>
+<h3 id="singularity"><a href="#singularity" class="headerlink" title="singularity"></a>singularity</h3><p>方法1: 使用EDTA上提供的docker镜像，以singularity进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://kapeel/edta</span><br></pre></td></tr></table></figure>
+
+<p>在使用时，有一点需要注意，需要用<code>-B</code>将外部的RepeatMasker的Libraries绑定的Libraries，否则可能会在检查依赖这一步失败。</p>
+<p>这里，我参考的是<a target="_blank" rel="noopener" href="https://github.com/lfaino/LoReAn/">LoReAN</a>的方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~ <span class="comment"># 切换到家目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p LoReAn &amp;&amp; <span class="built_in">cd</span> LoReAn</span><br><span class="line">wget https://github.com/lfaino/LoReAn/raw/noIPRS/third_party/software/RepeatMasker.Libraries.tar.gz &amp;&amp; tar -zxvf RepeatMasker.Libraries.tar.gz</span><br><span class="line">singularity <span class="built_in">exec</span> \</span><br><span class="line">    -B /home/xzg/LoReAn/Libraries/:/opt/conda/share/RepeatMasker/Libraries/ \</span><br><span class="line">    /home/xzg/edta.sif /EDTA/EDTA.pl -h</span><br></pre></td></tr></table></figure>
+
+<p>上面的<code>/home/xzg/</code>是我的家目录，需要根据实际情况进行选择</p>
+<p>方法2: 使用 @wangshun1121 构建的docker镜像, 他解决了需要<code>-B</code>进行挂载的问题。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://registry.cn-hangzhou.aliyuncs.com/wangshun1121/edta</span><br></pre></td></tr></table></figure>
+
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><p>我们以拟南芥的第一条染色体为例，进行介绍</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># singularity</span></span><br><span class="line">singularity <span class="built_in">exec</span> ~/LoReAn/edta.sif /EDTA/EDTA.pl \</span><br><span class="line">    -genome chr1.fa -species others -step all -t 20</span><br><span class="line"><span class="comment"># conda</span></span><br><span class="line"><span class="comment"># 我的EDTA在我的家目录下</span></span><br><span class="line">~/EDTA/EDTA.pl -genome chr1.fa -species others -step all -t 20</span><br></pre></td></tr></table></figure>
+
+<p>这里的参数比较简单,</p>
+<ul>
+<li><code>-genome</code>: 输入的基因组序列</li>
+<li><code>-species</code>: 物种名，Rice, Maize和others三个可选</li>
+<li><code>-step</code>: 运行步骤,  <code>all|filter|final|anno</code>, 根据具体情况选择</li>
+<li><code>-t</code>: 线程数，默认是4</li>
+</ul>
+<p>此外还有几个参数可以关注下</p>
+<ul>
+<li><p><code>-cds</code>: 提供已有的CDS序列（不能包括内含子和UTR），用于过滤.这个值也比较重要，建议提供下，否则会降低busco值（来自于作者的推荐）</p>
+</li>
+<li><p><code>-sensitive</code>: 是否用<code>RepeatModeler</code>分析剩下的TE，默认是0，也就是不要。<code>RepeatModeler</code>运行时间比较久，量力而信。</p>
+</li>
+<li><p><code>-anno</code>: 是否在构建TE文库后进行全基因组预测，默认是0.</p>
+</li>
+<li><p><code>-evalues 1</code>: 默认是0，需要同时设置-anno 1才能使用。建议加上，它能够查看注释质量，是非常不错的功能哦（来自于作者的推荐）<br>运行结束之后，会在当前目录下留下运行时的中间文件，保证你程序中断之后，能够断点续跑</p>
+</li>
+<li><p>xxx.EDTA.raw</p>
+</li>
+<li><p>xxx.EDTA.combine</p>
+</li>
+<li><p>xxx.EDTA.final</p>
+</li>
+</ul>
+<p>以及你关注的<code>xxx.EDTA.TElib.fa</code>, 这就是最终的TE文库。</p>
+<p><strong>需要注意</strong>的是，在实际运行的时候，你不能单条染色体的运行，这不是程序设计的目的，我们这里用一条染色体仅仅是为了演示，测试程序能否顺利运行。</p>
+<p>而在实际项目中，一定要用所有的染色体或者scaffold</p>
+<h2 id="可能问题"><a href="#可能问题" class="headerlink" title="可能问题"></a>可能问题</h2><p>我在使用EDTA时，就遇到了两个问题。一个是singularity的EDTA直接使用时无法通过依赖检测，解决方法已经在安装部分提过，这里不在赘述。</p>
+<p>另一个问题我在”Identify TIR candidates from scratch”这一步出现下面的报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">what():  terminate called after throwing an instance of <span class="string">&#x27;Resource temporarily unavailable std::system_error&#x27;</span></span><br><span class="line">what():  Resource temporarily unavailable</span><br><span class="line">terminate called after throwing an instance of <span class="string">&#x27;std::system_error&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我对这个报错进行了分析，找到了对应代码，即<code>sh $TIR_Learner -g $genome -s $species -t $threads -l $maxint</code>. 用实际内容替换变量后，即下面这行代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh /EDTA/bin/TIR-Learner2.4/TIR-Learner2.4.sh -g chr.fa -s others -t 20 -l 5000</span><br></pre></td></tr></table></figure>
+
+<p>更具体一点，可以将问题定位到脚本的<code>Module 3, Step 3: Get dataset</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">genomeFile=/data/xzg_data/1800_assembly/annotation/repeatAnnotation/chr.fa <span class="comment">#基因组文件的实际路径</span></span><br><span class="line">genomeName=TIR-Learner</span><br><span class="line">tir_path=/EDTA/bin/TIR-Learner2.4 <span class="comment"># TIR-Learner2.4的路径</span></span><br><span class="line">t=1</span><br><span class="line"><span class="built_in">dir</span>=`<span class="built_in">pwd</span>`</span><br><span class="line"><span class="built_in">export</span> OMP_NUM_THREADS=1</span><br><span class="line">python3 <span class="variable">$tir_path</span>/Module3_New/getDataset.py -g <span class="variable">$genomeFile</span> -name <span class="variable">$genomeName</span> -p <span class="variable">$tir_path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将线程数设置为1后，该代码顺利跑通。进一步，我定位<code>getDataset.py</code>的出问题的地方实际是<code>predict</code>函数。当然接着执行后续的代码，发现改动这一参数并不影响下面代码的运行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 4: Check TIR/TSD&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3_New/CheckTIRTSD_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 5: Write to Gff&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3/WriteToGff_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我发现<code>predict</code>函数涉及到了Python的多进程调用，最终在偶然间找到问题真正所在，即Linux系统对用户的资源限制，可以通过<code>ulimit -a</code>查看。</p>
+<p>最终我通过设置<code>ulimit -u 9000</code>，提高允许运行的总程序数，将问题解决。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA">EDTA官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA/issues/11">RMblast的问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.linuxquestions.org/questions/linux-server-73/bash-fork-retry-resource-temporarily-unavailable-limit-issue-4175618262/">一个关于fork资源不够的解决过程</a></li>
+<li>Ou, S., Su, W., Liao, Y., Chougule, K., Agda, J.R.A., Hellinga, A.J., Lugo, C.S.B., Elliott, T.A., Ware, D., Peterson, T., et al. (2019). Benchmarking transposable element annotation methods for creation of a streamlined, comprehensive pipeline. Genome Biology 20, 275.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllpwkjyi00b2e0p24zu6ax2l" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何创造并尝试处理一个segmentation fault (core dumped)-how-to-create-and-solve-segementation-fault" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" class="article-date">
@@ -125,7 +240,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllgasdv600fqdkovcphw7obh" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllpwkk0400fee0p2c3m29f1g" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -186,7 +301,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="cllgasdw600i7dkov3vb1e7aq" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="cllpwkk1s00i3e0p2bvk65df7" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -301,7 +416,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="cllgasdwl00jbdkovbifp49f9" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="cllpwkk2500j7e0p2ap5l3uxv" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -364,7 +479,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="cllgasdwn00jgdkov39m4bl7a" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="cllpwkk2700jce0p21ypzcs78" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -451,7 +566,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="cllgasdur00eddkov3epwb0fe" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="cllpwkjzm00dye0p28oib1n1c" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -514,7 +629,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="cllgasdqb004pdkov0il8hup5" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="cllpwkjvx004ke0p2b17qcujm" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -569,7 +684,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="cllgasdup00e3dkov69019dpw" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="cllpwkjze00dne0p2csk49o6u" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -624,7 +739,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" data-id="cllgasdsg008qdkov3hqm1h2g" data-title="从typora转移到VNOTE" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" data-id="cllpwkjxp008le0p2bfkq54yd" data-title="从typora转移到VNOTE" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -665,75 +780,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/12/%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4-%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4/" data-id="cllgasdxa00kpdkov54u50b7t" data-title="让人爱不释手的bash命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/12/%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4-%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4/" data-id="cllpwkk2o00kle0p2flen6z6l" data-title="让人爱不释手的bash命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-「BioNano系列」如何进行cmap之间的比对-bionano-cmap-alignment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/" class="article-date">
-  <time class="dt-published" datetime="2019-12-11T15:35:15.121Z" itemprop="datePublished">2019-12-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/">「BioNano系列」如何进行cmap之间的比对</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>BioNano以cmap格式存放光学图谱，为了评估基因组的组装质量或者了解光学图谱中冗余情况(高杂合基因组组装结果偏大)，我们就需要进行cmap之间的比较。</p>
-<h2 id="CMAP间比对"><a href="#CMAP间比对" class="headerlink" title="CMAP间比对"></a>CMAP间比对</h2><p>Solve套件提供了runCharacterize.py脚本封装了RefAligner，用于进行CMAP之间的比对。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python2.7 runCharacterize.py \</span><br><span class="line">    -t RefAligner的二进制文件路径 \</span><br><span class="line">    -q 用于比对的CMAP \</span><br><span class="line">    -r 参考CMAP \</span><br><span class="line">    -p Pipeline文件路径\</span><br><span class="line">    -a 参数配置文件.xml \</span><br><span class="line">    -n 线程数,默认4</span><br></pre></td></tr></table></figure>
-
-<p>需要注意的是<code>-p</code>和<code>-a</code>参数的设置。<code>-p</code>是Pipeline的文件位置，比如说我的<code>Solve</code>安装在<code>/opt/biosoft/Solve3.4_06042019a</code>，那么参数设置为<code> -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019</code>。 而<code>-a</code>则是要在<code>/opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/</code>目录下选择合适的xml文件。比如你的CMAP是Irys平台，那么你可以考虑用optArguments_nonhaplotype_irys.xml.</p>
-<p>以最新发表的辣椒的光学图谱为例，该物种有比较高的杂合度，组装结果偏大，我们可以通过自比对来寻找冗余区域, </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载CMAP</span></span><br><span class="line">wget https://submit.ncbi.nlm.nih.gov/ft/byid/o62junnn/piper_nigrum_no_rcmap_refinefinal1.cmap</span><br><span class="line"><span class="comment"># 自比对</span></span><br><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">	-t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">	-q piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-r piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">	-a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml -n 64</span><br></pre></td></tr></table></figure>
-
-<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件可以用于上传到BioNano Access上进行展示。下图就是一个冗余实例，可以把图中较短的图谱删掉</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-3cdd9640b05144869452a667f9d9612f.png" alt="冗余"></p>
-<h2 id="基因组回帖"><a href="#基因组回帖" class="headerlink" title="基因组回帖"></a>基因组回帖</h2><p>为了将基因组回帖到CMAP上，需要先将基因组的fasta格式转成CMAP格式，参数如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl fa2cmap_multi_color.pl -i 输入FASTA -e 酶1 通道1 [酶2 通道2]</span><br></pre></td></tr></table></figure>
-
-<p>其中一个最重要的参数就是<strong>酶切类型</strong>。例如我需要将序列回帖到用Nt.BspQI酶切组装的光学图谱上，因此运行参数如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl /opt/biosoft/Solve3.4_06042019a/HybridScaffold/06042019/scripts/fa2cmap_multi_color.pl -i athaliana.fa -e BspQI 1</span><br></pre></td></tr></table></figure>
-
-<p>最后的athaliana_BSPQI_0kb_0labels.cmap就是模拟酶切的CMAP序列。</p>
-<p>之后将模拟酶切的结果回帖到实际的CMAP</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">    -t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">    -q athaliana_BSPQI_0kb_0labels.cmap \</span><br><span class="line">    -r kbs-mac-74_bng_contigs2017.cmap \</span><br><span class="line">    -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">    -a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml \</span><br><span class="line">    -n 64</span><br></pre></td></tr></table></figure>
-
-<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/" data-id="cllgasdqv0060dkov7wpn5ekt" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li></ul>
-
     </footer>
   </div>
   
@@ -746,7 +796,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/13/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/15/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/13/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/15/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -799,6 +849,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -812,10 +866,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

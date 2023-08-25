@@ -73,6 +73,71 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-「BioNano系列」如何进行cmap之间的比对-bionano-cmap-alignment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/" class="article-date">
+  <time class="dt-published" datetime="2019-12-11T15:35:15.121Z" itemprop="datePublished">2019-12-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/">「BioNano系列」如何进行cmap之间的比对</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>BioNano以cmap格式存放光学图谱，为了评估基因组的组装质量或者了解光学图谱中冗余情况(高杂合基因组组装结果偏大)，我们就需要进行cmap之间的比较。</p>
+<h2 id="CMAP间比对"><a href="#CMAP间比对" class="headerlink" title="CMAP间比对"></a>CMAP间比对</h2><p>Solve套件提供了runCharacterize.py脚本封装了RefAligner，用于进行CMAP之间的比对。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python2.7 runCharacterize.py \</span><br><span class="line">    -t RefAligner的二进制文件路径 \</span><br><span class="line">    -q 用于比对的CMAP \</span><br><span class="line">    -r 参考CMAP \</span><br><span class="line">    -p Pipeline文件路径\</span><br><span class="line">    -a 参数配置文件.xml \</span><br><span class="line">    -n 线程数,默认4</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是<code>-p</code>和<code>-a</code>参数的设置。<code>-p</code>是Pipeline的文件位置，比如说我的<code>Solve</code>安装在<code>/opt/biosoft/Solve3.4_06042019a</code>，那么参数设置为<code> -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019</code>。 而<code>-a</code>则是要在<code>/opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/</code>目录下选择合适的xml文件。比如你的CMAP是Irys平台，那么你可以考虑用optArguments_nonhaplotype_irys.xml.</p>
+<p>以最新发表的辣椒的光学图谱为例，该物种有比较高的杂合度，组装结果偏大，我们可以通过自比对来寻找冗余区域, </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载CMAP</span></span><br><span class="line">wget https://submit.ncbi.nlm.nih.gov/ft/byid/o62junnn/piper_nigrum_no_rcmap_refinefinal1.cmap</span><br><span class="line"><span class="comment"># 自比对</span></span><br><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">	-t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">	-q piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-r piper_nigrum_no_rcmap_refinefinal1.cmap \</span><br><span class="line">	-p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">	-a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml -n 64</span><br></pre></td></tr></table></figure>
+
+<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件可以用于上传到BioNano Access上进行展示。下图就是一个冗余实例，可以把图中较短的图谱删掉</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-3cdd9640b05144869452a667f9d9612f.png" alt="冗余"></p>
+<h2 id="基因组回帖"><a href="#基因组回帖" class="headerlink" title="基因组回帖"></a>基因组回帖</h2><p>为了将基因组回帖到CMAP上，需要先将基因组的fasta格式转成CMAP格式，参数如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl fa2cmap_multi_color.pl -i 输入FASTA -e 酶1 通道1 [酶2 通道2]</span><br></pre></td></tr></table></figure>
+
+<p>其中一个最重要的参数就是<strong>酶切类型</strong>。例如我需要将序列回帖到用Nt.BspQI酶切组装的光学图谱上，因此运行参数如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl /opt/biosoft/Solve3.4_06042019a/HybridScaffold/06042019/scripts/fa2cmap_multi_color.pl -i athaliana.fa -e BspQI 1</span><br></pre></td></tr></table></figure>
+
+<p>最后的athaliana_BSPQI_0kb_0labels.cmap就是模拟酶切的CMAP序列。</p>
+<p>之后将模拟酶切的结果回帖到实际的CMAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019/runCharacterize.py \</span><br><span class="line">    -t /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/RefAligner \</span><br><span class="line">    -q athaliana_BSPQI_0kb_0labels.cmap \</span><br><span class="line">    -r kbs-mac-74_bng_contigs2017.cmap \</span><br><span class="line">    -p /opt/biosoft/Solve3.4_06042019a/Pipeline/06042019 \</span><br><span class="line">    -a /opt/biosoft/Solve3.4_06042019a/RefAligner/8949.9232rel/optArguments_nonhaplotype_saphyr.xml \</span><br><span class="line">    -n 64</span><br></pre></td></tr></table></figure>
+
+<p>最终会在当前文件下生成一个alignRef文件夹，其中结果是q.cmap,r.cmap和xmap的文件.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/12/11/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-bionano-cmap-alignment/" data-id="cllpwkjwe005we0p23web2qrx" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BioNano/" rel="tag">BioNano</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-答_ 扪心自问，meme几何？-answer-to-meme-question" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/12/11/%E7%AD%94_%20%E6%89%AA%E5%BF%83%E8%87%AA%E9%97%AE%EF%BC%8Cmeme%E5%87%A0%E4%BD%95%EF%BC%9F-answer-to-meme-question/" class="article-date">
@@ -138,7 +203,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/11/%E7%AD%94_%20%E6%89%AA%E5%BF%83%E8%87%AA%E9%97%AE%EF%BC%8Cmeme%E5%87%A0%E4%BD%95%EF%BC%9F-answer-to-meme-question/" data-id="cllgasdx200k4dkov3t7g2ug9" data-title="答扪心自问，meme几何？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/11/%E7%AD%94_%20%E6%89%AA%E5%BF%83%E8%87%AA%E9%97%AE%EF%BC%8Cmeme%E5%87%A0%E4%BD%95%EF%BC%9F-answer-to-meme-question/" data-id="cllpwkk2g00k0e0p29xn37xqb" data-title="答扪心自问，meme几何？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -353,7 +418,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/09/ggplot2%E9%AB%98%E7%BA%A7_%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%9B%BE%E5%B1%82-ggplot2-advance-using-ggproto-to-create-your-own-layer/" data-id="cllgasdqm005edkov1x1kc0j9" data-title="ggplot2高级:构建自己的图层" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/09/ggplot2%E9%AB%98%E7%BA%A7_%E6%9E%84%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%9B%BE%E5%B1%82-ggplot2-advance-using-ggproto-to-create-your-own-layer/" data-id="cllpwkjw60059e0p20zq6hev2" data-title="ggplot2高级:构建自己的图层" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -438,7 +503,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/09/R%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-R-basic-Input-Output-function/" data-id="cllgasdq50045dkov9gjwgmah" data-title="R语言文件读取的基础知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/09/R%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-R-basic-Input-Output-function/" data-id="cllpwkjvh0041e0p2ecwy0eyp" data-title="R语言文件读取的基础知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -525,7 +590,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/08/Hi-C%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96-%E7%BB%84%E8%A3%85%E8%A7%92%E5%BA%A6-HiC-visualization-in-assembly/" data-id="cllgasdp5001hdkovgi7shio3" data-title="Hi-C数据可视化-组装角度" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/08/Hi-C%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96-%E7%BB%84%E8%A3%85%E8%A7%92%E5%BA%A6-HiC-visualization-in-assembly/" data-id="cllpwkjub001ae0p2ffrpad0y" data-title="Hi-C数据可视化-组装角度" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -639,7 +704,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/06/Canu%E7%9A%84graph%E5%92%8Ccontig%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B-Canu-Contig-and-GFA/" data-id="cllgasdov000vdkovg6tp0rwn" data-title="Canu的graph和contig生成过程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/06/Canu%E7%9A%84graph%E5%92%8Ccontig%E7%94%9F%E6%88%90%E8%BF%87%E7%A8%8B-Canu-Contig-and-GFA/" data-id="cllpwkju1000oe0p21oh0511e" data-title="Canu的graph和contig生成过程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -794,7 +859,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/04/SALSA_%E5%9F%BA%E4%BA%8EHi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E9%95%BF%E8%AF%BB%E9%95%BF%E7%BB%84%E8%A3%85%E7%BB%93%E6%9E%9C-scaffolding-assembly-with-salsa/" data-id="cllgasdq8004fdkovhjheafns" data-title="SALSA:基于Hi-C辅助组装长读长组装结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/04/SALSA_%E5%9F%BA%E4%BA%8EHi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E9%95%BF%E8%AF%BB%E9%95%BF%E7%BB%84%E8%A3%85%E7%BB%93%E6%9E%9C-scaffolding-assembly-with-salsa/" data-id="cllpwkjvk004ae0p2ha1qfa1g" data-title="SALSA:基于Hi-C辅助组装长读长组装结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -841,7 +906,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/04/%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83-%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83/" data-id="cllgasdw600i6dkov4f2b9lu6" data-title="我对inferCNV鉴定CNV的思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/04/%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83-%E6%88%91%E5%AF%B9inferCNV%E9%89%B4%E5%AE%9ACNV%E7%9A%84%E6%80%9D%E8%80%83/" data-id="cllpwkk1r00i2e0p26b4gaay8" data-title="我对inferCNV鉴定CNV的思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -910,7 +975,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/25/PBMC%E7%AE%80%E4%BB%8B-A-Brief-Review-of-PBMC/" data-id="cllgasdpu003cdkovh8pk2nrr" data-title="PBMC简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/25/PBMC%E7%AE%80%E4%BB%8B-A-Brief-Review-of-PBMC/" data-id="cllpwkjv40039e0p2fhea8bxv" data-title="PBMC简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -964,62 +1029,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E6%9E%9C%E4%BD%A0%E9%9C%80%E8%A6%81%E6%88%91%E5%9B%9E%E7%AD%94%E4%BD%A0%E7%9A%84%E9%97%AE%E9%A2%98-how-to-ask-a-question/" data-id="cllgasdvy00hrdkoval1p35lo" data-title="如果你需要我回答你的问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何在Mac或Linux的RStudio上切换R版本-Using-different-R-version-in-RStudion-linux-macOS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" class="article-date">
-  <time class="dt-published" datetime="2019-11-22T13:04:06.818Z" itemprop="datePublished">2019-11-22</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/">如何在MacOS/Linux的RStudio上切换R版本</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在MacOS或Linux上使用RStudio有一点不足，就是不能方便在RStudio上切换R版本。</p>
-<p>虽然不方便，但还是可以切换。</p>
-<p>首先，我们需要通过编译到方式安装不同版本的R，参考<a href="/archives/Install-R-in-Linux">如何在服务器上安装最新的R</a></p>
-<p>我习惯将软件安装在<code>/opt/sysoft</code>下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mkdir</span> -p /opt/sysoft</span><br><span class="line">sudo <span class="built_in">chown</span> `<span class="built_in">whoami</span>` /opt/sysoft</span><br></pre></td></tr></table></figure>
-
-<p>下载源代码，并安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.5.3.tar.gz</span><br><span class="line">tar xf R-3.5.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.5.3</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.5.3 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br><span class="line"><span class="comment">#</span></span><br><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.6.1.tar.gz</span><br><span class="line">tar xf R-3.6.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.6.1</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.6.1 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p>在安装完成之后，之后切换R语言，只需要用不同版本的R覆盖<code>/usr/local/bin</code>下面的R即可。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.5.3/bin/R /usr/local/bin</span><br><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.6.1/bin/R /usr/local/bin</span><br></pre></td></tr></table></figure>
-
-<p>之后打开RStudio就是更换版本后的R</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" data-id="cllgasdv800fvdkovg2chedow" data-title="如何在MacOS/Linux的RStudio上切换R版本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E6%9E%9C%E4%BD%A0%E9%9C%80%E8%A6%81%E6%88%91%E5%9B%9E%E7%AD%94%E4%BD%A0%E7%9A%84%E9%97%AE%E9%A2%98-how-to-ask-a-question/" data-id="cllpwkk1k00hne0p255effmsc" data-title="如果你需要我回答你的问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1035,7 +1045,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/14/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/16/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/14/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/16/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1088,6 +1098,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1101,10 +1115,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

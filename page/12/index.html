@@ -73,6 +73,84 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何确定公共转录组数据集的来源性别-a-male-and-female-rna-marker-to-infer-sex-in-public-data" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" class="article-date">
+  <time class="dt-published" datetime="2020-05-07T21:52:19.958Z" itemprop="datePublished">2020-05-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%BD%AC%E5%BD%95%E7%BB%84%E5%AD%A6/">转录组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/">如何确定公共转录组数据集的来源性别</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>太长不看版: 文献报道XIST和RPS4Y1是区分性别的两个高可信度的标记基因，因此你没有必要去用其他性染色体上的基因去确定数据集的性别。</p>
+</blockquote>
+<p>不仅仅是在使用公共的单细胞转录组数据，其实早在公共芯片数据或者RNA-seq数据挖掘中，就有人在考虑一个问题，这个数据的元信息作者会不会搞错了呢？</p>
+<p>以性别为例，我们很容易想到表达Y染色体上基因数据肯定是男性，但是我们也知道基因也不是任何时刻都表达，所以如果一个Y染色体上的基因不表达，ta未必是女性。因此我们需要一个比较可靠的标记基因，来确保对性别的区别是正确的。</p>
+<p>我最初的想法，也是对Y染色体的基因逐个看表达，但是转念想到，在我这个数据集中有用的标记未必适用于其他数据集呀。因此通过一波检索，我找到了一篇文献，里面给出了两个关键基因，XIST和RPS4Y1。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-eee1ac4606ee494c990567e930d1081d.png" alt="文献支持"></p>
+<p>接着我用Seurat提供的一个公共数据集进行测试，这个数据包括了不同技术处理的PBMC数据，预处理的代码如下。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Seurat<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>harmony<span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span><span class="string">&quot;pbmcsca&quot;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>dplyr<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">pbmc <span class="operator">&lt;-</span>  pbmcsca<span class="operator">%&gt;%</span></span><br><span class="line">  Seurat<span class="operator">::</span>NormalizeData<span class="punctuation">(</span>verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span></span><br><span class="line">  FindVariableFeatures<span class="punctuation">(</span>selection.method <span class="operator">=</span> <span class="string">&quot;vst&quot;</span><span class="punctuation">,</span> nfeatures <span class="operator">=</span> <span class="number">2000</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span> </span><br><span class="line">  ScaleData<span class="punctuation">(</span>verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span> <span class="operator">%&gt;%</span> </span><br><span class="line">  RunPCA<span class="punctuation">(</span>pc.genes <span class="operator">=</span> pbmc<span class="operator">@</span>var.genes<span class="punctuation">,</span> npcs <span class="operator">=</span> <span class="number">20</span><span class="punctuation">,</span> verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">pbmc <span class="operator">&lt;-</span> RunHarmony<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;Experiment&quot;</span><span class="punctuation">,</span> <span class="string">&quot;Method&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> RunUMAP<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> reduction <span class="operator">=</span> <span class="string">&quot;harmony&quot;</span><span class="punctuation">,</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">20</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>最终我们获得了使用harmony去除批次效应后的数据集，接着我们用小提琴图分来源对XIST和RPS4Y1进行可视化</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VlnPlot<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;XIST&quot;</span><span class="punctuation">,</span><span class="string">&quot;RPS4Y1&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;Method&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>结果如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-f2ad6bd0c05f4571a6ad36670a99e82f.png" alt="小提琴图1"></p>
+<p>你会很奇怪为什么CEL-Seq2, Drop-Seq, InDrops, Seq-Well,Smart-seq2什么同时表达这两个基因呢？</p>
+<p>很简单，因为这几种方法同时还包括两种实验，pbmc1和pbmc2</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-d7714ef2a75e434dbb54e6983fe4aee5.png" alt="分群比较"></p>
+<p>当我们筛选所有的pbmc1实验进行展示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pbmc_sub <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc<span class="punctuation">,</span>  Experiment <span class="operator">==</span> <span class="string">&quot;pbmc1&quot;</span><span class="punctuation">)</span></span><br><span class="line">VlnPlot<span class="punctuation">(</span>pbmc_sub<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;XIST&quot;</span><span class="punctuation">,</span><span class="string">&quot;RPS4Y1&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;Method&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>你会发现这两个是完美的互斥关系</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-3aca900ac84d4a77a50355bc4f31da98.png" alt="pbmc1"><br>如果你筛选出pbmc2进行展示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pbmc_sub <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc<span class="punctuation">,</span>  Experiment <span class="operator">==</span> <span class="string">&quot;pbmc2&quot;</span><span class="punctuation">)</span></span><br><span class="line">VlnPlot<span class="punctuation">(</span>pbmc_sub<span class="punctuation">,</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;XIST&quot;</span><span class="punctuation">,</span><span class="string">&quot;RPS4Y1&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;Method&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>同样的，你得到一个完美的互斥结果</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-679f0397b1d84830898fd6497081d7a3.png" alt="pbmc2"></p>
+<p>小结: XIST和RPS4Y1是区分性别的两个高可信度的标记基因，如果以后使用人的公共数据集的时候，可以用这个两个基因确定性别。</p>
+<p>参考资料:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/topics/neuroscience/xist-gene">https://www.sciencedirect.com/topics/neuroscience/xist-gene</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3275083/">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3275083/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/science/article/pii/S1872497316302034">https://www.sciencedirect.com/science/article/pii/S1872497316302034</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" data-id="cllpwkk1g00h7e0p2f5l7bzij" data-title="如何确定公共转录组数据集的来源性别" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-install.packages的参数介绍-the-parameter-of-installpackages" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" class="article-date">
@@ -172,7 +250,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="cllgasdqo005kdkov4wk7evdv" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="cllpwkjw8005fe0p22quxgmsg" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -294,7 +372,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="cllgasdos000odkovhiow5h33" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="cllpwkjtx000ge0p2a00pha77" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -519,7 +597,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="cllgasdwu00jrdkov60ssaqms" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="cllpwkk2b00jne0p2d0c4hki6" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -640,7 +718,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="cllgasds0007wdkovgf67htyy" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="cllpwkjxe007qe0p28fni5s3w" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -714,7 +792,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="cllgasdpb001xdkovapkg5py9" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="cllpwkjuh001qe0p25lrl2fug" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -801,7 +879,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="cllgasdpg0027dkovc5hj7xoq" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="cllpwkjul0020e0p22tf7c0z7" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -872,7 +950,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="cllgasdpf0024dkovbrj511iy" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="cllpwkjuk001xe0p2913jh8c1" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -942,7 +1020,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="cllgasdp9001udkov0v7a57mo" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="cllpwkjug001ne0p25v1z85ql" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1041,76 +1119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" data-id="cllgasdpd0020dkovczpv51qe" data-title="LeetCode-084-最大面积" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-0-1背包问题-0-1-bag-problem" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" class="article-date">
-  <time class="dt-published" datetime="2020-02-07T21:49:52.858Z" itemprop="datePublished">2020-02-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/">0-1背包问题</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>对于一组不同重量、不可分割的物品，我们需要选择一些装入背包，在满足背包最大重量限制前提下，背包中物品总重量的最大值是多少？假设此时是5个物品，2，2，4，6，3，然后背包最大承载两是9.</p>
-<p>假如我们使用回溯算法解决该问题, 代码如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> maxW = <span class="number">0</span>; <span class="comment">//最大重量</span></span><br><span class="line"><span class="type">int</span> n = <span class="number">5</span>; <span class="comment">//物品数目</span></span><br><span class="line"><span class="type">int</span> w = <span class="number">9</span>; <span class="comment">// 背包最大重量</span></span><br><span class="line"><span class="type">int</span> weight[] = &#123;<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">3</span>&#125;;<span class="comment">// 物品重量,2,2,4,6,3</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">rucksack</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> cw)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ( cw == w || i == n )&#123;</span><br><span class="line">        <span class="keyword">if</span> ( cw &gt; maxW ) maxW= w;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    rucksack(i + <span class="number">1</span>, cw);<span class="comment">//不装第i个物品</span></span><br><span class="line">    <span class="keyword">if</span> ( cw + weight[i] &lt;= w)&#123; <span class="comment">//如果装的下</span></span><br><span class="line">        rucksack(i + <span class="number">1</span>, cw + weight[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果将代码执行过程产生状态画成树，我们可以发现对于不加入物品2的选择f(1,0)和加入物品2的选择f(1,2), 在下一个选择时，他们有一个相同的状态，f(2,2)。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-561e3cc31b6f4b49b0058a982d80bcae.png" alt="递归树"></p>
-<p>虽然得到它的过程不同，但是从这往后，大家都是一样的。如同你走迷宫，走到一个地方，你发现墙上有一张纸写着，”此路不通”，你就可以不用白费力气去探索了。因此，如果一个问题解决时存在重复子问题，我们可以通过记忆化的方式，避免重复运算，提高计算效率。</p>
-<p>从动态规划的角度，我们可以将整个求解过程分为n个阶段，每个阶段都需要决策是否需要将物品放到背包中。每个物品的决策后，背包中物品的重量就有会有种情况，也就是达到了不同的状态，也就是递归树中的不同节点。在每一个层中，我们只记录不同的状态（比如说上图的第2层的两个<code>f(2,2)</code>就可以合并成一种情况，当然第四层就更多了）。这样一来，我们就保证了每一层的状态数就不会超过w个（w是背包的承载重量）。这种合并操作就可以认为是一种记忆化。</p>
-<p>我们先用一个二维数组来记录每层可以达到的不同状态</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-cc83ed81f27f48d6bf02e94b6fb4be6d.png" alt="初始状态"></p>
-<p>考场重量为2的物品后，会出现两种状态，0和2。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-2666686f3de54fa9b3a503939a17f271.png" alt="状态1"></p>
-<p>在上一个状态的基础再考察一个重量为2的物品，会有三种状态，一直不选择，先不选再选2，两次都选2.</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-3996bf969c0544139e90ef227d123469.png" alt="状态2"></p>
-<p>继续考察重量为4的情况时，会出现五种情况，其中重量为4可能来源是0+0+4，2+2+0，这种重复状态就被合并成一种状态，因此减少了计算量。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-a7119febf4a8458e8c7ac3cd60fcf20f.png" alt="状态3"></p>
-<p>最终状态如下</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-0d011f9cbcc8491f87cf7df2d4800c6e.png" alt="最终状态"></p>
-<p>将上面的思考过程翻译成代码就是，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">rucksackDp</span><span class="params">(<span class="type">int</span> *weight, <span class="type">int</span> num, <span class="type">int</span> w)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//先定义一个二维数组</span></span><br><span class="line">    <span class="type">int</span> **status = (<span class="type">int</span> **)<span class="built_in">malloc</span>( <span class="keyword">sizeof</span>(<span class="type">int</span> *) * num);</span><br><span class="line">    <span class="comment">//初始化数组</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; num; i++)&#123;</span><br><span class="line">        status[i] = (<span class="type">int</span> *)<span class="built_in">calloc</span>( w+<span class="number">1</span>, <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//初始化第一行的值</span></span><br><span class="line">    status[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">1</span>; <span class="comment">//不放</span></span><br><span class="line">    <span class="keyword">if</span> ( weight[<span class="number">0</span>] &lt; w)&#123;</span><br><span class="line">        status[<span class="number">0</span>][weight[<span class="number">0</span>]] = <span class="number">1</span>; <span class="comment">//放</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//从第二个开始考虑</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; num; i++)&#123;</span><br><span class="line">        <span class="comment">//不放的情况，直接将上面的结果复制给当前</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= w; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> (status[i<span class="number">-1</span>][j] == <span class="number">1</span>)  status[i][j] = status[i<span class="number">-1</span>][j];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//上面循环可以写成</span></span><br><span class="line">        <span class="comment">//memcpy(status[i], status[i-1], sizeof(int) * num);</span></span><br><span class="line">        <span class="comment">//放: 在上一个状态基础上, 将增加后的重量对应位置设置为1</span></span><br><span class="line">        <span class="keyword">for</span> ( <span class="type">int</span> j = <span class="number">0</span>; j &lt;= w -weight[i]; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> ( status[i<span class="number">-1</span>][j] == <span class="number">1</span>) status[i][j+weight[i]] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//输出结果</span></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = w; i &gt;= <span class="number">0</span>; --i)&#123;</span><br><span class="line">        <span class="keyword">if</span> (status[n<span class="number">-1</span>][i] == <span class="number">1</span>) <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上面我们使用的是二维数组用于保存所有状态，但实际上这里我们只需要一维数组维护前一个状态就可以推导出当前结果</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">rucksackDp2</span><span class="params">(<span class="type">int</span> *weight, <span class="type">int</span> num, <span class="type">int</span> w)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//先定义数组</span></span><br><span class="line">    <span class="type">int</span> *status = (<span class="type">int</span> *)<span class="built_in">calloc</span>( num, <span class="keyword">sizeof</span>(<span class="type">int</span> )  );</span><br><span class="line"></span><br><span class="line">    <span class="comment">//初始化第一行的值</span></span><br><span class="line">    status[<span class="number">0</span>]= <span class="number">1</span>; <span class="comment">//不放</span></span><br><span class="line">    <span class="keyword">if</span> ( weight[<span class="number">0</span>] &lt; w)&#123;</span><br><span class="line">        status[weight[<span class="number">0</span>]] = <span class="number">1</span>; <span class="comment">//放</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//从第二个开始考虑</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; num; i++)&#123;</span><br><span class="line">        <span class="comment">//不放: 保持状态不变</span></span><br><span class="line">        <span class="comment">//放: 在上一个状态基础上, 将增加后的重量对应位置设置为1</span></span><br><span class="line">        <span class="keyword">for</span> ( <span class="type">int</span> j = <span class="number">0</span>; j &lt;= w -weight[i]; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> ( status[j] == <span class="number">1</span>) status[j+weight[i]] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//输出结果</span></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = w; i &gt;= <span class="number">0</span>; --i)&#123;</span><br><span class="line">        <span class="keyword">if</span> (status[i] == <span class="number">1</span>) <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>写动态规划代码的关键在于状态定义和状态转移方程。在0-1背包问题中，我们定义的状态是<code>status[i]</code>就是当前决策结束后到达的重量，而转移方程就是<code>if ( status[j] == 1) status[j+weight[i]] = 1;</code></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" data-id="cllgasdol0009dkov58755n4n" data-title="0-1背包问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" data-id="cllpwkjui001te0p2h8jh6e4r" data-title="LeetCode-084-最大面积" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1128,7 +1137,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/11/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/13/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/11/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/13/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1181,6 +1190,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1194,10 +1207,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

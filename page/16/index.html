@@ -73,6 +73,61 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何在Mac或Linux的RStudio上切换R版本-Using-different-R-version-in-RStudion-linux-macOS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" class="article-date">
+  <time class="dt-published" datetime="2019-11-22T13:04:06.818Z" itemprop="datePublished">2019-11-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/">如何在MacOS/Linux的RStudio上切换R版本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在MacOS或Linux上使用RStudio有一点不足，就是不能方便在RStudio上切换R版本。</p>
+<p>虽然不方便，但还是可以切换。</p>
+<p>首先，我们需要通过编译到方式安装不同版本的R，参考<a href="/archives/Install-R-in-Linux">如何在服务器上安装最新的R</a></p>
+<p>我习惯将软件安装在<code>/opt/sysoft</code>下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mkdir</span> -p /opt/sysoft</span><br><span class="line">sudo <span class="built_in">chown</span> `<span class="built_in">whoami</span>` /opt/sysoft</span><br></pre></td></tr></table></figure>
+
+<p>下载源代码，并安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.5.3.tar.gz</span><br><span class="line">tar xf R-3.5.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.5.3</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.5.3 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br><span class="line"><span class="comment">#</span></span><br><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base/R-3/R-3.6.1.tar.gz</span><br><span class="line">tar xf R-3.6.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> R-3.6.1</span><br><span class="line">./configure --enable-R-shlib --prefix=/opt/sysoft/R-3.6.1 --with-x=no</span><br><span class="line">make -j 8</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>在安装完成之后，之后切换R语言，只需要用不同版本的R覆盖<code>/usr/local/bin</code>下面的R即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.5.3/bin/R /usr/local/bin</span><br><span class="line"><span class="built_in">ln</span> -sf /opt/sysoft/R-3.6.1/bin/R /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+<p>之后打开RStudio就是更换版本后的R</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/11/22/%E5%A6%82%E4%BD%95%E5%9C%A8Mac%E6%88%96Linux%E7%9A%84RStudio%E4%B8%8A%E5%88%87%E6%8D%A2R%E7%89%88%E6%9C%AC-Using-different-R-version-in-RStudion-linux-macOS/" data-id="cllpwkk1000fwe0p2c12fcsiw" data-title="如何在MacOS/Linux的RStudio上切换R版本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用inferCNV分析单细胞转录组中拷贝数变异-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/" class="article-date">
@@ -246,7 +301,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/" data-id="cllgasdug00dadkovgxxn9dyw" data-title="使用inferCNV分析单细胞转录组中拷贝数变异" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/18/%E4%BD%BF%E7%94%A8inferCNV%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%84%E4%B8%AD%E6%8B%B7%E8%B4%9D%E6%95%B0%E5%8F%98%E5%BC%82-Single-Cell-RNA-seq-CNV-analysis-with-inferCNV/" data-id="cllpwkjz200cpe0p24x8n793s" data-title="使用inferCNV分析单细胞转录组中拷贝数变异" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -349,7 +404,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/09/%E4%BD%BF%E7%94%A8mclust%E8%BF%9B%E8%A1%8C%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90-Cluster-data-with-mclust/" data-id="cllgasdui00dhdkovbgxm3xhr" data-title="使用mclust进行聚类分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/09/%E4%BD%BF%E7%94%A8mclust%E8%BF%9B%E8%A1%8C%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90-Cluster-data-with-mclust/" data-id="cllpwkjz500cwe0p26102evih" data-title="使用mclust进行聚类分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -434,7 +489,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/07/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%81%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-algebra-linear-regression-with-least-square-method/" data-id="cllgasdx300k7dkovftmy02va" data-title="线性代数学习笔记-利用最小二乘法做线性回归" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/07/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%81%9A%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-algebra-linear-regression-with-least-square-method/" data-id="cllpwkk2i00k3e0p28jwe0tca" data-title="线性代数学习笔记-利用最小二乘法做线性回归" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -519,7 +574,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/02/%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B9%8B%E5%8F%98%E9%87%8F%E5%8F%98%E6%8D%A2-Data-Preprocess-Variable-Transformation/" data-id="cllgasdwg00isdkovh2qr0jrp" data-title="数据预处理之变量变换" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/02/%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B9%8B%E5%8F%98%E9%87%8F%E5%8F%98%E6%8D%A2-Data-Preprocess-Variable-Transformation/" data-id="cllpwkk2000ioe0p2avi68vc8" data-title="数据预处理之变量变换" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -632,7 +687,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/11/01/%E4%BD%BF%E7%94%A8LACHESIS%E5%88%A9%E7%94%A8HiC%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-scaffolding-contig-with-LACHESIS/" data-id="cllgasdt500badkov1kmy2hms" data-title="使用LACHESIS利用HiC数据进行基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/11/01/%E4%BD%BF%E7%94%A8LACHESIS%E5%88%A9%E7%94%A8HiC%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-scaffolding-contig-with-LACHESIS/" data-id="cllpwkjyj00b5e0p29f84grk5" data-title="使用LACHESIS利用HiC数据进行基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -704,7 +759,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/31/ALLHiC_%20%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E7%AE%80%E5%8D%95%E7%9A%84%E4%BA%8C%E5%80%8D%E4%BD%93%E5%9F%BA%E5%9B%A0%E7%BB%84-ALLHiC-scaffolding-of-a-simple-diploid-genome/" data-id="cllgasdoq000idkovfrsu89wl" data-title="ALLHiC:辅助组装简单的二倍体基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/31/ALLHiC_%20%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E7%AE%80%E5%8D%95%E7%9A%84%E4%BA%8C%E5%80%8D%E4%BD%93%E5%9F%BA%E5%9B%A0%E7%BB%84-ALLHiC-scaffolding-of-a-simple-diploid-genome/" data-id="cllpwkjtu000be0p2a9m2boen" data-title="ALLHiC:辅助组装简单的二倍体基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -789,7 +844,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/30/ALLHiC%E7%BB%AD_%20%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAAllele.ctg.table-How-to-build-allele-ctg-table/" data-id="cllgasdor000kdkov5hxzegxa" data-title="ALLHiC续:如何构建Allele.ctg.table" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/30/ALLHiC%E7%BB%AD_%20%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAAllele.ctg.table-How-to-build-allele-ctg-table/" data-id="cllpwkjtw000fe0p23ykl86fe" data-title="ALLHiC续:如何构建Allele.ctg.table" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -915,7 +970,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" data-id="cllgasdsm009adkovbxd821py" data-title="使用ALLHiC基于HiC数据辅助基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" data-id="cllpwkjxw0095e0p2cdyfccjr" data-title="使用ALLHiC基于HiC数据辅助基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1002,7 +1057,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="cllgasduj00djdkovcf5re15u" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="cllpwkjz600cze0p2argx6ti0" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1016,209 +1071,11 @@
 
 
   
-    <article id="post-「热图」ComplexHeatmap展示单细胞聚类-ComplexHeatmap-for-single-cell-visualization" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" class="article-date">
-  <time class="dt-published" datetime="2019-10-24T19:49:27.742Z" itemprop="datePublished">2019-10-24</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/">「热图」ComplexHeatmap展示单细胞聚类</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>实用Seurat自带的热图函数<code>DoHeatmap</code>绘制的热图，感觉有点不上档次，于是我尝试使用<code>ComplexHeatmap</code>这个R包来对结果进行展示。</p>
-<p>个人觉得好的热图有三个要素</p>
-<ul>
-<li>聚类: 能够让别人一眼就看到模式</li>
-<li>注释: 附加注释能提供更多信息</li>
-<li>配色: 要符合直觉，比如说大部分都会认为红色是高表达，蓝色是低表达</li>
-</ul>
-<p>在正式开始之前，我们需要先获取一下pbmc的数据，Seurat提供了R包<code>SeuratData</code>专门用于获取数据</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&#x27;satijalab/seurat-data&#x27;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>SeuratData<span class="punctuation">)</span></span><br><span class="line">InstallData<span class="punctuation">(</span><span class="string">&quot;pbmc3k&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>加载数据并进行数据预处理，获取绘制热图所需的数据</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>SeuratData<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>Seurat<span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span><span class="string">&quot;pbmc3k&quot;</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> pbmc3k</span><br><span class="line">pbmc<span class="punctuation">[[</span><span class="string">&quot;percent.mt&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> PercentageFeatureSet<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> pattern <span class="operator">=</span> <span class="string">&quot;^MT-&quot;</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> subset <span class="operator">=</span> nFeature_RNA <span class="operator">&gt;</span> <span class="number">200</span> <span class="operator">&amp;</span> nFeature_RNA <span class="operator">&lt;</span> <span class="number">2500</span> <span class="operator">&amp;</span> percent.mt <span class="operator">&lt;</span> <span class="number">5</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> NormalizeData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> normalization.method <span class="operator">=</span> <span class="string">&quot;LogNormalize&quot;</span><span class="punctuation">,</span> scale.factor <span class="operator">=</span> <span class="number">10000</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindVariableFeatures<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> selection.method <span class="operator">=</span> <span class="string">&quot;vst&quot;</span><span class="punctuation">,</span> nfeatures <span class="operator">=</span> <span class="number">2000</span><span class="punctuation">)</span></span><br><span class="line">all.genes <span class="operator">&lt;-</span> rownames<span class="punctuation">(</span>pbmc<span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> ScaleData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> all.genes<span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> RunPCA<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> VariableFeatures<span class="punctuation">(</span>object <span class="operator">=</span> pbmc<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindNeighbors<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">pbmc <span class="operator">&lt;-</span> FindClusters<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> resolution <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">pbmc.markers <span class="operator">&lt;-</span> FindAllMarkers<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> </span><br><span class="line">                               only.pos <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> </span><br><span class="line">                               min.pct <span class="operator">=</span> <span class="number">0.25</span><span class="punctuation">,</span> </span><br><span class="line">                               logfc.threshold <span class="operator">=</span> <span class="number">0.25</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>先感受下Seurat自带热图</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">top10 <span class="operator">&lt;-</span> pbmc.markers <span class="operator">%&gt;%</span> group_by<span class="punctuation">(</span>cluster<span class="punctuation">)</span> <span class="operator">%&gt;%</span> top_n<span class="punctuation">(</span>n <span class="operator">=</span> <span class="number">10</span><span class="punctuation">,</span> wt <span class="operator">=</span> avg_logFC<span class="punctuation">)</span></span><br><span class="line">DoHeatmap<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> features <span class="operator">=</span> top10<span class="operator">$</span>gene<span class="punctuation">)</span> <span class="operator">+</span> NoLegend<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571906906510-5666cad1b38f473b8b8896f9ebde28d3.png" alt="Seurat-heatmap"></p>
-<p>下面则是介绍如何用R包<code>ComplexHeatmap</code>进行组图，虽然这个R包名带着Complex，但是并不是说这个R包很复杂，这个Complex应该翻译成复合，也就是说这个R包能在热图的基础上整合很多信息。</p>
-<p>先安装并加载R包。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;ComplexHeatmap&quot;</span><span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>ComplexHeatmap<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>为了手动绘制一个热图，要从Seurat对象中提取所需要的表达量矩阵。我提取的是原始的count值，然后用<code>log2(count + 1)</code>的方式进行标准化</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mat <span class="operator">&lt;-</span> GetAssayData<span class="punctuation">(</span>pbmc<span class="punctuation">,</span> slot <span class="operator">=</span> <span class="string">&quot;counts&quot;</span><span class="punctuation">)</span></span><br><span class="line">mat <span class="operator">&lt;-</span> log2<span class="punctuation">(</span>mat <span class="operator">+</span> <span class="number">1</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>获取基因和细胞聚类信息</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gene_features <span class="operator">&lt;-</span> top10</span><br><span class="line">cluster_info <span class="operator">&lt;-</span> sort<span class="punctuation">(</span>pbmc<span class="operator">$</span>seurat_annotations<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>对表达量矩阵进行排序和筛选</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mat <span class="operator">&lt;-</span> as.matrix<span class="punctuation">(</span>mat<span class="punctuation">[</span>top10<span class="operator">$</span>gene<span class="punctuation">,</span> <span class="built_in">names</span><span class="punctuation">(</span>cluster_info<span class="punctuation">)</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>用<code>Heatmap</code>绘制热图。对于单细胞这种数据，一定要设置如下4个参数</p>
-<ul>
-<li><code>cluster_rows= FALSE</code>: 不作行聚类</li>
-<li><code>cluster_columns= FALSE</code>: 不作列聚类</li>
-<li><code>show_column_names=FALSE</code>: 不展示列名</li>
-<li><code>show_row_names=FALSE</code>: 不展示行名，基因数目不多时候可以考虑设置为TRUE</li>
-</ul>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571911526690-f312b4bf617f4e68bb539556872fe405.png" alt="Heatmap-1"></p>
-<p>从图中，我们可以发现以下几个问题：</p>
-<ul>
-<li>长宽比不合理，当然这和绘图函数无关，可以在保存时修改长宽比</li>
-<li>基因名重叠，考虑调整大小，或者不展示，或者只展示重要的基因</li>
-<li>颜色可以调整</li>
-<li>缺少聚类信息</li>
-</ul>
-<p>这些问题，我们可以通过在<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/">ComplexHeatmap Complete Reference</a>查找对应信息来解决。</p>
-<h2 id="配色方案"><a href="#配色方案" class="headerlink" title="配色方案"></a>配色方案</h2><p>在热图中会涉及到两类配色，一种用来表示表达量的连续性变化，一种则是展示聚类。有一个神奇的R包就是用于处理配色，他的Github地址为<a target="_blank" rel="noopener" href="https://github.com/caleblareau/BuenColors">https://github.com/caleblareau/BuenColors</a>。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devtools::install_github(<span class="string">&quot;caleblareau/BuenColors&quot;</span>)</span><br><span class="line">library(<span class="string">&quot;BuenColors&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>它提供了一些列预设的颜色，比方说<code>jdb_color_maps</code></p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">      HSC       MPP      LMPP       CMP       CLP       MEP       GMP </span><br><span class="line"><span class="string">&quot;#00441B&quot;</span> <span class="string">&quot;#46A040&quot;</span> <span class="string">&quot;#00AF99&quot;</span> <span class="string">&quot;#FFC179&quot;</span> <span class="string">&quot;#98D9E9&quot;</span> <span class="string">&quot;#F6313E&quot;</span> <span class="string">&quot;#FFA300&quot;</span> </span><br><span class="line">      pDC      mono     GMP<span class="operator">-</span>A     GMP<span class="operator">-</span>B     GMP<span class="operator">-</span>C       Ery       CD4 </span><br><span class="line"><span class="string">&quot;#C390D4&quot;</span> <span class="string">&quot;#FF5A00&quot;</span> <span class="string">&quot;#AFAFAF&quot;</span> <span class="string">&quot;#7D7D7D&quot;</span> <span class="string">&quot;#4B4B4B&quot;</span> <span class="string">&quot;#8F1336&quot;</span> <span class="string">&quot;#0081C9&quot;</span> </span><br><span class="line">      CD8        NK         B </span><br><span class="line"><span class="string">&quot;#001588&quot;</span> <span class="string">&quot;#490C65&quot;</span> <span class="string">&quot;#BA7FD0&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这些颜色就能用于命名单细胞的类群，比如说我选择了前9个</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">col <span class="operator">&lt;-</span> jdb_color_maps<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">9</span><span class="punctuation">]</span></span><br><span class="line"><span class="built_in">names</span><span class="punctuation">(</span>col<span class="punctuation">)</span> <span class="operator">&lt;-</span> levels<span class="punctuation">(</span>cluster_info<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="增加列聚类信息"><a href="#增加列聚类信息" class="headerlink" title="增加列聚类信息"></a>增加列聚类信息</h2><p><code>Heatmap</code>的<code>row_split</code>和<code>column_split</code>参数可以通过设置分类变量对热图进行分隔。更多对热图进行拆分，可以参考<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html#heatmap-split">Heatmap split</a></p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571911799187-41f8f8f51c7f4ee297fe3e29238daad1.png" alt="Heatmap-2"></p>
-<p>只用文字描述可能不够好看，最好是带有颜色的分块图，其中里面的颜色和t-SNE或UMAP聚类颜色一致，才能更好的展示信息。</p>
-<p>为了增加聚类注释，我们需要用到<code>HeatmapAnnotation</code>函数，它对细胞的列进行注释，而<code>rowAnnotation</code>函数可以对行进行注释。这两个函数能够增加各种类型的注释，包括条形图，点图，折线图，箱线图，密度图等等，这些函数的特征是<code>anno_xxx</code>，例如<code>anno_block</code>就用来绘制区块图。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">top_anno <span class="operator">&lt;-</span> HeatmapAnnotation<span class="punctuation">(</span></span><br><span class="line">  cluster <span class="operator">=</span> anno_block<span class="punctuation">(</span>gp <span class="operator">=</span> gpar<span class="punctuation">(</span>fill <span class="operator">=</span> col<span class="punctuation">)</span><span class="punctuation">,</span> <span class="comment"># 设置填充色</span></span><br><span class="line">                       labels <span class="operator">=</span> levels<span class="punctuation">(</span>cluster_info<span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">                       labels_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>cex <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">,</span> col <span class="operator">=</span> <span class="string">&quot;white&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># 设置字体</span></span><br></pre></td></tr></table></figure>
-
-<p>其中<code>anno_block</code>中的<code>gp</code>参数用于设置各类<strong>图形参数</strong>，<code>labels</code>设置标签，<code>labels_gp</code>设置和标签相关的<strong>图形参数</strong>。可以用<code>?gp</code>来了解有哪些<strong>图形参数</strong>。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span> <span class="comment"># 在热图上边增加注释</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span> <span class="punctuation">)</span> <span class="comment"># 不需要列标题</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571914037258-69b71edb4e354f759b9f07674e714f13.png" alt="Heatmap-3"></p>
-<h2 id="突出重要基因"><a href="#突出重要基因" class="headerlink" title="突出重要基因"></a>突出重要基因</h2><p>由于基因很多直接展示出来，根本看不清，我们可以强调几个标记基因。用到两个函数是<code>rowAnnotation</code>和<code>anno_mark</code></p>
-<p>已知不同类群的标记基因如下</p>
-<table>
-<thead>
-<tr>
-<th align="left">Cluster ID</th>
-<th align="left">Markers</th>
-<th align="left">Cell Type</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">0</td>
-<td align="left">IL7R, CCR7</td>
-<td align="left">Naive CD4+ T</td>
-</tr>
-<tr>
-<td align="left">1</td>
-<td align="left">IL7R, S100A4</td>
-<td align="left">Memory CD4+</td>
-</tr>
-<tr>
-<td align="left">2</td>
-<td align="left">CD14, LYZ</td>
-<td align="left">CD14+ Mono</td>
-</tr>
-<tr>
-<td align="left">3</td>
-<td align="left">MS4A1</td>
-<td align="left">B</td>
-</tr>
-<tr>
-<td align="left">4</td>
-<td align="left">CD8A</td>
-<td align="left">CD8+ T</td>
-</tr>
-<tr>
-<td align="left">5</td>
-<td align="left">FCGR3A, MS4A7</td>
-<td align="left">FCGR3A+ Mono</td>
-</tr>
-<tr>
-<td align="left">6</td>
-<td align="left">GNLY, NKG7</td>
-<td align="left">NK</td>
-</tr>
-<tr>
-<td align="left">7</td>
-<td align="left">FCER1A, CST3</td>
-<td align="left">DC</td>
-</tr>
-<tr>
-<td align="left">8</td>
-<td align="left">PPBP</td>
-<td align="left">Platelet</td>
-</tr>
-</tbody></table>
-<p>我们需要给<code>anno_mark</code>提供基因所在行即可。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mark_gene <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;IL7R&quot;</span><span class="punctuation">,</span><span class="string">&quot;CCR7&quot;</span><span class="punctuation">,</span><span class="string">&quot;IL7R&quot;</span><span class="punctuation">,</span><span class="string">&quot;S100A4&quot;</span><span class="punctuation">,</span><span class="string">&quot;CD14&quot;</span><span class="punctuation">,</span><span class="string">&quot;LYZ&quot;</span><span class="punctuation">,</span><span class="string">&quot;MS4A1&quot;</span><span class="punctuation">,</span><span class="string">&quot;CD8A&quot;</span><span class="punctuation">,</span><span class="string">&quot;FCGR3A&quot;</span><span class="punctuation">,</span><span class="string">&quot;MS4A7&quot;</span><span class="punctuation">,</span><span class="string">&quot;GNLY&quot;</span><span class="punctuation">,</span><span class="string">&quot;NKG7&quot;</span><span class="punctuation">,</span><span class="string">&quot;FCER1A&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CST3&quot;</span><span class="punctuation">,</span><span class="string">&quot;PPBP&quot;</span><span class="punctuation">)</span></span><br><span class="line">gene_pos <span class="operator">&lt;-</span> which<span class="punctuation">(</span>rownames<span class="punctuation">(</span>mat<span class="punctuation">)</span> <span class="operator">%in%</span> mark_gene<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">row_anno <span class="operator">&lt;-</span>  rowAnnotation<span class="punctuation">(</span>mark_gene <span class="operator">=</span> anno_mark<span class="punctuation">(</span>at <span class="operator">=</span> gene_pos<span class="punctuation">,</span> </span><br><span class="line">                                     labels <span class="operator">=</span> mark_gene<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>接着绘制热图</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571914905222-c332ebab06ee4100838180f2cb0f698a.png" alt="Heatmap-4"></p>
-<p>关于如何增加标记注释，参考<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/heatmap-annotations.html#mark-annotation">mark-annotation</a></p>
-<h2 id="调增图例位置"><a href="#调增图例位置" class="headerlink" title="调增图例位置"></a>调增图例位置</h2><p>目前的热图还有一个问题，也就是表示表达量范围的图例太占位置了，有两种解决方法</p>
-<ul>
-<li>参数设置<code>show_heatmap_legend=FALSE</code>直接删掉。</li>
-<li>利用<code>heatmap_legend_param</code>参数更改样式</li>
-</ul>
-<p>我们根据<a target="_blank" rel="noopener" href="https://jokergoo.github.io/ComplexHeatmap-reference/book/legends.html">legends</a>这一节的内容进行一些调整</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span></span><br><span class="line">        heatmap_legend_param <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span></span><br><span class="line">          title <span class="operator">=</span> <span class="string">&quot;log2(count+1)&quot;</span><span class="punctuation">,</span></span><br><span class="line">          title_position <span class="operator">=</span> <span class="string">&quot;leftcenter-rot&quot;</span></span><br><span class="line">        <span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571915704401-c349679da08d48918a452ba49adbd6cb.png" alt="heatmap-5"></p>
-<p>因为ComplextHeatmap是基于Grid图形系统，因此可以先绘制热图，然后再用<code>grid::draw</code>绘制图例，从而实现将条形图的位置移动到图中的任意位置。</p>
-<p>先获取绘制热图的对象</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">p <span class="operator">&lt;-</span> Heatmap<span class="punctuation">(</span>mat<span class="punctuation">,</span></span><br><span class="line">        cluster_rows <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        cluster_columns <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_column_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        show_row_names <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">,</span></span><br><span class="line">        column_split <span class="operator">=</span> cluster_info<span class="punctuation">,</span></span><br><span class="line">        top_annotation <span class="operator">=</span> top_anno<span class="punctuation">,</span></span><br><span class="line">        right_annotation <span class="operator">=</span> row_anno<span class="punctuation">,</span></span><br><span class="line">        column_title <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">,</span></span><br><span class="line">        show_heatmap_legend <span class="operator">=</span> <span class="literal">FALSE</span></span><br><span class="line">        <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>根据<code>p@matrix_color_mapping</code>获取图例的颜色的设置，然后用<code>Legend</code>构建图例</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">col_fun  <span class="operator">&lt;-</span> circlize<span class="operator">::</span>colorRamp2<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">2</span> <span class="punctuation">,</span><span class="number">3</span><span class="punctuation">,</span> <span class="number">4</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">                                 <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;#0000FFFF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#9A70FBFF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#D8C6F3FF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#FFC8B9FF&quot;</span><span class="punctuation">,</span> <span class="string">&quot;#FF7D5DFF&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">lgd <span class="operator">&lt;-</span>  Legend<span class="punctuation">(</span>col_fun <span class="operator">=</span> col_fun<span class="punctuation">,</span> </span><br><span class="line">               title <span class="operator">=</span> <span class="string">&quot;log2(count+1)&quot;</span><span class="punctuation">,</span> </span><br><span class="line">               title_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>col<span class="operator">=</span><span class="string">&quot;white&quot;</span><span class="punctuation">,</span> cex <span class="operator">=</span> <span class="number">0.75</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">               title_position <span class="operator">=</span> <span class="string">&quot;leftcenter-rot&quot;</span><span class="punctuation">,</span></span><br><span class="line">               <span class="comment">#direction = &quot;horizontal&quot;</span></span><br><span class="line">               at <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">0</span><span class="punctuation">,</span> <span class="number">1</span><span class="punctuation">,</span> <span class="number">4</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">               labels <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;low&quot;</span><span class="punctuation">,</span> <span class="string">&quot;median&quot;</span><span class="punctuation">,</span> <span class="string">&quot;high&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">               labels_gp <span class="operator">=</span> gpar<span class="punctuation">(</span>col<span class="operator">=</span><span class="string">&quot;white&quot;</span><span class="punctuation">)</span></span><br><span class="line">               <span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>绘制图形</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">grid.newpage<span class="punctuation">(</span><span class="punctuation">)</span> <span class="comment">#新建画布</span></span><br><span class="line">draw<span class="punctuation">(</span>p<span class="punctuation">)</span> <span class="comment"># 绘制热图</span></span><br><span class="line">draw<span class="punctuation">(</span>lgd<span class="punctuation">,</span> x <span class="operator">=</span> unit<span class="punctuation">(</span><span class="number">0.05</span><span class="punctuation">,</span> <span class="string">&quot;npc&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">     y <span class="operator">=</span> unit<span class="punctuation">(</span><span class="number">0.05</span><span class="punctuation">,</span> <span class="string">&quot;npc&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">     just <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;left&quot;</span><span class="punctuation">,</span> <span class="string">&quot;bottom&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span> <span class="comment"># 绘制图形</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571916860482-418dc81dde834ac3a2ab4e65fc65a005.png" alt="heatmap-6"></p>
-<p>ComplexHeatmap绘制热图非常强大的工具，大部分我想要的功能它都有，甚至我没有想到的它也有，这个教程只是展示其中一小部分功能而已，还有很多功能要慢慢探索。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="cllgasdrv007gdkovdsrm3212" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">可视化 | 单细胞</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/15/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/17/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/15/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/17/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1271,6 +1128,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1284,10 +1145,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

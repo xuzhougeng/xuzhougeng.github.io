@@ -73,6 +73,77 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Rcpp学习笔记之Hello World!-Write_first_function_Using_Rcpp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" class="article-date">
+  <time class="dt-published" datetime="2019-10-13T15:52:36.990Z" itemprop="datePublished">2019-10-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/">Rcpp学习笔记之Hello World!</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在使用R语言多年以后，我终于开始去学习Rcpp，利用<code>C++</code>来提高运行速度。其实当你能熟练的使用一门语言后，再去学一门新的语言，并没有想象中的那么难，更何况Rcpp把很多脏活累活都给包办了，在里面调用<code>C++</code>还是挺方便。</p>
+</blockquote>
+<p>学习Rcpp的最重要一步是，运行一个”hello world!” 。如果能够运行”hello world!”就表明搞定了环境配置，后面就可以愉快的写代码了。</p>
+<p>安装Rcpp的方式为，<code>install.packages(&quot;Rcpp&quot;)</code>， 安装过程中可能会出现一些问题，对于不同的操作系统需要做不同的准备工作，</p>
+<ul>
+<li>Windows: 安装Rtools</li>
+<li>Mac: 安装Xcode，需要在App store下载</li>
+<li>Linux: 需要有GCC的编译环境</li>
+</ul>
+<p>之后就让我们写人生中第一个<code>C++</code>函数， <code>hello</code>,</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">hello</span><span class="params">()</span></span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Hello, World!&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么问题来了，这个函数应该如何才能让R语言调用呢？最简单的方式就是Rcpp的<code>cppFunction</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span><span class="string">&quot;Rcpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">cppFunction<span class="punctuation">(</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">int hello()&#123;</span></span><br><span class="line"><span class="string">    std::cout &lt;&lt; &quot;Hello, World!&quot;;</span></span><br><span class="line"><span class="string">    return 0;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#x27;</span><span class="punctuation">)</span></span><br><span class="line">hello<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>上面语句中，cppFunction中的<code>&#39;&#39;</code>中的内容是C++语句。在这条语句中，我们以<code>int hello()&#123;&#125;</code>定义了一个hello函数，这个函数不接受参数，返回一个整型。在函数里面一共有两条语句，每条语句都以<code>;</code>结尾。</p>
+<p>第一条是调用了<code>C++</code>的标准库的cout, <code>std::cout</code>, 和R中以<code>包名::函数名</code>调用函数的方法类似。第二条则是<code>return 0</code>，返回结果。</p>
+<p>除了利用<code>cppFunction</code>外，另外一种更常用的方法就是将代码放在其他文件中，然后用<code>sourceCpp</code>的方式读取。我们新建一个<code>hello.cpp</code>的文件，里面的内容如下(如果用Rstudio新建C++ 文件，它会提供一个模版用于修改)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">//[[Rcpp::export]]</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">hello</span><span class="params">()</span></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Hello, World!&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*** R</span></span><br><span class="line"><span class="comment">hello()</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>之后在R里面加载并调用，和之前的结果一样。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Rcpp<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">sourceCpp<span class="punctuation">(</span><span class="string">&quot;hello.cpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">hello<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>解释下<code>C++</code>的代码。第一行是用<code>#include &lt;Rcpp.h&gt;</code>语句导入了Rcpp的头文件，类似于R里面的<code>install.package()</code>用于安装R包，然后用<code>using namespace xxx;</code> 的方式加载了两个库，Rcpp和std, 这就类似于R里面的<code>library()</code>函数。</p>
+<p><code>C++</code>里面用<code>//</code>和<code>/*** 注释语句 */</code>进行代码注释。前者是注释单行，类似于R里面的<code>#</code>注释，后者是注释多行。只不过<code>//[Rcpp::export]]</code>这条注释有特殊的含义，在<code>sourceCpp</code>读取代码解析的过程中，被这条语句注释的函数能够在R里面调用。换句话说，如果你删了这句话，那么这个<code>hello</code>函数在R里面就是无法直接调用的。而<code>/*** R */</code>里面可以放R代码，会<code>c++</code>代码编译结束后运行，常用于代码测试。</p>
+<p>假如我们能够成功运行上面的代码，那么接下来要做的事情就是学习<code>C++</code>的基本语法(参考<a href="/archives/C++_For_R_User">给R使用者的C++最少必要知识</a>)，学习Rcpp的数据结构。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" data-id="cllpwkjv6003ge0p27ea2f32k" data-title="Rcpp学习笔记之Hello World!" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-给R使用者的C++最少必要知识-C++_For_R_User" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" class="article-date">
@@ -159,7 +230,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" data-id="cllgasdx400kadkov3dj68r66" data-title="给R使用者的C++最少必要知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" data-id="cllpwkk2j00k6e0p24v5fhtw1" data-title="给R使用者的C++最少必要知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -560,7 +631,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/11/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-How-to-annotate-your-genome/" data-id="cllgasdvf00ghdkov7c1iazzx" data-title="如何对基因组序列进行注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/11/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-How-to-annotate-your-genome/" data-id="cllpwkk1600gee0p2696z34yr" data-title="如何对基因组序列进行注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -637,7 +708,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E5%A6%82%E4%BD%95%E5%B1%95%E7%A4%BAMUMMER%E7%9A%84%E7%BB%93%E6%9E%9C-Visualization-of-MUMMER-Result/" data-id="cllgasdvg00gldkovbru38kzv" data-title="如何展示MUMMER的结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E5%A6%82%E4%BD%95%E5%B1%95%E7%A4%BAMUMMER%E7%9A%84%E7%BB%93%E6%9E%9C-Visualization-of-MUMMER-Result/" data-id="cllpwkk1800gie0p2d39qh47p" data-title="如何展示MUMMER的结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -775,7 +846,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E4%BD%BF%E7%94%A8BRAKER2%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A-genome-annotation-with-braker2/" data-id="cllgasdt200azdkovazn671j7" data-title="使用BRAKER2进行基因组注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E4%BD%BF%E7%94%A8BRAKER2%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A-genome-annotation-with-braker2/" data-id="cllpwkjyg00ave0p20dvrfwz1" data-title="使用BRAKER2进行基因组注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -888,7 +959,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E3%80%8CRNA-seq%E5%88%86%E6%9E%90%E8%BD%AF%E4%BB%B6%E3%80%8DRNA-seq%E6%AF%94%E5%AF%B9%E5%B7%A5%E5%85%B7STAR%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-RNA-seq-aligner-STAR/" data-id="cllgasdr6006jdkov0xydbl1s" data-title="「RNA-seq分析软件」RNA-seq比对工具STAR学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E3%80%8CRNA-seq%E5%88%86%E6%9E%90%E8%BD%AF%E4%BB%B6%E3%80%8DRNA-seq%E6%AF%94%E5%AF%B9%E5%B7%A5%E5%85%B7STAR%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-RNA-seq-aligner-STAR/" data-id="cllpwkjwv006ee0p2c3ua227l" data-title="「RNA-seq分析软件」RNA-seq比对工具STAR学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1605,7 +1676,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/09/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E5%A4%9A%E5%80%8D%E4%BD%93%E6%A4%8D%E7%89%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B5%8B%E5%BA%8F%E7%BB%84%E8%A3%85%E5%BD%93%E5%89%8D%E7%AD%96%E7%95%A5-Current-Strategies-of-Polyploid-Plant-Genome-Sequence-Assembly/" data-id="cllgasdrn0073dkov7xovbf9i" data-title="「文献」多倍体植物基因组测序组装当前策略" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/09/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E5%A4%9A%E5%80%8D%E4%BD%93%E6%A4%8D%E7%89%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B5%8B%E5%BA%8F%E7%BB%84%E8%A3%85%E5%BD%93%E5%89%8D%E7%AD%96%E7%95%A5-Current-Strategies-of-Polyploid-Plant-Genome-Sequence-Assembly/" data-id="cllpwkjx1006xe0p2hl5v82ka" data-title="「文献」多倍体植物基因组测序组装当前策略" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1783,7 +1854,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/06/%E4%BD%BF%E7%94%A8ASMap%E6%9E%84%E5%BB%BA%E9%AB%98%E5%AF%86%E5%BA%A6%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1-Build-high-density-genetic-map-with-ASMap/" data-id="cllgasdsn009ddkovbeznfk1r" data-title="使用ASMap构建高密度遗传图谱" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/06/%E4%BD%BF%E7%94%A8ASMap%E6%9E%84%E5%BB%BA%E9%AB%98%E5%AF%86%E5%BA%A6%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1-Build-high-density-genetic-map-with-ASMap/" data-id="cllpwkjxx0098e0p2e629272d" data-title="使用ASMap构建高密度遗传图谱" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1949,7 +2020,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/04/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8BSA%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D%EF%BC%88%E6%B0%B4%E7%A8%BB%E7%AF%87%EF%BC%89-QTL-analysis-using-BSA-seq-in-rice/" data-id="cllgasdv200fedkov7vxae5xq" data-title="如何使用BSA方法进行遗传定位（水稻篇）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/04/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8BSA%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D%EF%BC%88%E6%B0%B4%E7%A8%BB%E7%AF%87%EF%BC%89-QTL-analysis-using-BSA-seq-in-rice/" data-id="cllpwkk0000f0e0p21ior7urw" data-title="如何使用BSA方法进行遗传定位（水稻篇）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -2107,7 +2178,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" data-id="cllgasduc00cxdkov1132g6io" data-title="使用SHOREmap做mapping-by-sequencing" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" data-id="cllpwkjyw00c8e0p2hl5h3dp5" data-title="使用SHOREmap做mapping-by-sequencing" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -2121,98 +2192,11 @@
 
 
   
-    <article id="post-如何用binmapr进行遗传定位-build-binmap-with-binmapr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" class="article-date">
-  <time class="dt-published" datetime="2019-10-01T21:27:06.707Z" itemprop="datePublished">2019-10-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/">如何用binmapr进行遗传定位</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>binmapr目前代码正在重构，目前无法从CRAN进行下载，本篇教程仅为存档用。</p>
-</blockquote>
-<p>binmapr是我折腾的一个R包，它能够将NGS测序得到SNP数据基于binmap进行纠错，用于更好的遗传定位。</p>
-<p>在阅读本文之前，请先花点时间看看<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/x6zRylSiPn0LmNtmEGbdAA">Bin, Bin, Bin！Map, Map, Map Now!</a>, 我只是将里面的步骤整理成R包方便调用而已。</p>
-<p>首先你得安装并加载R包。因为这个R包目前主要是方便自己使用，所以托管在GitHub上，需要用devtools进行安装</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;xuzhougeng/binmapr&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>之后就可以和其他R包一样正常使用</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>binmapr<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>R包的使用非常简单，就是调用<code>batchCallGeno</code> 将原本的genotype矩阵按照15bp对snp进行纠正</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">geno <span class="operator">&lt;-</span> batchCallGeno<span class="punctuation">(</span>GT_flt<span class="punctuation">,</span> CHROM <span class="operator">=</span> CHROM<span class="punctuation">,</span> </span><br><span class="line">                      outdir <span class="operator">=</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">                      pos.start <span class="operator">=</span> <span class="number">7</span><span class="punctuation">,</span> fix.size <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>因此，你只要提供一个符合要求的输入即可。</p>
-<p>以李广伟师兄的数据为例，我已经将其整理成示例数据，因此可以可以通过下面两行命令读取</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data<span class="punctuation">(</span>geno<span class="punctuation">)</span></span><br><span class="line">data<span class="punctuation">(</span>pheno<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>这两个都是数据框，其中geno存放的是基因型数据，而pheno存放的是表型数据</p>
-<p>为了能够让batchCallGeno运行，我们需要将<code>geno</code>数据转成一个矩阵，其中行名是位置信息，列名是样本信息</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GT <span class="operator">&lt;-</span> as.matrix<span class="punctuation">(</span>geno<span class="punctuation">[</span><span class="punctuation">,</span><span class="operator">-</span><span class="number">1</span><span class="operator">:</span><span class="operator">-</span><span class="number">4</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">row.names<span class="punctuation">(</span>GT<span class="punctuation">)</span> <span class="operator">&lt;-</span> paste0<span class="punctuation">(</span>geno<span class="operator">$</span>CHR<span class="punctuation">,</span> <span class="string">&quot;_&quot;</span><span class="punctuation">,</span> geno<span class="operator">$</span>POS<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>由于每个位点都在所有样本中都不一定存在，因此可以考虑过滤一些缺失比较多的位点.</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">miss_ratio <span class="operator">&lt;-</span> rowSums<span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>GT<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">/</span> ncol<span class="punctuation">(</span>GT<span class="punctuation">)</span></span><br><span class="line">GT_flt <span class="operator">&lt;-</span> GT<span class="punctuation">[</span>miss_ratio <span class="operator">&lt;</span> <span class="number">0.20</span><span class="punctuation">,</span> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
-
-<p>我这里过滤掉缺失大于20%的位点，原本是打算用5%，未曾想到这个标准过滤下去，90%的数据都快没了，吓得我赶紧用<code>summary(miss_ratio)</code>看了一波分布，改了下标准。</p>
-<p>有了合适的数据类型后，就可以调用batchCallGeno函数了。运行结束后，除了得到一个列表外存放基因型外，还会在当前目录下输出csv和pdf文件。其中csv是表型数据，而pdf则是纠错前后的基因型分布。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CHROM <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>geno<span class="operator">$</span>CHR<span class="punctuation">)</span></span><br><span class="line">geno_out <span class="operator">&lt;-</span> batchCallGeno<span class="punctuation">(</span>GT_flt<span class="punctuation">,</span> CHROM <span class="operator">=</span> CHROM<span class="punctuation">,</span> </span><br><span class="line">                      pos.start <span class="operator">=</span> <span class="number">7</span><span class="punctuation">,</span> fix.size <span class="operator">=</span> <span class="number">10</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>介绍下几个参数</p>
-<ul>
-<li><code>CHROM</code>:  用于构建binmap的染色体</li>
-<li><code>pos.start</code>， 该参数用于绘图时从行名中提取坐标，例如<code>Chr1_1245</code>需要设置为pos.start&#x3D;6, 这里命名为<code>chr01_12345</code>所以要设置为pos.start&#x3D;7</li>
-<li><code>fix.size</code>, 它和纠错有关，比如说你的基因型是00000100000, 中间的1很可能是错误的，因为它只出现了一次。<code>fix.size</code>需要根据具体数据来调整。</li>
-</ul>
-<p>下一步，我们就可以用方差分析的方法来寻找和表型相关的区间</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Load phenotype</span></span><br><span class="line">anova_analysis <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">,</span> phenotype<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  p.lmout <span class="operator">&lt;-</span> lm<span class="punctuation">(</span>phenotype <span class="operator">~</span> x<span class="punctuation">,</span> na.action <span class="operator">=</span> na.exclude<span class="punctuation">)</span></span><br><span class="line">  p <span class="operator">&lt;-</span> anova<span class="punctuation">(</span>p.lmout<span class="punctuation">)</span><span class="punctuation">[</span><span class="punctuation">,</span><span class="number">5</span><span class="punctuation">]</span><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>p<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">geno_mt <span class="operator">&lt;-</span> geno_out<span class="punctuation">[[</span><span class="number">1</span><span class="punctuation">]</span><span class="punctuation">]</span></span><br><span class="line">geno_mt_reorder <span class="operator">&lt;-</span> geno_mt<span class="punctuation">[</span><span class="punctuation">,</span>pheno<span class="operator">$</span>ID<span class="punctuation">]</span></span><br><span class="line">pvals <span class="operator">&lt;-</span> apply<span class="punctuation">(</span>geno_mt_reorder<span class="punctuation">,</span> </span><br><span class="line">               <span class="number">1</span><span class="punctuation">,</span> </span><br><span class="line">               anova_analysis<span class="punctuation">,</span> </span><br><span class="line">               phenotype <span class="operator">=</span> pheno<span class="operator">$</span>PH<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>接着画图</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pos <span class="operator">&lt;-</span> <span class="built_in">as.numeric</span><span class="punctuation">(</span>substring<span class="punctuation">(</span>row.names<span class="punctuation">(</span>geno_mt_reorder<span class="punctuation">)</span><span class="punctuation">,</span> <span class="number">7</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">plotQtl<span class="punctuation">(</span>pos <span class="operator">=</span> pos<span class="punctuation">,</span> </span><br><span class="line">        pvalue <span class="operator">=</span> pvals<span class="punctuation">,</span> </span><br><span class="line">        chr.name <span class="operator">=</span> <span class="string">&quot;chr_01&quot;</span><span class="punctuation">,</span></span><br><span class="line">        ymax <span class="operator">=</span> <span class="number">11</span><span class="punctuation">,</span></span><br><span class="line">        threshold <span class="operator">=</span> <span class="number">3</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/QTL-mapping-e8e24a5d5f2b460c9892908c7c1e38eb.png" alt="QTL mapping"></p>
-<p>我们可以从中看到一个非常显著的峰，里面的基因中就有一个碰巧是水稻里的绿色革命基因，sd1 LOC_Os01g66100 物理区间是 38382382-38385504，距QTL最显著位置只有258kb的距离，对于一个只有172个个体的F2群体而言，结果是不是已经很不错了。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" data-id="cllgasdvm00h4dkov3pdkf64j" data-title="如何用binmapr进行遗传定位" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NGS-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">NGS | 遗传定位</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/17/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/19/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/17/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/19/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -2265,6 +2249,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -2278,10 +2266,6 @@
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>

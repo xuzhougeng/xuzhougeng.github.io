@@ -73,6 +73,75 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-0-1背包问题-0-1-bag-problem" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" class="article-date">
+  <time class="dt-published" datetime="2020-02-07T21:49:52.858Z" itemprop="datePublished">2020-02-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/">0-1背包问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>对于一组不同重量、不可分割的物品，我们需要选择一些装入背包，在满足背包最大重量限制前提下，背包中物品总重量的最大值是多少？假设此时是5个物品，2，2，4，6，3，然后背包最大承载两是9.</p>
+<p>假如我们使用回溯算法解决该问题, 代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> maxW = <span class="number">0</span>; <span class="comment">//最大重量</span></span><br><span class="line"><span class="type">int</span> n = <span class="number">5</span>; <span class="comment">//物品数目</span></span><br><span class="line"><span class="type">int</span> w = <span class="number">9</span>; <span class="comment">// 背包最大重量</span></span><br><span class="line"><span class="type">int</span> weight[] = &#123;<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">3</span>&#125;;<span class="comment">// 物品重量,2,2,4,6,3</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">rucksack</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> cw)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ( cw == w || i == n )&#123;</span><br><span class="line">        <span class="keyword">if</span> ( cw &gt; maxW ) maxW= w;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    rucksack(i + <span class="number">1</span>, cw);<span class="comment">//不装第i个物品</span></span><br><span class="line">    <span class="keyword">if</span> ( cw + weight[i] &lt;= w)&#123; <span class="comment">//如果装的下</span></span><br><span class="line">        rucksack(i + <span class="number">1</span>, cw + weight[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果将代码执行过程产生状态画成树，我们可以发现对于不加入物品2的选择f(1,0)和加入物品2的选择f(1,2), 在下一个选择时，他们有一个相同的状态，f(2,2)。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-561e3cc31b6f4b49b0058a982d80bcae.png" alt="递归树"></p>
+<p>虽然得到它的过程不同，但是从这往后，大家都是一样的。如同你走迷宫，走到一个地方，你发现墙上有一张纸写着，”此路不通”，你就可以不用白费力气去探索了。因此，如果一个问题解决时存在重复子问题，我们可以通过记忆化的方式，避免重复运算，提高计算效率。</p>
+<p>从动态规划的角度，我们可以将整个求解过程分为n个阶段，每个阶段都需要决策是否需要将物品放到背包中。每个物品的决策后，背包中物品的重量就有会有种情况，也就是达到了不同的状态，也就是递归树中的不同节点。在每一个层中，我们只记录不同的状态（比如说上图的第2层的两个<code>f(2,2)</code>就可以合并成一种情况，当然第四层就更多了）。这样一来，我们就保证了每一层的状态数就不会超过w个（w是背包的承载重量）。这种合并操作就可以认为是一种记忆化。</p>
+<p>我们先用一个二维数组来记录每层可以达到的不同状态</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-cc83ed81f27f48d6bf02e94b6fb4be6d.png" alt="初始状态"></p>
+<p>考场重量为2的物品后，会出现两种状态，0和2。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-2666686f3de54fa9b3a503939a17f271.png" alt="状态1"></p>
+<p>在上一个状态的基础再考察一个重量为2的物品，会有三种状态，一直不选择，先不选再选2，两次都选2.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-3996bf969c0544139e90ef227d123469.png" alt="状态2"></p>
+<p>继续考察重量为4的情况时，会出现五种情况，其中重量为4可能来源是0+0+4，2+2+0，这种重复状态就被合并成一种状态，因此减少了计算量。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-a7119febf4a8458e8c7ac3cd60fcf20f.png" alt="状态3"></p>
+<p>最终状态如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-0d011f9cbcc8491f87cf7df2d4800c6e.png" alt="最终状态"></p>
+<p>将上面的思考过程翻译成代码就是，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">rucksackDp</span><span class="params">(<span class="type">int</span> *weight, <span class="type">int</span> num, <span class="type">int</span> w)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//先定义一个二维数组</span></span><br><span class="line">    <span class="type">int</span> **status = (<span class="type">int</span> **)<span class="built_in">malloc</span>( <span class="keyword">sizeof</span>(<span class="type">int</span> *) * num);</span><br><span class="line">    <span class="comment">//初始化数组</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; num; i++)&#123;</span><br><span class="line">        status[i] = (<span class="type">int</span> *)<span class="built_in">calloc</span>( w+<span class="number">1</span>, <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//初始化第一行的值</span></span><br><span class="line">    status[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">1</span>; <span class="comment">//不放</span></span><br><span class="line">    <span class="keyword">if</span> ( weight[<span class="number">0</span>] &lt; w)&#123;</span><br><span class="line">        status[<span class="number">0</span>][weight[<span class="number">0</span>]] = <span class="number">1</span>; <span class="comment">//放</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//从第二个开始考虑</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; num; i++)&#123;</span><br><span class="line">        <span class="comment">//不放的情况，直接将上面的结果复制给当前</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= w; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> (status[i<span class="number">-1</span>][j] == <span class="number">1</span>)  status[i][j] = status[i<span class="number">-1</span>][j];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//上面循环可以写成</span></span><br><span class="line">        <span class="comment">//memcpy(status[i], status[i-1], sizeof(int) * num);</span></span><br><span class="line">        <span class="comment">//放: 在上一个状态基础上, 将增加后的重量对应位置设置为1</span></span><br><span class="line">        <span class="keyword">for</span> ( <span class="type">int</span> j = <span class="number">0</span>; j &lt;= w -weight[i]; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> ( status[i<span class="number">-1</span>][j] == <span class="number">1</span>) status[i][j+weight[i]] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//输出结果</span></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = w; i &gt;= <span class="number">0</span>; --i)&#123;</span><br><span class="line">        <span class="keyword">if</span> (status[n<span class="number">-1</span>][i] == <span class="number">1</span>) <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面我们使用的是二维数组用于保存所有状态，但实际上这里我们只需要一维数组维护前一个状态就可以推导出当前结果</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">rucksackDp2</span><span class="params">(<span class="type">int</span> *weight, <span class="type">int</span> num, <span class="type">int</span> w)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//先定义数组</span></span><br><span class="line">    <span class="type">int</span> *status = (<span class="type">int</span> *)<span class="built_in">calloc</span>( num, <span class="keyword">sizeof</span>(<span class="type">int</span> )  );</span><br><span class="line"></span><br><span class="line">    <span class="comment">//初始化第一行的值</span></span><br><span class="line">    status[<span class="number">0</span>]= <span class="number">1</span>; <span class="comment">//不放</span></span><br><span class="line">    <span class="keyword">if</span> ( weight[<span class="number">0</span>] &lt; w)&#123;</span><br><span class="line">        status[weight[<span class="number">0</span>]] = <span class="number">1</span>; <span class="comment">//放</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//从第二个开始考虑</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; num; i++)&#123;</span><br><span class="line">        <span class="comment">//不放: 保持状态不变</span></span><br><span class="line">        <span class="comment">//放: 在上一个状态基础上, 将增加后的重量对应位置设置为1</span></span><br><span class="line">        <span class="keyword">for</span> ( <span class="type">int</span> j = <span class="number">0</span>; j &lt;= w -weight[i]; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> ( status[j] == <span class="number">1</span>) status[j+weight[i]] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//输出结果</span></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = w; i &gt;= <span class="number">0</span>; --i)&#123;</span><br><span class="line">        <span class="keyword">if</span> (status[i] == <span class="number">1</span>) <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写动态规划代码的关键在于状态定义和状态转移方程。在0-1背包问题中，我们定义的状态是<code>status[i]</code>就是当前决策结束后到达的重量，而转移方程就是<code>if ( status[j] == 1) status[j+weight[i]] = 1;</code></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" data-id="cllpwkjto0005e0p23y9agtkz" data-title="0-1背包问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-用C语言实现单链表操作-c-single-link-list" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/02/02/%E7%94%A8C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E6%93%8D%E4%BD%9C-c-single-link-list/" class="article-date">
@@ -179,7 +248,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/02/%E7%94%A8C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E6%93%8D%E4%BD%9C-c-single-link-list/" data-id="cllgasdx100jzdkov54cn5wtu" data-title="用C语言实现单链表操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/02/%E7%94%A8C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E6%93%8D%E4%BD%9C-c-single-link-list/" data-id="cllpwkk2e00jve0p2aigo1jp1" data-title="用C语言实现单链表操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -266,7 +335,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" data-id="cllgasdp7001ndkov3tgeb5xj" data-title="Klib之khash学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" data-id="cllpwkjud001ge0p2fby76ptp" data-title="Klib之khash学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -343,7 +412,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" data-id="cllgasdwf00iodkovamqh7wxk" data-title="数据结构之堆(heap)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" data-id="cllpwkk1y00ike0p236adgxp0" data-title="数据结构之堆(heap)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -427,7 +496,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" data-id="cllgasdp00015dkov6ho4bus3" data-title="C语言实战课-klib库学习" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" data-id="cllpwkju6000ye0p2e25pgtt2" data-title="C语言实战课-klib库学习" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -500,7 +569,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" data-id="cllgasdp3001bdkovdrdl9c2n" data-title="C语言实战课-让程序能够处理gz文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" data-id="cllpwkju90014e0p27ta60y8s" data-title="C语言实战课-让程序能够处理gz文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -591,7 +660,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" data-id="cllgasdp20018dkovbojsd9yi" data-title="C语言实战课-将FASTQ转成FASTA" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" data-id="cllpwkju80012e0p2gw0tdiy6" data-title="C语言实战课-将FASTQ转成FASTA" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -672,7 +741,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" data-id="cllgasdxj00l1dkov90acaki3" data-title="这一次我要真正学会C语言" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" data-id="cllpwkk2s00kxe0p2f6igh144" data-title="这一次我要真正学会C语言" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -774,7 +843,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" data-id="cllgasdur00eadkov8eq43g17" data-title="利用k-mer进行基因组调查" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" data-id="cllpwkjzh00due0p21hpq7hmk" data-title="利用k-mer进行基因组调查" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -857,125 +926,10 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="cllgasdok0007dkovbe0u67tl" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="cllpwkk2u00l3e0p24l0v0l1p" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用EDTA进行TE注释-annotate-te-with-edta-pipeline" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" class="article-date">
-  <time class="dt-published" datetime="2020-01-08T16:16:47.328Z" itemprop="datePublished">2020-01-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/">使用EDTA进行TE注释</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>一句话评价：重复序列注释用EDTA就完事了。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>EDTA, 全称是 Extensive de-novo TE Annotator, 一个综合性的流程工具，它整合了目前LTR预测工具结果，TIR预测工具结果，MITE预测工具结果，Helitrons预测工具结果, 从而构建出一高可信，非冗余的TE数据库，用做基因组的注释。流程图如下</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-450f4b170c1f42eb9450676772fb5a5a.png" alt="EDTA流程"></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>如果没有管理员权限，可以用conda进行安装。如果有管理员权限，可以尝试用docker或者singularity进行安装。</p>
-<p>PS: 如果之前用过EDTA的话，可以更新一下版本，因为从1.7.0开始，EDTA把intact TE和homology based注释结合在一起，最终产生了很高质量的gff，合并了所有注释；1.7.1版把包含基因的intact也去掉了，进一步过滤。（来自于作者的建议）</p>
-<h3 id="conda"><a href="#conda" class="headerlink" title="conda"></a>conda</h3><p>使用conda的安装方法如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">conda create -n EDTA</span><br><span class="line">conda activate EDTA</span><br><span class="line">python2 -m pip install --user numpy==1.14.3 biopython==1.74 pp</span><br><span class="line">conda config --<span class="built_in">env</span> --add channels anaconda --add channels conda-forge --add channels biocore --add channels bioconda --add channels cyclus</span><br><span class="line">conda install -n EDTA -y cd-hit repeatmodeler muscle mdust repeatmasker=4.0.9_p2 blast-legacy java-jdk perl perl-text-soundex multiprocess regex tensorflow=1.14.0 keras=2.2.4 scikit-learn=0.19.0 biopython pandas glob2 python=3.6 trf</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/oushujun/EDTA</span><br><span class="line">./EDTA/EDTA.pl</span><br></pre></td></tr></table></figure>
-
-<p>需要注意的一点是，bioconda建议添加国内镜像站点, 否则可能会下载失败。</p>
-<h3 id="singularity"><a href="#singularity" class="headerlink" title="singularity"></a>singularity</h3><p>方法1: 使用EDTA上提供的docker镜像，以singularity进行安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://kapeel/edta</span><br></pre></td></tr></table></figure>
-
-<p>在使用时，有一点需要注意，需要用<code>-B</code>将外部的RepeatMasker的Libraries绑定的Libraries，否则可能会在检查依赖这一步失败。</p>
-<p>这里，我参考的是<a target="_blank" rel="noopener" href="https://github.com/lfaino/LoReAn/">LoReAN</a>的方法</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~ <span class="comment"># 切换到家目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p LoReAn &amp;&amp; <span class="built_in">cd</span> LoReAn</span><br><span class="line">wget https://github.com/lfaino/LoReAn/raw/noIPRS/third_party/software/RepeatMasker.Libraries.tar.gz &amp;&amp; tar -zxvf RepeatMasker.Libraries.tar.gz</span><br><span class="line">singularity <span class="built_in">exec</span> \</span><br><span class="line">    -B /home/xzg/LoReAn/Libraries/:/opt/conda/share/RepeatMasker/Libraries/ \</span><br><span class="line">    /home/xzg/edta.sif /EDTA/EDTA.pl -h</span><br></pre></td></tr></table></figure>
-
-<p>上面的<code>/home/xzg/</code>是我的家目录，需要根据实际情况进行选择</p>
-<p>方法2: 使用 @wangshun1121 构建的docker镜像, 他解决了需要<code>-B</code>进行挂载的问题。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">singularity build edta.sif docker://registry.cn-hangzhou.aliyuncs.com/wangshun1121/edta</span><br></pre></td></tr></table></figure>
-
-<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><p>我们以拟南芥的第一条染色体为例，进行介绍</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># singularity</span></span><br><span class="line">singularity <span class="built_in">exec</span> ~/LoReAn/edta.sif /EDTA/EDTA.pl \</span><br><span class="line">    -genome chr1.fa -species others -step all -t 20</span><br><span class="line"><span class="comment"># conda</span></span><br><span class="line"><span class="comment"># 我的EDTA在我的家目录下</span></span><br><span class="line">~/EDTA/EDTA.pl -genome chr1.fa -species others -step all -t 20</span><br></pre></td></tr></table></figure>
-
-<p>这里的参数比较简单,</p>
-<ul>
-<li><code>-genome</code>: 输入的基因组序列</li>
-<li><code>-species</code>: 物种名，Rice, Maize和others三个可选</li>
-<li><code>-step</code>: 运行步骤,  <code>all|filter|final|anno</code>, 根据具体情况选择</li>
-<li><code>-t</code>: 线程数，默认是4</li>
-</ul>
-<p>此外还有几个参数可以关注下</p>
-<ul>
-<li><p><code>-cds</code>: 提供已有的CDS序列（不能包括内含子和UTR），用于过滤.这个值也比较重要，建议提供下，否则会降低busco值（来自于作者的推荐）</p>
-</li>
-<li><p><code>-sensitive</code>: 是否用<code>RepeatModeler</code>分析剩下的TE，默认是0，也就是不要。<code>RepeatModeler</code>运行时间比较久，量力而信。</p>
-</li>
-<li><p><code>-anno</code>: 是否在构建TE文库后进行全基因组预测，默认是0.</p>
-</li>
-<li><p><code>-evalues 1</code>: 默认是0，需要同时设置-anno 1才能使用。建议加上，它能够查看注释质量，是非常不错的功能哦（来自于作者的推荐）<br>运行结束之后，会在当前目录下留下运行时的中间文件，保证你程序中断之后，能够断点续跑</p>
-</li>
-<li><p>xxx.EDTA.raw</p>
-</li>
-<li><p>xxx.EDTA.combine</p>
-</li>
-<li><p>xxx.EDTA.final</p>
-</li>
-</ul>
-<p>以及你关注的<code>xxx.EDTA.TElib.fa</code>, 这就是最终的TE文库。</p>
-<p><strong>需要注意</strong>的是，在实际运行的时候，你不能单条染色体的运行，这不是程序设计的目的，我们这里用一条染色体仅仅是为了演示，测试程序能否顺利运行。</p>
-<p>而在实际项目中，一定要用所有的染色体或者scaffold</p>
-<h2 id="可能问题"><a href="#可能问题" class="headerlink" title="可能问题"></a>可能问题</h2><p>我在使用EDTA时，就遇到了两个问题。一个是singularity的EDTA直接使用时无法通过依赖检测，解决方法已经在安装部分提过，这里不在赘述。</p>
-<p>另一个问题我在”Identify TIR candidates from scratch”这一步出现下面的报错</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">what():  terminate called after throwing an instance of <span class="string">&#x27;Resource temporarily unavailable std::system_error&#x27;</span></span><br><span class="line">what():  Resource temporarily unavailable</span><br><span class="line">terminate called after throwing an instance of <span class="string">&#x27;std::system_error&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>我对这个报错进行了分析，找到了对应代码，即<code>sh $TIR_Learner -g $genome -s $species -t $threads -l $maxint</code>. 用实际内容替换变量后，即下面这行代码</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh /EDTA/bin/TIR-Learner2.4/TIR-Learner2.4.sh -g chr.fa -s others -t 20 -l 5000</span><br></pre></td></tr></table></figure>
-
-<p>更具体一点，可以将问题定位到脚本的<code>Module 3, Step 3: Get dataset</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">genomeFile=/data/xzg_data/1800_assembly/annotation/repeatAnnotation/chr.fa <span class="comment">#基因组文件的实际路径</span></span><br><span class="line">genomeName=TIR-Learner</span><br><span class="line">tir_path=/EDTA/bin/TIR-Learner2.4 <span class="comment"># TIR-Learner2.4的路径</span></span><br><span class="line">t=1</span><br><span class="line"><span class="built_in">dir</span>=`<span class="built_in">pwd</span>`</span><br><span class="line"><span class="built_in">export</span> OMP_NUM_THREADS=1</span><br><span class="line">python3 <span class="variable">$tir_path</span>/Module3_New/getDataset.py -g <span class="variable">$genomeFile</span> -name <span class="variable">$genomeName</span> -p <span class="variable">$tir_path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>将线程数设置为1后，该代码顺利跑通。进一步，我定位<code>getDataset.py</code>的出问题的地方实际是<code>predict</code>函数。当然接着执行后续的代码，发现改动这一参数并不影响下面代码的运行。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 4: Check TIR/TSD&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3_New/CheckTIRTSD_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Module 3, Step 5: Write to Gff&quot;</span></span><br><span class="line">python3 <span class="variable">$path</span>/Module3/WriteToGff_M3.py -name <span class="variable">$genomeName</span> -p <span class="variable">$path</span> -t <span class="variable">$t</span> -d <span class="variable">$dir</span><span class="string">&quot;/Module3_New&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>我发现<code>predict</code>函数涉及到了Python的多进程调用，最终在偶然间找到问题真正所在，即Linux系统对用户的资源限制，可以通过<code>ulimit -a</code>查看。</p>
-<p>最终我通过设置<code>ulimit -u 9000</code>，提高允许运行的总程序数，将问题解决。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA">EDTA官方文档</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/oushujun/EDTA/issues/11">RMblast的问题</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.linuxquestions.org/questions/linux-server-73/bash-fork-retry-resource-temporarily-unavailable-limit-issue-4175618262/">一个关于fork资源不够的解决过程</a></li>
-<li>Ou, S., Su, W., Liao, Y., Chougule, K., Agda, J.R.A., Hellinga, A.J., Lugo, C.S.B., Elliott, T.A., Ware, D., Peterson, T., et al. (2019). Benchmarking transposable element annotation methods for creation of a streamlined, comprehensive pipeline. Genome Biology 20, 275.</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllgasdt400b6dkovhk8zaz3i" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">重复序列</a></li></ul>
-
     </footer>
   </div>
   
@@ -988,7 +942,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/12/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/14/">下一页 &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/12/">&laquo; 上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/14/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -1041,6 +995,10 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       <ul>
         
           <li>
+            <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
           </li>
         
@@ -1054,10 +1012,6 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
         
           <li>
             <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
-          </li>
-        
-          <li>
-            <a href="/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/">掌握了一个关于Bcrypt加密的知识</a>
           </li>
         
       </ul>
