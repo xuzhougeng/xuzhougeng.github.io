@@ -73,6 +73,82 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Rcpp学习笔记之简化版table-Rcpp_learn_note_simplified_table" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" class="article-date">
+  <time class="dt-published" datetime="2019-10-14T13:53:46.564Z" itemprop="datePublished">2019-10-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/">Rcpp学习笔记之简化版table</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>R语言有一个自带的函数<code>table</code>能够统计输入变量中不同元素出现的次数，举个例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">d <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;A&quot;</span><span class="punctuation">,</span><span class="string">&quot;B&quot;</span><span class="punctuation">,</span><span class="string">&quot;C&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>果子老师曾写一篇推送，自己写了一个简化版的table，比R自带的table 运行的速度更快，如下</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">tableGZ <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span><span class="punctuation">(</span><span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">==</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x</span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> </span><br><span class="line">                 <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span> <span class="punctuation">&#123;</span><span class="built_in">sum</span><span class="punctuation">(</span>data<span class="operator">==</span>x<span class="punctuation">)</span><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>data<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span> <span class="keyword">else</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">]</span></span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="built_in">sum</span><span class="punctuation">(</span>data <span class="operator">==</span> x<span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>dd<span class="punctuation">,</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="string">&#x27;NA&#x27;</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们通过运行1000次代码，来比较下两者的运行速度</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableGZ<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">42.9</span>ms  <span class="number">42.4</span>ms </span><br><span class="line"></span><br><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">107</span>ms   <span class="number">106</span>ms  </span><br></pre></td></tr></table></figure>
+
+<p>在我的电脑上，果子老师的代码运行速度比R自带的table快了将近3倍。当然这是有原因的，因为R的table的代码功能更加复杂，能够比较多个变量之间的关系，例如<code>table(d,d)</code>。</p>
+<p>既然是简单的统计每个元素的次数，那么我就想着能不能写出一个比果子老师速度更快的函数。 于是，我抽空写了下面的代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  out <span class="operator">&lt;-</span> vector<span class="punctuation">(</span><span class="built_in">length</span> <span class="operator">=</span> <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="literal">NA</span><span class="punctuation">,</span>  <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> <span class="punctuation">(</span>i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>j <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">[</span>j<span class="punctuation">]</span><span class="punctuation">)</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">          out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span></span><br><span class="line">          out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="number">1</span></span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">==</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">        out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="punctuation">&#125;</span> </span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    na_end <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    out_name<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="string">&#x27;NA&#x27;</span></span><br><span class="line">    out<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> NA_num</span><br><span class="line">    </span><br><span class="line">  <span class="punctuation">&#125;</span> </span><br><span class="line">  na_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> out_name<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  out <span class="operator">&lt;-</span> out<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  <span class="built_in">names</span><span class="punctuation">(</span>out<span class="punctuation">)</span> <span class="operator">&lt;-</span> out_name</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>out<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>虽然我的代码更长了，但是并没有让速度提高，反而比果子老师的代码慢，甚至还不如R自带的table。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">system.time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">148</span>ms   <span class="number">148</span>ms </span><br></pre></td></tr></table></figure>
+
+<p>当然那么一长串代码并不是白写的，因为我特意避免了使用R特有的内容，所以代码能够很容易改写成<code>C++</code>代码使用<code>Rcpp</code>调用，从而提高速度</p>
+<p>新建一个<code>tableC.cpp</code>文件，代码内容如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">NumericVector <span class="title">tableC</span><span class="params">(CharacterVector cv)</span></span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// initialize variable</span></span><br><span class="line">  CharacterVector na = CharacterVector::<span class="built_in">create</span>(<span class="string">&quot;NA&quot;</span>);</span><br><span class="line">  NumericVector out = <span class="built_in">rep</span>(NumericVector::<span class="built_in">create</span>(<span class="number">0</span>), cv.<span class="built_in">size</span>());</span><br><span class="line">  CharacterVector out_name = <span class="built_in">rep</span>(na, cv.<span class="built_in">size</span>());</span><br><span class="line">  <span class="type">int</span> unique_num = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// </span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; cv.<span class="built_in">size</span>();i ++) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; cv.<span class="built_in">size</span>(); j++)&#123;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == <span class="string">&quot;NA&quot;</span> )&#123;</span><br><span class="line">        out_name[j] = cv[i] ;</span><br><span class="line">        out[j] = <span class="number">1</span>;</span><br><span class="line">        unique_num += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == cv[i] )&#123;</span><br><span class="line">        out[j] = out[j] + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  out.<span class="built_in">attr</span>(<span class="string">&quot;names&quot;</span>) = out_name;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> out;</span><br><span class="line">  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>然后在R里面用Rcpp这个C++代码，替换掉之前代码中的循环部分</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Rcpp<span class="operator">::</span>sourceCpp<span class="punctuation">(</span><span class="string">&quot;tableC.cpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> <span class="built_in">as.character</span><span class="punctuation">(</span>x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> tableC<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> res<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">names</span><span class="punctuation">(</span>res<span class="punctuation">)</span> <span class="operator">==</span> <span class="string">&quot;NA&quot;</span><span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    res <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>res<span class="punctuation">,</span> <span class="string">&quot;NA&quot;</span><span class="operator">=</span>NA_num<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>res<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>于是这一次在C++的加持下，我写的table函数速度超过了果子老师的代码。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment">#结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">30.1</span>ms  <span class="number">29.3</span>ms </span><br></pre></td></tr></table></figure>
+
+<p>最后总结一下：如果一个操作只需要做一次，那么速度可能并不是最重要的。因为即便是一个原本要花24小时的代码，提速10倍，只要2小时，你可能也会愿意等一等。但是如果这个操作需要重复很多次，上百次，上千次，甚至上万次，那么你就可能等不下去了。你就需要对代码中的一些限速步骤进行优化，比如说table这种多功能函数，你就可以自己用R写一个简化版的函数，替换掉原先的代码。</p>
+<p>如果对速度有更高的要求，那么就需要用到<code>C++</code>进行代码重写了。学习<code>C++</code>其实并不会特别难，因为有一个<code>Rcpp</code>简化了许多操作，你只需要掌握几个最基本的语言特性，比如说<code>C++</code>需要先定义变量才能使用变量。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><ul>
+<li><a href="/archives/C++_For_R_User">给R使用者的C++最少必要知识</a></li>
+<li><a href="/archives/Write_first_function_Using_Rcpp">Rcpp学习笔记之Hello World!</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" data-id="cllszh6300040e2qe7dkn7xig" data-title="Rcpp学习笔记之简化版table" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-Rcpp学习笔记之Hello World!-Write_first_function_Using_Rcpp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" class="article-date">
@@ -130,7 +206,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" data-id="cllpwkjv6003ge0p27ea2f32k" data-title="Rcpp学习笔记之Hello World!" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/13/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8BHello%20World!-Write_first_function_Using_Rcpp/" data-id="cllszh62s003ue2qe1hcfbbql" data-title="Rcpp学习笔记之Hello World!" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -230,7 +306,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" data-id="cllpwkk2j00k6e0p24v5fhtw1" data-title="给R使用者的C++最少必要知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/13/%E7%BB%99R%E4%BD%BF%E7%94%A8%E8%80%85%E7%9A%84C++%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9F%A5%E8%AF%86-C++_For_R_User/" data-id="cllszh66m00fwe2qe2rh0ao3o" data-title="给R使用者的C++最少必要知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -631,7 +707,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/11/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-How-to-annotate-your-genome/" data-id="cllpwkk1600gee0p2696z34yr" data-title="如何对基因组序列进行注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/11/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-How-to-annotate-your-genome/" data-id="cllszh67p00ixe2qeehhjfdkf" data-title="如何对基因组序列进行注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -708,7 +784,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E5%A6%82%E4%BD%95%E5%B1%95%E7%A4%BAMUMMER%E7%9A%84%E7%BB%93%E6%9E%9C-Visualization-of-MUMMER-Result/" data-id="cllpwkk1800gie0p2d39qh47p" data-title="如何展示MUMMER的结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E5%A6%82%E4%BD%95%E5%B1%95%E7%A4%BAMUMMER%E7%9A%84%E7%BB%93%E6%9E%9C-Visualization-of-MUMMER-Result/" data-id="cllszh67q00j1e2qe6l71eggd" data-title="如何展示MUMMER的结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -846,7 +922,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E4%BD%BF%E7%94%A8BRAKER2%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A-genome-annotation-with-braker2/" data-id="cllpwkjyg00ave0p20dvrfwz1" data-title="使用BRAKER2进行基因组注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E4%BD%BF%E7%94%A8BRAKER2%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A-genome-annotation-with-braker2/" data-id="cllszh65200b4e2qef0c091dc" data-title="使用BRAKER2进行基因组注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -959,7 +1035,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/10/%E3%80%8CRNA-seq%E5%88%86%E6%9E%90%E8%BD%AF%E4%BB%B6%E3%80%8DRNA-seq%E6%AF%94%E5%AF%B9%E5%B7%A5%E5%85%B7STAR%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-RNA-seq-aligner-STAR/" data-id="cllpwkjwv006ee0p2c3ua227l" data-title="「RNA-seq分析软件」RNA-seq比对工具STAR学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/10/%E3%80%8CRNA-seq%E5%88%86%E6%9E%90%E8%BD%AF%E4%BB%B6%E3%80%8DRNA-seq%E6%AF%94%E5%AF%B9%E5%B7%A5%E5%85%B7STAR%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-RNA-seq-aligner-STAR/" data-id="cllszh63x006me2qe6i0qei3q" data-title="「RNA-seq分析软件」RNA-seq比对工具STAR学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1676,7 +1752,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/09/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E5%A4%9A%E5%80%8D%E4%BD%93%E6%A4%8D%E7%89%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B5%8B%E5%BA%8F%E7%BB%84%E8%A3%85%E5%BD%93%E5%89%8D%E7%AD%96%E7%95%A5-Current-Strategies-of-Polyploid-Plant-Genome-Sequence-Assembly/" data-id="cllpwkjx1006xe0p2hl5v82ka" data-title="「文献」多倍体植物基因组测序组装当前策略" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/09/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E5%A4%9A%E5%80%8D%E4%BD%93%E6%A4%8D%E7%89%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B5%8B%E5%BA%8F%E7%BB%84%E8%A3%85%E5%BD%93%E5%89%8D%E7%AD%96%E7%95%A5-Current-Strategies-of-Polyploid-Plant-Genome-Sequence-Assembly/" data-id="cllszh6410076e2qed19oahyx" data-title="「文献」多倍体植物基因组测序组装当前策略" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1854,7 +1930,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/06/%E4%BD%BF%E7%94%A8ASMap%E6%9E%84%E5%BB%BA%E9%AB%98%E5%AF%86%E5%BA%A6%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1-Build-high-density-genetic-map-with-ASMap/" data-id="cllpwkjxx0098e0p2e629272d" data-title="使用ASMap构建高密度遗传图谱" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/06/%E4%BD%BF%E7%94%A8ASMap%E6%9E%84%E5%BB%BA%E9%AB%98%E5%AF%86%E5%BA%A6%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1-Build-high-density-genetic-map-with-ASMap/" data-id="cllszh64n009he2qefp3vel7n" data-title="使用ASMap构建高密度遗传图谱" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -2020,169 +2096,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/04/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8BSA%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D%EF%BC%88%E6%B0%B4%E7%A8%BB%E7%AF%87%EF%BC%89-QTL-analysis-using-BSA-seq-in-rice/" data-id="cllpwkk0000f0e0p21ior7urw" data-title="如何使用BSA方法进行遗传定位（水稻篇）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/04/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8BSA%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D%EF%BC%88%E6%B0%B4%E7%A8%BB%E7%AF%87%EF%BC%89-QTL-analysis-using-BSA-seq-in-rice/" data-id="cllszh67b00hue2qe9e1i6i45" data-title="如何使用BSA方法进行遗传定位（水稻篇）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B0%B4%E7%A8%BB-%E8%BD%AC%E5%BD%95%E7%BB%84-%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">水稻 | 转录组 | 遗传定位</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用SHOREmap做mapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" class="article-date">
-  <time class="dt-published" datetime="2019-10-03T16:43:58.610Z" itemprop="datePublished">2019-10-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/">使用SHOREmap做mapping-by-sequencing</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>SHOREmap可以用来分析传统作图群体（自然系natural strains和分化系,diverged accession杂交，或outcrossing)或近等作图群体（isogenic mapping population, 诱变后代与未诱变亲本进行杂交，即会交,backcrossing)所产生的重测序数据。根据作图群体构建方式的不同，SHOREmap的outcross或backcross采用不同基于滑窗(sliding)方式对等位基因频率进行分析。</p>
-<p>SHOREmap的backcross和outcross都需要从突变重组库中获得的一致的碱基识别信息</p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="前置安装"><a href="#前置安装" class="headerlink" title="前置安装"></a>前置安装</h2><p>SHOREmap需要<a target="_blank" rel="noopener" href="http://www.mps.mpg.de/dislin/">DISLIN</a>科学库进行数据可视化</p>
-<p>但是在安装DISLIN之前还需要保证存在<code>/usr/lib/libXm.so*</code>和<code>/usr/lib/libXm.so*</code>，这两者的安全需要root权限，所以要么联系管理员，要么想办法绕开(这个办法，我还没有想到).</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libmotif4</span><br><span class="line">sudo apt-get install libxt-dev</span><br></pre></td></tr></table></figure>
-
-<p>开始安装doslin库</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">cd /path/to/src</span><br><span class="line"># 下载</span><br><span class="line">wget ftp://ftp.gwdg.de/pub/grafik/dislin/linux/i586_64/dislin-11.0.linux.i586_64.tar.gz</span><br><span class="line"># 解压缩</span><br><span class="line">tar -zxvf dislin-11.0.linux.i586_64.tar.gz</span><br><span class="line">cd dislin-11.0</span><br><span class="line"># 加入系统路径</span><br><span class="line">mkdir -p $HOME/biosoft/dislin</span><br><span class="line">DISLIN=$HOME/biosoft/dislin</span><br><span class="line">export DISLIN</span><br><span class="line"># 安装</span><br><span class="line">./INSTALL</span><br><span class="line"># 复制dislin_d.h 到dislin的文件下</span><br><span class="line">cp ./example/dislin_d.h $DISLIN</span><br><span class="line"># 删除安装文件(可选)</span><br><span class="line">rm -rf dislin-11.0</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装SHOREmap-v3-x"><a href="#安装SHOREmap-v3-x" class="headerlink" title="安装SHOREmap v3.x"></a>安装SHOREmap v3.x</h2><p>我这次安装的是当前最新的3.4版本，其他版本估计换汤不换药。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/biosoft</span><br><span class="line">wget http://bioinfo.mpipz.mpg.de/shoremap/SHOREmap_v3.4.tar.gz</span><br><span class="line"># 替换SHOREmap下的dislin的一些文件</span><br><span class="line">tar -zxvf SHOREmap_v3,4</span><br><span class="line">rm dislin/*dislin_d.*</span><br><span class="line">cp $DISLIN/*dislin_d.* dislin</span><br><span class="line"># 编辑/etc/profile或.bashrc</span><br><span class="line">vi .bashrc</span><br><span class="line">export LD_LIBRARY_PATH=$HOME/src/SHOREmap_v3.4/dislin</span><br><span class="line"># 退出保存.bashrc: Esc+:wq</span><br><span class="line">source .bashrc</span><br><span class="line"># 到之前安装的文件夹下</span><br><span class="line">cd &amp; cd src/SHOREmap_v3.4</span><br><span class="line">(可选，如果没有g++)sudo apt-get install build-essential</span><br><span class="line">make</span><br><span class="line"># 将编译文件拷贝到习惯的文件夹中，然后添加执行路径</span><br><span class="line">cp SHOREmap ../../biosoft/SHOREmap_v3.4</span><br><span class="line">echo &quot;export $HOME/bisoft/SHOREmap_v3.4&quot; &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<p>最后，可以重新启动一下bash验证</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/shoremap-6bbbdce394e14f3fa6072d2938bf6ed8.png" alt="shoremap"></p>
-<h2 id="官方网站提供的两个常见问题的解答"><a href="#官方网站提供的两个常见问题的解答" class="headerlink" title="官方网站提供的两个常见问题的解答"></a>官方网站提供的两个常见问题的解答</h2><p>Note 1: if the compilation complains like “&#x2F;usr&#x2F;bin&#x2F;ld: cannot find -lXt” (or “&#x2F;usr&#x2F;bin&#x2F;ld: cannot find -ldislin_d”), please open the makefile with the command</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi makefile</span><br></pre></td></tr></table></figure>
-<p>Press keys ‘esc’ and ‘i’ on the keyboard to edit makefile; move the cursor with arrow keys to the position before -lXt, and edit -L&#x2F;path&#x2F;to&#x2F;libXt.so&#x2F;; if ‘-ldislin_d’ is not found, edit -L&#x2F;path&#x2F;to&#x2F;dislin_d&#x2F; before -ldislin_d). After that, press keys ‘esc’, type in <strong>:wq</strong>, and press enter to save editing and quit vi. (‘-L’ tells the linker where to find the library given by -l)</p>
-<p>Note 2: if ‘&#x2F;usr&#x2F;lib&#x2F;ld: warning: libXm.so.3, needed by .&#x2F;dislin&#x2F;libdislin_d.so, not found (try using -rpath or -rpath-link)’ occurs, and you have installed libmotif4, do the following:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/lib/libXm.so.4 /usr/lib/libXm.so.3</span><br></pre></td></tr></table></figure>
-<p>We can make SHOREmap avaiable for general use by inserting the following command into &#x2F;etc&#x2F;profile</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$PATH:/path/to/SHOREmap_v3.x</span><br></pre></td></tr></table></figure>
-<p>and</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
-
-<h1 id="总体流程"><a href="#总体流程" class="headerlink" title="总体流程"></a>总体流程</h1><h2 id="OUTCROSS"><a href="#OUTCROSS" class="headerlink" title="OUTCROSS"></a>OUTCROSS</h2><table>
-<thead>
-<tr>
-<th>outcross的基本步骤</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SHOREmap extract</td>
-<td>提取与SNP突变相关的重测序的一致的识别</td>
-</tr>
-<tr>
-<td>SHOREmap create</td>
-<td>根据背景&#x2F;亲本系的重测序质量创建SNP标记列表</td>
-</tr>
-<tr>
-<td>SHOREmap outcross</td>
-<td>进行等位基因频率分析并定义mapping interval（也就是找到突变所在的大致区域)</td>
-</tr>
-<tr>
-<td>SHOREmap annotate</td>
-<td>对mapping interval中的突变基因效应进行注释</td>
-</tr>
-</tbody></table>
-<h2 id="BACKCROSS"><a href="#BACKCROSS" class="headerlink" title="BACKCROSS"></a>BACKCROSS</h2><table>
-<thead>
-<tr>
-<th>backcross的基本步骤</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SHOREmap extract</td>
-<td>提取与SNP突变相关的重测序的一致的识别</td>
-</tr>
-<tr>
-<td>SHOREmap backcross</td>
-<td>进行等位基因分析</td>
-</tr>
-<tr>
-<td>SHOREmap annotate</td>
-<td>对mapping interval中的突变基因效应进行注</td>
-</tr>
-</tbody></table>
-<h1 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h1><h2 id="下载数据"><a href="#下载数据" class="headerlink" title="下载数据"></a>下载数据</h2><p>只安装软件，却没有数据，我们也只能干瞪眼。</p>
-<h3 id="oucross分析所需数据"><a href="#oucross分析所需数据" class="headerlink" title="oucross分析所需数据"></a>oucross分析所需数据</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># OCF2 </span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.fg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.fg.reads2.fq.gz &amp;</span><br><span class="line"># Ler </span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.bg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -qh ttp://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.bg.reads2.fq.gz &amp;</span><br></pre></td></tr></table></figure>
-<h3 id="backcross分析所需数据"><a href="#backcross分析所需数据" class="headerlink" title="backcross分析所需数据"></a>backcross分析所需数据</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># BCF2</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.fg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.fg.reads2.fq.gz &amp;</span><br><span class="line"># mir159a (Col)</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.bg.reads1.fq.gz</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.bg.reads2.fq.gz</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他数据"><a href="#其他数据" class="headerlink" title="其他数据"></a>其他数据</h3><p>除了最基本的测序数据外，我们可能还需要参考基因组，已有的注释数据等</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 参考基因组</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/TAIR10_chr_all.fas &amp;</span><br><span class="line"># 基因注释</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/TAIR10_GFF3_genes.gff &amp;</span><br><span class="line"># SHORE操作的结果数据</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/scoring_matrix_het.txt &amp;</span><br></pre></td></tr></table></figure>
-
-<h2 id="重测序"><a href="#重测序" class="headerlink" title="重测序"></a>重测序</h2><p>首先使用<code>bwa</code>,<code>bowtie2</code>等read比对工具将得到的数据比对到参考基因组上。<br>假设你当前处在MBS文件夹下，该文件下有如下文件</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 混池测序结果，双端</span><br><span class="line">BC.fg.reads1.fq.gz</span><br><span class="line">BC.fg.reads2.fq.gz</span><br><span class="line"># 背景信息测序结果</span><br><span class="line">BC.bg.reads1.fq.gz</span><br><span class="line">BC.bg.reads2.fa.gz</span><br><span class="line"># 拟南芥参考基因组</span><br><span class="line">TAIR10_chr_all.fas</span><br><span class="line"># 拟南芥注释信息</span><br><span class="line">TAIR10_GFF3_genes.gff</span><br></pre></td></tr></table></figure>
-<p>以下操作都是基于上述文件进行。</p>
-<h3 id="第一步-序列比对，产生SAM文件"><a href="#第一步-序列比对，产生SAM文件" class="headerlink" title="第一步: 序列比对，产生SAM文件"></a>第一步: 序列比对，产生SAM文件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir index</span><br><span class="line"># 创建比对所需索引</span><br><span class="line">bowtie2-build TAIR10_chr_all.fas index/TAIR10</span><br><span class="line"># 序列比对</span><br><span class="line">bowtie2 -x index/TAIR10 -1 BC.fg.reads1.fq.gz -2 BC.fg.reads2.fq.gz -S FG.sam</span><br><span class="line">bowtie2 -x index/TAIR10 -1 BC.bg.reads1.fq.gz -2 BC.bg.reads2.fq.gz -S BG.sam</span><br></pre></td></tr></table></figure>
-<h3 id="第二步：-SAMtools预测突变位点"><a href="#第二步：-SAMtools预测突变位点" class="headerlink" title="第二步： SAMtools预测突变位点"></a>第二步： SAMtools预测突变位点</h3><p>为了加快运算速度，可以先转换格式，并排序</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">samtools view -b -o BG.bam BG.sam</span><br><span class="line">samtools view -b -o FG.bam FG.sam</span><br><span class="line">samtools sort -o BG.sorted.bam BG.bam </span><br><span class="line">samtools sort -o FG.sorted.bam FG.bam </span><br><span class="line">samtools index BG.sorted.bam</span><br><span class="line">samtools index FG.sorted.bam</span><br></pre></td></tr></table></figure>
-<p>consensus-calling program 寻找可能的变异位点<br> 由于官方说明中使用samtools版本为0.1.19，先要解释一下参数 mpileup -uD -f，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># -f:faidx indexed reference sequence file 前后版本一致</span><br><span class="line"># -u:generate uncompress BCF output 前后版本一致</span><br><span class="line"># -D:output per-sample DP in BCF (require -g/-u).与输出格式有关，目前改为-t</span><br></pre></td></tr></table></figure>
-<p>因此，对于1.4版本的samtools，相应的参数为</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mpileup -u -t DP -f </span><br></pre></td></tr></table></figure>
-
-<p>官方说明的bcftools也是0.1.19，参数为bcftools view -vcg 旧版本的view在当前的版本用于过滤，功能被call替代</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># -v Output variant sites only (force -c)</span><br><span class="line"># -c属于Call variants using Bayesian inference. This option automatically invokes option -e.When -v is in use, skip loci where the fraction of samples covered by reads is below FLOAT. [0],目前被m取代</span><br><span class="line"># -g Call per-sample genotypes at variant sites (force -c)，这个没有找到合适的替代参数</span><br></pre></td></tr></table></figure>
-
-<p>综上，推荐使用如下命令行</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools mpileup -u -t DP -f ../../../index/TAIR10_chr_all.fa ../../align/bwa/default/BG.sorted.bam | bcftools call -vm -Ov &gt; BG.vcf &amp;</span><br><span class="line">samtools mpileup -u -t DP -f ../../../index/TAIR10_chr_all.fa ../../align/bwa/default/FG.sorted.bam | bcftools call -vm -Ov &gt; FG.vcf &amp;</span><br></pre></td></tr></table></figure>
-<h3 id="额外步骤：VCF格式转换"><a href="#额外步骤：VCF格式转换" class="headerlink" title="额外步骤：VCF格式转换"></a>额外步骤：VCF格式转换</h3><p>由于vcftools工具版本，所以最后的文件版本是4.2，而SHOREmap要求4.1。通过biostar找到高人写的降级工具（其实就是把一些字符替换一下，但是不了解vcf不同版本的差异话，是不知道怎么写）<br>把下面的代码存为<code>vcf_dowgrade.sh</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># If you are trying to view VCF 4.2 files in IGV - you may run into issues. This function might help you.</span><br><span class="line"># This script will:</span><br><span class="line"># 1. Rename the file as version 4.1</span><br><span class="line"># 2. Replace parentheses in the INFO lines (IGV doesn&#x27;t like these!)</span><br><span class="line"></span><br><span class="line">function vcf_downgrade() &#123;</span><br><span class="line">  outfile=$&#123;1/.bcf/&#125;</span><br><span class="line">  outfile=$&#123;outfile/.gz/&#125;</span><br><span class="line">  outfile=$&#123;outfile/.vcf/&#125;</span><br><span class="line">  bcftools view --max-alleles 2 -O v $1 | \</span><br><span class="line">  sed &quot;s/##fileformat=VCFv4.2/##fileformat=VCFv4.1/&quot; | \</span><br><span class="line">  sed &quot;s/(//&quot; | \</span><br><span class="line">  sed &quot;s/)//&quot; | \</span><br><span class="line">  sed &quot;s/,Version=\&quot;3\&quot;&gt;/&gt;/&quot; | \</span><br><span class="line">  bcftools view -O z &gt; $&#123;outfile&#125;.dg.vcf.gz</span><br><span class="line">  tabix $&#123;outfile&#125;.dg.vcf.gz</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其实对于单个文件而言，可以直接用以下命令</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">infile=BG.vcf</span><br><span class="line">outfile=BG.vcf</span><br><span class="line">bcftools  view --max-alleles 2 -O v $&#123;infile&#125; | \</span><br><span class="line">sed &quot;s/##fileformat=VCFv4.2/##fileformat=VCFv4.1/&quot; | \</span><br><span class="line">  sed &quot;s/(//&quot; | \</span><br><span class="line">  sed &quot;s/)//&quot; | \</span><br><span class="line">  sed &quot;s/,Version=\&quot;3\&quot;&gt;/&gt;/&quot; | \</span><br><span class="line">  bcftools view -O z &gt; $&#123;outfile&#125;.dg.vcf.gz</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用SHOREmap寻找突变所在区"><a href="#使用SHOREmap寻找突变所在区" class="headerlink" title="使用SHOREmap寻找突变所在区"></a>使用SHOREmap寻找突变所在区</h2><p>第一步：需要把bcf文件通过SHOREmap convert转换成SHOREmap能认识的格式</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap convert --marker samtools.vcf --folder path/to/folder -runid int</span><br></pre></td></tr></table></figure>
-<p>会生成三个文件3_converted_consen.txt, 3_converted_variant.txt and 3_converted_reference.txt.</p>
-<p>第二步：提取候选分子标记的consensus information(mapping pool)</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap extract --chrsizes chromsize.txt --folder ../SHOREmap_analysis --marker 11_converted_variant.txt --consen 11_converted_consen.txt -verbose</span><br></pre></td></tr></table></figure>
-
-<p>第三步：<br>然后使用SHOREmap backcross分析。SHOREmap backcross可用来分析回交作图群体所得到重组后代混池数据。相对于传统作图群体，只有诱变剂产生的突变会分离，也只有这些才会用于突变定位。</p>
-<p>SHOREmap backcross会尝试过滤出所有参考基因组和测序池之间不同部分用于找到突变点特异部分。为了保证不是自然变异或者是测序错误，测序池选择的部分要多次出现在亲本或背景中。然后根据前景和&#x2F;或背景的(识别碱基,base calls,质量&#x2F;覆盖率&#x2F;等位基因)信息，确定是否把保留的SNP位点作为分子标记。在正确的筛选后（拟南芥大概有上百个标记），SHOREmap backcross就能在分析marker的AF后识别大致的峰。进一步对变异注释后，就能找到目标性状的候选基因了。</p>
-<p>SHOREmap backcross所需的输入文件如下：</p>
-<ul>
-<li>染色体大小文件，--chrsizes。分为两行，一行是染色体位置，一行是染色体大小。scaffold同理</li>
-<li>候选marker文件。也就是使用SHOREmap convert通过vcf生成的converted_variant.txt，每一列的含义如下。<br>Column    Description<br>1    Project name<br>2    Identity of chromosome<br>3    Position of the SNP-marker<br>4    Reference base<br>5    Alternative base (or mutant base)<br>6    Quality of the alternative base (ranging from 0 to 40)<br>7    Number of reads supporting the predicted base<br>8    Ratio of reads supporting the predicted base to total coverage</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap backcross --chrsizes chromsize.txt --marker ../convert/11_converted_variant.txt --consen extracted_consensus_0.txt --folder ../BC_analysis -plot-bc --marker-score 40 --marker-freq 0.0 --min-converage 10 --max-coverage 80 -bg ../convert/12_converted_variant.txt  --bg-cov 1 --bg-freq 0.0 --bg-score 1 -non-EMS --cluster 1 --marker-hit 1 -verbose</span><br></pre></td></tr></table></figure>
-
-<p>第四步：对结果进行注释</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap annotate --chrsizes chromsize.txt --folder ../BC_analysis/ann --snp ../convert/11_converted_variant.txt --chrom 2 --start 1 --end 4000000 --genome ../../TAIR10_chr_all.fas --gff ../../TAIR10_GFF3_genes.gff</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" data-id="cllpwkjyw00c8e0p2hl5h3dp5" data-title="使用SHOREmap做mapping-by-sequencing" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li></ul>
 
     </footer>
   </div>
@@ -2249,6 +2167,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -2262,10 +2184,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

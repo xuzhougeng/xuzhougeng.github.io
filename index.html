@@ -73,6 +73,65 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-编译安装容器singularity" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/" class="article-date">
+  <time class="dt-published" datetime="2023-08-27T12:36:26.000Z" itemprop="datePublished">2023-08-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Singularity的编译不是完全需要root权限，但是有root权限会更加简单，如果你的服务器上没有singularity，用的是ubuntu，可以把这篇文章发给管理员，让他帮你装一个。</p>
+<p>编译的Singularity的环境是Ubuntu 20.04，先安装必要的依赖环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y \</span><br><span class="line">    build-essential \</span><br><span class="line">    libssl-dev \</span><br><span class="line">    uuid-dev \</span><br><span class="line">    libgpgme11-dev \</span><br><span class="line">    squashfs-tools</span><br></pre></td></tr></table></figure>
+
+<p>然后你需要安装大于1.20的GO，否则无法编译新的singularity，这里用的GO版本是1.21。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz </span><br><span class="line">sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz </span><br></pre></td></tr></table></figure>
+
+<p>添加到自己的环境变量中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export GOPATH=$&#123;HOME&#125;/go&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export PATH=/usr/local/go/bin:$&#123;PATH&#125;:$&#123;GOPATH&#125;/bin&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<p>接着，我们需要从github上克隆一份singularity到本地，并切换到对应目录中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p $GOPATH/src/github.com/sylabs</span><br><span class="line">cd $GOPATH/src/github.com/sylabs</span><br><span class="line">git clone https://github.com/sylabs/singularity.git</span><br><span class="line">cd singularity</span><br></pre></td></tr></table></figure>
+
+<p>克隆之后，还需要下载这个库中的一些GO依赖库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git submodule update --init</span><br><span class="line">go get -u -v github.com/golang/dep/cmd/dep</span><br></pre></td></tr></table></figure>
+
+<p>最后就是编译安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./mconfig</span><br><span class="line">make -C builddir</span><br><span class="line">sudo make -C builddir install</span><br></pre></td></tr></table></figure>
+
+<p>最后会得到两个文件，一个是执行文件<code>/usr/local/etc/singularity</code>，一个是配置文件<code>/usr/local/etc/singularity/singularity.config</code>。</p>
+<p>需要注意的是，由于安装过程中，需要从GitHub上下载数据，因此要求服务器能够顺畅的访问GitHub，否则会因为网络原因失败。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/" data-id="cllszh66n00fze2qe7500aznq" data-title="编译安装容器singularity" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-关于申请OpenAI的API的几点补充" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/" class="article-date">
@@ -137,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/" data-id="cllpwkjzd00dke0p2en1t1t6t" data-title="关于申请OpenAI的API的几点补充" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/" data-id="cllszh66200dse2qe3l3udjsh" data-title="关于申请OpenAI的API的几点补充" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -189,7 +248,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/" data-id="cllpwkjxo008he0p2erbx4eze" data-title="从halo迁移到hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/" data-id="cllszh64h008qe2qebcq0dijl" data-title="从halo迁移到hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -259,7 +318,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" data-id="cllpwkjv30035e0p2hw5lhurq" data-title="Oatk：利用HiFi Read进行细胞器组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" data-id="cllszh62q003me2qe5rq13gw8" data-title="Oatk：利用HiFi Read进行细胞器组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -404,7 +463,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" data-id="cllpwkjzr00ebe0p2hb04ck4a" data-title="在Windows中搭建一个基于WSL的Python数据科学环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" data-id="cllszh66z00h7e2qe7cp703tr" data-title="在Windows中搭建一个基于WSL的Python数据科学环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -449,7 +508,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" data-id="cllpwkk2d00jte0p221bg7fji" data-title="用Colab缓解我的GPU焦虑" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" data-id="cllszh66i00fge2qebjec5thu" data-title="用Colab缓解我的GPU焦虑" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -526,7 +585,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" data-id="cllpwkk1w00ide0p224wf9nvg" data-title="掌握了一个关于Bcrypt加密的知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" data-id="cllszh68p00kye2qebrjmc5pg" data-title="掌握了一个关于Bcrypt加密的知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -581,7 +640,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" data-id="cllpwkk1p00hye0p20fkrcsuq" data-title="我不知道说些什么" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" data-id="cllszh68k00kie2qe1ruzds2x" data-title="我不知道说些什么" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -681,7 +740,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="cllpwkk2x00lce0p2b0fpecn1" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="cllszh68t00lbe2qe7xb0eudr" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -763,57 +822,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="cllpwkk2q00kre0p2d7asg9mp" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="cllszh66t00gje2qedua2gos3" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-我如何使用GPT-我如何使用gpt" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" class="article-date">
-  <time class="dt-published" datetime="2023-04-01T07:15:24.805Z" itemprop="datePublished">2023-04-01</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/">我如何使用GPT</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>我使用GPT也有一段时间了（主要是3.5，还在等4），简单说说我的使用感觉。</p>
-<ul>
-<li>你需要把GPT的回答都当做一次闭卷考试，因此它不能当场查资料。它为了得分，需要把每道题目都写出来，无论它有没有把握。我们都应该记得老师说过，要把试卷写满吧。</li>
-<li>因此，有一些题目他准备的非常好（指训练集里面有非常多的语料），有一些题目他不是特别的熟练（语料适中），而有些他压根不会（没有语料资源）。</li>
-<li>你不能让他做一些记忆性的题目，因为他背的东西可能太多了，以至于很多内容都背混了。</li>
-<li>有些时候，他非常的倔强，觉得自己就是对的。</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" data-id="cllpwkk1q00i0e0p28haf1cc4" data-title="我如何使用GPT" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
     </footer>
   </div>
   
@@ -879,6 +893,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -892,10 +910,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

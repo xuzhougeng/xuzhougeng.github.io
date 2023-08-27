@@ -73,6 +73,64 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-「荐书」入门深度学习的必备数学知识-mathematics-basis-for-deep-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" class="article-date">
+  <time class="dt-published" datetime="2021-11-24T05:33:41.559Z" itemprop="datePublished">2021-11-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/">「荐书」入门深度学习的必备数学知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>以我浅薄的理解，深度学习是机器学习的一个子集。想要入门深度学习，可以先从最基础的神经网络开始。</p>
+<p>神经网络也称之为多层感知机(multi-layer perceptron, MLP)，由输入层，隐藏层，输出层构成。最简单的神经网络只需要3层，拥有数百到数千个参数，而现代复杂的神经网络则可能有成千万上百万层，拥有数万，数十万，数百万的参数，例如人工智能公司OpenAI在2020年7月发布的GPT-3拥有1750亿个参数。对于那么多层的神经网络的训练，我们就称之为深度学习(deep learning).</p>
+<p>目前关于深度学习的框架很多，包括但不限于MXNET, PyTorch, TensorFlow等，因此利用这些框架训练一个手写数字识别，猫和狗分类的神经网络并不算特别困难。但是如果我们有更高的追求，就得了解下它背后的数学基础。</p>
+<p>目前阅读到大部分课程，虽然都会提到深度学习所需要的数学知识，例如线性代数，微积分，概率论和信息论，但是要么受限于篇幅没有详细介绍，要么是因为“知识诅咒”，会直接使用高阶的抽象的数学符号介绍原理，使得我迷失各种符号定义中。</p>
+<p>之前推荐的<a href="https://xuzhougeng.top/archives/a-good-book-for-who-want-to-learn-deep-learning">Python神经网络编程</a>虽然也涉及到数学，但比较浅显，在此基础上直接去阅读<a target="_blank" rel="noopener" href="https://zh-v2.d2l.ai/index.html">动手学习深度学习</a>这类书，还是会有很大压力，于是我找到了另一本缓冲书籍，<a target="_blank" rel="noopener" href="https://book.douban.com/subject/33414479/">深度学习的数学</a></p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/11/image-927361cba5d84a3191d846596a2360e6.png" alt="深度学习的数学"></p>
+<p>我个人觉得这本书最大的亮点在于，它创建了一个Excel就能训练的神经网络数据集。这个数据集一共64张图片，记录数字0和1。神经网络一共三层，输入层是12个节点，对应输入图像的12个像素点，隐藏层只有一层，3个节点，输出层是2个节点对应0和1，总计 12 x 3 + 3 + 3 x 2 + 2 &#x3D; 47个参数。</p>
+<p>由于参数少，所以作者就可以展开所有的公式，即 $z &#x3D; w_1x_1 + w_2x2+ b$，而不必使用线性代数中的矩阵和向量乘法, 即 $z &#x3D; w \cdot x + b$</p>
+<p>虽然前者看起来很繁琐，不如后者简洁。但，就我而言，我更喜欢前者的直观，因为我可以自己在脑中将前者转换成后者，建立两者的联系，那么，以后看到矩阵乘法的形式，就能自动展开。</p>
+<p>同样由于参数少，我们既可以使用Excel以线性模型的方式对代价函数优化，也可以使用Excel采取（随机）梯度下降的方式对代价函数优化。相对于使用Python根据原理手动搭建简单的神经网络，使用Excel让我们对数据有了更多的掌控感。</p>
+<p>这本书的另一个亮点是，它涉及到数学知识刚好是我能够得上的水平。例如，在我学习「动手学习深度学习」的4.7节时，我搞不懂为什么损失函数对权重参数求导式子是下面这个样子</p>
+<p>$$<br>\frac{\partial J}{\partial \mathbf{W}^{(2)}}&#x3D; \text{prod}\left(\frac{\partial J}{\partial \mathbf{o}}, \frac{\partial \mathbf{o}}{\partial \mathbf{W}^{(2)}}\right) + \text{prod}\left(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(2)}}\right)&#x3D; \frac{\partial J}{\partial \mathbf{o}} \mathbf{h}^\top + \lambda \mathbf{W}^{(2)}.<br>$$</p>
+<p>看了「深度学习的数学」的2.8节才知道这是多变量函数的链式法则。</p>
+<p>学习就相当于探险，一本合适的书会告诉我们需要了解哪些知识，这就相当于在探险过程中拿到了地图，虽然我们还没有真正抵达目的地，但起码我们知道该怎么走了，心里就有底了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="cllszh647007te2qe1qlcbjaz" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-「荐书」Python神经网络编程，入门神经网络的儿童读本-a-good-book-for-who-want-to-learn-deep-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" class="article-date">
@@ -117,7 +175,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="cllpwkjxa007ie0p24vb4gwa7" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="cllszh646007qe2qe4v9uevy9" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -185,7 +243,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="cllpwkk0500fie0p24jj843yo" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="cllszh67g00i9e2qefpf89lsy" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -230,7 +288,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="cllpwkk1n00hue0p22bhkfkuo" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="cllszh68i00kee2qe8mnx3k5r" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -322,7 +380,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="cllpwkjvf003xe0p25fdub19p" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="cllszh6320049e2qe2mpmchaq" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -386,7 +444,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="cllpwkjva003qe0p2djdsg5i0" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="cllszh6310043e2qegmq95wy2" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -459,7 +517,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="cllpwkjvb003te0p2glooaao4" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="cllszh6320046e2qe4ptw9ptl" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -524,7 +582,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="cllpwkjw2004ye0p26rk18z4b" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="cllszh63k0057e2qe6eky8xy0" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -564,7 +622,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="cllpwkk0300fbe0p268lm6h09" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="cllszh67e00i4e2qe8j3h1zq9" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -602,88 +660,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" data-id="cllpwkjxd007oe0p20x1gbyjh" data-title="【杂谈】说说编程语言学习的道与术" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" data-id="cllszh648007we2qe4b8h3ocj" data-title="【杂谈】说说编程语言学习的道与术" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-我的Rust第一课-my-first-rust-class" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" class="article-date">
-  <time class="dt-published" datetime="2021-08-27T14:01:50.324Z" itemprop="datePublished">2021-08-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Rust/">Rust</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/">我的Rust第一课</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在开始之前，先得做一些基础配置。</p>
-<p>安装Rust工具链</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --proto <span class="string">&#x27;=https&#x27;</span> --tlsv1.2 -sSf https://sh.rustup.rs | sh</span><br></pre></td></tr></table></figure>
-
-<p>我使用VScode进行开发，并安装了如下插件</p>
-<ul>
-<li>rust-analyzer</li>
-<li>rust syntax</li>
-<li>crates</li>
-<li>better toml</li>
-<li>rust test lens</li>
-<li>Tabnine</li>
-</ul>
-<p>接着，尝试使用Rust构建第一个程序。我的目标是读取Fasta，统计其中的A, T, C, G各有多少个。</p>
-<p>完成这个需求，有两个思路，第一个是调用成熟的库，第二个是自己造轮子写一个函数。</p>
-<p>对于思路1，我使用关键词，Rust和Bio搜索到一个库叫做，<a target="_blank" rel="noopener" href="https://docs.rs/bio/0.37.1/bio/index.html">rust-bio</a>。 <a target="_blank" rel="noopener" href="https://rust-bio.github.io/">https://rust-bio.github.io/</a></p>
-<p>接下来，使用cargo new创建项目</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo new fasta_count</span><br></pre></td></tr></table></figure>
-
-<p>第二步: 添加依赖。 编辑 Cargo.toml , 添加依赖信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">bio = &quot;0.37.1&quot;</span><br></pre></td></tr></table></figure>
-
-<p>第三步: 学习rust-bio文档，查找相关函数，然后在 <code>src/main.rs</code>中编写代码。</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> bio::io::fasta;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span>  <span class="variable">reader</span> = fasta::Reader::<span class="title function_ invoke__">new</span>(io::<span class="title function_ invoke__">stdin</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_a</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_t</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_c</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_g</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">result</span> <span class="keyword">in</span> reader.<span class="title function_ invoke__">records</span>()&#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">record</span> = result.<span class="title function_ invoke__">expect</span>(<span class="string">&quot;Error during fasta record parsing&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> &amp;base <span class="keyword">in</span> record.<span class="title function_ invoke__">seq</span>() &#123; <span class="comment">//return sequence</span></span><br><span class="line">            <span class="keyword">if</span> base == <span class="string">b&#x27;a&#x27;</span> || base == <span class="string">b&#x27;A&#x27;</span> &#123;</span><br><span class="line">                nb_a += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;c&#x27;</span> || base == <span class="string">b&#x27;C&#x27;</span>&#123;</span><br><span class="line">                nb_c += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;g&#x27;</span> || base == <span class="string">b&#x27;G&#x27;</span>&#123; </span><br><span class="line">                nb_g += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;t&#x27;</span> || base == <span class="string">b&#x27;T&#x27;</span>&#123; </span><br><span class="line">                nb_t += <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;A:&#123;&#125;, C:&#123;&#125;, G:&#123;&#125;, T:&#123;&#125;&quot;</span>, nb_a, nb_c, nb_g, nb_t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>我使用标准库io::stdin从标准输入中读取数据，然后利用fasta::Reader的new出一个新的reader实例。对该实例的records对象进行遍历，得到fasta的中记录，record。最后对记录中序列进行遍历，得到不同碱基的数目。</p>
-<p>第四步：编译代码。cargo会先将依赖环境下载到当前项目下，然后在进行编译。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build </span><br></pre></td></tr></table></figure>
-
-<p>编译结果存放在 target的debug目录下，名为fasta_count。我们运行程序，得到结果。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> TAIR10.fa | target/debug/fasta_count</span><br><span class="line"><span class="comment"># A:38223602, C:21551439, G:21528650, T:38177852</span></span><br></pre></td></tr></table></figure>
-
-<p>第一种思路的代码，是我看了极客时间「陈天·Rust编程第一课」中第一个示例”使用HTTP获取HTML然后保存成Markdown”后自己尝试的第一个和生信相关程序。对于第二种思路，我个人还是决定后续学习更多Rust基础再来尝试，因为我目前都不会用基础库来读取文件。</p>
-<p>目前我的初体验是，Rust的语法更接近C&#x2F;C++，它的编译器非常强大，能够很好的指出的我代码中的错误，便于检索debug。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" data-id="cllpwkk1s00i5e0p2gpx16tk9" data-title="我的Rust第一课" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li></ul>
-
     </footer>
   </div>
   
@@ -749,6 +729,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -762,10 +746,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

@@ -73,6 +73,164 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用SHOREmap做mapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" class="article-date">
+  <time class="dt-published" datetime="2019-10-03T16:43:58.610Z" itemprop="datePublished">2019-10-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/">使用SHOREmap做mapping-by-sequencing</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>SHOREmap可以用来分析传统作图群体（自然系natural strains和分化系,diverged accession杂交，或outcrossing)或近等作图群体（isogenic mapping population, 诱变后代与未诱变亲本进行杂交，即会交,backcrossing)所产生的重测序数据。根据作图群体构建方式的不同，SHOREmap的outcross或backcross采用不同基于滑窗(sliding)方式对等位基因频率进行分析。</p>
+<p>SHOREmap的backcross和outcross都需要从突变重组库中获得的一致的碱基识别信息</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="前置安装"><a href="#前置安装" class="headerlink" title="前置安装"></a>前置安装</h2><p>SHOREmap需要<a target="_blank" rel="noopener" href="http://www.mps.mpg.de/dislin/">DISLIN</a>科学库进行数据可视化</p>
+<p>但是在安装DISLIN之前还需要保证存在<code>/usr/lib/libXm.so*</code>和<code>/usr/lib/libXm.so*</code>，这两者的安全需要root权限，所以要么联系管理员，要么想办法绕开(这个办法，我还没有想到).</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libmotif4</span><br><span class="line">sudo apt-get install libxt-dev</span><br></pre></td></tr></table></figure>
+
+<p>开始安装doslin库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">cd /path/to/src</span><br><span class="line"># 下载</span><br><span class="line">wget ftp://ftp.gwdg.de/pub/grafik/dislin/linux/i586_64/dislin-11.0.linux.i586_64.tar.gz</span><br><span class="line"># 解压缩</span><br><span class="line">tar -zxvf dislin-11.0.linux.i586_64.tar.gz</span><br><span class="line">cd dislin-11.0</span><br><span class="line"># 加入系统路径</span><br><span class="line">mkdir -p $HOME/biosoft/dislin</span><br><span class="line">DISLIN=$HOME/biosoft/dislin</span><br><span class="line">export DISLIN</span><br><span class="line"># 安装</span><br><span class="line">./INSTALL</span><br><span class="line"># 复制dislin_d.h 到dislin的文件下</span><br><span class="line">cp ./example/dislin_d.h $DISLIN</span><br><span class="line"># 删除安装文件(可选)</span><br><span class="line">rm -rf dislin-11.0</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装SHOREmap-v3-x"><a href="#安装SHOREmap-v3-x" class="headerlink" title="安装SHOREmap v3.x"></a>安装SHOREmap v3.x</h2><p>我这次安装的是当前最新的3.4版本，其他版本估计换汤不换药。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/biosoft</span><br><span class="line">wget http://bioinfo.mpipz.mpg.de/shoremap/SHOREmap_v3.4.tar.gz</span><br><span class="line"># 替换SHOREmap下的dislin的一些文件</span><br><span class="line">tar -zxvf SHOREmap_v3,4</span><br><span class="line">rm dislin/*dislin_d.*</span><br><span class="line">cp $DISLIN/*dislin_d.* dislin</span><br><span class="line"># 编辑/etc/profile或.bashrc</span><br><span class="line">vi .bashrc</span><br><span class="line">export LD_LIBRARY_PATH=$HOME/src/SHOREmap_v3.4/dislin</span><br><span class="line"># 退出保存.bashrc: Esc+:wq</span><br><span class="line">source .bashrc</span><br><span class="line"># 到之前安装的文件夹下</span><br><span class="line">cd &amp; cd src/SHOREmap_v3.4</span><br><span class="line">(可选，如果没有g++)sudo apt-get install build-essential</span><br><span class="line">make</span><br><span class="line"># 将编译文件拷贝到习惯的文件夹中，然后添加执行路径</span><br><span class="line">cp SHOREmap ../../biosoft/SHOREmap_v3.4</span><br><span class="line">echo &quot;export $HOME/bisoft/SHOREmap_v3.4&quot; &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<p>最后，可以重新启动一下bash验证</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/shoremap-6bbbdce394e14f3fa6072d2938bf6ed8.png" alt="shoremap"></p>
+<h2 id="官方网站提供的两个常见问题的解答"><a href="#官方网站提供的两个常见问题的解答" class="headerlink" title="官方网站提供的两个常见问题的解答"></a>官方网站提供的两个常见问题的解答</h2><p>Note 1: if the compilation complains like “&#x2F;usr&#x2F;bin&#x2F;ld: cannot find -lXt” (or “&#x2F;usr&#x2F;bin&#x2F;ld: cannot find -ldislin_d”), please open the makefile with the command</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi makefile</span><br></pre></td></tr></table></figure>
+<p>Press keys ‘esc’ and ‘i’ on the keyboard to edit makefile; move the cursor with arrow keys to the position before -lXt, and edit -L&#x2F;path&#x2F;to&#x2F;libXt.so&#x2F;; if ‘-ldislin_d’ is not found, edit -L&#x2F;path&#x2F;to&#x2F;dislin_d&#x2F; before -ldislin_d). After that, press keys ‘esc’, type in <strong>:wq</strong>, and press enter to save editing and quit vi. (‘-L’ tells the linker where to find the library given by -l)</p>
+<p>Note 2: if ‘&#x2F;usr&#x2F;lib&#x2F;ld: warning: libXm.so.3, needed by .&#x2F;dislin&#x2F;libdislin_d.so, not found (try using -rpath or -rpath-link)’ occurs, and you have installed libmotif4, do the following:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/lib/libXm.so.4 /usr/lib/libXm.so.3</span><br></pre></td></tr></table></figure>
+<p>We can make SHOREmap avaiable for general use by inserting the following command into &#x2F;etc&#x2F;profile</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$PATH:/path/to/SHOREmap_v3.x</span><br></pre></td></tr></table></figure>
+<p>and</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h1 id="总体流程"><a href="#总体流程" class="headerlink" title="总体流程"></a>总体流程</h1><h2 id="OUTCROSS"><a href="#OUTCROSS" class="headerlink" title="OUTCROSS"></a>OUTCROSS</h2><table>
+<thead>
+<tr>
+<th>outcross的基本步骤</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SHOREmap extract</td>
+<td>提取与SNP突变相关的重测序的一致的识别</td>
+</tr>
+<tr>
+<td>SHOREmap create</td>
+<td>根据背景&#x2F;亲本系的重测序质量创建SNP标记列表</td>
+</tr>
+<tr>
+<td>SHOREmap outcross</td>
+<td>进行等位基因频率分析并定义mapping interval（也就是找到突变所在的大致区域)</td>
+</tr>
+<tr>
+<td>SHOREmap annotate</td>
+<td>对mapping interval中的突变基因效应进行注释</td>
+</tr>
+</tbody></table>
+<h2 id="BACKCROSS"><a href="#BACKCROSS" class="headerlink" title="BACKCROSS"></a>BACKCROSS</h2><table>
+<thead>
+<tr>
+<th>backcross的基本步骤</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SHOREmap extract</td>
+<td>提取与SNP突变相关的重测序的一致的识别</td>
+</tr>
+<tr>
+<td>SHOREmap backcross</td>
+<td>进行等位基因分析</td>
+</tr>
+<tr>
+<td>SHOREmap annotate</td>
+<td>对mapping interval中的突变基因效应进行注</td>
+</tr>
+</tbody></table>
+<h1 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h1><h2 id="下载数据"><a href="#下载数据" class="headerlink" title="下载数据"></a>下载数据</h2><p>只安装软件，却没有数据，我们也只能干瞪眼。</p>
+<h3 id="oucross分析所需数据"><a href="#oucross分析所需数据" class="headerlink" title="oucross分析所需数据"></a>oucross分析所需数据</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># OCF2 </span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.fg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.fg.reads2.fq.gz &amp;</span><br><span class="line"># Ler </span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.bg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -qh ttp://bioinfo.mpipz.mpg.de/shoremap/data/software/OC.bg.reads2.fq.gz &amp;</span><br></pre></td></tr></table></figure>
+<h3 id="backcross分析所需数据"><a href="#backcross分析所需数据" class="headerlink" title="backcross分析所需数据"></a>backcross分析所需数据</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># BCF2</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.fg.reads1.fq.gz &amp;</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.fg.reads2.fq.gz &amp;</span><br><span class="line"># mir159a (Col)</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.bg.reads1.fq.gz</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/BC.bg.reads2.fq.gz</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他数据"><a href="#其他数据" class="headerlink" title="其他数据"></a>其他数据</h3><p>除了最基本的测序数据外，我们可能还需要参考基因组，已有的注释数据等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 参考基因组</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/TAIR10_chr_all.fas &amp;</span><br><span class="line"># 基因注释</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/TAIR10_GFF3_genes.gff &amp;</span><br><span class="line"># SHORE操作的结果数据</span><br><span class="line">wget -4 -q http://bioinfo.mpipz.mpg.de/shoremap/data/software/scoring_matrix_het.txt &amp;</span><br></pre></td></tr></table></figure>
+
+<h2 id="重测序"><a href="#重测序" class="headerlink" title="重测序"></a>重测序</h2><p>首先使用<code>bwa</code>,<code>bowtie2</code>等read比对工具将得到的数据比对到参考基因组上。<br>假设你当前处在MBS文件夹下，该文件下有如下文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 混池测序结果，双端</span><br><span class="line">BC.fg.reads1.fq.gz</span><br><span class="line">BC.fg.reads2.fq.gz</span><br><span class="line"># 背景信息测序结果</span><br><span class="line">BC.bg.reads1.fq.gz</span><br><span class="line">BC.bg.reads2.fa.gz</span><br><span class="line"># 拟南芥参考基因组</span><br><span class="line">TAIR10_chr_all.fas</span><br><span class="line"># 拟南芥注释信息</span><br><span class="line">TAIR10_GFF3_genes.gff</span><br></pre></td></tr></table></figure>
+<p>以下操作都是基于上述文件进行。</p>
+<h3 id="第一步-序列比对，产生SAM文件"><a href="#第一步-序列比对，产生SAM文件" class="headerlink" title="第一步: 序列比对，产生SAM文件"></a>第一步: 序列比对，产生SAM文件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir index</span><br><span class="line"># 创建比对所需索引</span><br><span class="line">bowtie2-build TAIR10_chr_all.fas index/TAIR10</span><br><span class="line"># 序列比对</span><br><span class="line">bowtie2 -x index/TAIR10 -1 BC.fg.reads1.fq.gz -2 BC.fg.reads2.fq.gz -S FG.sam</span><br><span class="line">bowtie2 -x index/TAIR10 -1 BC.bg.reads1.fq.gz -2 BC.bg.reads2.fq.gz -S BG.sam</span><br></pre></td></tr></table></figure>
+<h3 id="第二步：-SAMtools预测突变位点"><a href="#第二步：-SAMtools预测突变位点" class="headerlink" title="第二步： SAMtools预测突变位点"></a>第二步： SAMtools预测突变位点</h3><p>为了加快运算速度，可以先转换格式，并排序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">samtools view -b -o BG.bam BG.sam</span><br><span class="line">samtools view -b -o FG.bam FG.sam</span><br><span class="line">samtools sort -o BG.sorted.bam BG.bam </span><br><span class="line">samtools sort -o FG.sorted.bam FG.bam </span><br><span class="line">samtools index BG.sorted.bam</span><br><span class="line">samtools index FG.sorted.bam</span><br></pre></td></tr></table></figure>
+<p>consensus-calling program 寻找可能的变异位点<br> 由于官方说明中使用samtools版本为0.1.19，先要解释一下参数 mpileup -uD -f，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># -f:faidx indexed reference sequence file 前后版本一致</span><br><span class="line"># -u:generate uncompress BCF output 前后版本一致</span><br><span class="line"># -D:output per-sample DP in BCF (require -g/-u).与输出格式有关，目前改为-t</span><br></pre></td></tr></table></figure>
+<p>因此，对于1.4版本的samtools，相应的参数为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mpileup -u -t DP -f </span><br></pre></td></tr></table></figure>
+
+<p>官方说明的bcftools也是0.1.19，参数为bcftools view -vcg 旧版本的view在当前的版本用于过滤，功能被call替代</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># -v Output variant sites only (force -c)</span><br><span class="line"># -c属于Call variants using Bayesian inference. This option automatically invokes option -e.When -v is in use, skip loci where the fraction of samples covered by reads is below FLOAT. [0],目前被m取代</span><br><span class="line"># -g Call per-sample genotypes at variant sites (force -c)，这个没有找到合适的替代参数</span><br></pre></td></tr></table></figure>
+
+<p>综上，推荐使用如下命令行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools mpileup -u -t DP -f ../../../index/TAIR10_chr_all.fa ../../align/bwa/default/BG.sorted.bam | bcftools call -vm -Ov &gt; BG.vcf &amp;</span><br><span class="line">samtools mpileup -u -t DP -f ../../../index/TAIR10_chr_all.fa ../../align/bwa/default/FG.sorted.bam | bcftools call -vm -Ov &gt; FG.vcf &amp;</span><br></pre></td></tr></table></figure>
+<h3 id="额外步骤：VCF格式转换"><a href="#额外步骤：VCF格式转换" class="headerlink" title="额外步骤：VCF格式转换"></a>额外步骤：VCF格式转换</h3><p>由于vcftools工具版本，所以最后的文件版本是4.2，而SHOREmap要求4.1。通过biostar找到高人写的降级工具（其实就是把一些字符替换一下，但是不了解vcf不同版本的差异话，是不知道怎么写）<br>把下面的代码存为<code>vcf_dowgrade.sh</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># If you are trying to view VCF 4.2 files in IGV - you may run into issues. This function might help you.</span><br><span class="line"># This script will:</span><br><span class="line"># 1. Rename the file as version 4.1</span><br><span class="line"># 2. Replace parentheses in the INFO lines (IGV doesn&#x27;t like these!)</span><br><span class="line"></span><br><span class="line">function vcf_downgrade() &#123;</span><br><span class="line">  outfile=$&#123;1/.bcf/&#125;</span><br><span class="line">  outfile=$&#123;outfile/.gz/&#125;</span><br><span class="line">  outfile=$&#123;outfile/.vcf/&#125;</span><br><span class="line">  bcftools view --max-alleles 2 -O v $1 | \</span><br><span class="line">  sed &quot;s/##fileformat=VCFv4.2/##fileformat=VCFv4.1/&quot; | \</span><br><span class="line">  sed &quot;s/(//&quot; | \</span><br><span class="line">  sed &quot;s/)//&quot; | \</span><br><span class="line">  sed &quot;s/,Version=\&quot;3\&quot;&gt;/&gt;/&quot; | \</span><br><span class="line">  bcftools view -O z &gt; $&#123;outfile&#125;.dg.vcf.gz</span><br><span class="line">  tabix $&#123;outfile&#125;.dg.vcf.gz</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实对于单个文件而言，可以直接用以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">infile=BG.vcf</span><br><span class="line">outfile=BG.vcf</span><br><span class="line">bcftools  view --max-alleles 2 -O v $&#123;infile&#125; | \</span><br><span class="line">sed &quot;s/##fileformat=VCFv4.2/##fileformat=VCFv4.1/&quot; | \</span><br><span class="line">  sed &quot;s/(//&quot; | \</span><br><span class="line">  sed &quot;s/)//&quot; | \</span><br><span class="line">  sed &quot;s/,Version=\&quot;3\&quot;&gt;/&gt;/&quot; | \</span><br><span class="line">  bcftools view -O z &gt; $&#123;outfile&#125;.dg.vcf.gz</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用SHOREmap寻找突变所在区"><a href="#使用SHOREmap寻找突变所在区" class="headerlink" title="使用SHOREmap寻找突变所在区"></a>使用SHOREmap寻找突变所在区</h2><p>第一步：需要把bcf文件通过SHOREmap convert转换成SHOREmap能认识的格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap convert --marker samtools.vcf --folder path/to/folder -runid int</span><br></pre></td></tr></table></figure>
+<p>会生成三个文件3_converted_consen.txt, 3_converted_variant.txt and 3_converted_reference.txt.</p>
+<p>第二步：提取候选分子标记的consensus information(mapping pool)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap extract --chrsizes chromsize.txt --folder ../SHOREmap_analysis --marker 11_converted_variant.txt --consen 11_converted_consen.txt -verbose</span><br></pre></td></tr></table></figure>
+
+<p>第三步：<br>然后使用SHOREmap backcross分析。SHOREmap backcross可用来分析回交作图群体所得到重组后代混池数据。相对于传统作图群体，只有诱变剂产生的突变会分离，也只有这些才会用于突变定位。</p>
+<p>SHOREmap backcross会尝试过滤出所有参考基因组和测序池之间不同部分用于找到突变点特异部分。为了保证不是自然变异或者是测序错误，测序池选择的部分要多次出现在亲本或背景中。然后根据前景和&#x2F;或背景的(识别碱基,base calls,质量&#x2F;覆盖率&#x2F;等位基因)信息，确定是否把保留的SNP位点作为分子标记。在正确的筛选后（拟南芥大概有上百个标记），SHOREmap backcross就能在分析marker的AF后识别大致的峰。进一步对变异注释后，就能找到目标性状的候选基因了。</p>
+<p>SHOREmap backcross所需的输入文件如下：</p>
+<ul>
+<li>染色体大小文件，--chrsizes。分为两行，一行是染色体位置，一行是染色体大小。scaffold同理</li>
+<li>候选marker文件。也就是使用SHOREmap convert通过vcf生成的converted_variant.txt，每一列的含义如下。<br>Column    Description<br>1    Project name<br>2    Identity of chromosome<br>3    Position of the SNP-marker<br>4    Reference base<br>5    Alternative base (or mutant base)<br>6    Quality of the alternative base (ranging from 0 to 40)<br>7    Number of reads supporting the predicted base<br>8    Ratio of reads supporting the predicted base to total coverage</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap backcross --chrsizes chromsize.txt --marker ../convert/11_converted_variant.txt --consen extracted_consensus_0.txt --folder ../BC_analysis -plot-bc --marker-score 40 --marker-freq 0.0 --min-converage 10 --max-coverage 80 -bg ../convert/12_converted_variant.txt  --bg-cov 1 --bg-freq 0.0 --bg-score 1 -non-EMS --cluster 1 --marker-hit 1 -verbose</span><br></pre></td></tr></table></figure>
+
+<p>第四步：对结果进行注释</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOREmap annotate --chrsizes chromsize.txt --folder ../BC_analysis/ann --snp ../convert/11_converted_variant.txt --chrom 2 --start 1 --end 4000000 --genome ../../TAIR10_chr_all.fas --gff ../../TAIR10_GFF3_genes.gff</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/03/%E4%BD%BF%E7%94%A8SHOREmap%E5%81%9Amapping-by-sequencing-Mapping-by-sequencing-Using-SHOREmap/" data-id="cllszh65j00cge2qef7yp4zxi" data-title="使用SHOREmap做mapping-by-sequencing" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D/" rel="tag">遗传定位</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何用binmapr进行遗传定位-build-binmap-with-binmapr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" class="article-date">
@@ -146,7 +304,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" data-id="cllpwkk1d00h0e0p2fflkghvr" data-title="如何用binmapr进行遗传定位" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/01/%E5%A6%82%E4%BD%95%E7%94%A8binmapr%E8%BF%9B%E8%A1%8C%E9%81%97%E4%BC%A0%E5%AE%9A%E4%BD%8D-build-binmap-with-binmapr/" data-id="cllszh67u00jke2qeco49chca" data-title="如何用binmapr进行遗传定位" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -254,7 +412,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" data-id="cllpwkk1200g0e0p2hq3ecgxt" data-title="如何在服务器上安装最新的R" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/23/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%9A%84R-install-r-in-linux/" data-id="cllszh67j00iie2qee76n2yyq" data-title="如何在服务器上安装最新的R" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -444,7 +602,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" data-id="cllpwkk2100iue0p27n4oe5js" data-title="无root权限解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/23/%E6%97%A0root%E6%9D%83%E9%99%90%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-Compile-Software-in-Linux-Without-Root/" data-id="cllszh66900efe2qe3lzgdofx" data-title="无root权限解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -525,7 +683,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/18/%E4%BD%BF%E7%94%A8RepeatModeler%E5%92%8CRepeatMasker%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Annotate-repeat-in-genome-with-RepeatModeler-and-RepeatMasker/" data-id="cllpwkjyt00c2e0p228sk962q" data-title="使用RepeatModeler和RepeatMasker注释基因组重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/18/%E4%BD%BF%E7%94%A8RepeatModeler%E5%92%8CRepeatMasker%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Annotate-repeat-in-genome-with-RepeatModeler-and-RepeatMasker/" data-id="cllszh65h00cae2qecig69h8l" data-title="使用RepeatModeler和RepeatMasker注释基因组重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -666,7 +824,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/15/%E4%BD%BF%E7%94%A8wgd%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%A4%8D%E5%88%B6%E5%88%86%E6%9E%90-wgd-simple-command-line-tools-for-the-analysis-of-ancient-whole-genome%20duplications/" data-id="cllpwkjz900dae0p25eee7jvu" data-title="使用wgd进行全基因组复制分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/15/%E4%BD%BF%E7%94%A8wgd%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%A4%8D%E5%88%B6%E5%88%86%E6%9E%90-wgd-simple-command-line-tools-for-the-analysis-of-ancient-whole-genome%20duplications/" data-id="cllszh65v00die2qe7wr7a28y" data-title="使用wgd进行全基因组复制分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -706,7 +864,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/10/2019-09-10T05_45_43.377Z-2019-09-10T05_45_43.377Z/" data-id="cllpwkjtr0009e0p2e0iq86iz" data-title="Tue Sep 10 2019 05:45:43 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/10/2019-09-10T05_45_43.377Z-2019-09-10T05_45_43.377Z/" data-id="cllszh60g000ae2qegd4phkjb" data-title="Tue Sep 10 2019 05:45:43 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -780,7 +938,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/09/%E4%BD%BF%E7%94%A8refgenie%E7%AE%A1%E7%90%86%E4%BD%A0%E7%9A%84%E5%8F%82%E8%80%83%E5%9F%BA%E5%9B%A0%E7%BB%84-Manage-reference-genome-with-refgenie/" data-id="cllpwkjz800d6e0p2cu0f0t97" data-title="使用refgenie管理你的参考基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/09/%E4%BD%BF%E7%94%A8refgenie%E7%AE%A1%E7%90%86%E4%BD%A0%E7%9A%84%E5%8F%82%E8%80%83%E5%9F%BA%E5%9B%A0%E7%BB%84-Manage-reference-genome-with-refgenie/" data-id="cllszh65u00dee2qe0mhafi8h" data-title="使用refgenie管理你的参考基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -824,7 +982,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/09/2019-09-09T04_04_28.482Z-2019-09-09T04_04_28.482Z/" data-id="cllpwkjtp0006e0p29gny3g23" data-title="Mon Sep 09 2019 04:04:28 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/09/2019-09-09T04_04_28.482Z-2019-09-09T04_04_28.482Z/" data-id="cllszh60f0008e2qe2ekm98m1" data-title="Mon Sep 09 2019 04:04:28 GMT+0000 (Coordinated Universal Time)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -920,61 +1078,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/07/%E5%9C%A8iPad%E4%B8%8A%E9%98%85%E8%AF%BB%E6%96%87%E7%8C%AE%E5%92%8C%E5%9B%BE%E4%B9%A6-Read-book-or-literature-in-iPad/" data-id="cllpwkjzs00efe0p282o307tg" data-title="在iPad上阅读文献和图书" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Zotero-%E6%96%87%E7%8C%AE-%E5%9D%9A%E6%9E%9C%E4%BA%91/" rel="tag">Zotero | 文献 | 坚果云</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用坚果云作为Zotero的存储-Use-jianguoyun-as-sync-server-of-Zotero" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/09/07/%E4%BD%BF%E7%94%A8%E5%9D%9A%E6%9E%9C%E4%BA%91%E4%BD%9C%E4%B8%BAZotero%E7%9A%84%E5%AD%98%E5%82%A8-Use-jianguoyun-as-sync-server-of-Zotero/" class="article-date">
-  <time class="dt-published" datetime="2019-09-07T17:47:30.284Z" itemprop="datePublished">2019-09-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/07/%E4%BD%BF%E7%94%A8%E5%9D%9A%E6%9E%9C%E4%BA%91%E4%BD%9C%E4%B8%BAZotero%E7%9A%84%E5%AD%98%E5%82%A8-Use-jianguoyun-as-sync-server-of-Zotero/">使用坚果云作为Zotero的存储</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Zotero的存储2GB就需要20美刀，差不多的价格(199.90)能买一年的专业版坚果云，容量是54GB. </p>
-<p>更重要的一点是用坚果云作为Zotero的同步服务器很方便。</p>
-<p>第一步: 在坚果云上设置应用密码</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/1567846743051-f6d4d275896e48d2b33e5c595646eb15.png" alt="1应用密码"></p>
-<p>第二步: 打开Zotero的首选项（preference），有可能是在工具栏中，也有可能是编辑栏中。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/1567846803002-4adcfdc430f04257ba5527229cf4bc80.png" alt="首选项"></p>
-<p>第三步: 在Zotero上关联坚果云的网盘，需要注意的是此处的密码不是坚果云的登录密码，而是第三方应用授权时的密码。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/9/1567846934944-7785f212b72e4e6fadb4ccadf149a038.png" alt="配置同步"></p>
-<p>后面同步就行了。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>官方教程: <a target="_blank" rel="noopener" href="http://help.jianguoyun.com/?p=3168">http://help.jianguoyun.com/?p=3168</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/09/07/%E4%BD%BF%E7%94%A8%E5%9D%9A%E6%9E%9C%E4%BA%91%E4%BD%9C%E4%B8%BAZotero%E7%9A%84%E5%AD%98%E5%82%A8-Use-jianguoyun-as-sync-server-of-Zotero/" data-id="cllpwkjza00dde0p222268qrg" data-title="使用坚果云作为Zotero的存储" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/09/07/%E5%9C%A8iPad%E4%B8%8A%E9%98%85%E8%AF%BB%E6%96%87%E7%8C%AE%E5%92%8C%E5%9B%BE%E4%B9%A6-Read-book-or-literature-in-iPad/" data-id="cllszh66z00hae2qehtvrbqa7" data-title="在iPad上阅读文献和图书" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1045,6 +1149,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1058,10 +1166,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

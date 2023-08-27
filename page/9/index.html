@@ -73,6 +73,142 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何给bioconda贡献recipes-how-to-contribute-to-bioconda" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/" class="article-date">
+  <time class="dt-published" datetime="2021-01-20T20:11:49.962Z" itemprop="datePublished">2021-01-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/">如何给bioconda贡献recipes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>bioconda是conda中专门用来管理生物信息相关软件的频道。</p>
+<p>绝大部分的用户都是利用bioconda安装软件，绝大部分的教程也都是教大家如何去使用bioconda安装软件。但是bioconda的便利性并不是从天而降的，而是无数的软件开发者持续的不断的贡献和更新一些软件的recipe (菜谱) 的结果。这篇教程就是教大家如何在一个软件没有bioconda的安装方式时，自己动手写一个菜谱。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先，我们在<a target="_blank" rel="noopener" href="https://github.com/bioconda/bioconda-recipes">https://github.com/bioconda/bioconda-recipes</a> 上fork该项目到自己的GitHub项目下，然后将其clone到本地</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/xuzhougeng/bioconda-recipes.git</span><br><span class="line"><span class="built_in">cd</span> bioconda-recipes</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果一不小心克隆使用了官方的项目或者我的项目，也可以通过如下命令进行修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git remote <span class="built_in">rm</span> origin</span><br><span class="line">git remote add origin 你的github地址</span><br></pre></td></tr></table></figure>
+
+<p>由于bioconda是建立在conda基础上的频道，因此我们还需要预先安装好 conda，关于conda 的安装、配置和使用可以看我上传到<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1s4411F761">哔哩哔哩的视频</a>。之后安装 conda-build, 用于创建conda软件包的框架。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装conda-build, 后续用于创建模板</span></span><br><span class="line">conda install conda-build</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="实际流程"><a href="#实际流程" class="headerlink" title="实际流程"></a>实际流程</h2><p>向bioconda贡献一个软件的菜谱大致分为6步:</p>
+<ol>
+<li><p>创建分支</p>
+</li>
+<li><p>编辑recipes</p>
+</li>
+<li><p>推送修改</p>
+</li>
+<li><p>创建pull请求</p>
+</li>
+<li><p>删除你的分支</p>
+</li>
+<li><p>安装你的包</p>
+</li>
+</ol>
+<h2 id="第一步-创建分支"><a href="#第一步-创建分支" class="headerlink" title="第一步: 创建分支"></a>第一步: 创建分支</h2><p>我们需要先切换到主分支(master), 并保证你的主分支处于最新状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git pull upstream master</span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们创建新的分支，用于处理当前的菜谱，避免影响主分支</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b update_My_recipes</span><br></pre></td></tr></table></figure>
+
+<p>我建议这里的 <code>update_My_recipes</code> 修改成具体的软件名，这样更有标识性。</p>
+<h2 id="第二步-编辑recipe"><a href="#第二步-编辑recipe" class="headerlink" title="第二步: 编辑recipe"></a>第二步: 编辑recipe</h2><p>我们使用 <code>conda skeleton</code> 创建一个软件包框架， 这里pypi指的是软件托管在pypi上，wgdi则是软件名。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># bioconda-recipes目录下</span></span><br><span class="line"><span class="built_in">cd</span> recipes</span><br><span class="line">conda skeleton pypi wgdi </span><br></pre></td></tr></table></figure>
+
+<p>因为wgdi存在一些依赖环境，如PAML, MAFFT, MUSCLE, PAL2NAL,  所以我们需要修改 <code>wgdi/meta.yaml</code> 文件，在其中加入这些软件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">run:</span><br><span class="line">  - biopython</span><br><span class="line">  - matplotlib</span><br><span class="line">  - numpy</span><br><span class="line">  - pandas &gt;=1.1.0</span><br><span class="line">  - python </span><br><span class="line">  - scipy</span><br><span class="line">  - paml</span><br><span class="line">  - mafft</span><br><span class="line">  - muscle</span><br><span class="line">  - pal2nal</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>事实上，conda skeleton 只是做了一小部分事情，我目前的meta.yaml 还不完整，直到后续的递交中修改了数十次才知道出问题的地方以及如何修改。</p>
+<p>因此建议后还需要查阅 <a target="_blank" rel="noopener" href="https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html">https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html</a> 了解meta.yaml的更多知识。</p>
+<h2 id="第三步-向GitHub上推送更新"><a href="#第三步-向GitHub上推送更新" class="headerlink" title="第三步: 向GitHub上推送更新"></a>第三步: 向GitHub上推送更新</h2><p>这里就是用git命令将我们的修改推送到GitHub上</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># bioconda-recipes目录下</span></span><br><span class="line">git add recipes/wgdi</span><br><span class="line">git commit -m <span class="string">&quot;add wgdi recipes&quot;</span></span><br><span class="line">git push origin update_My_recipes</span><br></pre></td></tr></table></figure>
+
+<h2 id="第四步-创建pull-请求"><a href="#第四步-创建pull-请求" class="headerlink" title="第四步: 创建pull 请求"></a>第四步: 创建pull 请求</h2><p>此时，让我们回到GitHub 中我们fork的bioconda-recipes页面。我们可以看到该修改已经被推送到GitHub上。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-784347f793c94193b23914e59dc625fb.png" alt="compare &amp; pull request"></p>
+<p>我们点击 Compare &amp; pull request, 接着就会弹出一个页面，介绍如何书写提交申请。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-6b3654a9dff44ff5b82cf828e96e794e.png" alt="Add title"></p>
+<p>这里写了4点要求，分别为</p>
+<ol>
+<li><p>在PR中加入Add或者update 作为用于说明目的，必须是第一个词</p>
+</li>
+<li><p>如果该项目和生物学领域无关，建议换个地方。</p>
+</li>
+<li><p>一旦通过了审核，需要在后续的issue中加入 <code>@BiocondaBot please add label</code>, 具体区别在后面的命令说明中有提到。</p>
+</li>
+<li><p>如果有问题，你可以到Gitter或者在评论中用 <code>@bioconda/core</code> 提出自己的问题。</p>
+</li>
+</ol>
+<p>当你提出PR之后，bioconda 的构建系统就会测试我们提交的菜谱。如果通过了测试，我们就可以跳转到下一步，否则需要重复第二~四步，直到通过为止。</p>
+<p>我们发现在提交之后，构建系统就提示了一个问题。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-782631bcdea541fbaedca10e2ace568f.png" alt="lint problem"></p>
+<p>点开Details，会出现如下的界面。我们可以点击View more details on CircleCI Checks 去聊了解更加详细的信息。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-490eb0c1569043ee89bb8b87e088b267.png" alt="view problem"></p>
+<p>lint问题的修改建议可在bioconda的对应页面为 <a target="_blank" rel="noopener" href="https://bioconda.github.io/contributor/linting.html">https://bioconda.github.io/contributor/linting.html</a> 进行查找。我把自己遇到的问题放在文末，毕竟是第一次，对于自动化测试系统并不了解，所以我反复修改了十多次。</p>
+<p>当我们的菜谱最终通过了自动化测试后，接下来就可以在我们的issue中留言 <code>@bioconda-bot add label</code> ，让机器人增加标签，然后等待管理员review同意你的PR，当然也需要你进行修改才行。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/01/image-eaa78ee47eff4337b333aa22c49e6cbd.png" alt="add label"></p>
+<h2 id="第五步-删除分支"><a href="#第五步-删除分支" class="headerlink" title="第五步: 删除分支"></a>第五步: 删除分支</h2><p>当我们的Pull Request被合并之后，我们就可以在GitHub上删除我们的分支，或者在本地删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Delete local branch</span></span><br><span class="line">git branch -D update_My_recipes</span><br><span class="line"><span class="comment"># Delete branch in your fork via the remote named &quot;origin&quot;</span></span><br><span class="line">git push origin -d update_My_recipes</span><br></pre></td></tr></table></figure>
+
+<h2 id="第六步-安装你的包"><a href="#第六步-安装你的包" class="headerlink" title="第六步: 安装你的包"></a>第六步: 安装你的包</h2><p>经过前面五步之后，你需要再等待一会，才能让你的包被加入到bioconda频道中。一旦被加入到bioconda频道，那么所有人都可以非常容易的通过conda来安装你得工具了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install -c bioconda wgdi</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>在我配置 wgdi包的时候，遇到了如下几种错误</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ERROR: recipes/wgdi/meta.yaml:0: uses_matplotlib: The recipe uses `matplotlib`, but `matplotlib-base` is recommended</span><br><span class="line">ERROR: recipes/wgdi/meta.yaml:16: should_be_noarch_generic: The recipe should be build as `noarch`</span><br><span class="line">ERROR: recipes/wgdi/meta.yaml:4: folder_and_package_name_must_match: The recipe folder and package name <span class="keyword">do</span> not match.</span><br></pre></td></tr></table></figure>
+
+<p>根据我的错误，我在原来的yaml文件中做了如下的更改</p>
+<ul>
+<li><p>uses_matplotlib: 将原来的matplotlib 替换成matplobtlib-base</p>
+</li>
+<li><p>should_be_noarch_generic:  在build下增加 <code>noarch: generic</code> （这一步有问题，请继续往后阅读找到正确答案，此处保留时为了记录我的思考过程）</p>
+</li>
+<li><p>folder_and_package_name_must_match: 在配置文件开头增加 <code>&#123;% set name = "wgdi" %&#125;</code></p>
+</li>
+</ul>
+<p>之后在test-linu时，我遇到了 <code>ModuleNotFoundError: No module named &#39;wgdi&#39;</code>报错。这个问题和之前的 should_be_noarch_generic密切相关。noarch指的是平台无关，也就是这个软件不需要额外的编译就可以使用。一般这类软件通常是Java编译后的包，而非Python包。我最初根据提示的 <code>should_be_noarch_generic</code> 增加的 <code>noarch: generic</code> 实际并不正确，实际应该是 <code>noarch: python</code>, 也就是表示我们包依赖的Python平台。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料:"></a>参考资料:</h2><ul>
+<li><p>meta.yaml: <a target="_blank" rel="noopener" href="https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html">https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html</a></p>
+</li>
+<li><p>lint: <a target="_blank" rel="noopener" href="https://bioconda.github.io/contributor/linting.html">https://bioconda.github.io/contributor/linting.html</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/" data-id="cllszh67y00jxe2qee0ob2wuv" data-title="如何给bioconda贡献recipes" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-通过X11转发在服务器上用IGV-using-x11-in-server-by-x11-forwarding" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/01/18/%E9%80%9A%E8%BF%87X11%E8%BD%AC%E5%8F%91%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%94%A8IGV-using-x11-in-server-by-x11-forwarding/" class="article-date">
@@ -122,7 +258,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/18/%E9%80%9A%E8%BF%87X11%E8%BD%AC%E5%8F%91%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%94%A8IGV-using-x11-in-server-by-x11-forwarding/" data-id="cllpwkk2v00l6e0p20c0ehtas" data-title="通过X11转发在服务器上用IGV" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/18/%E9%80%9A%E8%BF%87X11%E8%BD%AC%E5%8F%91%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%94%A8IGV-using-x11-in-server-by-x11-forwarding/" data-id="cllszh66w00gye2qecfw85hz2" data-title="通过X11转发在服务器上用IGV" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -286,7 +422,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AB%A0)-shi-yong-a-r-c-h-r-fen-xi-dan-xi-bao-a-t-a-c---s-e-q-shu-ju--di-shi-liu-zhang-/" data-id="cllpwkjyb00ahe0p25r1edgp1" data-title="使用ArchR分析单细胞ATAC-seq数据(第十六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AB%A0)-shi-yong-a-r-c-h-r-fen-xi-dan-xi-bao-a-t-a-c---s-e-q-shu-ju--di-shi-liu-zhang-/" data-id="cllszh64z00aqe2qe20w594xo" data-title="使用ArchR分析单细胞ATAC-seq数据(第十六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -452,7 +588,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter15/" data-id="cllpwkjy900aee0p25epnh48m" data-title="使用ArchR分析单细胞ATAC-seq数据(第十五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter15/" data-id="cllszh64z00ame2qe4mrn6nu4" data-title="使用ArchR分析单细胞ATAC-seq数据(第十五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -551,7 +687,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" data-id="cllpwkjyd00ale0p2fp057a1w" data-title="使用ArchR分析单细胞ATAC-seq数据(第十四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" data-id="cllszh65000ate2qebzpgcmde" data-title="使用ArchR分析单细胞ATAC-seq数据(第十四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -592,7 +728,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/11/04/%E6%B5%8B%E8%AF%95%E4%B8%8B%E6%95%B0%E6%8D%AE%E5%85%AC%E5%BC%8F-ce-shi-xia-shu-ju-gong-shi/" data-id="cllpwkk2900jge0p2407h57tu" data-title="测试下数据公式" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/11/04/%E6%B5%8B%E8%AF%95%E4%B8%8B%E6%95%B0%E6%8D%AE%E5%85%AC%E5%BC%8F-ce-shi-xia-shu-ju-gong-shi/" data-id="cllszh66f00f2e2qe4lyn3vt2" data-title="测试下数据公式" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -650,7 +786,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/11/02/%E5%9F%BA%E4%BA%8Eigv.js%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%B7%A5%E5%85%B7-a-simple-wrapper-of-igv-js/" data-id="cllpwkjzv00eoe0p24gso26h8" data-title="基于igv.js的一个小工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/11/02/%E5%9F%BA%E4%BA%8Eigv.js%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%B7%A5%E5%85%B7-a-simple-wrapper-of-igv-js/" data-id="cllszh67200hke2qecbi3derb" data-title="基于igv.js的一个小工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -735,7 +871,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85JCVI-how-to-install-jcvi/" data-id="cllpwkk1300g6e0p287uhdrxb" data-title="如何安装JCVI" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85JCVI-how-to-install-jcvi/" data-id="cllszh67l00ioe2qe391d9vd2" data-title="如何安装JCVI" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -803,7 +939,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" data-id="cllpwkk1100fye0p28smh04h8" data-title="如何在不使用root权限下安装Latex" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" data-id="cllszh67i00ife2qefcqjd95h" data-title="如何在不使用root权限下安装Latex" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -915,143 +1051,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" data-id="cllpwkk1900gne0p2fmyy0z1m" data-title="如何爬取微信公众号的所有文章" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" data-id="cllszh67r00j7e2qe5eaidrhz" data-title="如何爬取微信公众号的所有文章" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-三代转录组系列：使用Cogent重建基因组编码区-cogent-coding-genome-reconstruction-tool" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" class="article-date">
-  <time class="dt-published" datetime="2020-07-30T10:41:31.854Z" itemprop="datePublished">2020-07-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/">三代转录组系列：使用Cogent重建基因组编码区</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>尽管目前已测序的物种已经很多了，但是对于一些动辄几个G的复杂基因组，还没有某个课题组有那么大的经费去测序，所以仍旧缺少高质量的完整基因组，那么这个时候一个高质量的转录组还是能够凑合用的。</p>
-<p>二代测序的组装结果只能是差强人意，最好的结果就是不要组装，直把原模原样的转录组给你是最好的。PacBio Iso-Seq 做的就是这件事情。只不过Iso-Seq测得是转录本，由于有些基因存在可变剪切现象，所以所有将一个基因的所有转录本放在一起看，搞出一个尽量完整的编码区。</p>
-<p>Cogent能使用高质量的全长转录组测序数据对基因组编码区进行重建，示意图如下：</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/07/image-248997ac23064feeae909b5b30d47c98.png" alt="Cogent流程"></p>
-<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>虽然说软件可以直接通过conda进行安装，但是根据<a target="_blank" rel="noopener" href="https://github.com/Magdoll/Cogent/wiki/Installing-Cogent">官方文档</a>的流程，感觉还是很麻烦</p>
-<blockquote>
-<p>下面操作默认你安装好了miniconda3, 且miniconda3的位置在家目录下</p>
-</blockquote>
-<p>安装方法如下（更新与2020&#x2F;7&#x2F;30）</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">conda create <span class="operator">-</span>y <span class="operator">-</span>n cogent python<span class="operator">=</span><span class="number">3.7</span> </span><br><span class="line">conda activate cogent</span><br><span class="line">conda install <span class="operator">-</span>y  <span class="operator">-</span><span class="built_in">c</span> bcbio bx<span class="operator">-</span>python</span><br><span class="line">conda install <span class="operator">-</span>y  <span class="operator">-</span><span class="built_in">c</span> conda<span class="operator">-</span>forge pulp</span><br><span class="line">pip install networkx<span class="operator">==</span><span class="number">2.0</span></span><br><span class="line">conda install <span class="operator">-</span>y <span class="operator">-</span><span class="built_in">c</span> bioconda parasail<span class="operator">-</span>python</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Github的Cogent</span></span><br><span class="line">cd <span class="operator">~</span><span class="operator">/</span>miniconda3<span class="operator">/</span>envs<span class="operator">/</span>cogent</span><br><span class="line">git clone https<span class="operator">:</span><span class="operator">/</span><span class="operator">/</span>github.com<span class="operator">/</span>Magdoll<span class="operator">/</span>Cogent.git</span><br><span class="line">cd Cogent</span><br><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
-
-<p>经过上面一波操作，请用下面这行命令验证是否安装成功</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">run_mash.py --version</span><br><span class="line">run_mash.py Cogent 6.0.0</span><br></pre></td></tr></table></figure>
-
-<p>此外还需要安装另外两个软件，分别是<code>Minimap2</code>和<code>Mash</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">conda install minimap2</span><br><span class="line"><span class="comment"># 目前mash升级了</span></span><br><span class="line">wget  https://github.com/marbl/Mash/releases/download/v2.2/mash-Linux64-v2.2.tar</span><br><span class="line">tar xf mash-Linux64-v2.2.tar</span><br><span class="line"><span class="built_in">mv</span> mash-Linux64-v2.2/mash  <span class="variable">$HOME</span>/miniconda3/envs/cogent/bin</span><br></pre></td></tr></table></figure>
-
-<p>对待大数据集，你还需要安装Cupcake</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">conda activate cogent </span><br><span class="line">conda install cython -y</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/Magdoll/cDNA_Cupcake.git</span><br><span class="line"><span class="built_in">cd</span> cDNA_Cupcake</span><br><span class="line">git checkout</span><br><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>关于这个Cupcake, 如果python3环境出现报错，就新建一个Python2环境进行安装。</p>
-</blockquote>
-<h2 id="创建伪基因组"><a href="#创建伪基因组" class="headerlink" title="创建伪基因组"></a>创建伪基因组</h2><p>让我们先下载测试所用的数据集，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">wget https://raw.githubusercontent.com/Magdoll/Cogent/master/test_data/test_human.fa</span><br></pre></td></tr></table></figure>
-
-<h3 id="第一步：-从数据集中搜索同一个基因簇-gene-family-的序列"><a href="#第一步：-从数据集中搜索同一个基因簇-gene-family-的序列" class="headerlink" title="第一步： 从数据集中搜索同一个基因簇(gene family)的序列"></a>第一步： 从数据集中搜索同一个基因簇(gene family)的序列</h3><p>这一步分为超过20,000 条序列的大数据集和低于20,000条序列这两种情况, 虽然无论那种情况，在这里我们都只用刚下载的测试数据集</p>
-<h4 id="小数据集"><a href="#小数据集" class="headerlink" title="小数据集"></a>小数据集</h4><p>第一步：从输入中计算k-mer谱和配对距离</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">run_mash.py -k 30 --cpus=12 test_human.fa</span><br><span class="line"><span class="comment"># -k, k-mer大小</span></span><br><span class="line"><span class="comment"># --cpus， 进程数</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>你一定要保证你的输入是fasta格式，因为该工具目前无法自动判断输入是否是fasta格式，所以当你提供诡异的输入时，它会报错，然后继续在后台折腾。</p>
-</blockquote>
-<p>上面这行命令做的事情是：</p>
-<ul>
-<li>将输入的fasta文件进行拆分，你可以用<code>--chunk_size</code>指定每个分块的大小</li>
-<li>对于每个分块计算k-mer谱</li>
-<li>对于每个配对的分块，计算k-mer相似度（距离）</li>
-<li>将分块合并成单个输出文件</li>
-</ul>
-<p>第二步：处理距离文件，创建基因簇</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process_kmer_to_graph.py  test_human.fa test_human.fa.s1000k30.dist test_human human</span><br></pre></td></tr></table></figure>
-
-<p>这里的<code>test_human</code>是输出文件夹，<code>human</code>表示输出文件名前缀。此外如果你有输入文件中每个转录亚型的丰度，那么你可以用<code>-c</code>参数指定该文件。</p>
-<p>这一步会得到输出日志<code>test_human.partition.txt</code>，以及<code>test_human</code>下有每个基因family的次文件夹，文件里包含着每个基因簇的相似序列。对于不属于任何基因family的序列，会在日志文件种专门说明，这里是<code>human.partition.txt</code></p>
-<h4 id="大数据集"><a href="#大数据集" class="headerlink" title="大数据集"></a>大数据集</h4><p>如果是超过20,000点大数据集，分析就需要用到Minimap2和Cpucake了。分为如下几个步骤：</p>
-<ul>
-<li>使用minimap2对数据进行粗分组</li>
-<li>对于每个分组，使用上面提到的精细的寻找family工具</li>
-<li>最后将每个分组的结果进行合并</li>
-</ul>
-<p>第一步：使用minimap进行分组</p>
-<p><code>run_preCluster.py</code>要求输入文件名为<code>isoseq_flnc.fasta</code>, 所以需要先进行软连接</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s test_human.fa isoseq_flnc.fasta </span><br><span class="line">run_preCluster.py --cpus=20</span><br></pre></td></tr></table></figure>
-
-<p>为每个分组构建基因簇寻找命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">generate_batch_cmd_for_Cogent_family_finding.py --cpus=12 --cmd_filename=cmd preCluster.cluster_info.csv preCluster_out test_human</span><br></pre></td></tr></table></figure>
-
-<p>得到的是 cmd 文件，这个cmd可以直接用<code>bash cmd</code>运行，也可以投递到任务调度系统。</p>
-<p>最后将结果进行合并</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span> <span class="string">&quot;Partition\tSize\tMembers\n&quot;</span> &gt; final.partition.txt</span><br><span class="line"><span class="built_in">ls</span> preCluster_out/*/*partition.txt | xargs -n1 -i sed <span class="string">&#x27;1d; $d&#x27;</span> &#123;&#125; | <span class="built_in">cat</span> &gt;&gt; final.partition.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="第二步：重建编码基因组"><a href="#第二步：重建编码基因组" class="headerlink" title="第二步：重建编码基因组"></a>第二步：重建编码基因组</h2><p>上一步得到每个基因簇, 可以分别重构编码基因组，所用的命令是<code>reconstruct_contig.py</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">使用方法: reconstruct_contig.py [-h] [-k KMER_SIZE]</span><br><span class="line">                             [-p OUTPUT_PREFIX] [-G GENOME_FASTA_MMI]</span><br><span class="line">                             [-S SPECIES_NAME]</span><br><span class="line">                             <span class="built_in">dirname</span></span><br></pre></td></tr></table></figure>
-
-<p>如果你手头有一个质量不是很高的基因组，可以使用<code>-G GENOME_FASTA_MMI</code>和<code>-S SPECIES_NAME</code>提供参考基因组的信息。毕竟有一些内含子是所有转录本都缺少的，提供基因组信息，可以补充这部分缺失。</p>
-<p>由于有多个基因簇，所以还需要批量运行命令<code> reconstruct_contig.py</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">generate_batch_cmd_for_Cogent_reconstruction.py test_human &gt; batch_recont.sh</span><br><span class="line">bash batch_recont.sh</span><br></pre></td></tr></table></figure>
-
-<h2 id="第三步-创建伪基因组"><a href="#第三步-创建伪基因组" class="headerlink" title="第三步: 创建伪基因组"></a>第三步: 创建伪基因组</h2><p>首先获取未分配的序列， 这里用到<code>get_seqs_from_list.py</code>脚本来自于Cupcake, 你需要将<code>cDNA_Cupcake/sequence</code>添加到的环境变量PATH中。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">tail</span> -n 1 human.partition.txt | <span class="built_in">tr</span> <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;\n&#x27;</span>  &gt; unassigned.list</span><br><span class="line">get_seqs_from_list.py hq_isoforms.fasta unassigned.list &gt; unassigned.fasta</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>这里的测试数据集里并没有未分配的序列，所以上面这一步可省去。</p>
-</blockquote>
-<p>然后将未分配的序列和Cogent contigs进行合并</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> collected</span><br><span class="line"><span class="built_in">cd</span> collected</span><br><span class="line"><span class="built_in">cat</span> ../test_human/*/cogent2.renamed.fasta ../unassigned.fasta &gt; cogent.fake_genome.fasta</span><br></pre></td></tr></table></figure>
-
-<p>最后，将冗余的转录亚型进行合并。 这一步我们需要用Minimap2或者GMAP将Iso-seq分许得到的<code>hq_isoforms.fasta</code>回帖到我们的伪基因组上。 关于参数选择，请阅读<a target="_blank" rel="noopener" href="https://github.com/Magdoll/cDNA_Cupcake/wiki/Best-practice-for-aligning-Iso-Seq-to-reference-genome:-minimap2,-GMAP,-STAR,-BLAT">Best practice for aligning Iso Seq to reference genome: minimap2, GMAP, STAR, BLAT</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s ../test_human.fa hq_isoforms.fasta</span><br><span class="line">minimap2 -ax splice -t 30 -uf --secondary=no \</span><br><span class="line">  cogent.fake_genome.fasta hq_isoforms.fasta &gt; \</span><br><span class="line">   hq_isoforms.fasta.sam</span><br></pre></td></tr></table></figure>
-
-<p>然后可以根据<a target="_blank" rel="noopener" href="https://github.com/Magdoll/cDNA_Cupcake/wiki/Cupcake-ToFU:-supporting-scripts-for-Iso-Seq-after-clustering-step">collapse tutorial from Cupcake</a>将冗余的转录亚型合并</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sort</span> -k 3,3 -k 4,4n hq_isoforms.fasta.sam &gt; hq_isoforms.fasta.sorted.sam</span><br><span class="line">collapse_isoforms_by_sam.py --input hq_isoforms.fasta -s hq_isoforms.fasta.sorted.sam \</span><br><span class="line">           -c 0.95 -i 0.85 --dun-merge-5-shorter \</span><br><span class="line">           -o hq_isoforms.fasta.no5merge</span><br></pre></td></tr></table></figure>
-
-<p>由于这里没有每个转录亚型的丰度文件<code>cluster_report.csv</code>，所以下面的命令不用运行, 最终结果就是<code>hq_isoforms.fasta.no5merge.collapsed.rep.fa</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">get_abundance_post_collapse.py hq_isoforms.fasta.no5merge.collapsed cluster_report.csv</span><br><span class="line">filter_away_subset.py hq_isoforms.fasta.no5merge.collapsed</span><br></pre></td></tr></table></figure>
-
-<p>如果运行了上面这行代码，那么最终文件就应是<code>hq_isoforms.fasta.no5merge.collapsed.filtered.*</code></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" data-id="cllpwkjxi0083e0p25tt65tf0" data-title="三代转录组系列：使用Cogent重建基因组编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li></ul>
 
     </footer>
   </div>
@@ -1118,6 +1122,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1131,10 +1139,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

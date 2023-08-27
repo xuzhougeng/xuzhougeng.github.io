@@ -73,6 +73,70 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-从一则12年前的提问中学习_从配对序列联配到多序列联配-qa-from-pairwise-alignments-to-multiple-alignment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" class="article-date">
+  <time class="dt-published" datetime="2022-10-21T13:48:24.645Z" itemprop="datePublished">2022-10-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/">从一则12年前的提问中学习:从配对序列联配到多序列联配</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最近学习多基因组比对时，看到一则12年前在Biostars发布的提问, <a target="_blank" rel="noopener" href="https://www.biostars.org/p/2882/">Programming Challange: Pairwise Alignments To Multiple Alignment</a>, 收获颇多，这里记录下。</p>
+<p>提问者，一开始阐释了自己的问题，也就是他有10-12个非常近的物种的染色体序列，将这些物种和一个参考染色体比对后，得到了多个结果。他希望，在生成多序列联配结果的同时不影响到原本单独的比对结果。那么，他想的就是，在各个序列中加上一些插入，就可以得到相对基因组的全局联配。</p>
+<p>同时，他强调了，自己不是来找序列相似度！他想的是有没有已有的脚本可以做这些事情，或者提供一些代码上的建议帮助他完成。</p>
+<p>甚至，他还给了一个案例，来说明自己的需求</p>
+<p>也就是把下面这段</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Ref1: CGACAAT--GCACGACAGAGGAAGCAGAACAGATATTTAGATTGCCTCTCATTTTCTCTCCC</span><br><span class="line">Seq1: CGACAATAAGCACGACAGAGGAAGCAGAACAGATA-----ATTGCCTCTCATTTTC-CTCCC</span><br><span class="line"></span><br><span class="line">Ref1: CGACAATGCACGACAGAGGAAGC--AGAACAGATATTTAGATTGCCTCTCATTTTCTCTCCC</span><br><span class="line">Seq2: CGACAAT-CACGACAGAGGAAGCTTAGAACAGATATTTAG---GCCTCTCATTTTCTCTCCC</span><br><span class="line"></span><br><span class="line">Ref1: CGACAATGCACGACAGAGGAAG----CAGAACAGATATTTAGATTGCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq3: CGACAATGCACGACAGAGGAAGTTTTCAGAACAGATATTTAGATTGCCTCTCAAAAATTTTCTCTCCC</span><br></pre></td></tr></table></figure>
+
+<p>变成下面这段。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Ref1: CGACAAT--GCACGACAGAGGAAG----C--AGAACAGATATTTAGATTGCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq1: CGACAATAAGCACGACAGAGGAAG----C--AGAACAGATA-----ATTGCCTCTCA----TTTTC-CTCCC</span><br><span class="line">Seq2: CGACAAT---CACGACAGAGGAAG----CTTAGAACAGATATTTAG---GCCTCTCA----TTTTCTCTCCC</span><br><span class="line">Seq3: CGACAAT--GCACGACAGAGGAAGTTTTC--AGAACAGATATTTAGATTGCCTCTCAAAAATTTTCTCTCCC</span><br></pre></td></tr></table></figure>
+
+<p>我觉得大部分人看到这样子的提问，就都知道提问者到底需要什么，也就不需要花太多时间思考题目，问提问者更多细节。</p>
+<p>排名第一的回答来自于唐海宝老师</p>
+<p>他首先回答了，作者需要的工具是TBA&#x2F;MULTIZ, 可以从<a target="_blank" rel="noopener" href="http://www.bx.psu.edu/miller_lab/">Miller Lab</a>下载.</p>
+<p>接着补充了一点细节，多序列联配的潜在原则是，gap和insertion的引入和你比对序列的顺序有关。也就是说，在很多情况下，<code>seq1-seq2-seq3和</code>seq2-seq1-seq3&#96;结果是不一样的，“once a gap, always gap”</p>
+<p>最后说了TBA软件的不足，即需要用他们定义的MAF格式作为输入，也就是用户得做一些格式转化你工作。并给了一个使用案例</p>
+<p>已知参考序列是ref1, 用于比对的序列是seq1, seq2, seq3。比对之后得到ref1.seq1.sing.maf, ref1.seq2.sing.maf, ref1.seq3.sing.maf, 这三个文件。提供一个进化树描述序列的顺序，如(((ref1 seq1) seq2) seq3， 表示ref1和seq1近，后面跟seq2近，最后是seq3。</p>
+<p>最后运行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tba <span class="string">&quot;(((ref1 seq1) seq2) seq3)&quot;</span> *.*.maf tba.maf</span><br></pre></td></tr></table></figure>
+
+<p>输出的tba.maf 就是你想要的结果，Good luck!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/10/21/%E4%BB%8E%E4%B8%80%E5%88%9912%E5%B9%B4%E5%89%8D%E7%9A%84%E6%8F%90%E9%97%AE%E4%B8%AD%E5%AD%A6%E4%B9%A0_%E4%BB%8E%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E5%88%B0%E5%A4%9A%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D-qa-from-pairwise-alignments-to-multiple-alignment/" data-id="cllszh64i008xe2qeehxb4x8p" data-title="从一则12年前的提问中学习:从配对序列联配到多序列联配" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%BE%83%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/" rel="tag">比较基因组学</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用jcvi绘制微共线性(Microsynteny)-plot-microsynteny-with-jcvi" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" class="article-date">
@@ -142,7 +206,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" data-id="cllpwkjz300cse0p22ar3ccwr" data-title="使用jcvi绘制微共线性(Microsynteny)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/10/18/%E4%BD%BF%E7%94%A8jcvi%E7%BB%98%E5%88%B6%E5%BE%AE%E5%85%B1%E7%BA%BF%E6%80%A7(Microsynteny)-plot-microsynteny-with-jcvi/" data-id="cllszh65p00d1e2qe0bqdhsuj" data-title="使用jcvi绘制微共线性(Microsynteny)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -183,7 +247,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" data-id="cllpwkk1600gce0p2d4jx6fl8" data-title="如何安装操作系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/09/06/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" data-id="cllszh67o00ive2qe1497d4rp" data-title="如何安装操作系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -286,7 +350,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" data-id="cllpwkk2n00kje0p26y7945tu" data-title="计算分子进化-搞懂PAML的正选择分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/30/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E6%90%9E%E6%87%82PAML%E7%9A%84%E6%AD%A3%E9%80%89%E6%8B%A9%E5%88%86%E6%9E%90-computational-molecular-evoluiton-learnning-note-positive-selection/" data-id="cllszh66q00gbe2qe0u4i56ey" data-title="计算分子进化-搞懂PAML的正选择分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -350,7 +414,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/20/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02-computational-molecular-evoluiton-learnning-note-2/" data-id="cllpwkk2m00kfe0p2aa8v79g3" data-title="计算分子进化-学习笔记2" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/20/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B02-computational-molecular-evoluiton-learnning-note-2/" data-id="cllszh66p00g8e2qe3w1u563u" data-title="计算分子进化-学习笔记2" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -408,7 +472,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/19/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01-computational-molecular-evoluiton-learnning-note-1/" data-id="cllpwkk2l00kce0p2bhlxexbu" data-title="计算分子进化-学习笔记1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/19/%E8%AE%A1%E7%AE%97%E5%88%86%E5%AD%90%E8%BF%9B%E5%8C%96-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01-computational-molecular-evoluiton-learnning-note-1/" data-id="cllszh66p00g5e2qe8s6bg09o" data-title="计算分子进化-学习笔记1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -462,7 +526,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/08/03/%E6%94%BE%E5%BC%83conda%E6%8B%A5%E6%8A%B1mamba-use-mamba-instead-of-conda/" data-id="cllpwkk1x00ihe0p23ilrbjqo" data-title="放弃conda拥抱mamba" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/08/03/%E6%94%BE%E5%BC%83conda%E6%8B%A5%E6%8A%B1mamba-use-mamba-instead-of-conda/" data-id="cllszh68q00l1e2qealaufdug" data-title="放弃conda拥抱mamba" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -505,7 +569,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/25/%E5%AD%A6%E4%B9%A0Python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97-%E5%AD%A6%E4%B9%A0python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97/" data-id="cllpwkk1l00hqe0p2a5chb2vz" data-title="学习Python的面向对象编程心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/25/%E5%AD%A6%E4%B9%A0Python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97-%E5%AD%A6%E4%B9%A0python%E7%9A%84%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%BF%83%E5%BE%97/" data-id="cllszh68h00kbe2qe3c8a71to" data-title="学习Python的面向对象编程心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -562,7 +626,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/20/%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97%E6%B3%A8%E9%87%8A%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%BF%83%E5%BE%97-my-opinion-on-repeat-annotation/" data-id="cllpwkjzx00ete0p22utqd7vs" data-title="基因组的重复序列注释的个人心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/20/%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97%E6%B3%A8%E9%87%8A%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%BF%83%E5%BE%97-my-opinion-on-repeat-annotation/" data-id="cllszh67300hpe2qedkuqal0k" data-title="基因组的重复序列注释的个人心得" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -620,74 +684,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/04/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E7%BB%99Seurat%E5%AF%B9%E8%B1%A1%E7%98%A6%E7%98%A6%E8%BA%AB-trick-how-to-slim-seurat-memory/" data-id="cllpwkjx0006ue0p2guugavy0" data-title="「小技巧」给Seurat对象瘦瘦身" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/07/04/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E7%BB%99Seurat%E5%AF%B9%E8%B1%A1%E7%98%A6%E7%98%A6%E8%BA%AB-trick-how-to-slim-seurat-memory/" data-id="cllszh6400073e2qecgf648p9" data-title="「小技巧」给Seurat对象瘦瘦身" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-Arm架构的macOS安装conda-arm64-mac-install-conda" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/07/03/Arm%E6%9E%B6%E6%9E%84%E7%9A%84macOS%E5%AE%89%E8%A3%85conda-arm64-mac-install-conda/" class="article-date">
-  <time class="dt-published" datetime="2022-07-03T04:02:49.141Z" itemprop="datePublished">2022-07-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/07/03/Arm%E6%9E%B6%E6%9E%84%E7%9A%84macOS%E5%AE%89%E8%A3%85conda-arm64-mac-install-conda/">Arm架构的macOS安装conda</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在arm架构的macOS系统安装conda实际上并没有特别需要注意的地方，我们只需要在最初下载的时候，选择conda-forge提供的miniconda，即<a target="_blank" rel="noopener" href="https://github.com/conda-forge/miniforge">Miniforge</a></p>
-<p>Miniforge是针对conda-forge优化的conda，做了如下的预设</p>
-<ul>
-<li>conda-forge作为默认channel</li>
-<li>PyPy的可选支持，替代标准Python(CPython)</li>
-<li>Mambda可选支持，替代conda</li>
-<li>多种CPU架构支持(x86_64, ppc64le, aarch64(M1))</li>
-</ul>
-<p>安装过程代码如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line"><span class="built_in">cd</span> ~/Download</span><br><span class="line">wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line"><span class="built_in">chmod</span> +x ~/Downloads/Miniforge3-MacOSX-arm64.sh</span><br><span class="line">sh ~/Downloads/Miniforge3-MacOSX-arm64.sh</span><br></pre></td></tr></table></figure>
-
-<p>运行时会有一些提示信息，输入yes或者回车就行，完成后会有如下信息</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/07/image-623bd5c40e1b41e487aaddbe63c96e80.png" alt="安装信息"></p>
-<p>注意我在途中标识的部分，这里有两个信息我们需要指导</p>
-<ul>
-<li>我们需要重启终端才能调用conda</li>
-<li>conda之后会默认启动base环节，除非你用 <code>conda config --set auto_activate_base false</code> 取消这个行为。</li>
-</ul>
-<p>不过，遗憾的是许多生信软件还没有arm64版本，例如bwa, samtools 等，但是没有关系这些软件可以通过 homebrew 进行安装。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/07/03/Arm%E6%9E%B6%E6%9E%84%E7%9A%84macOS%E5%AE%89%E8%A3%85conda-arm64-mac-install-conda/" data-id="cllpwkjty000ie0p2d8n9hvba" data-title="Arm架构的macOS安装conda" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
 
     </footer>
   </div>
@@ -754,6 +755,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -767,10 +772,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

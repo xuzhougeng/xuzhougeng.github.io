@@ -73,6 +73,138 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-三代转录组系列：使用Cogent重建基因组编码区-cogent-coding-genome-reconstruction-tool" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" class="article-date">
+  <time class="dt-published" datetime="2020-07-30T10:41:31.854Z" itemprop="datePublished">2020-07-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/">三代转录组系列：使用Cogent重建基因组编码区</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>尽管目前已测序的物种已经很多了，但是对于一些动辄几个G的复杂基因组，还没有某个课题组有那么大的经费去测序，所以仍旧缺少高质量的完整基因组，那么这个时候一个高质量的转录组还是能够凑合用的。</p>
+<p>二代测序的组装结果只能是差强人意，最好的结果就是不要组装，直把原模原样的转录组给你是最好的。PacBio Iso-Seq 做的就是这件事情。只不过Iso-Seq测得是转录本，由于有些基因存在可变剪切现象，所以所有将一个基因的所有转录本放在一起看，搞出一个尽量完整的编码区。</p>
+<p>Cogent能使用高质量的全长转录组测序数据对基因组编码区进行重建，示意图如下：</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/07/image-248997ac23064feeae909b5b30d47c98.png" alt="Cogent流程"></p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>虽然说软件可以直接通过conda进行安装，但是根据<a target="_blank" rel="noopener" href="https://github.com/Magdoll/Cogent/wiki/Installing-Cogent">官方文档</a>的流程，感觉还是很麻烦</p>
+<blockquote>
+<p>下面操作默认你安装好了miniconda3, 且miniconda3的位置在家目录下</p>
+</blockquote>
+<p>安装方法如下（更新与2020&#x2F;7&#x2F;30）</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">conda create <span class="operator">-</span>y <span class="operator">-</span>n cogent python<span class="operator">=</span><span class="number">3.7</span> </span><br><span class="line">conda activate cogent</span><br><span class="line">conda install <span class="operator">-</span>y  <span class="operator">-</span><span class="built_in">c</span> bcbio bx<span class="operator">-</span>python</span><br><span class="line">conda install <span class="operator">-</span>y  <span class="operator">-</span><span class="built_in">c</span> conda<span class="operator">-</span>forge pulp</span><br><span class="line">pip install networkx<span class="operator">==</span><span class="number">2.0</span></span><br><span class="line">conda install <span class="operator">-</span>y <span class="operator">-</span><span class="built_in">c</span> bioconda parasail<span class="operator">-</span>python</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Github的Cogent</span></span><br><span class="line">cd <span class="operator">~</span><span class="operator">/</span>miniconda3<span class="operator">/</span>envs<span class="operator">/</span>cogent</span><br><span class="line">git clone https<span class="operator">:</span><span class="operator">/</span><span class="operator">/</span>github.com<span class="operator">/</span>Magdoll<span class="operator">/</span>Cogent.git</span><br><span class="line">cd Cogent</span><br><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+
+<p>经过上面一波操作，请用下面这行命令验证是否安装成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">run_mash.py --version</span><br><span class="line">run_mash.py Cogent 6.0.0</span><br></pre></td></tr></table></figure>
+
+<p>此外还需要安装另外两个软件，分别是<code>Minimap2</code>和<code>Mash</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">conda install minimap2</span><br><span class="line"><span class="comment"># 目前mash升级了</span></span><br><span class="line">wget  https://github.com/marbl/Mash/releases/download/v2.2/mash-Linux64-v2.2.tar</span><br><span class="line">tar xf mash-Linux64-v2.2.tar</span><br><span class="line"><span class="built_in">mv</span> mash-Linux64-v2.2/mash  <span class="variable">$HOME</span>/miniconda3/envs/cogent/bin</span><br></pre></td></tr></table></figure>
+
+<p>对待大数据集，你还需要安装Cupcake</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">conda activate cogent </span><br><span class="line">conda install cython -y</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/Magdoll/cDNA_Cupcake.git</span><br><span class="line"><span class="built_in">cd</span> cDNA_Cupcake</span><br><span class="line">git checkout</span><br><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>关于这个Cupcake, 如果python3环境出现报错，就新建一个Python2环境进行安装。</p>
+</blockquote>
+<h2 id="创建伪基因组"><a href="#创建伪基因组" class="headerlink" title="创建伪基因组"></a>创建伪基因组</h2><p>让我们先下载测试所用的数据集，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">wget https://raw.githubusercontent.com/Magdoll/Cogent/master/test_data/test_human.fa</span><br></pre></td></tr></table></figure>
+
+<h3 id="第一步：-从数据集中搜索同一个基因簇-gene-family-的序列"><a href="#第一步：-从数据集中搜索同一个基因簇-gene-family-的序列" class="headerlink" title="第一步： 从数据集中搜索同一个基因簇(gene family)的序列"></a>第一步： 从数据集中搜索同一个基因簇(gene family)的序列</h3><p>这一步分为超过20,000 条序列的大数据集和低于20,000条序列这两种情况, 虽然无论那种情况，在这里我们都只用刚下载的测试数据集</p>
+<h4 id="小数据集"><a href="#小数据集" class="headerlink" title="小数据集"></a>小数据集</h4><p>第一步：从输入中计算k-mer谱和配对距离</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">run_mash.py -k 30 --cpus=12 test_human.fa</span><br><span class="line"><span class="comment"># -k, k-mer大小</span></span><br><span class="line"><span class="comment"># --cpus， 进程数</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>你一定要保证你的输入是fasta格式，因为该工具目前无法自动判断输入是否是fasta格式，所以当你提供诡异的输入时，它会报错，然后继续在后台折腾。</p>
+</blockquote>
+<p>上面这行命令做的事情是：</p>
+<ul>
+<li>将输入的fasta文件进行拆分，你可以用<code>--chunk_size</code>指定每个分块的大小</li>
+<li>对于每个分块计算k-mer谱</li>
+<li>对于每个配对的分块，计算k-mer相似度（距离）</li>
+<li>将分块合并成单个输出文件</li>
+</ul>
+<p>第二步：处理距离文件，创建基因簇</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process_kmer_to_graph.py  test_human.fa test_human.fa.s1000k30.dist test_human human</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>test_human</code>是输出文件夹，<code>human</code>表示输出文件名前缀。此外如果你有输入文件中每个转录亚型的丰度，那么你可以用<code>-c</code>参数指定该文件。</p>
+<p>这一步会得到输出日志<code>test_human.partition.txt</code>，以及<code>test_human</code>下有每个基因family的次文件夹，文件里包含着每个基因簇的相似序列。对于不属于任何基因family的序列，会在日志文件种专门说明，这里是<code>human.partition.txt</code></p>
+<h4 id="大数据集"><a href="#大数据集" class="headerlink" title="大数据集"></a>大数据集</h4><p>如果是超过20,000点大数据集，分析就需要用到Minimap2和Cpucake了。分为如下几个步骤：</p>
+<ul>
+<li>使用minimap2对数据进行粗分组</li>
+<li>对于每个分组，使用上面提到的精细的寻找family工具</li>
+<li>最后将每个分组的结果进行合并</li>
+</ul>
+<p>第一步：使用minimap进行分组</p>
+<p><code>run_preCluster.py</code>要求输入文件名为<code>isoseq_flnc.fasta</code>, 所以需要先进行软连接</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s test_human.fa isoseq_flnc.fasta </span><br><span class="line">run_preCluster.py --cpus=20</span><br></pre></td></tr></table></figure>
+
+<p>为每个分组构建基因簇寻找命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">generate_batch_cmd_for_Cogent_family_finding.py --cpus=12 --cmd_filename=cmd preCluster.cluster_info.csv preCluster_out test_human</span><br></pre></td></tr></table></figure>
+
+<p>得到的是 cmd 文件，这个cmd可以直接用<code>bash cmd</code>运行，也可以投递到任务调度系统。</p>
+<p>最后将结果进行合并</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span> <span class="string">&quot;Partition\tSize\tMembers\n&quot;</span> &gt; final.partition.txt</span><br><span class="line"><span class="built_in">ls</span> preCluster_out/*/*partition.txt | xargs -n1 -i sed <span class="string">&#x27;1d; $d&#x27;</span> &#123;&#125; | <span class="built_in">cat</span> &gt;&gt; final.partition.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="第二步：重建编码基因组"><a href="#第二步：重建编码基因组" class="headerlink" title="第二步：重建编码基因组"></a>第二步：重建编码基因组</h2><p>上一步得到每个基因簇, 可以分别重构编码基因组，所用的命令是<code>reconstruct_contig.py</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">使用方法: reconstruct_contig.py [-h] [-k KMER_SIZE]</span><br><span class="line">                             [-p OUTPUT_PREFIX] [-G GENOME_FASTA_MMI]</span><br><span class="line">                             [-S SPECIES_NAME]</span><br><span class="line">                             <span class="built_in">dirname</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你手头有一个质量不是很高的基因组，可以使用<code>-G GENOME_FASTA_MMI</code>和<code>-S SPECIES_NAME</code>提供参考基因组的信息。毕竟有一些内含子是所有转录本都缺少的，提供基因组信息，可以补充这部分缺失。</p>
+<p>由于有多个基因簇，所以还需要批量运行命令<code> reconstruct_contig.py</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">generate_batch_cmd_for_Cogent_reconstruction.py test_human &gt; batch_recont.sh</span><br><span class="line">bash batch_recont.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="第三步-创建伪基因组"><a href="#第三步-创建伪基因组" class="headerlink" title="第三步: 创建伪基因组"></a>第三步: 创建伪基因组</h2><p>首先获取未分配的序列， 这里用到<code>get_seqs_from_list.py</code>脚本来自于Cupcake, 你需要将<code>cDNA_Cupcake/sequence</code>添加到的环境变量PATH中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">tail</span> -n 1 human.partition.txt | <span class="built_in">tr</span> <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;\n&#x27;</span>  &gt; unassigned.list</span><br><span class="line">get_seqs_from_list.py hq_isoforms.fasta unassigned.list &gt; unassigned.fasta</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里的测试数据集里并没有未分配的序列，所以上面这一步可省去。</p>
+</blockquote>
+<p>然后将未分配的序列和Cogent contigs进行合并</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> collected</span><br><span class="line"><span class="built_in">cd</span> collected</span><br><span class="line"><span class="built_in">cat</span> ../test_human/*/cogent2.renamed.fasta ../unassigned.fasta &gt; cogent.fake_genome.fasta</span><br></pre></td></tr></table></figure>
+
+<p>最后，将冗余的转录亚型进行合并。 这一步我们需要用Minimap2或者GMAP将Iso-seq分许得到的<code>hq_isoforms.fasta</code>回帖到我们的伪基因组上。 关于参数选择，请阅读<a target="_blank" rel="noopener" href="https://github.com/Magdoll/cDNA_Cupcake/wiki/Best-practice-for-aligning-Iso-Seq-to-reference-genome:-minimap2,-GMAP,-STAR,-BLAT">Best practice for aligning Iso Seq to reference genome: minimap2, GMAP, STAR, BLAT</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s ../test_human.fa hq_isoforms.fasta</span><br><span class="line">minimap2 -ax splice -t 30 -uf --secondary=no \</span><br><span class="line">  cogent.fake_genome.fasta hq_isoforms.fasta &gt; \</span><br><span class="line">   hq_isoforms.fasta.sam</span><br></pre></td></tr></table></figure>
+
+<p>然后可以根据<a target="_blank" rel="noopener" href="https://github.com/Magdoll/cDNA_Cupcake/wiki/Cupcake-ToFU:-supporting-scripts-for-Iso-Seq-after-clustering-step">collapse tutorial from Cupcake</a>将冗余的转录亚型合并</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sort</span> -k 3,3 -k 4,4n hq_isoforms.fasta.sam &gt; hq_isoforms.fasta.sorted.sam</span><br><span class="line">collapse_isoforms_by_sam.py --input hq_isoforms.fasta -s hq_isoforms.fasta.sorted.sam \</span><br><span class="line">           -c 0.95 -i 0.85 --dun-merge-5-shorter \</span><br><span class="line">           -o hq_isoforms.fasta.no5merge</span><br></pre></td></tr></table></figure>
+
+<p>由于这里没有每个转录亚型的丰度文件<code>cluster_report.csv</code>，所以下面的命令不用运行, 最终结果就是<code>hq_isoforms.fasta.no5merge.collapsed.rep.fa</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">get_abundance_post_collapse.py hq_isoforms.fasta.no5merge.collapsed cluster_report.csv</span><br><span class="line">filter_away_subset.py hq_isoforms.fasta.no5merge.collapsed</span><br></pre></td></tr></table></figure>
+
+<p>如果运行了上面这行代码，那么最终文件就应是<code>hq_isoforms.fasta.no5merge.collapsed.filtered.*</code></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" data-id="cllszh64d008ce2qeax3a9vro" data-title="三代转录组系列：使用Cogent重建基因组编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84/" rel="tag">转录组</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用ArchR分析单细胞ATAC-seq数据(第十三章)-analysis-sc-atac-seq-with-archr-chapter13" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/07/20/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter13/" class="article-date">
@@ -219,7 +351,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/20/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter13/" data-id="cllpwkjy700a7e0p2h59ofnq3" data-title="使用ArchR分析单细胞ATAC-seq数据(第十三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/20/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter13/" data-id="cllszh64w00afe2qe1sl0hxtf" data-title="使用ArchR分析单细胞ATAC-seq数据(第十三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -382,7 +514,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter12/" data-id="cllpwkjy800aae0p29k7mdbxp" data-title="使用ArchR分析单细胞ATAC-seq数据(第十二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter12/" data-id="cllszh64x00aje2qedgp7h7ml" data-title="使用ArchR分析单细胞ATAC-seq数据(第十二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -497,7 +629,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter11/" data-id="cllpwkjy600a3e0p2778mff12" data-title="使用ArchR分析单细胞ATAC-seq数据(第十一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter11/" data-id="cllszh64v00ace2qe5cgb4s47" data-title="使用ArchR分析单细胞ATAC-seq数据(第十一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -618,7 +750,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/12/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter10/" data-id="cllpwkjye00aoe0p23oprg5qg" data-title="使用ArchR分析单细胞ATAC-seq数据(第十章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/12/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter10/" data-id="cllszh65100axe2qe0r4571ln" data-title="使用ArchR分析单细胞ATAC-seq数据(第十章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -698,7 +830,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/07/MAKER%E9%81%BF%E5%85%8D%E9%87%8D%E5%A4%8D%E8%BF%90%E7%AE%97-maker-redue-redundant-computations/" data-id="cllpwkjuq002fe0p28eejhaq2" data-title="MAKER避免重复运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/07/MAKER%E9%81%BF%E5%85%8D%E9%87%8D%E5%A4%8D%E8%BF%90%E7%AE%97-maker-redue-redundant-computations/" data-id="cllszh62l0032e2qehvwwdof1" data-title="MAKER避免重复运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -794,7 +926,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/06/MAKER%E8%AE%AD%E7%BB%83SNAP%E5%9F%BA%E5%9B%A0%E6%A8%A1%E5%9E%8B-maker-train-snap-model/" data-id="cllpwkjup002ae0p23b4n07an" data-title="MAKER训练SNAP基因模型" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/06/MAKER%E8%AE%AD%E7%BB%83SNAP%E5%9F%BA%E5%9B%A0%E6%A8%A1%E5%9E%8B-maker-train-snap-model/" data-id="cllszh62k0031e2qe2f6o8dkh" data-title="MAKER训练SNAP基因模型" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -958,7 +1090,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/01/MAKER%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3-explain-maker-control-files/" data-id="cllpwkjur002ie0p2bhq226u9" data-title="MAKER配置文件详解" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/01/MAKER%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3-explain-maker-control-files/" data-id="cllszh62l0034e2qe4cdcfynd" data-title="MAKER配置文件详解" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1025,7 +1157,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" data-id="cllpwkjun0027e0p2c3048o0o" data-title="MAKER的并行化初探" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" data-id="cllszh61a002be2qe6kpybdh9" data-title="MAKER的并行化初探" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1106,96 +1238,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" data-id="cllpwkjvz004qe0p27wc7eenz" data-title="Singularity和MPI应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" data-id="cllszh63j004ye2qe9tko4nfg" data-title="Singularity和MPI应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用ArchR分析单细胞ATAC-seq数据(第九章)-analysis-sc-atac-seq-with-archr-chapter9" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" class="article-date">
-  <time class="dt-published" datetime="2020-06-04T09:35:45.570Z" itemprop="datePublished">2020-06-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/">使用ArchR分析单细胞ATAC-seq数据(第九章)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="第9章-ArchR的拟混池重复"><a href="#第9章-ArchR的拟混池重复" class="headerlink" title="第9章 ArchR的拟混池重复"></a>第9章 ArchR的拟混池重复</h1><p>因为scATAC-seq数据本质上只有两种值，也就是说每个位点要么开放要么不开放，所以你会发现某些情况下无法使用单个细胞进行数据分析。此外，许多我们想要做的分析也依赖于重复才能计算统计显著性。对于单细胞数据，我们通过构建拟混池重复(pseudo-bulk replicates)来解决该问题。所谓的拟混池(pesudo-bulk)指的就是将单细胞进行合并模拟成混池测序的ATAC-seq实验得到的数据。ArchR为每个目标细胞分组构建多个拟混池样本，也就得到了拟混池重复。这个模拟过程背后的假设是将单细胞进行合并结果和实际的混池结果非常接近，以至于不需要在乎背后的差异。这些细胞分组通常都是来自于单个细胞类群，或者是一直细胞类型对应的可能聚类。我们这一章会介绍如何使用ArchR生成这些拟混池重复。</p>
-<h2 id="9-1-ArchR如何构建拟混池重复"><a href="#9-1-ArchR如何构建拟混池重复" class="headerlink" title="9.1 ArchR如何构建拟混池重复"></a>9.1 ArchR如何构建拟混池重复</h2><p>ArchR使用分级优先法(tiered priority approach)构建拟混池重复。使用者定义: i)最小和最大重复数(minReps&#x2F;maxReps), ii)每个重复的最少和最多细胞数(minCells&#x2F;maxCells), iii)缺少足够细胞用于构建足够重复时的采样率(Sampling Ratio)。举个例子，当采样率等于0.8时，每个重复中80%的细胞来自于无放回抽样(这会导致重复间出现有放回抽样)。在这种情况下，多个重复中可能有一些相同的细胞，但是为了能在缺少足够细胞的分组里得到拟混池重复，这是必要的牺牲。</p>
-<p>我们的拟混池重复生成过程可以用如下的决策树进行描述</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/pseudobulkReplicate_DecisionTree-47b9cb7311714040afd8afcd14dee720.png" alt="pseudobulkReplicate_DecisionTree"></p>
-<p>流程有些复杂，这里概述下这个流程中的几个关键注意事项。</p>
-<p>首先，用户确定细胞的分组，ArchR通常会称之为聚类，我们可以在第五章分析分析得到。</p>
-<p>其次，对于每一组，ArchR尝试去创建理想的拟混池重复。所谓理想的拟混池重复，指的是每个重复只有一个样本构成，这就要求每个样本得保证足量的细胞数。这样保证了重复间的样本多样性和生物学变异，是ArchR所期望得到的最佳结果，但这一过程实际上会有5种可能的结果，根据ArchR的偏好排序如下</p>
-<ol>
-<li>数据拥有足够多的样本(至少要等于maxRep定义的重复)，且每个样本的细胞数都大于 <code>minCell</code>, 于是每个样本都可以作为拟混池重复，每个重复的细胞都来自于同一个样本。</li>
-<li>一些样本的细胞数超过<code>minCell</code>,因此能够单独形成一个重复。剩下的重复则是通过将余下的细胞进行混合，然后通过无放回抽样得到。</li>
-<li>数据里没有一个样本的细胞数超过<code>minCell</code>, 但是总细胞数超过<code>minCells * minReps</code>。因此将所有的细胞进行混合，然后进行无放回抽样，抽样时不考虑细胞来源。</li>
-<li>一个细胞分组中的总细胞数低于 <code>minCells * minReps</code>，但是大于<code>minCells / Sample Ratio</code>。此时单个样本的构建采取无放回抽样，重复间则需要有放回抽样，降低多个拟混池重复间的相同细胞数。</li>
-<li>一个细胞分组中的总细胞数低于 <code>minCells /  Sample Ratio</code> 。这意味着我们必须在单个重复和跨重复中都采取有放回抽样策略。这是最糟糕的情况，后续在使用这些拟混池重复做下游分析分析要特别小心。后续可以通过设置ArchR的<code>minCells</code>参数进行淘汰。</li>
-</ol>
-<p>我们使用如下的数据集阐述这一过程</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Sample  Cluster1  Cluster2  Cluster3  Cluster4  Cluster5</span><br><span class="line">A       800       600       900       100       75</span><br><span class="line">B       1000      50        400       150       25</span><br><span class="line">C       600       900       100       200       50</span><br><span class="line">D       1200      500       50        50        25</span><br><span class="line">E       900       100       50        150       50</span><br><span class="line">F       700       200       100       100       25</span><br></pre></td></tr></table></figure>
-
-<p>我们设置的参数为<code>minRep=3</code>,<code>maxRep=5</code>, <code>minCells=300</code>, <code>maxCells=1000</code>和<code>sampleRatio=0.8</code>，也就是最少有3个重复，最多是5个重复，每个重复至少有300个细胞，最多是1000个细胞，当细胞数不满住要求，抽样率设置为0.8.</p>
-<h3 id="9-1-1-Cluster1"><a href="#9-1-1-Cluster1" class="headerlink" title="9.1.1 Cluster1"></a>9.1.1 Cluster1</h3><p>对于Cluster1, 我们的6个样本(大于<code>maxRep</code>)的细胞数都高于<code>minCells</code>(300)。这是最理想的情况，对应上述第一种情况，我们将会得到5个拟混池重复，保证每个重复都来自独立的样本。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rep1 = 800 cells from SampleA</span><br><span class="line">Rep2 = 1000 cells from SampleB</span><br><span class="line">Rep3 = 1000 cells from SampleD</span><br><span class="line">Rep4 = 900 cells from SampleE</span><br><span class="line">Rep5 = 700 cells from SampleF</span><br></pre></td></tr></table></figure>
-
-<p>对于这些重复，我们需要注意两个事情:(1) 因为我们的样本数足够多，能够保证每个重复都来自独立的样本，所以可以淘汰其中细胞数最少的SampleC。(2)由于<code>maxCells</code>设置为1000，因此最多只能有1000个细胞。</p>
-<h3 id="9-1-2-Cluster2"><a href="#9-1-2-Cluster2" class="headerlink" title="9.1.2 Cluster2"></a>9.1.2 Cluster2</h3><p>对于Cluster2, 我们有3个样本的细胞数超过<code>minCells</code>, 另外3个样本的细胞数都不够。这对应上述第二种情况，我们会以如下的方法构建拟混池重复。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rep1 = 600 cells from SampleA</span><br><span class="line">Rep2 = 900 cells from SampleC</span><br><span class="line">Rep3 = 500 cells from SampleD</span><br><span class="line">Rep4 = 350 cells [50 cells from SampleB + 100 from SampleE + 200 from SampleF]</span><br></pre></td></tr></table></figure>
-
-<p>在这个例子中，Rep4由其他几个样本的细胞混合后通过无放回抽样得到</p>
-<h3 id="9-1-3-Cluster3"><a href="#9-1-3-Cluster3" class="headerlink" title="9.1.3 Cluster3"></a>9.1.3 Cluster3</h3><p>对于Cluster3，我们只有两个样本超过<code>minCells</code>, 不满足<code>minReps</code>。但是如果我们将剩余的样本的细胞进行混合形成额外的重复，它的细胞数就超过了<code>minCells</code>。最终我们得到了3个拟混池重复，对应上述的情况3。我们将得到如下重复</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rep1 = 900 cells from SampleA</span><br><span class="line">Rep2 = 400 cells from SampleB</span><br><span class="line">Rep3 = 250 cells [100 cells from SampleC + 50 from SampleD + 50 from SampleE + 50 from SampleF]</span><br></pre></td></tr></table></figure>
-
-<p>和Cluster2类似，Cluster3的Rep3由其他几个样本的细胞混合后通过无放回抽样得到</p>
-<h3 id="9-1-4-Cluster4"><a href="#9-1-4-Cluster4" class="headerlink" title="9.1.4 Cluster4"></a>9.1.4 Cluster4</h3><p>对于Cluster4，总细胞数是570个，小于<code>minCells * minReps</code>(900). 在这个情况下，我们无法保证有足够多的细胞通过无放回抽样的方式保证每个重复都有最小的细胞数。但是，总的细胞数依旧依旧大于<code>minCells / sampleRatio</code>(375个细胞)，这意味着每个重复中细胞可以来自于无放回抽样，重复之间的细胞需要放回抽样。这对应着上述的情况4，我们将得到如下重复</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rep1 = 300 cells [250 unique cells + 25 cells overlapping Rep2 + 25 cells overlapping Rep3]</span><br><span class="line">Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep3]</span><br><span class="line">Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]</span><br></pre></td></tr></table></figure>
-
-<p>在这个情况中，ArchR会尽可能降低任意两个拟混池重复的相同细胞。</p>
-<h3 id="9-1-5-Cluster5"><a href="#9-1-5-Cluster5" class="headerlink" title="9.1.5 Cluster5"></a>9.1.5 Cluster5</h3><p>对于Cluster5，总共是250个细胞，同时小于<code>minCells * minReps</code>（900）和<code>minCells / sampleRatio</code>(375). 这意味着每个样本都需要有放回的抽样，重复之间也需要有放回抽样，才能得到拟混池重复。这是上述说到的第5种情况，是其中最糟糕的情况。对于这类拟混池重复，在后续的分析中需要谨慎使用。我们将得到如下的重复:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rep1 = 300 cells [250 unique cells + 25 cells overlapping Rep2 + 25 cells overlapping Rep3]</span><br><span class="line">Rep2 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep3]</span><br><span class="line">Rep3 = 300 cells [250 unique cells + 25 cells overlapping Rep1 + 25 cells overlapping Rep2]</span><br></pre></td></tr></table></figure>
-
-<h2 id="9-2-构建拟混池重复"><a href="#9-2-构建拟混池重复" class="headerlink" title="9.2 构建拟混池重复"></a>9.2 构建拟混池重复</h2><p>通过上一节了解ArchR构建拟混池重复的逻辑后，我们就可以开始实际操作了。在ArchR中，我们通过调用<code>addGroupCoverages()</code>函数来构建拟混池重复。它的关键参数<code>groupBy</code>,定义了拟混池重复需要使用的分组。这里我们用的是上一章scRNA-seq数据标记的细胞类型，也就是<code>Cluster2</code></p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">projHeme4 <span class="operator">&lt;-</span> addGroupCoverages<span class="punctuation">(</span>ArchRProj <span class="operator">=</span> projHeme3<span class="punctuation">,</span> groupBy <span class="operator">=</span> <span class="string">&quot;Clusters2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>得到这些拟混池重复后，我们就能从数据中鉴定peak了。就像之前所说的，我们不希望使用所有的细胞鉴定peak，而是单独根据每一组细胞（例如聚类）单独鉴定peak，这样才有可能分析出不同组的特异性peak。这一章得到数据就为后续鉴定peak提供了良好的开始。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" data-id="cllpwkjy1009me0p23te53fzb" data-title="使用ArchR分析单细胞ATAC-seq数据(第九章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
 
     </footer>
   </div>
@@ -1262,6 +1309,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1275,10 +1326,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

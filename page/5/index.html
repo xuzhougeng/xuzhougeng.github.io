@@ -73,6 +73,67 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-吐槽下biopython的SeqIO.write导出fasta-biopython-seqio-write-are-not-good" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" class="article-date">
+  <time class="dt-published" datetime="2022-02-17T08:40:38.045Z" itemprop="datePublished">2022-02-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/">吐槽下biopython的SeqIO.write导出fasta</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>当使用biopython的SeqIO模块加载fasta之后，每条fasta都会记录成 <code>Bio.SeqRecord.SeqRecord</code>, 会有id, name, description, dbxrefs 等属性.</p>
+<p>举个例子，输入数据是 test.fa</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># test.fa</span></span><br><span class="line"><span class="comment">#&gt;a|b c</span></span><br><span class="line"><span class="comment">#ATCG</span></span><br><span class="line">seq = SeqIO.read(<span class="string">&quot;test.fa&quot;</span>, <span class="string">&quot;fasta&quot;</span>)</span><br><span class="line">seq</span><br><span class="line">SeqRecord(seq=Seq(<span class="string">&#x27;ATCG&#x27;</span>), <span class="built_in">id</span>=<span class="string">&#x27;a|b&#x27;</span>, name=<span class="string">&#x27;a|b&#x27;</span>, description=<span class="string">&#x27;a|b c&#x27;</span>, dbxrefs=[])</span><br></pre></td></tr></table></figure>
+
+<p>我们可以将其保存成另一个文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;test2.fa&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    SeqIO.write(seq, f, <span class="string">&quot;fasta&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>输出的header和输入的header是完全一样的。</p>
+<p>假如，你想修改他的名字, 比如说把 “a|b” 改成 “a”, 你会发现一个非常诡异的事情，就是它完全不会按照你想的来.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">seq.<span class="built_in">id</span> = <span class="string">&quot;a&quot;</span></span><br><span class="line"><span class="comment"># 输出 a a|b c</span></span><br><span class="line">seq.name = <span class="string">&quot;a&quot;</span></span><br><span class="line"><span class="comment"># 输出a|b c</span></span><br><span class="line">seq.description = <span class="string">&quot;a c&quot;</span></span><br><span class="line"><span class="comment"># 输出 a|b a c</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你改了他的ID，他会输出 ID + description, 如果你改了name，相当于没改，如果你改了description，就真的只有description（即header中空格后的信息）会发生变化。</p>
+<p>假如我想输出 “&gt;a c”, 那我就必须下面这个形式</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">seq.<span class="built_in">id</span> = <span class="string">&quot;a&quot;</span></span><br><span class="line">seq.description = <span class="string">&quot;c&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我实在是没想懂他背后的逻辑, 修改输出的header居然如此不符合预期</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="cllszh66x00h1e2qegi8p7f66" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-我的生信自学心得分享-my-experience-bioinformatic-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" class="article-date">
@@ -103,7 +164,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="cllpwkk1t00i6e0p210cr9fvr" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="cllszh68n00kqe2qeaygw5alv" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -177,7 +238,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="cllpwkjv5003ce0p2cg27fykv" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="cllszh62r003qe2qec7mi408m" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -232,7 +293,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="cllpwkjv0002xe0p29dhb77qh" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="cllszh62o003ee2qe0jno2oz6" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -286,7 +347,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="cllpwkjvw004he0p2fow1hbpj" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="cllszh637004pe2qefmaz4k7n" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -443,7 +504,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="cllpwkjum0024e0p2b6dl3jlx" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="cllszh6190027e2qefnzc0zit" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -509,7 +570,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="cllpwkk0100f3e0p2a1fx166f" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="cllszh67c00hxe2qea0ckdeid" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -595,7 +656,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="cllpwkk2a00jje0p22pcq9xa6" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="cllszh66g00f6e2qe6nxfh09b" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -650,7 +711,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="cllpwkjwb005pe0p290vs48to" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="cllszh63r005xe2qebxg99pqx" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -716,69 +777,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="cllpwkk1h00hae0p2hx2sdl22" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="cllszh67x00jue2qedj361w1r" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-「荐书」入门深度学习的必备数学知识-mathematics-basis-for-deep-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" class="article-date">
-  <time class="dt-published" datetime="2021-11-24T05:33:41.559Z" itemprop="datePublished">2021-11-24</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/">「荐书」入门深度学习的必备数学知识</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>以我浅薄的理解，深度学习是机器学习的一个子集。想要入门深度学习，可以先从最基础的神经网络开始。</p>
-<p>神经网络也称之为多层感知机(multi-layer perceptron, MLP)，由输入层，隐藏层，输出层构成。最简单的神经网络只需要3层，拥有数百到数千个参数，而现代复杂的神经网络则可能有成千万上百万层，拥有数万，数十万，数百万的参数，例如人工智能公司OpenAI在2020年7月发布的GPT-3拥有1750亿个参数。对于那么多层的神经网络的训练，我们就称之为深度学习(deep learning).</p>
-<p>目前关于深度学习的框架很多，包括但不限于MXNET, PyTorch, TensorFlow等，因此利用这些框架训练一个手写数字识别，猫和狗分类的神经网络并不算特别困难。但是如果我们有更高的追求，就得了解下它背后的数学基础。</p>
-<p>目前阅读到大部分课程，虽然都会提到深度学习所需要的数学知识，例如线性代数，微积分，概率论和信息论，但是要么受限于篇幅没有详细介绍，要么是因为“知识诅咒”，会直接使用高阶的抽象的数学符号介绍原理，使得我迷失各种符号定义中。</p>
-<p>之前推荐的<a href="https://xuzhougeng.top/archives/a-good-book-for-who-want-to-learn-deep-learning">Python神经网络编程</a>虽然也涉及到数学，但比较浅显，在此基础上直接去阅读<a target="_blank" rel="noopener" href="https://zh-v2.d2l.ai/index.html">动手学习深度学习</a>这类书，还是会有很大压力，于是我找到了另一本缓冲书籍，<a target="_blank" rel="noopener" href="https://book.douban.com/subject/33414479/">深度学习的数学</a></p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/11/image-927361cba5d84a3191d846596a2360e6.png" alt="深度学习的数学"></p>
-<p>我个人觉得这本书最大的亮点在于，它创建了一个Excel就能训练的神经网络数据集。这个数据集一共64张图片，记录数字0和1。神经网络一共三层，输入层是12个节点，对应输入图像的12个像素点，隐藏层只有一层，3个节点，输出层是2个节点对应0和1，总计 12 x 3 + 3 + 3 x 2 + 2 &#x3D; 47个参数。</p>
-<p>由于参数少，所以作者就可以展开所有的公式，即 $z &#x3D; w_1x_1 + w_2x2+ b$，而不必使用线性代数中的矩阵和向量乘法, 即 $z &#x3D; w \cdot x + b$</p>
-<p>虽然前者看起来很繁琐，不如后者简洁。但，就我而言，我更喜欢前者的直观，因为我可以自己在脑中将前者转换成后者，建立两者的联系，那么，以后看到矩阵乘法的形式，就能自动展开。</p>
-<p>同样由于参数少，我们既可以使用Excel以线性模型的方式对代价函数优化，也可以使用Excel采取（随机）梯度下降的方式对代价函数优化。相对于使用Python根据原理手动搭建简单的神经网络，使用Excel让我们对数据有了更多的掌控感。</p>
-<p>这本书的另一个亮点是，它涉及到数学知识刚好是我能够得上的水平。例如，在我学习「动手学习深度学习」的4.7节时，我搞不懂为什么损失函数对权重参数求导式子是下面这个样子</p>
-<p>$$<br>\frac{\partial J}{\partial \mathbf{W}^{(2)}}&#x3D; \text{prod}\left(\frac{\partial J}{\partial \mathbf{o}}, \frac{\partial \mathbf{o}}{\partial \mathbf{W}^{(2)}}\right) + \text{prod}\left(\frac{\partial J}{\partial s}, \frac{\partial s}{\partial \mathbf{W}^{(2)}}\right)&#x3D; \frac{\partial J}{\partial \mathbf{o}} \mathbf{h}^\top + \lambda \mathbf{W}^{(2)}.<br>$$</p>
-<p>看了「深度学习的数学」的2.8节才知道这是多变量函数的链式法则。</p>
-<p>学习就相当于探险，一本合适的书会告诉我们需要了解哪些知识，这就相当于在探险过程中拿到了地图，虽然我们还没有真正抵达目的地，但起码我们知道该怎么走了，心里就有底了。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="cllpwkjxb007ke0p25g0ibzeg" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6/" rel="tag">读书</a></li></ul>
 
     </footer>
   </div>
@@ -845,6 +848,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -858,10 +865,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

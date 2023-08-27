@@ -73,6 +73,92 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用Purge_dups去冗余序列-remove-redundancy-using-purge-dups" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/" class="article-date">
+  <time class="dt-published" datetime="2020-05-18T13:35:45.844Z" itemprop="datePublished">2020-05-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/">使用Purge_dups去冗余序列</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><code>purge_dups</code>能够根据read深度分析组装中haplotigs和overlaps。相对于另一款<code>purge_haplotigs</code>，它的运行速度更快，而且能够自动确定阈值。</p>
+<p><code>purge_dups</code>分为三个部分，第一部分是将序列回贴到基因组并分析覆盖度确定阈值，第二部分是将组装自我比对，第三部分是利用前两部分得到的信息鉴定到原来序列中的haplotigs和overlaps.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-b15fb196d29e46dbbe09047035944ebe.png" alt="流程示意图"></p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><blockquote>
+<p>尽管可以通过runner来进行程序调用，但是我更喜欢自己写脚本，因此不安装python3和runner</p>
+</blockquote>
+<p>purge_dups是用C语言编写，因此需要通过make来编译</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/dfguan/purge_dups.git</span><br><span class="line"><span class="built_in">cd</span> purge_dups/src &amp;&amp; mak</span><br></pre></td></tr></table></figure>
+
+<p>脚本在<code>scripts</code>目录下，编译的程序在<code>bin</code>目录下</p>
+<h2 id="软件运行"><a href="#软件运行" class="headerlink" title="软件运行"></a>软件运行</h2><p>输入文件分为两种，一种是组装序列，一种是测序数据。其中组装序列分为两种情况考虑，一种是类似falcon-unzip输出的primary assembly和alternative assembly，另一种则是单个组装文件。 而测序数据分为二代测序和三代ONT&#x2F;PacBio测序。这里以单个组装文件输出和三代测序进行介绍，假定这两个输入文件分别命名为asm和reads.</p>
+<p>第一步: 根据覆盖度计算分界点(cutoff)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gzip可以替换成pigz, 进行多线程压缩</span></span><br><span class="line">~/opt/biosoft/minimap2-2.17/minimap2 -t 80 -x map-pb <span class="variable">$asm</span> <span class="variable">$reads</span> | gzip -c - &gt; pb_aln.paf.gz</span><br><span class="line"><span class="comment"># 统计paf, 输出PB.base.cov和PB.stat文件</span></span><br><span class="line">~/opt/biosoft/purge_dups/bin/pbcstat pb_aln.paf.gz</span><br><span class="line">~/opt/biosoft/purge_dups/bin/calcuts PB.<span class="built_in">stat</span> &gt; cutoffs 2&gt; calcults.log</span><br></pre></td></tr></table></figure>
+
+<p>如果是二代测序，可以用<code>bwa mem</code>进行比对，然后用<code>bin/ngscstat</code>统计输出的bam文件覆盖度信息，然后用<code>bin/calcuts</code>计算分界点。</p>
+<p>第二步: 将assembly从N处进行打断，如果assembly中没有N那就不会被打断，然后使用minimap2进行contig的自我比对。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Split an assembly</span></span><br><span class="line">~/opt/biosoft/purge_dups/bin/split_fa <span class="variable">$asm</span> &gt; asm.split</span><br><span class="line"><span class="comment"># do a self-self alignment</span></span><br><span class="line">~/opt/biosoft/minimap2-2.17/minimap2 -t 80 -xasm5 -DP asm.split asm.split | pigz -c &gt; asm.split.self.paf.gz</span><br></pre></td></tr></table></figure>
+
+<p>这一步可以和前一步同时运行，两者互不影响。</p>
+<p>第三步: 根据每个碱基的覆盖度以及组装的自我比对结果来对contig进行分类。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># purge haplotigs and overlap</span></span><br><span class="line">~/opt/biosoft/purge_dups/bin/purge_dups -2 -T cutoffs -c PB.base.cov asm.split.self.paf.gz &gt; dups.bed 2&gt; purge_dups.log</span><br></pre></td></tr></table></figure>
+
+<p>dups.bed里的第四列就是每个contig的分类信息，分为”JUNK”, “HIGHCOV”, “HAPLOTIG”, “PRIMARY”, “REPEAT”, “OVLP” 这6类，其中只有</p>
+<p><code>purge_dups</code>可以先以默认参数进行运行，如果结果不理想，可以调整如下参数</p>
+<ul>
+<li><code>-f</code>默认是.8, 根据80%区域的覆盖度来对contig进行分类。例如80%的区域都低于5x，将该序列定义为JUNK。对应源码中的<code>classify_seq</code>函数的<code>min_frac</code>参数</li>
+<li><code>-a</code>和<code>-b</code>用来过滤alignment, 对于源码中的<code>flt_by_bm_mm</code>的<code>min_bmf</code>和<code>min_mmf</code>参数</li>
+<li><code>-m</code>表示将两个联配衔接时，最低的匹配碱基数</li>
+<li><code>-M</code>和<code>-G</code>:分别表示第一轮和第二轮将前后两个联配衔接时最大的空缺大小</li>
+<li><code>-E</code>表示 如果合并之后的alignment在contig末尾的前15k内，那么就把alignment延伸至contig末尾</li>
+<li><code>-l</code>: 用于控制overlap的大小，该值越小，overlap越多</li>
+</ul>
+<p>第四步:  使用<code>get_seqs</code>根据<code>dups.bed</code>从原来的contig中提取主要组装和单倍型。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># get the purged primary and haplotigs sequences from draft assembly</span></span><br><span class="line">~/opt/biosoft/purge_dups/bin/get_seqs dups.bed <span class="variable">$asm</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的purged.fa就是最终结果，junk, haplotig和duplication都会在hap.fa中。</p>
+<p>可选步骤: 将alternative assembly和输出度hap.fa进行合并，然后运行上面四步，得到的purge.fa就是新的alternative assembly，而输出的hap.fa则是junk或overrepresented序列。</p>
+<p>PS: 能不能用来过滤纯合基因组组装的垃圾序列呢？根据我对一个物种的测试，过滤前后的BUSCO值，几乎没有变化，missing rate只提高了0.1%，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 运行前</span><br><span class="line">C:98.8%[S:96.3%,D:2.5%],F:0.5%,M:0.7%,n:1375</span><br><span class="line"># 运行后</span><br><span class="line">C:98.7%[S:96.3%,D:2.4%],F:0.5%,M:0.8%,n:1375</span><br></pre></td></tr></table></figure>
+
+<p>因此我觉得这种用法是可行的，且Canu的作者也建议用<code>purge_dups</code>处理，参考<a target="_blank" rel="noopener" href="https://github.com/marbl/canu/issues/1717#issuecomment-629644894">canu-issues-1717</a>。</p>
+<p>另外，作者尚未在ONT和Illumina数据中测试该软件，但是作者认为只需要修改<code>minimap2</code>的<code>-x map-pb</code>为<code>-x map-ont</code>就可以用在ONT数据上。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/" data-id="cllszh65d00bze2qe1rbl5b6l" data-title="使用Purge_dups去冗余序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何确定公共转录组数据集的来源性别-a-male-and-female-rna-marker-to-infer-sex-in-public-data" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" class="article-date">
@@ -137,7 +223,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" data-id="cllpwkk1g00h7e0p2f5l7bzij" data-title="如何确定公共转录组数据集的来源性别" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" data-id="cllszh67w00jre2qe5jr8gnql" data-title="如何确定公共转录组数据集的来源性别" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -250,7 +336,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="cllpwkjw8005fe0p22quxgmsg" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="cllszh63o005ne2qe5w9xc1in" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -372,7 +458,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="cllpwkjtx000ge0p2a00pha77" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="cllszh60l000je2qe1hd9e62z" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -597,7 +683,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="cllpwkk2b00jne0p2d0c4hki6" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="cllszh66g00f9e2qe6el6f7vi" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -718,7 +804,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="cllpwkjxe007qe0p28fni5s3w" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="cllszh649007ze2qeaikm3ny6" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -792,7 +878,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="cllpwkjuh001qe0p25lrl2fug" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="cllszh615001ue2qe0n51ebt1" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -879,7 +965,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="cllpwkjul0020e0p22tf7c0z7" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="cllszh6180024e2qegyzq3lbg" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -950,7 +1036,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="cllpwkjuk001xe0p2913jh8c1" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="cllszh6170020e2qeabdr0i26" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1020,106 +1106,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="cllpwkjug001ne0p25v1z85ql" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-LeetCode-084-最大面积-leetcode-084" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" class="article-date">
-  <time class="dt-published" datetime="2020-02-12T23:47:19.984Z" itemprop="datePublished">2020-02-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/">LeetCode-084-最大面积</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>题目地址: <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/largest-rectangle-in-histogram/">https://leetcode-cn.com/problems/largest-rectangle-in-histogram/</a></p>
-<p>给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。求在该柱状图中，能够勾勒出来的矩形的最大面积。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-a2f14cb4d3b34ad0825c21874abf231e.png" alt="example"></p>
-<p>第一种方法，我们先确定左右两个边界，然后找边界中的最小值。比方说，我们左边界确定为(0,2)，右边界确定为(4,2), 然后遍历中间元素，发现最小值是(1,1)，那么面积就是(4-0) x 2 &#x3D; 8</p>
-<img src="/upload/2020/2/image-21e90609d71544eba8fe487a3e6f5d2f.png" width = "300" height = "300" alt="方法1" align=center />
-
-<p>代码如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">min</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a &gt; b ? b : a;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">max</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a &gt; b ? a: b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">largestRectangleArea</span><span class="params">(<span class="type">int</span>* heights, <span class="type">int</span> heightsSize)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> max_area = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; heightsSize; i++)&#123;</span><br><span class="line">        <span class="type">int</span> min_height = heights[i];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; heightsSize; j++)&#123;</span><br><span class="line">            <span class="comment">//找到i-j中的最小高度</span></span><br><span class="line">            <span class="keyword">for</span> ( <span class="type">int</span> k = i; k &lt;= j; k++)&#123;</span><br><span class="line">                min_height = min(min_height, heights[k]);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//计算面积</span></span><br><span class="line">            max_area = max(max_area, (j-i+<span class="number">1</span>) * min_height);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max_area;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我写代码时出错的两个地方</p>
-<ul>
-<li>是<code>k &lt;= j</code>而不是<code>k&lt;j</code>, 要包括最后一个位置。</li>
-<li>面积的计算公式为<code>(j-i+1) * min_height</code>,  我漏了<code>+1</code>，结果(0,1)我算成了0，而实际面积是(0-0+1)x1&#x3D;1</li>
-</ul>
-<p>上面方法是固定左右边界然后找中间的最小值，用到了三层循环，计算效率比较低。我们可以想办法省掉第三层循环，比如说当我们计算完(0,2)-(2,5)内的最小值后，对于(0,2)-(3,6)的最小值，其实只要比较当前高度和之前的最小值，如果比前面的小，就更新最小值，否则就用之前的最小值。代码如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">largestRectangleArea</span><span class="params">(<span class="type">int</span>* heights, <span class="type">int</span> heightsSize)</span>&#123;</span><br><span class="line">    <span class="type">int</span> min_height = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> max_area = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = <span class="number">0</span> ; i &lt; heightsSize; i++)&#123;</span><br><span class="line">        min_height = heights[i];</span><br><span class="line">        <span class="keyword">for</span> ( <span class="type">int</span> j = i ; j &lt; heightsSize; j++)&#123;</span><br><span class="line">            min_height = min(min_height, heights[j]);</span><br><span class="line">            max_area = max(max_area, (j-i+<span class="number">1</span>) * min_height);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>  max_area;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>或者我们可以换个思路，先把中间值固定住，然后找左右边界。这里的边界指的是左右出现的<strong>第一个</strong>比他小的棒子，比如说(1,1)就是最两边。</p>
- <img src="/upload/2020/2/image-b431e29590c74ba2bd053e8d17c227d3.png" width = "300" height = "300" alt="方法2" align=center />
-
-<p>代码如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">largestRectangleArea</span><span class="params">(<span class="type">int</span>* heights, <span class="type">int</span> heightsSize)</span>&#123;</span><br><span class="line">    <span class="type">int</span> max_area = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ( <span class="type">int</span> i = <span class="number">0</span>; i &lt; heightsSize; i++)&#123;</span><br><span class="line">        <span class="type">int</span> left_border = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> right_border = heightsSize;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = i; j &lt; heightsSize; j++)&#123;</span><br><span class="line">            <span class="keyword">if</span> (heights[j] &lt; heights[i])&#123;</span><br><span class="line">                right_border = j;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = i; j &gt;= <span class="number">0</span>; j--)&#123;</span><br><span class="line">            <span class="keyword">if</span> (heights[j] &lt; heights[i])&#123;</span><br><span class="line">                left_border = j+<span class="number">1</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        max_area = max(max_area, (right_border-left_border) * heights[i]);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max_area;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>依旧需要两层循环，其中第二层循环的目的是就是找到左右边界。那有没有方法不需要用到循环就能找到左右的边界呢？</p>
-<p>思路和第二种方法类似，通过记录已经出现的最小值来避免多余计算，只不过这里用栈处理，具体步骤为</p>
-<ul>
-<li>栈初始化，入栈-1</li>
-<li>对于每一个新元素，都和栈顶元素比较</li>
-<li>如果比栈顶元素大<ul>
-<li>该元素就入栈</li>
-</ul>
-</li>
-<li>如果比栈顶元素小<ul>
-<li>先取出栈顶元素，计算栈顶元素对应的面积</li>
-<li>重复上面步骤，直到比栈顶元素大</li>
-<li>入栈</li>
-</ul>
-</li>
-<li>遍历结束后，清空栈</li>
-</ul>
-<p>我们以最特殊的两个数据来举例，对于[0,1,2,3,4,5,6,7], 每一个元素都比之前的小，那么每个元素入栈的时候，我们都只能确定它的左边界，也就是它的上一个元素，而无法确定它的右边界，比如说(1,1)的左边界就是(0,0), 而右边的位置必须等到所有元素都入栈之后才能确定，最后算出来的面积是(8-1)x1&#x3D;7.</p>
- <img src="/upload/2020/2/image-4bde323834f34d2e8cee9111dc2cb5b0.png" width = "300" height = "300" alt="方法3-1" align=center />
-
-<p>对于[7,6,5,4,3,2,1,0], 我们先入栈(0,7)，然后入栈(1,6), 此时对于高度为7的棒子而言，它已经到头了，面积只肯能是7. 一波操作之后，栈内部元素为(1,6), 此时来了(2,5), 那么6也到头了，它的面积就是(1-(-1) x 6 &#x3D; 12.，其中-1栈初始后第一个元素。</p>
-<p>最终代码如下（大部分代码是实现栈的操作）</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">max</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a &gt; b ? a : b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> *arr;</span><br><span class="line">    <span class="type">int</span> count;</span><br><span class="line">&#125; Stack;</span><br><span class="line"></span><br><span class="line">Stack *<span class="title function_">create</span><span class="params">(<span class="type">int</span> k)</span>&#123;</span><br><span class="line">    Stack *st = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Stack));</span><br><span class="line">    st-&gt;arr = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>) * (k+<span class="number">2</span>));</span><br><span class="line">    st-&gt;count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> st;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">push</span><span class="params">(Stack *st, <span class="type">int</span> val)</span>&#123;</span><br><span class="line">    st-&gt;arr[st-&gt;count] = val;</span><br><span class="line">    st-&gt;count++;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">peek</span><span class="params">(Stack *st)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> st-&gt;arr[st-&gt;count<span class="number">-1</span>];</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pop</span><span class="params">(Stack *st)</span>&#123;</span><br><span class="line">    st-&gt;count--;</span><br><span class="line">    <span class="keyword">return</span> st-&gt;arr[st-&gt;count];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">destroy</span><span class="params">(Stack *st)</span>&#123;</span><br><span class="line">    <span class="built_in">free</span>(st-&gt;arr);</span><br><span class="line">    <span class="built_in">free</span>(st);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">largestRectangleArea</span><span class="params">(<span class="type">int</span>* heights, <span class="type">int</span> heightsSize)</span>&#123;</span><br><span class="line"></span><br><span class="line">    Stack *st = create(heightsSize);</span><br><span class="line">    push(st, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> max_area = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; heightsSize; i++)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果不为空，且当前元素小于栈顶元素</span></span><br><span class="line">        <span class="keyword">while</span> (  &amp;&amp; heights[i] &lt; heights[peek(st)])&#123;</span><br><span class="line"></span><br><span class="line">            max_area = max(max_area, heights[pop(st)] *( i -  peek(st)<span class="number">-1</span> )) ;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        push(st, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> ( peek(st) != <span class="number">-1</span>)&#123;</span><br><span class="line">        max_area = max(max_area, heights[pop(st)] *( heightsSize -  peek(st) - <span class="number">1</span>) );</span><br><span class="line">    &#125;</span><br><span class="line">    destroy(st);</span><br><span class="line">    <span class="keyword">return</span> max_area;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我写代码出错的两个地方</p>
-<ul>
-<li><code>peek(st) != -1</code>用于判断栈是否为空，因为至少有一个-1</li>
-<li>计算面积的代码是<code>heights[pop(st)] *( i -  peek(st) - 1)</code>, 这里要多减去一个1，因为此时的i多偏移了1个单位，见下图</li>
-</ul>
- <img src="/upload/2020/2/image-4f18af7da44d4dcbba1413fa27f9de30.png" width = "300" height = "300" alt="方法3-2" align=center />
-
-<p>最终借用额外到数据结构，时间复杂度从原来的O(n^3)优化到最后到O(n), 也就是利用空间换取了时间。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" data-id="cllpwkjui001te0p2h8jh6e4r" data-title="LeetCode-084-最大面积" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="cllszh614001qe2qe4n852o4n" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1190,6 +1177,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1203,10 +1194,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

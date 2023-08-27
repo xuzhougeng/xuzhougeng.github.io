@@ -73,6 +73,162 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Seurat的scATAC-seq分析流程-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/" class="article-date">
+  <time class="dt-published" datetime="2019-08-31T10:10:38.344Z" itemprop="datePublished">2019-08-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/">Seurat的scATAC-seq分析流程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Seurat 3.X版本能够整合scRNA-seq和scATAC-seq, 主要体现在：</p>
+<ul>
+<li>基于scRNA-seq的聚类结果对scATAC-seq的细胞进行聚类</li>
+<li>scRNA-seq和scATAC-seq共嵌入(co-embed)分析</li>
+</ul>
+<p>整合步骤包括如下步骤:</p>
+<ol>
+<li>从ATAC-seq中估计RNA-seq表达水平，即从ATAC-seq reads定量基因表达活跃度</li>
+<li>使用LSI学习ATAC-seq数据的内部结构</li>
+<li>鉴定ATAC-seq和RNA-seq数据集的锚点</li>
+<li>数据集间进行转移，包括聚类的标签，在ATAC-seq数据中推测RNA水平用于共嵌入分析</li>
+</ol>
+<h2 id="数据下载"><a href="#数据下载" class="headerlink" title="数据下载"></a>数据下载</h2><p>测试数据下载地址:</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5">scATAC-seq</a>: h5格式</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_singlecell.csv">scATAC-seq metadata</a>: csv文件</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://cf.10xgenomics.com/samples/cell-exp/3.0.0/pbmc_10k_v3/pbmc_10k_v3_filtered_feature_bc_matrix.h5">scRNA-seq</a>: h5格式</p>
+</li>
+</ul>
+<p>可以复制下载链接到浏览器下载，也可以直接在R语言用<code>download.file</code>中进行下载。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载peak</span></span><br><span class="line">atac_peak <span class="operator">&lt;-</span> <span class="string">&quot;http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5&quot;</span></span><br><span class="line">atac_peak_file <span class="operator">&lt;-</span> <span class="string">&quot;atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5&quot;</span></span><br><span class="line">download.file<span class="punctuation">(</span>atac_peak<span class="punctuation">,</span> atac_peak_file<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载singlecell.csv</span></span><br><span class="line">singlecell <span class="operator">&lt;-</span> <span class="string">&quot;http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_singlecell.csv&quot;</span></span><br><span class="line">singlecell_file <span class="operator">&lt;-</span> <span class="string">&quot;atac_v1_pbmc_10k_singlecell.csv&quot;</span></span><br><span class="line">download.file<span class="punctuation">(</span>singlecell<span class="punctuation">,</span> singlecell_file<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载rna-seq</span></span><br><span class="line">rna_seq <span class="operator">&lt;-</span> <span class="string">&quot;http://cf.10xgenomics.com/samples/cell-exp/3.0.0/pbmc_10k_v3/pbmc_10k_v3_filtered_feature_bc_matrix.h5&quot;</span></span><br><span class="line">rna_seq_file <span class="operator">&lt;-</span> <span class="string">&quot;pbmc_10k_v3_filtered_feature_bc_matrix.h5&quot;</span></span><br><span class="line">download.file<span class="punctuation">(</span>rna_seq<span class="punctuation">,</span> rna_seq_file<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载GTF</span></span><br><span class="line">gtf <span class="operator">&lt;-</span> <span class="string">&quot;ftp://ftp.ensembl.org/pub/grch37/release-82/gtf/homo_sapiens/Homo_sapiens.GRCh37.82.gtf.gz&quot;</span></span><br><span class="line">gtf_file <span class="operator">&lt;-</span> <span class="string">&quot;Homo_sapiens.GRCh37.82.gtf.gz&quot;</span></span><br><span class="line">download.file<span class="punctuation">(</span>gtf<span class="punctuation">,</span> gtf_file<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="基因活跃度定量"><a href="#基因活跃度定量" class="headerlink" title="基因活跃度定量"></a>基因活跃度定量</h2><p>首先，先将peak矩阵转成基因活跃度矩阵。Seurat做了一个简单的假设，基因活跃度可以通过简单的将落在基因区和其上游2kb的count相加得到基因活跃度，并且这个结果Cicero等工具返回gene-by-cell矩阵是类似的。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>Seurat<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>ggplot2<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 读取peak</span></span><br><span class="line">peaks <span class="operator">&lt;-</span> Read10X_h5<span class="punctuation">(</span>atac_peak_file<span class="punctuation">)</span></span><br><span class="line">activity.matrix <span class="operator">&lt;-</span> CreateGeneActivityMatrix<span class="punctuation">(</span>peak.matrix <span class="operator">=</span> peaks<span class="punctuation">,</span> </span><br><span class="line">                                            annotation.file <span class="operator">=</span> gtf_file<span class="punctuation">,</span> </span><br><span class="line">                                            seq.levels <span class="operator">=</span> <span class="built_in">c</span><span class="punctuation">(</span><span class="number">1</span><span class="operator">:</span><span class="number">22</span><span class="punctuation">,</span> <span class="string">&quot;X&quot;</span><span class="punctuation">,</span> <span class="string">&quot;Y&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">                                            upstream <span class="operator">=</span> <span class="number">2000</span><span class="punctuation">,</span> </span><br><span class="line">                                            verbose <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>activity.matrix是一个<code>dgCMatrix</code>对象，其中行为基因，列为细胞。因此如果对于Cicero的输出结果，只要提供相应的矩阵数据结构即可。</p>
+<h2 id="设置对象"><a href="#设置对象" class="headerlink" title="设置对象"></a>设置对象</h2><p>下一步，我们要来设置<code>Seurat</code>对象，将原始的peak counts保存到assay中，命名为”ATAC”</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc.atac <span class="operator">&lt;-</span> CreateSeuratObject<span class="punctuation">(</span>counts <span class="operator">=</span> peaks<span class="punctuation">,</span> assay <span class="operator">=</span> <span class="string">&quot;ATAC&quot;</span><span class="punctuation">,</span> project <span class="operator">=</span> <span class="string">&quot;10x_ATAC&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>增加基因活跃度矩阵，命名为”ACTIVITY”.  </p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pbmc.atac<span class="punctuation">[[</span><span class="string">&quot;ACTIVITY&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> CreateAssayObject<span class="punctuation">(</span>counts <span class="operator">=</span> activity.matrix<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>增加细胞的元信息，该信息来自于scATAC-seq的CellRanger处理的singlecell.csv</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">meta <span class="operator">&lt;-</span> read.table<span class="punctuation">(</span>singlecell_file<span class="punctuation">,</span> sep <span class="operator">=</span> <span class="string">&quot;,&quot;</span><span class="punctuation">,</span> header <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> row.names <span class="operator">=</span> <span class="number">1</span><span class="punctuation">,</span> </span><br><span class="line">    stringsAsFactors <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">meta <span class="operator">&lt;-</span> meta<span class="punctuation">[</span>colnames<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span><span class="punctuation">,</span> <span class="punctuation">]</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> AddMetaData<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> metadata <span class="operator">=</span> meta<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>过滤掉scATAC-seq数据中总count数低于5000的细胞，这个阈值需要根据具体实验设置</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pbmc.atac <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> subset <span class="operator">=</span> nCount_ATAC <span class="operator">&gt;</span> <span class="number">5000</span><span class="punctuation">)</span></span><br><span class="line">pbmc.atac<span class="operator">$</span>tech <span class="operator">&lt;-</span> <span class="string">&quot;atac&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h2><p>为了找到scATAC-seq数据集和scRNA-seq数据集之间的锚定点，我们需要对基因活跃度矩阵进行预处理</p>
+<p>设置pbmc.atac的默认Assay为”ACTIVITY”， 然后寻找高表达的基因，对基因活跃度矩阵进行标准化和Scale。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DefaultAssay<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="string">&quot;ACTIVITY&quot;</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> FindVariableFeatures<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> NormalizeData<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> ScaleData<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>同样的，我们还需要对peak矩阵进行处理。这里我们用的隐语义(Latent semantic indexing, LSI)方法对scATAC-seq数据进行降维。该步骤学习scRNA-seq数据的内部结构，并且在转换信息时对锚点恰当权重的决定很重要。</p>
+<p>根据 <a target="_blank" rel="noopener" href="https://science.sciencemag.org/content/348/6237/910/tab-pdf">Cusanovich et al, Science 2015</a>提出的LSI方法，他们搞了一个<code>RunLSI</code>函数。LSI的计算方法为TF-IDF加SVD。</p>
+<p>我们使用在所有细胞中至少有100个read的peak，然后降维到50。该参数的选择受之前的scATAC-seq研究启发，所以没有更改，当然你你可以把它改了。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DefaultAssay<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="string">&quot;ATAC&quot;</span></span><br><span class="line">VariableFeatures<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="built_in">names</span><span class="punctuation">(</span>which<span class="punctuation">(</span>Matrix<span class="operator">::</span>rowSums<span class="punctuation">(</span>pbmc.atac<span class="punctuation">)</span> <span class="operator">&gt;</span> <span class="number">100</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> RunLSI<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> n <span class="operator">=</span> <span class="number">50</span><span class="punctuation">,</span> scale.max <span class="operator">=</span> <span class="literal">NULL</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment">#pbmc.atac &lt;- RunUMAP(pbmc.atac, reduction = &quot;lsi&quot;, dims = 1:50)</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> RunTSNE<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> reduction <span class="operator">=</span> <span class="string">&quot;lsi&quot;</span><span class="punctuation">,</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">50</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注</strong>: 要将pbmc.atac的默认assay切换成”ATAC”,  非线性降维可以选择UMAP或者t-SNE。</p>
+<p>我们之前使用过Seurat对scRNA-seq数据进行预处理和聚类，下载地址为<a target="_blank" rel="noopener" href="https://www.dropbox.com/s/3f3p5nxrn5b3y4y/pbmc_10k_v3.rds?dl=1">Dropbox</a>。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pbmc.rna <span class="operator">&lt;-</span> readRDS<span class="punctuation">(</span><span class="string">&quot;pbmc_10k_v3.rds&quot;</span><span class="punctuation">)</span></span><br><span class="line">pbmc.rna<span class="operator">$</span>tech <span class="operator">&lt;-</span> <span class="string">&quot;rna&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将scRNA-seq和scATAC-seq共同展示，对一些骨髓(myeloid)和淋巴(lymphoid)PBMC中比较常见的聚类，其实是能从图中看出来。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p1 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> reduction <span class="operator">=</span> <span class="string">&quot;tsne&quot;</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        NoLegend<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        ggtitle<span class="punctuation">(</span><span class="string">&quot;scATAC-seq&quot;</span><span class="punctuation">)</span></span><br><span class="line">p2 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>pbmc.rna<span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;celltype&quot;</span><span class="punctuation">,</span> reduction <span class="operator">=</span> <span class="string">&quot;tsne&quot;</span><span class="punctuation">,</span> label <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> repel <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        NoLegend<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        ggtitle<span class="punctuation">(</span><span class="string">&quot;scRNA-seq&quot;</span><span class="punctuation">)</span></span><br><span class="line">CombinePlots<span class="punctuation">(</span>plots <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>p1<span class="punctuation">,</span> p2<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/without-transfer-b47eb2c142b047d58afcc64b5068115a.png" alt="标签转移前"></p>
+<p>现在，我们用<code>FindTransferAnchors</code>鉴定scATAC-seq数据集和scRNA-seq数据集的锚点，然后根据这些锚点将 10K scRNA-seq数据中鉴定的细胞类型标记转移到scATAC-seq细胞中。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">transfer.anchors <span class="operator">&lt;-</span> FindTransferAnchors<span class="punctuation">(</span>reference <span class="operator">=</span> pbmc.rna<span class="punctuation">,</span> </span><br><span class="line">                                        query <span class="operator">=</span> pbmc.atac<span class="punctuation">,</span> </span><br><span class="line">                                        features <span class="operator">=</span> VariableFeatures<span class="punctuation">(</span>object <span class="operator">=</span> pbmc.rna<span class="punctuation">)</span><span class="punctuation">,</span> </span><br><span class="line">                                        reference.assay <span class="operator">=</span> <span class="string">&quot;RNA&quot;</span><span class="punctuation">,</span> </span><br><span class="line">                                        query.assay <span class="operator">=</span> <span class="string">&quot;ACTIVITY&quot;</span><span class="punctuation">,</span> </span><br><span class="line">                                        reduction <span class="operator">=</span> <span class="string">&quot;cca&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Seurat比较的是scRNA-seq表达量矩阵和scATAC-seq中基因活跃度矩阵，利用CCA降维方法比较两者在scRNA-seq中的高变异基因的关系</p>
+</blockquote>
+<p>为了转移细胞类群的编号，我们需要一组之前注释过的细胞类型，作为<code>TransferData</code>的 refdata 参数输入。<code>TransferData</code>本质上采用的是KNN算法，利用距离未知类型细胞的最近N个已知细胞所属的类型来定义该细胞。<code>weight.reduction</code>参数是用来选择设置权重的降维。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">celltype.predictions <span class="operator">&lt;-</span> TransferData<span class="punctuation">(</span>anchorset <span class="operator">=</span> transfer.anchors<span class="punctuation">,</span> </span><br><span class="line">                                     refdata <span class="operator">=</span> pbmc.rna<span class="operator">$</span>celltype<span class="punctuation">,</span> </span><br><span class="line">                                     weight.reduction <span class="operator">=</span> pbmc.atac<span class="punctuation">[[</span><span class="string">&quot;lsi&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">pbmc.atac <span class="operator">&lt;-</span> AddMetaData<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> metadata <span class="operator">=</span> celltype.predictions<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以检查每个细胞预测得分的分布情况，选择性的过滤哪些得分比较低的细胞。我们发现超过95%的细胞得分大于或等于0.5.</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hist<span class="punctuation">(</span>pbmc.atac<span class="operator">$</span>prediction.score.max<span class="punctuation">)</span></span><br><span class="line">abline<span class="punctuation">(</span>v <span class="operator">=</span> <span class="number">0.5</span><span class="punctuation">,</span> col <span class="operator">=</span> <span class="string">&quot;red&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567213591418-23ede2d0b7324a30b2aa10dda80ba7f8.png" alt="得分分布"></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">table<span class="punctuation">(</span>pbmc.atac<span class="operator">$</span>prediction.score.max <span class="operator">&gt;</span> <span class="number">0.5</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># FALSE  TRUE </span></span><br><span class="line"><span class="comment">#   383  7483 </span></span><br></pre></td></tr></table></figure>
+
+<p>之后，我们就可以在UMAP上检查预测的细胞类型的分布，检查细胞类型在scRNA-seq和scATAC-seq中的相对位置</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pbmc.atac.filtered <span class="operator">&lt;-</span> subset<span class="punctuation">(</span>pbmc.atac<span class="punctuation">,</span> </span><br><span class="line">                             subset <span class="operator">=</span> prediction.score.max <span class="operator">&gt;</span> <span class="number">0.5</span><span class="punctuation">)</span></span><br><span class="line">pbmc.atac.filtered<span class="operator">$</span>predicted.id <span class="operator">&lt;-</span> factor<span class="punctuation">(</span>pbmc.atac.filtered<span class="operator">$</span>predicted.id<span class="punctuation">,</span> </span><br><span class="line">                                          levels <span class="operator">=</span> levels<span class="punctuation">(</span>pbmc.rna<span class="punctuation">)</span><span class="punctuation">)</span>  <span class="comment"># to make the colors match</span></span><br><span class="line">p1 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>pbmc.atac.filtered<span class="punctuation">,</span> </span><br><span class="line">              group.by <span class="operator">=</span> <span class="string">&quot;predicted.id&quot;</span><span class="punctuation">,</span></span><br><span class="line">              label <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> </span><br><span class="line">              repel <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        ggtitle<span class="punctuation">(</span><span class="string">&quot;scATAC-seq cells&quot;</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        NoLegend<span class="punctuation">(</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        scale_colour_hue<span class="punctuation">(</span>drop <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">p2 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>pbmc.rna<span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;celltype&quot;</span><span class="punctuation">,</span> label <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> repel <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span> <span class="operator">+</span></span><br><span class="line">        ggtitle<span class="punctuation">(</span><span class="string">&quot;scRNA-seq cells&quot;</span><span class="punctuation">)</span> <span class="operator">+</span> </span><br><span class="line">        NoLegend<span class="punctuation">(</span><span class="punctuation">)</span></span><br><span class="line">CombinePlots<span class="punctuation">(</span>plots <span class="operator">=</span> <span class="built_in">list</span><span class="punctuation">(</span>p1<span class="punctuation">,</span> p2<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567213664297-0e4113573a6d47d081e5699e064a1624.png" alt="预测后结果"></p>
+<p>在转移细胞类型标记之后，我们就可以进行细胞特意水平上的下有分析。举个例子，我们可以去找一些某些细胞类型特异的增强子，寻找富集的motif。目前这些分析Seurat还不直接支持，还在调试中。</p>
+<h2 id="共嵌入-co-embedding"><a href="#共嵌入-co-embedding" class="headerlink" title="共嵌入(co-embedding)"></a>共嵌入(co-embedding)</h2><p>最后，如果你想将所有的细胞一同展示，可以将scRNA-seq和scATAC-seq数据嵌入到相同的低维空间。</p>
+<p>我们使用之前的锚点从scATAC-seq细胞中推断RNA-seq的值，后续分析就相当于两个单细胞数据的分析流程。</p>
+<p><strong>注意:</strong> 这一步只是为了可视化，其实不做也行。</p>
+<p>选择用于估计的基因，可以是高变动基因，也可以是所有基因。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 只选择高变动的基因作为参考</span></span><br><span class="line">genes.use <span class="operator">&lt;-</span> VariableFeatures<span class="punctuation">(</span>pbmc.rna<span class="punctuation">)</span></span><br><span class="line">refdata <span class="operator">&lt;-</span> GetAssayData<span class="punctuation">(</span>pbmc.rna<span class="punctuation">,</span> assay <span class="operator">=</span> <span class="string">&quot;RNA&quot;</span><span class="punctuation">,</span> slot <span class="operator">=</span> <span class="string">&quot;data&quot;</span><span class="punctuation">)</span><span class="punctuation">[</span>genes.use<span class="punctuation">,</span> <span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>之后利用<code>TransferData</code>推断scATAC-seq在这些基因中的可能值，输出结果就是ATAC细胞对应的scRNA-seq矩阵</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">imputation <span class="operator">&lt;-</span> TransferData<span class="punctuation">(</span>anchorset <span class="operator">=</span> transfer.anchors<span class="punctuation">,</span> </span><br><span class="line">                           refdata <span class="operator">=</span> refdata<span class="punctuation">,</span> </span><br><span class="line">                           weight.reduction <span class="operator">=</span> pbmc.atac<span class="punctuation">[[</span><span class="string">&quot;lsi&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># this line adds the imputed data matrix to the pbmc.atac object</span></span><br><span class="line">pbmc.atac<span class="punctuation">[[</span><span class="string">&quot;RNA&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> imputation</span><br></pre></td></tr></table></figure>
+
+<p>合并两个的结果，然后就是scRNA-seq的常规分析。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">coembed <span class="operator">&lt;-</span> merge<span class="punctuation">(</span>x <span class="operator">=</span> pbmc.rna<span class="punctuation">,</span> y <span class="operator">=</span> pbmc.atac<span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 标准化分析</span></span><br><span class="line">coembed <span class="operator">&lt;-</span> ScaleData<span class="punctuation">(</span>coembed<span class="punctuation">,</span> features <span class="operator">=</span> genes.use<span class="punctuation">,</span> do.scale <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line">coembed <span class="operator">&lt;-</span> RunPCA<span class="punctuation">(</span>coembed<span class="punctuation">,</span> features <span class="operator">=</span> genes.use<span class="punctuation">,</span> verbose <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment">#coembed &lt;- RunUMAP(coembed, dims = 1:30)</span></span><br><span class="line">coembed <span class="operator">&lt;-</span> RunTSNE<span class="punctuation">(</span>coembed<span class="punctuation">,</span> dims <span class="operator">=</span> <span class="number">1</span><span class="operator">:</span><span class="number">30</span><span class="punctuation">)</span></span><br><span class="line">coembed<span class="operator">$</span>celltype <span class="operator">&lt;-</span> ifelse<span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>coembed<span class="operator">$</span>celltype<span class="punctuation">)</span><span class="punctuation">,</span> coembed<span class="operator">$</span>celltype<span class="punctuation">,</span> coembed<span class="operator">$</span>predicted.id<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>在t-SNE上绘制结果</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p1 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>coembed<span class="punctuation">,</span> reduction<span class="operator">=</span><span class="string">&quot;tsne&quot;</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;tech&quot;</span><span class="punctuation">)</span></span><br><span class="line">p2 <span class="operator">&lt;-</span> DimPlot<span class="punctuation">(</span>coembed<span class="punctuation">,</span> reduction<span class="operator">=</span><span class="string">&quot;tsne&quot;</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;celltype&quot;</span><span class="punctuation">,</span> label <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> repel <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">CombinePlots<span class="punctuation">(</span><span class="built_in">list</span><span class="punctuation">(</span>p1<span class="punctuation">,</span> p2<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567215158904-47bba1920748496bbaaf95e7a5ec773f.png" alt="tSNE plot"></p>
+<p>从上面的结果中，你可能会发现某些细胞只有在一类技术中存在。举个例子，从巨噬细胞(megakaryocytes)到成熟的血小板细胞(pletelet)由于没有细胞核，无法被scATAC-seq技术检测到。我们可以单独展示每个技术，进行检查</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DimPlot<span class="punctuation">(</span>coembed<span class="punctuation">,</span> reduction<span class="operator">=</span><span class="string">&quot;tsne&quot;</span><span class="punctuation">,</span> split.by <span class="operator">=</span> <span class="string">&quot;tech&quot;</span><span class="punctuation">,</span> group.by <span class="operator">=</span> <span class="string">&quot;celltype&quot;</span><span class="punctuation">,</span> label <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span> repel <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span> <span class="operator">+</span> NoLegend<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567215198865-9b93b77c817b445eb0d00bf1b0455821.png" alt="分别展示"></p>
+<p>此外，你还可以发现B细胞前体类型附近有一类细胞只由scATAC-seq的细胞构成。通过展示这些细胞在CellRanger分析结果提供的黑名单位置所占read数，可以推测出这类细胞可能是死细胞，或者是其他scRNA-seq无法检测的人为因素。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">coembed<span class="operator">$</span>blacklist_region_fragments<span class="punctuation">[</span><span class="built_in">is.na</span><span class="punctuation">(</span>coembed<span class="operator">$</span>blacklist_region_fragments<span class="punctuation">)</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="number">0</span></span><br><span class="line">FeaturePlot<span class="punctuation">(</span>coembed<span class="punctuation">,</span> features <span class="operator">=</span> <span class="string">&quot;blacklist_region_fragments&quot;</span><span class="punctuation">,</span> max.cutoff <span class="operator">=</span> <span class="number">500</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/1567217384234-ef3b56c946154ef993515b57223f2c6b.png" alt="黑名单区"></p>
+<hr>
+<p>Seurat这种基于基因活跃度得分进行细胞类型预测，是否靠谱，开发者提供了如下几个证据</p>
+<ul>
+<li>总体预测得分(<code>pbmc.atac$prediction.score.max</code>)高，意味着用scRNA-seq定义细胞类型比较可靠</li>
+<li>我们可以在scATC-seq降维结果中</li>
+<li>利用相同锚点的贡嵌入分析，发现两类形态能很好的混合</li>
+<li>将ATAC-seq数据根据聚类结果构建pseduo bulk, 发现和真实的bulk数据近似</li>
+</ul>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://satijalab.org/seurat/v3.0/atacseq_integration_vignette.html">https://satijalab.org/seurat/v3.0/atacseq_integration_vignette.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/" data-id="cllszh63i004ve2qe4ijngqrz" data-title="Seurat的scATAC-seq分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Seurat-%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">Seurat | 转录组 | 单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-为ChIPseeker增加了一个subset函数-Add-subset-for-ChIPseeker" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" class="article-date">
@@ -146,7 +302,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" data-id="cllpwkjxm008ae0p22b63cjn9" data-title="为ChIPseeker增加了一个subset函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" data-id="cllszh64f008je2qe2l8z8tsf" data-title="为ChIPseeker增加了一个subset函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -236,7 +392,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="cllpwkjxh0080e0p2hr9ach3k" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="cllszh64c0089e2qebsmud1xt" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -371,7 +527,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="cllpwkjz700d3e0p28kadhxd2" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="cllszh65s00dbe2qeakz19o1u" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -469,7 +625,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="cllpwkjz100cle0p29hkp35gs" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="cllszh65n00cue2qeavui0htf" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -551,7 +707,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="cllpwkjua0017e0p20lzc0sg1" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="cllszh60y001be2qe65gz288r" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -636,7 +792,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="cllpwkjyk00b9e0p2hbbea96t" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="cllszh65800bie2qe33fvdbyh" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -750,7 +906,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="cllpwkjxf007we0p2bgkm2pur" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="cllszh64b0085e2qe4wfdhwsz" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -850,7 +1006,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="cllpwkjz000cie0p292csg3o3" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="cllszh65m00cqe2qe55j510uz" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -970,164 +1126,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="cllpwkjyp00bne0p2dxsadrx8" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何使用MUMmer比对大片段序列-Using-MUMmer-to-align-genome" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" class="article-date">
-  <time class="dt-published" datetime="2019-08-27T20:18:54.545Z" itemprop="datePublished">2019-08-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/">如何使用MUMmer比对大片段序列</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="如何使用MUMmer比对大片段序列"><a href="#如何使用MUMmer比对大片段序列" class="headerlink" title="如何使用MUMmer比对大片段序列"></a>如何使用MUMmer比对大片段序列</h1><p>测序技术刚开始发展的时候，大家得到的序列都是单个基因的长度，所以一般都是逐个基因的比较，用的都是BLAST或FASTA通过逐个基因联配的方式搜索数据库。但是1999年后，越来越多的物种全基因组出现，比如说在1999年出现了_Helicobacter pylori_的第二类菌株的基因组序列，就需要研究同一物种不同品系进化过程的基因组变化，比如说基因倒置现象。传统的BLAST&#x2F;FASTA就用不了，就需要用到新的工具，这就是MUMmer出现的历史背景。</p>
-<p>那么MUMmer能用来研究什么呢？比如说细菌的不同菌株基因组中倒置现象，人和老鼠的基因组在进化上的重排现象。还有比较同一物种的不同组装结果等。MUMmer的算法基础(suffix tree)使得它的速度比BLASTZ(k-mers)快得多，但是灵敏度低，也就是检测不到比较弱的匹配，但是作者说这都是可以通过修改参数进行改善</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>MUMmer是开源软件，因此可以通过下载源码编译的方式进行安装，同时biconda上已经有编译好的二进制版本方便用conda进行安装。目前，我个人比较推荐使用源码编译的方式进行安装。目前MUMmer已经更新到第四版，但是还在测试中，所以文章也没有发，求稳还是用3.23.</p>
-<blockquote>
-<p>多说一句，如果在bioconda频道上搜索mummer, 会发现一个pymummer，不要以为这是mummer的源代码用python改写，它仅仅做到了通过调用系统安装的MUMmer的工具的方式运行而已，并且功能目前实在是太弱了。</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MUMmer3.23</span></span><br><span class="line">wget https://gigenet.dl.sourceforge.net/project/mummer/mummer/3.23/MUMmer3.23.tar.gz</span><br><span class="line">tar -xf MUMmer3.23.tar.gz</span><br><span class="line"><span class="built_in">cd</span>  MUMmer3.23</span><br><span class="line">make install</span><br><span class="line"><span class="comment"># MUMmer4.00-beta2</span></span><br><span class="line">wget https://github.com/mummer4/mummer/releases/download/v4.0.0beta2/mummer-4.0.0beta2.tar.gz</span><br><span class="line">tar xf mummer-4.0.0beta2.tar.gz</span><br><span class="line"><span class="built_in">cd</span> mummer-4.0.0beta2</span><br><span class="line">./configure --prefix=<span class="variable">$HOME</span>/biosoft/mummer-4.0.0beta2 &amp;&amp; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<p>为了方便使用记得将软件路径加入PATH。</p>
-<h2 id="MUMmer使用方法"><a href="#MUMmer使用方法" class="headerlink" title="MUMmer使用方法"></a>MUMmer使用方法</h2><p>MUMmer的核心基于 <em>Maximal exact matching</em> 算法开发的<code>mummer</code>。其他工具(<code>nucmer</code>,<code>promer</code>)都是基于<code>mummer</code>的开发的流程。这些流程的分析策略分为三步：</p>
-<ol>
-<li>用<code>mummer</code>在两个输入中找<strong>给定长度</strong>的极大唯一匹配( <em>Maximal exact matching</em> )</li>
-<li>然后将这些匹配区域<strong>聚类</strong>成较大不完全联配区域, 作为锚定点(anchor)</li>
-<li>最后它从每个匹配外部扩展联配, 形成有gap的联配。</li>
-</ol>
-<h3 id="Maximal-exact-matching"><a href="#Maximal-exact-matching" class="headerlink" title="Maximal exact matching"></a>Maximal exact matching</h3><p>MUMmer核心是基于后缀树(suffix tree)数据结构的最大匹配路径。 根据这个算法开发出来的<code>repeat-match</code>和<code>exact-tandems</code>可以从单个序列中检测重复，<code>mummer</code>则是用于联配两条或两条以上的序列。由于MUMmer的其他工具基本都是基于mummer开发的，于是理解mummer就变得非常重要。</p>
-<blockquote>
-<p>概念1：suffix tree: 表示一个字符串的所有子字符串的数据结构，比如说abc的所有子字符串就是a,ab,ac,bc,abc.<br>概念2：Maximal Unique Match: 指的是匹配仅在两个比较序列中各出现一次</p>
-</blockquote>
-<p><strong>mummer</strong>: 基于后缀树(suffix tree)数据结构，能够在两条序列中有效定位极大唯一匹配(<em>maximal unique matches</em>)，因此它比较适用于产生一组准确匹配(exact matches)以点图形式展示，或者用来锚定从而产生逐对联配(pair-wise alignments)</p>
-<p>大部分情况下都不会直接用到<code>mummer</code>，所以只要知道MUMmer历经几次升级，使得<code>mummer</code>可以能够只找在reference和query都唯一的匹配(第一版功能)，也可以找需要在reference唯一的匹配(第二版新增)，甚至不在乎是否唯一的匹配(第三版新增),参数分别为<code>-mum</code>,<code>-mumreference</code>,<code>maxmatch</code>。</p>
-<p><strong>repeat-match</strong>和<strong>exact-tandems</strong>比较少用，毕竟参数也不多，似乎有其他更好的工具能用来寻找序列中的重复区。</p>
-<h3 id="Clustering-聚类"><a href="#Clustering-聚类" class="headerlink" title="Clustering:聚类"></a>Clustering:聚类</h3><p><code>MUMmer</code>的聚类算法能够比较智能地把几个独立地匹配按照顺序聚成一块。分为两种模式<code>gaps</code>和<code>mgaps</code>。这两者差别在于是否允许重排,分别用于<code>run-mummer1</code>,<code>run-mummer3</code>.</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-0253b2e225d9b1ee-618c91073ab347c0b055eab1cc466dea.gif" alt="gaps"><br><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-af765e2d4c9d861d-03f5a9dd03e941ea8758b0be5ac2968f.gif" alt="mgaps"></p>
-<blockquote>
-<p>基于<code>gap</code>和<code>mgaps</code>的输出，第四版还提供了<code>annotate</code>和<code>combineMUMs</code>两个工具增加联配信息。</p>
-</blockquote>
-<h3 id="联配构建工具"><a href="#联配构建工具" class="headerlink" title="联配构建工具"></a>联配构建工具</h3><p>基于上述两个工具，作者编写了4个工作流程，方便实际使用。</p>
-<ul>
-<li><code>nucmer</code>: 由Perl写的流程，用于联配很相近(closely related)核酸序列。它比较适合<strong>定位和展示高度保守的DNA序列</strong>。注意，为了提高nucmer的精确性，最好把输入序列先做<strong>遮盖(mask)<strong>避免不感兴趣的序列的联配，或者</strong>修改单一性限制</strong>降低重复导致的联配数。</li>
-<li><code>promer</code>：也是Perl写的流程，它以翻译后的<strong>氨基酸序列</strong>进行联配，工作原理同<code>nucmer</code>.</li>
-<li><code>run-mummer1</code>,<code>run-mummer3</code>： 两者是基于cshell写的流程，用于两个序列的常规联配，和promer,nucmer类似，只不过能够自动识别序列类型。它们擅长联配<strong>相似度高</strong>的DNA序列，找到它们的不同，也就是适合找SNP或者纠错。前者用于1v1无重排，后者1v多有重排</li>
-</ul>
-<p>重点介绍一下<code>nucmer</code>的使用。reference和query文件都需要时fasta格式，每个都可以有多条序列。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nucmer [options] &lt;reference&gt; &lt;query file&gt;</span><br></pre></td></tr></table></figure>
-
-<p>参数我将其分为五个部分，匹配算法，聚类，外延、其他和新增</p>
-<p>匹配:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--mum, --mumreference(默认), --maxmatch</span><br><span class="line">--minmatch/-l: 单个匹配最小长度</span><br><span class="line">--forwoard/-f, --reverse/-r: 只匹配正链或只匹配负链。</span><br></pre></td></tr></table></figure>
-
-<p>聚类：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">--mincluster/-c: 用于聚类的匹配最低长度，默认65</span><br><span class="line">--maxgap/-g: 两个相邻匹配间的最大gap长度，默认90</span><br><span class="line">--diagdiff/-D: 一个聚类中两个邻接匹配，最大对角差分，默认5</span><br><span class="line">--diagfactor/-d: 也是和对角差分相关参数，只不过和gap长度有关，默认0.12</span><br></pre></td></tr></table></figure>
-
-<p>外延:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--breaklen/-b: 在对联配两端拓展式，在终止后继续延伸的程度，默认200</span><br><span class="line">--[no]extend：是否外延，默认是</span><br><span class="line">--[no]optimize：是否优化，默认是。即在联配分数较低时不会立刻终止，而是回顾整条联配，看能否苟延残喘一会。</span><br></pre></td></tr></table></figure>
-
-<p>其他:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">--depend: 显示依赖信息后退出</span><br><span class="line">--coords: 调用show-coords输出坐标信息</span><br><span class="line">--prefix/-p: 输出文件的前缀</span><br><span class="line">--[no]delta: 是否输出delta文件，默认是</span><br></pre></td></tr></table></figure>
-
-<p><strong>新增</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在第四版新增的参数</span></span><br><span class="line">--threads/-t: 多核心</span><br><span class="line">---delta=PATH: 指定位置，而不是当前</span><br><span class="line">--sam-short=PATH：保存为SAM短格式，不保存匹配的序列，也就是第十列为*</span><br><span class="line">--sam-long=PATH： 保存为SAM长格式，保存匹配的序列</span><br><span class="line">--save=PREFIX：保存suffix array</span><br><span class="line">--load=PREIFX：加载suffix array</span><br></pre></td></tr></table></figure>
-
-<p>运行后得到一个delta格式的文件，它的作用是记录每个联配的坐标，每个联配中的插入和缺失的距离。下面逐行进行解释</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/home/username/reference.fasta /home/username/query.fasta <span class="comment"># 两个比较文件的位置</span></span><br><span class="line">PROMER <span class="comment"># 程序运行类型： NUCMER或PROMER</span></span><br><span class="line">&gt;tagA1 tagB1 3000000 2000000 <span class="comment"># 一组联配(可以有多个小匹配)，ref的fastaID，qry的fastaID，ref序列长度，qry序列长度</span></span><br><span class="line">1667803 1667078 1641506 1640769 14 7 2 <span class="comment"># 第一小组 ref起始，ref结束，qry起始，qry结束，错误数(不相同碱基+indel碱基数)，相似错误(非正匹配得分) 终止密码子(NUCMER为0)。 如果结束大于起始，表示在负链。</span></span><br><span class="line">-145 <span class="comment"># qry的145有插入</span></span><br><span class="line">-3   <span class="comment"># qry的145+3=148有插入</span></span><br><span class="line">-1   <span class="comment"># qry的145+3+1=149有插入</span></span><br><span class="line">40   <span class="comment"># qry的145+3+1+40=149有缺失</span></span><br><span class="line">0 <span class="comment"># 表示当前匹配结束</span></span><br><span class="line">1667804 1667079 1641507 1640770 10 5 3 <span class="comment"># 第二小组</span></span><br><span class="line">-146</span><br><span class="line">-1</span><br><span class="line">-1</span><br><span class="line">-34</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
-
-<h4 id="用法举例"><a href="#用法举例" class="headerlink" title="用法举例"></a>用法举例</h4><h5 id="两个完整度高的基因组"><a href="#两个完整度高的基因组" class="headerlink" title="两个完整度高的基因组"></a>两个完整度高的基因组</h5><p>比较常见的用法是把一条连续的序列和另一条连续的序列比。比如说两个细菌的菌株,直接用<code>mummer</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://mummer.sourceforge.net/examples/data/H_pylori26695_Eslice.fasta</span><br><span class="line">wget http://mummer.sourceforge.net/examples/data/H_pyloriJ99_Eslice.fasta</span><br><span class="line">mummer -mum -b -c H_pylori26695_Eslice.fasta H_pyloriJ99_Eslice.fasta &gt; 26695_J99.mums</span><br><span class="line"><span class="comment"># -mum: 计算在两个序列中唯一的最大匹配数</span></span><br><span class="line"><span class="comment"># -b: 计算正向和反向匹配数</span></span><br><span class="line"><span class="comment"># -c: 报告反向互补序列相对于原始请求序列的位置</span></span><br></pre></td></tr></table></figure>
-
-<p>或者是<strong>高度相似</strong>序列，不含重排</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">run-mummer1 ref.fasta qry.fasta ref_qry</span><br><span class="line"><span class="comment"># 仅报告负链匹配序列</span></span><br><span class="line">run-mummer1 ref.fasta qry.fasta ref_qry -r</span><br></pre></td></tr></table></figure>
-
-<p>或者是<strong>高度相似</strong>序列，存在重排现象</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run-mummer3 ref.fasta qry.fasta ref_qry</span><br></pre></td></tr></table></figure>
-
-<p>以上的<code>run-mummer*</code>比较关注序列的不同之处，那么对于<strong>相似度没有那么高</strong>的两个序列，就需要用到<code>nucmer</code>。<code>nucmer</code>关注序列的相似之处，所以它允许重排，倒置和重复现象。<code>nucmer</code>允许多对多的比较方式，当然比较常用的是多对一的比较。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nucmer --maxgap=500 --mincluster=100 --prefix=ref_qry ref.fasta qry.fasta</span><br><span class="line"><span class="comment">## --maxgap: 两个match间最大gap为500</span></span><br><span class="line"><span class="comment">##--minclster: 至少要有100个match才能算做一簇</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>注意一点： 第四版中<code>run-mummer1, run-mummer3</code>已经被废弃了，就是尽管保留了，但是没有对它做任何升级的意思。</p>
-</blockquote>
-<p>如果是<strong>有点差异</strong>的两个序列，可以用翻译的氨基酸序列进行比较</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">promer --prefix=ref_qry ref.fasta qry.fasta</span><br></pre></td></tr></table></figure>
-
-<h5 id="两个基因草图"><a href="#两个基因草图" class="headerlink" title="两个基因草图"></a>两个基因草图</h5><p>上面都是两条序列间的比较，但是研究植物的人更容易遇到的是两个物种的基因组都只有scafold级别，甚至是contig级别。那么就可以使用<code>nucmer</code>或<code>promer</code>构建序列间的可能联配。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 首先过滤低于1kb的序列</span></span><br><span class="line">bioawk -c fastx <span class="string">&#x27;&#123;if (length($seq) &gt; 1000) print &quot;&gt;&quot;$name &quot;\n&quot;$seq&#125;&#x27;</span> ~/reference/genome/rice_contigs/HP1 &gt; HP103_1kb.fa</span><br><span class="line">bioawk -c fastx <span class="string">&#x27;&#123;if (length($seq) &gt; 1000) print &quot;&gt;&quot;$name &quot;\n&quot;$seq&#125;&#x27;</span> ~/reference/genome/rice_contigs/HP119.fa &gt; HP119_1kb.fa</span><br><span class="line"><span class="comment"># 处理，时间会比较久，因为分别有20109，17877条contig</span></span><br><span class="line">nucmer --prefix HP103_HP119 HP103_1kb.fa HP119_1kb.fa &amp;</span><br></pre></td></tr></table></figure>
-
-<h5 id="一个基因草图对一个完整基因组"><a href="#一个基因草图对一个完整基因组" class="headerlink" title="一个基因草图对一个完整基因组"></a>一个基因草图对一个完整基因组</h5><p>这里可以比较一下水稻日本晴基因组和其他地方品种</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nucmer  --prefix IRGSP1_DHX2 ~/reference/genome/IRGSP1.0/IRGSP-1.0_genome.fasta ~/reference/genome/rice_contigs/DHX2.fa</span><br><span class="line"><span class="comment"># 第四版提供SAM输出和多核支持</span></span><br><span class="line">~/biosoft/mummer-4.0.0beta2/bin/nucmer -t 15 --sam-short=SAM_OUT/DHX2 ~/reference/genome/IRGSP1.0/IRGSP-1.0_genome.fasta ~/reference/genome/rice_contigs/DHX2.fa &amp;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>在第四版中新增了一个<code>dnadiff</code>，进一步封装<code>nucmer</code>和其他数据整理工具，基本上没啥参数，而输出很齐全，非常的人性化。在不知如何开始的时候，可以无脑用这个。</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 已有delta文件</span></span><br><span class="line">dnadiff -d IRGSP1_DHX2.delta</span><br><span class="line"><span class="comment"># 未有delta文件</span></span><br><span class="line">dnadiff IRGSP1_DHX2 ~/reference/genome/IRGSP1.0/IRGSP-1.0_genome.fasta ~/reference/genome/rice_contigs/DHX2.fa</span><br></pre></td></tr></table></figure>
-
-<h2 id="数据整理"><a href="#数据整理" class="headerlink" title="数据整理"></a>数据整理</h2><p>之前得到的数据还需要用<code>delta-filter</code>,<code>show-coords</code>和<code>show-tilling</code>进行进一步整理才能用于后续的分析。后续操作基于上面的基因草图和完成基因组比较结果。</p>
-<p>最初的比对结果保留了最多的信息，需要用<code>delta-filter</code>进行一波过滤，除去不太合适的部分。过滤选项有</p>
-<ul>
-<li><code>-i</code>: 最小的相似度 [0,100], 默认0</li>
-<li><code>-l</code>: 最小的匹配长度 默认0.</li>
-<li><code>-u</code>: 最小的联配唯一度 [0,100], 默认0</li>
-<li><code>-o</code>: 最大重叠度，针对<code>-r</code>和<code>-q</code>设置。 [0,100], 默认100</li>
-<li><code>-g</code>: 1对1全局匹配，不允许重排</li>
-<li><code>-1</code>: 1对1联配，允许重排，是<code>-r</code>和<code>-q</code>的交集</li>
-<li><code>-m</code>: 多对对联配，允许重排，是<code>-r</code>和<code>-q</code>的合集。</li>
-<li><code>-q</code>: 仅保留每个query在reference上的最佳位置,允许多条query在reference上重叠</li>
-<li><code>-r</code>: 仅保留每个reference在query上的最佳位置,允许多条reference在query上重叠</li>
-</ul>
-<p>以上顺序是<code>-i -l -u -q -r -g -m -1</code>.光看参数估计不太明白，来一波图解。referece的一个片段可以联配到query的多个片段上，同样的query的一个片段也可以联配到reference的多个片段上，那么如何取舍呢？</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-22510b4f02161663-a24f4839916849139ea95f8c1870400c.jpg" alt="多对多"></p>
-<p>通过<code>-i</code>,<code>-l</code>可以先过滤一些比较短，并且相似度比较低的匹配情况。进一步，计算长度和相似度的乘积(加权最长增加子集)，对于<code>-q</code>而言就是保留左2，对于<code>-r</code>则是保留右3. 这就是传说中的三角关系，这种关系可以用<code>-m</code>保留或者用<code>-q</code>消灭。</p>
-<p>比如说我想看contig和reference两者唯一匹配，并且长度在1000，相似度大于90.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delta-filter -i 89 -l 1000 -1 IRGSP1_DHX2.delta &gt; IRGSP1_DHX2_i89_l1000_1.delta.filter</span><br></pre></td></tr></table></figure>
-
-<p>如何才能验证上面参数运行的结果是符合要求的呢？毕竟数据分析第一原则“不要轻易相信分析结果，需要多次验证才能使用”。</p>
-<p>可以先用<code>show-coord</code>以人类可读的格式显示匹配的坐标。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show-coords -r IRGSP1_DHX2_i89_l1000_1.delta.filter &gt; IRGSP1_DHX2_i89_l1000_1.coord</span><br><span class="line"><span class="comment"># -r：以refID排序，相对的，还有-q，以queryID排序</span></span><br><span class="line">less IRGSP1_DHX2_i89_l1000_1.coord</span><br></pre></td></tr></table></figure>
-
-<p>不难发现这个位置锚定的非常不错，至少暂时看起来没有重叠之处</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-22d43cfb51512b11-8b277c2214a3461cb1a8f391e5448ee5.jpg" alt="coord信息"></p>
-<p>用<code>show-aligns</code>看某一个匹配的序列比对情况。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show-aligns IRGSP1_DHX2_i89_l1000_1.delta.filter chr01 DHX2_00006753 | less</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-a34cd3bd38efe73e-ea70a7ac864f4edfb78414df00eba7f3.jpg" alt="alignment"></p>
-<p>针对reference有很长的组装序列的情况，还可以用<code>show-tilling</code>将contig回贴到reference上，如果装了gnuplot还能用<code>mummerplot</code>可视化点图.<code>show-tiling</code>会尝试根据contig和reference匹配信息构建出tiling path(不好翻译呀。。)，不怎么用得到。</p>
-<p><code>show-snps</code>可以根据delta文件整理出SNP信息，我表示也没有怎么用到。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" data-id="cllpwkk0200f6e0p2bytf1r44" data-title="如何使用MUMmer比对大片段序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="cllszh65c00bwe2qe74wbgoth" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1196,6 +1195,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1209,10 +1212,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

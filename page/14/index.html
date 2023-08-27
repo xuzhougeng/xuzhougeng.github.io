@@ -73,6 +73,89 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-逃离dplyr_ 不使用group_by和arrange实现分组排序-sort-by-group-without-dplyr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" class="article-date">
+  <time class="dt-published" datetime="2020-01-09T16:07:03.766Z" itemprop="datePublished">2020-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/">逃离dplyr:不使用group_by和arrange实现分组排序</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天在写代码的时候，发现项目中出现了一些重复的代码，所以要把他们封装成一个单个函数。在封装的过程中，我遇到了一个让我头疼的问题。</p>
+<p>在使用dplyr的时候，你可能会注意到一个非常有趣的细节，那就是你不用<code>&quot;&quot;</code>来区别变量和字符串，<code>dplyr</code>能够帮你好这个事情。举个例子，下面的代码都是让<code>iris</code>数据集按照”Sepal.Length”进行排序。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> Sepal.Length<span class="punctuation">)</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> <span class="string">&quot;Sepal.Length&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候，让我们思考一个问题，如果在之前命名了一个<code>group.by &lt;- &quot;Sepal.Length&quot;</code>，那么运行<code>group_by(iris, group.by)</code>的时候， 这个group.by会被替换成Sepal.Length吗？下面的代码会报错吗？大家可以思考一下，然后往下看。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group.by <span class="operator">&lt;-</span> <span class="string">&quot;Sepal.Length&quot;</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> group.by<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>实际上，运行上面的代码，你会得到一个报错”Error: Column <code>group.by</code> is unknown”. <code>group_by</code>没有替换掉你的变量名。</p>
+<p>为什么会出现这个情况？这个就涉及到dplyr编程的内容，具体可以参考<a target="_blank" rel="noopener" href="https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html">https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html</a></p>
+<p>参考dplyr的教程，如果要让上面的代码能够运行，我们需要需要在变量名前加上<code>!!</code>或者调用<code>UQ</code>函数</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> <span class="operator">!</span><span class="operator">!</span>group.by<span class="punctuation">)</span></span><br><span class="line">group_by<span class="punctuation">(</span>iris<span class="punctuation">,</span> UQ<span class="punctuation">(</span>group.by<span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>假如你要创造一个函数，要用到<code>group_by</code>，那么你应该怎么写呢？我们的直觉就是下面的代码</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">my_group_by <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>df<span class="punctuation">,</span> group.by<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  df <span class="operator">&lt;-</span> group_by<span class="punctuation">(</span>df<span class="punctuation">,</span>group.by <span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>根据前面的铺垫，你应该知道，运行<code>my_group_by(iris, Sepal.Length)</code>会出现报错，报错信息为” Error: Column <code>group.by</code> is unknown”。 于是你试着之前的解决方法加上了”UQ” </p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">my_group_by <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>df<span class="punctuation">,</span> group.by<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  df <span class="operator">&lt;-</span> group_by<span class="punctuation">(</span>df<span class="punctuation">,</span> UQ<span class="punctuation">(</span>group.by<span class="punctuation">)</span> <span class="punctuation">)</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>df<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>思考下，<code>my_group_by(iris, Sepal.Length)</code>能够得到结果吗？</p>
+<p>很遗憾，代码报错了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error in splice(dot_call(capture_dots, frame_env = frame_env, named = named,  : </span><br><span class="line"> object &#x27;Sepal.Length&#x27; not found </span><br></pre></td></tr></table></figure>
+
+<p>正确的调用方法是<code>my_group_by(iris, &quot;Sepal.Length&quot;)</code>.  当然由于你用习惯了dplyr，你希望是<code>my_group_by(iris, Sepal.Length)</code>调用代码，那么你的函数需要怎么写呢？为了解决这个问题，你可能要仔细阅读<a target="_blank" rel="noopener" href="https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html">https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html</a>才行，理解什么叫做”Quasiquotation”</p>
+<p>经过一波折腾之后，我受够了这种将dplyr代码改成函数时的不一致性（也可能是我不熟练），我决定还是只用R基础代码来实现我的功能，不就是分组排序吗，为啥一定要用<code>group_by</code> 和 <code>arrange</code>呢.</p>
+<p>无非就是先利用因子将数据库分成多个列表(split)，然后对每个列表按照某一列进行排序(lapply)，而这里排序过程就是获取从最大到最小的索引(order)，最后按行进行合并(do.call, rbind)而已呀。如下是实现的代码</p>
+<pre><code class="r">my.group.by &lt;- function(df, group.by, sort.by,
+                        decreasing = TRUE)&#123;
+  
+  df.split &lt;- split(df, df[[group.by]])
+  
+  df.split.sort &lt;- lapply(df.split, function(x)&#123;
+    x.order &lt;- order(x[[sort.by]],decreasing = decreasing)
+    x &lt;- x[x.order,]
+    x
+  &#125;)
+   df &lt;- do.call(rbind, df.split.sort)
+  return(df)
+&#125;
+
+my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&quot;)
+</code></pre>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="cllszh66w00gve2qef3sp97tw" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用EDTA进行TE注释-annotate-te-with-edta-pipeline" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" class="article-date">
@@ -174,7 +257,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllpwkjyi00b2e0p24zu6ax2l" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllszh65400bbe2qe6cgi7b7v" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -240,7 +323,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllpwkk0400fee0p2c3m29f1g" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllszh67f00i6e2qebdpifhjw" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -301,7 +384,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="cllpwkk1s00i3e0p2bvk65df7" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="cllszh68m00kne2qe8fpsfswo" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -416,7 +499,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="cllpwkk2500j7e0p2ap5l3uxv" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="cllszh66c00ese2qe1w7wfl1l" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -479,7 +562,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="cllpwkk2700jce0p21ypzcs78" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="cllszh66e00eze2qecucycufu" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -566,7 +649,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="cllpwkjzm00dye0p28oib1n1c" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="cllszh66600e6e2qe5pssf4i4" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -629,7 +712,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="cllpwkjvx004ke0p2b17qcujm" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="cllszh63c004te2qe0i932rxa" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -684,7 +767,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="cllpwkjze00dne0p2csk49o6u" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="cllszh66400dwe2qe7bdf8ap3" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -739,51 +822,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" data-id="cllpwkjxp008le0p2bfkq54yd" data-title="从typora转移到VNOTE" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" data-id="cllszh64h008te2qehw27fhr0" data-title="从typora转移到VNOTE" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typora/" rel="tag">typora</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-让人爱不释手的bash命令-让人爱不释手的bash命令" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/12/12/%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4-%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4/" class="article-date">
-  <time class="dt-published" datetime="2019-12-12T13:13:14.327Z" itemprop="datePublished">2019-12-12</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/12/12/%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4-%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4/">让人爱不释手的bash命令</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><a target="_blank" rel="noopener" href="https://github.com/alexanderepstein/Bash-Snippets">https://github.com/alexanderepstein/Bash-Snippets</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/12/%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4-%E8%AE%A9%E4%BA%BA%E7%88%B1%E4%B8%8D%E9%87%8A%E6%89%8B%E7%9A%84bash%E5%91%BD%E4%BB%A4/" data-id="cllpwkk2o00kle0p2flen6z6l" data-title="让人爱不释手的bash命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
     </footer>
   </div>
   
@@ -849,6 +893,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -862,10 +910,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

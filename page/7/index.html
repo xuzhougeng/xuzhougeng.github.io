@@ -73,6 +73,84 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-我的Rust第一课-my-first-rust-class" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" class="article-date">
+  <time class="dt-published" datetime="2021-08-27T14:01:50.324Z" itemprop="datePublished">2021-08-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Rust/">Rust</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/">我的Rust第一课</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在开始之前，先得做一些基础配置。</p>
+<p>安装Rust工具链</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --proto <span class="string">&#x27;=https&#x27;</span> --tlsv1.2 -sSf https://sh.rustup.rs | sh</span><br></pre></td></tr></table></figure>
+
+<p>我使用VScode进行开发，并安装了如下插件</p>
+<ul>
+<li>rust-analyzer</li>
+<li>rust syntax</li>
+<li>crates</li>
+<li>better toml</li>
+<li>rust test lens</li>
+<li>Tabnine</li>
+</ul>
+<p>接着，尝试使用Rust构建第一个程序。我的目标是读取Fasta，统计其中的A, T, C, G各有多少个。</p>
+<p>完成这个需求，有两个思路，第一个是调用成熟的库，第二个是自己造轮子写一个函数。</p>
+<p>对于思路1，我使用关键词，Rust和Bio搜索到一个库叫做，<a target="_blank" rel="noopener" href="https://docs.rs/bio/0.37.1/bio/index.html">rust-bio</a>。 <a target="_blank" rel="noopener" href="https://rust-bio.github.io/">https://rust-bio.github.io/</a></p>
+<p>接下来，使用cargo new创建项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo new fasta_count</span><br></pre></td></tr></table></figure>
+
+<p>第二步: 添加依赖。 编辑 Cargo.toml , 添加依赖信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">bio = &quot;0.37.1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>第三步: 学习rust-bio文档，查找相关函数，然后在 <code>src/main.rs</code>中编写代码。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> bio::io::fasta;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span>  <span class="variable">reader</span> = fasta::Reader::<span class="title function_ invoke__">new</span>(io::<span class="title function_ invoke__">stdin</span>());</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_a</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_t</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_c</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">nb_g</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="variable">result</span> <span class="keyword">in</span> reader.<span class="title function_ invoke__">records</span>()&#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">record</span> = result.<span class="title function_ invoke__">expect</span>(<span class="string">&quot;Error during fasta record parsing&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> &amp;base <span class="keyword">in</span> record.<span class="title function_ invoke__">seq</span>() &#123; <span class="comment">//return sequence</span></span><br><span class="line">            <span class="keyword">if</span> base == <span class="string">b&#x27;a&#x27;</span> || base == <span class="string">b&#x27;A&#x27;</span> &#123;</span><br><span class="line">                nb_a += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;c&#x27;</span> || base == <span class="string">b&#x27;C&#x27;</span>&#123;</span><br><span class="line">                nb_c += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;g&#x27;</span> || base == <span class="string">b&#x27;G&#x27;</span>&#123; </span><br><span class="line">                nb_g += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> base == <span class="string">b&#x27;t&#x27;</span> || base == <span class="string">b&#x27;T&#x27;</span>&#123; </span><br><span class="line">                nb_t += <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;A:&#123;&#125;, C:&#123;&#125;, G:&#123;&#125;, T:&#123;&#125;&quot;</span>, nb_a, nb_c, nb_g, nb_t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我使用标准库io::stdin从标准输入中读取数据，然后利用fasta::Reader的new出一个新的reader实例。对该实例的records对象进行遍历，得到fasta的中记录，record。最后对记录中序列进行遍历，得到不同碱基的数目。</p>
+<p>第四步：编译代码。cargo会先将依赖环境下载到当前项目下，然后在进行编译。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build </span><br></pre></td></tr></table></figure>
+
+<p>编译结果存放在 target的debug目录下，名为fasta_count。我们运行程序，得到结果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> TAIR10.fa | target/debug/fasta_count</span><br><span class="line"><span class="comment"># A:38223602, C:21551439, G:21528650, T:38177852</span></span><br></pre></td></tr></table></figure>
+
+<p>第一种思路的代码，是我看了极客时间「陈天·Rust编程第一课」中第一个示例”使用HTTP获取HTML然后保存成Markdown”后自己尝试的第一个和生信相关程序。对于第二种思路，我个人还是决定后续学习更多Rust基础再来尝试，因为我目前都不会用基础库来读取文件。</p>
+<p>目前我的初体验是，Rust的语法更接近C&#x2F;C++，它的编译器非常强大，能够很好的指出的我代码中的错误，便于检索debug。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/08/27/%E6%88%91%E7%9A%84Rust%E7%AC%AC%E4%B8%80%E8%AF%BE-my-first-rust-class/" data-id="cllszh68m00kpe2qe9o0zg6np" data-title="我的Rust第一课" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" rel="tag">编程语言</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-谈谈Markdown语法中段内换行-line-breaks-inside-paragraphs-in-markdown" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" class="article-date">
@@ -117,7 +195,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" data-id="cllpwkk2r00kue0p2fgvpgp2d" data-title="谈谈Markdown语法中段内换行" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/27/%E8%B0%88%E8%B0%88Markdown%E8%AF%AD%E6%B3%95%E4%B8%AD%E6%AE%B5%E5%86%85%E6%8D%A2%E8%A1%8C-line-breaks-inside-paragraphs-in-markdown/" data-id="cllszh66t00gme2qe3gox2qcs" data-title="谈谈Markdown语法中段内换行" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -172,7 +250,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/26/%E8%AE%B0%E5%BD%95%E8%BF%91%E5%B9%B4%E6%9D%A5%E6%88%91%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%89%98%E7%AE%A1%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-my-travel-to-host-my-blog/" data-id="cllpwkk2p00kne0p2cgzn0o3a" data-title="记录近年来我的个人博客托管的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/26/%E8%AE%B0%E5%BD%95%E8%BF%91%E5%B9%B4%E6%9D%A5%E6%88%91%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%89%98%E7%AE%A1%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-my-travel-to-host-my-blog/" data-id="cllszh66s00gfe2qe52o50tvy" data-title="记录近年来我的个人博客托管的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -233,7 +311,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" data-id="cllpwkjxf007te0p262rebidq" data-title="一次路由器刷固件安插件的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/08/%E4%B8%80%E6%AC%A1%E8%B7%AF%E7%94%B1%E5%99%A8%E5%88%B7%E5%9B%BA%E4%BB%B6%E5%AE%89%E6%8F%92%E4%BB%B6%E7%9A%84%E6%8A%98%E8%85%BE%E4%B9%8B%E6%97%85-update-router-firmware-for-scientific-internet-access/" data-id="cllszh64a0082e2qe9dlu9brt" data-title="一次路由器刷固件安插件的折腾之旅" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -370,7 +448,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" data-id="cllpwkjw7005ce0p28n5m8mpx" data-title="hifiasm对HiFi PacBio进行组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/02/hifiasm%E5%AF%B9HiFi%20PacBio%E8%BF%9B%E8%A1%8C%E7%BB%84%E8%A3%85-assemble-hifi-pacbio-with-hifiasm/" data-id="cllszh63o005le2qe005igdq0" data-title="hifiasm对HiFi PacBio进行组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -410,7 +488,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" data-id="cllpwkjxn008ee0p2fxb968w3" data-title="人类的本质是复读机" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/07/30/%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA-%E4%BA%BA%E7%B1%BB%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E5%A4%8D%E8%AF%BB%E6%9C%BA/" data-id="cllszh64g008me2qegooy0n7j" data-title="人类的本质是复读机" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -482,7 +560,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" data-id="cllpwkjzt00ehe0p2dfd8heov" data-title="在windows下编译bwa和samtools" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8windows%E4%B8%8B%E7%BC%96%E8%AF%91bwa%E5%92%8Csamtools-compile-bwa-and-samtools-in-windows/" data-id="cllszh67000hee2qeajrh0un9" data-title="在windows下编译bwa和samtools" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -568,7 +646,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" data-id="cllpwkjzp00e7e0p21wyl7gky" data-title="在Windows上配置类Unix环境(MSYS2)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/30/%E5%9C%A8Windows%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%B1%BBUnix%E7%8E%AF%E5%A2%83(MSYS2)-configure-msys2-in-windows/" data-id="cllszh66y00h4e2qe1g7508wb" data-title="在Windows上配置类Unix环境(MSYS2)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -640,7 +718,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="cllpwkjw1004we0p2fs9uhoqc" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="cllszh63k0054e2qedtuignjt" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -690,101 +768,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="cllpwkjwf005ze0p2gbpp8pe0" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="cllszh63t0067e2qe044k8gtz" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发-visual-studio-configuration-of-opencv-for-cpp-development" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" class="article-date">
-  <time class="dt-published" datetime="2021-05-26T23:16:07.675Z" itemprop="datePublished">2021-05-26</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/">数据科学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/">如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>这是我第一次在号称宇宙最强的IDE Visual Studio上调用非标准库编译<code>C++</code>程序，中间遇到了很多的报错，让我怀疑人生。 </p>
-<p>首先，我们需要从<a target="_blank" rel="noopener" href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/">Sourceforge</a>下载OpenCV, 目前最新版是4.5.2</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-51a11bc996ed4923ba22cb81eb4891fa.png" alt="image.png"></p>
-<p>下载的exe文件双击之后会出现解压界面</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-db97fe58403f431081103684dc9af996.png" alt="解压中"></p>
-<p>解压缩后得到如下文件</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ed0562fe5fa410c90109dfa60ffaad6.png" alt="解压内容"></p>
-<p>我们需要依次系统属性-&gt;高级-&gt;环境变量，找到并设置设置环境变量Path</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-f9cec893255d4403a6cfe7295b6d1c9e.png" alt="环境变量"></p>
-<p>如果不在环境变量中设置opencv中的bin路径，会出现如下报错 【由于找不到opencv_world452d.dll, 无法继续执行代码】</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d79dd7544b154cc289b8c35bbfcd2387.png" alt="error1"></p>
-<p>在Visual Studio 2019中使用OpenCV构建项目的流程如下</p>
-<p>第一步：新建一个C++的控制台项目。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-654548fdb7414748b468f464b1d3a27a.png" alt="新建项目"></p>
-<p>第二步：配置项目的项目名称，例如opencv-test</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-ad4394ad531d4675bd3d08c0fe732dff.png" alt="image.png"></p>
-<p>创建项目之后，先将Debug 改为x64，因为后续构建的是x64的项目。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-5234740fcd2d469caf3f511a4e14d6fc.png" alt="修改Debug"></p>
-<p>第三步：为了能让代码正常运行，我们需要配置这个OpenCV项目的所需的include和library路径，以及依赖的lib文件。</p>
-<p>在菜单栏的项目(P)中选择属性(P)</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-151bb1e5a6d84d9b9a489adf37b5e54b.png" alt="项目属性"></p>
-<p>选择VC++目录(VC++ Directories)的包含目录(Include Directories)，点击编辑</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-135ed28733ac450093f5aa87bd5d22b0.png" alt="image.png"></p>
-<p>添加opencv的include的路径(头文件）</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ac77d7dd74f43e4bcb8980d9555c3c6.png" alt="include"></p>
-<p>同样的操作，也用于库目录(Library Directories)的设置</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d83597426001403087700e7263bafe27.png" alt="library"></p>
-<p>添加library路径（路径比较深）</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-1e3da7a7e9c243bca11ae07bc87d326f.png" alt="library路径"></p>
-<p>检查下，刚刚修改的include和library</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-d7c389f081cc4ab6b68ef0ff0fc9c24b.png" alt="检查状态"></p>
-<p>此外还需要增加一个包括所有模块的lib文件。选择链接器(linker)中的输入(input), 接着编辑附加依赖项</p>
-<p>![linker(<a target="_blank" rel="noopener" href="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-75a058ac43214ee9bfb9fb18f884df75.png">https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-75a058ac43214ee9bfb9fb18f884df75.png</a>)</p>
-<p>添加<strong>opencv_world452d.lib</strong>，该文件包括opencv里的所有模块（lib文件和opencv版本有关，可从lib目录中确认）。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-0ab452f73b074436bea8273df0612707.png" alt="符加依赖库"></p>
-<p>如果不设置该变量，会出现【无法解析外部符号】的报错</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/05/image-2796e7747e1a4d09b3cb2d520973b6cb.png" alt="error2"></p>
-<p>如果写错成 opencv_world452d.dll，就会出现【 LNK1104  无法打开文件”opencv_world452d.dll”】报错（之所以写成dll，是因为之前出现的dll找不到报错，导致我以为增加的是这个文件）。</p>
-<p>如下是测试代码</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;opencv2/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Mat image = Mat::<span class="built_in">zeros</span>(<span class="number">600</span>, <span class="number">600</span>, CV_8UC3);</span><br><span class="line">  <span class="built_in">putText</span>(image, <span class="string">&quot;xuzhougeng&quot;</span>, <span class="built_in">Point</span>(<span class="number">100</span>,<span class="number">300</span>), FONT_HERSHEY_COMPLEX, <span class="number">2.0</span>, <span class="built_in">Scalar</span>(<span class="number">100</span>,<span class="number">200</span>,<span class="number">200</span> ), <span class="number">5</span> );</span><br><span class="line">  <span class="built_in">imshow</span>(<span class="string">&quot;Display Window&quot;</span>, image);</span><br><span class="line">  <span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>能正常出图表示能正确在项目中调用OpenCV。</p>
-<p>参考资料：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://docs.opencv.org/master/d3/d52/tutorial_windows_install.html">https://docs.opencv.org/master/d3/d52/tutorial_windows_install.html</a></li>
-<li><a target="_blank" rel="noopener" href="https://medium.com/@subwaymatch/opencv-410-with-vs-2019-3d0bc0c81d96">https:&#x2F;&#x2F;medium.com&#x2F;@subwaymatch&#x2F;opencv-410-with-vs-2019-3d0bc0c81d96</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="cllpwkk1000fxe0p20rwvctar" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
-
     </footer>
   </div>
   
@@ -850,6 +837,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -863,10 +854,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>

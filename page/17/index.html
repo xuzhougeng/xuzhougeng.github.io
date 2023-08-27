@@ -73,6 +73,93 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用nextpolish对三代组装进行polish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" class="article-date">
+  <time class="dt-published" datetime="2019-10-25T11:25:33.711Z" itemprop="datePublished">2019-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/">使用nextpolish对三代组装进行polish</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>NextPolish是武汉未来组开发的一个三代基因组polish工具（另外一个常用软件是Pilon）。NextPolish可以使用二代短读序列或者三代序列或者两者结合去纠正三代长读长序列在组装时导致的碱基错误(SNV&#x2F;Indel)。由于它是专为polish设计，因此在运行速度和内存使用上都优与Pilon。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>先确保自己的服务器上安装了Python2.7， 且有Shutil和Signal，或者你可以利用conda新建一个python2.7的环境。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># shell</span></span><br><span class="line">python -V</span><br><span class="line">Python 2.7.15</span><br><span class="line"><span class="comment"># Python 交互命令行</span></span><br><span class="line">import shutil</span><br><span class="line">import signal</span><br></pre></td></tr></table></figure>
+
+<p>之后到<a target="_blank" rel="noopener" href="https://github.com/Nextomics/NextPolish/releases">https://github.com/Nextomics/NextPolish/releases</a>找最新的版本，写这篇时的最新版本就是1.05</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/opt/biosoft</span><br><span class="line"><span class="built_in">cd</span> ~/opt/biosoft</span><br><span class="line">wget https://github.com/Nextomics/NextPolish/releases/download/v1.0.5/NextPolish.tgz</span><br><span class="line">tar -zxvf NextPolish.tgz</span><br><span class="line"><span class="comment"># 编译软件</span></span><br><span class="line"><span class="built_in">cd</span> NextPolish &amp;&amp; make -j 10</span><br><span class="line"><span class="comment"># 加入到.bashrc或.zshrc</span></span><br><span class="line"><span class="built_in">export</span> PATH=~/opt/biosoft/NextPolish:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><p><strong>注意</strong>：如果你的基因组用的是miniasm这类缺少consensus步骤的组装软件，那么你需要先用运行如下命令，或者是运行<code>racon</code>利用三代序列进行polish。否则，由于基因组上存在过高的错误率，导致二代序列错误比对，影响polish效果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">threads=20  </span><br><span class="line">genome=input.genome.fa <span class="comment"># 组装的基因组</span></span><br><span class="line">lgsreads=input.lgs.reads.fq.gz <span class="comment"># 三代长度序列</span></span><br><span class="line"><span class="comment"># 将三代回帖到参考基因组</span></span><br><span class="line">minimap2 -a -t <span class="variable">$&#123;threads&#125;</span> -x map-ont/map-pb <span class="variable">$&#123;genome&#125;</span> <span class="variable">$&#123;lgsreads&#125;</span>| \</span><br><span class="line">    samtools view -F 0x4 -b - | \</span><br><span class="line">    samtools <span class="built_in">sort</span> - -m 2g -@ <span class="variable">$&#123;threads&#125;</span> -o genome.lgs.bam  </span><br><span class="line"><span class="comment">#建立索引</span></span><br><span class="line">samtools index -@ <span class="variable">$&#123;threads&#125;</span> genome.lgs.bam</span><br><span class="line">samtools faidx <span class="variable">$&#123;genome&#125;</span></span><br><span class="line"><span class="comment"># 使用nextPolish.py 进行polish</span></span><br><span class="line">python ~/opt/biosoft/NextPolish/lib/nextPolish.py \</span><br><span class="line">    -g <span class="variable">$&#123;genome&#125;</span> -t 5 --bam_lgs genome.lgs.bam -p <span class="variable">$&#123;threads&#125;</span> &gt; genome.lgspolish.fa</span><br></pre></td></tr></table></figure>
+
+<p>生成的genome.lgspolish.fa才能用于后续的二代polish步骤。</p>
+<p>NextPolish要求我们需要准备两个文件：</p>
+<ul>
+<li><code>run.cfg</code>: 配置文件，</li>
+<li><code>sgs.fofn</code>: 二代测序文件的位置信息</li>
+</ul>
+<p>以<a href="/archives/Assembly-nanopore-with-NextDenovo">使用NextDenovo组装Nanopore数据</a>文章组装的结果为例进行介绍。在分析目录下有三个文件。</p>
+<ul>
+<li>三代组装结果: nextgraph.assembly.contig.fasta</li>
+<li>二代序列: ERR2173372_1.fastq,ERR2173372_2.fastq</li>
+</ul>
+<p>第一步：创建一个文件，用于记录二代序列的位置信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">realpath</span> ERR2173372_1.fastq ERR2173372_2.fastq  &gt; sgs.fofn</span><br></pre></td></tr></table></figure>
+
+<p>第二步：配置run.cfg文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从NextPolish目录下复制配置文件</span></span><br><span class="line"><span class="built_in">cp</span> ~/opt/biosoft/NextPolish/doc/run.cfg run2.cfg</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[General]</span><br><span class="line">job_type = <span class="built_in">local</span></span><br><span class="line">job_prefix = nextPolish</span><br><span class="line">task = default</span><br><span class="line">rewrite = 1212</span><br><span class="line">rerun = 3</span><br><span class="line">parallel_jobs = 2</span><br><span class="line">multithread_jobs = 10</span><br><span class="line">genome = ./nextgraph.assembly.contig.fasta</span><br><span class="line">genome_size = auto</span><br><span class="line">workdir = ./01_rundir</span><br><span class="line">polish_options = -p &#123;multithread_jobs&#125;</span><br><span class="line"></span><br><span class="line">[sgs_option]</span><br><span class="line">sgs_fofn = ./sgs.fofn</span><br><span class="line">sgs_options = -max_depth 100</span><br></pre></td></tr></table></figure>
+
+<p>其中需要修改的参数为，其余参数查看<a target="_blank" rel="noopener" href="https://github.com/Nextomics/NextPolish/blob/master/doc/OPTION.md">官方的参数配置说明</a>:</p>
+<ul>
+<li><code>job_type</code>: 任务类型，local表示单个节点运行。由于NextPolish使用DRMAA进行任务投递，因此还支持，SGE, PBS和SLURM</li>
+<li><code>task</code>: 任务类型， 用12,1212,121212,12121212来设置polish的轮数，建议迭代2轮就可以了。</li>
+<li><code>parallel_jobs</code>和<code>multithread_jobs</code>表示同时投递的任务数和每个任务的线程数，此处2 X 10&#x3D;20</li>
+<li><code>genome</code>: 表示组装基因组的位置</li>
+<li><code>workdir</code>: 输出文件所在目录</li>
+<li><code>sgs_options</code>: 该选项设置二代测序polish的参数，包括-use_duplicate_reads, -unpaired, -max_depth, -bwa, -minimap2(默认使用)</li>
+</ul>
+<p>运行方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nextPolish run2.cfg &amp;</span><br></pre></td></tr></table></figure>
+
+<p>在最后输出日志中，会提示最终存放的文件在什么位置，然后将这些文件合并到单个文件即可。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="cllszh65r00d7e2qe2j833brr" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-「热图」ComplexHeatmap展示单细胞聚类-ComplexHeatmap-for-single-cell-visualization" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" class="article-date">
@@ -257,7 +344,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="cllpwkjx7007be0p28i3f61n1" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="cllszh644007ke2qe7cuq3gqk" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -318,7 +405,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" data-id="cllpwkjwu006be0p28qcahylc" data-title="「LeetCode」递归题目之第N个Tribonacci数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" data-id="cllszh63w006je2qebno2hgrg" data-title="「LeetCode」递归题目之第N个Tribonacci数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -430,7 +517,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" data-id="cllpwkjyl00bce0p236xtaf1y" data-title="使用NextDenovo组装Nanopore数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" data-id="cllszh65900ble2qe5hv2ac5l" data-title="使用NextDenovo组装Nanopore数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -495,7 +582,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" data-id="cllpwkjwd005se0p28iay0d2k" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" data-id="cllszh63r0060e2qe3v1l3elu" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -646,7 +733,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" data-id="cllpwkjyu00c5e0p23as15d1y" data-title="使用SCALE分析单细胞ATAC-seq数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" data-id="cllszh65i00cee2qehxt6h7hp" data-title="使用SCALE分析单细胞ATAC-seq数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -706,7 +793,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" data-id="cllpwkjx20071e0p29djdfkkv" data-title="「文献」杂合基因组的策略思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" data-id="cllszh6420079e2qe3v22hglu" data-title="「文献」杂合基因组的策略思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -831,7 +918,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" data-id="cllpwkjys00bxe0p2cene1m3z" data-title="使用Rcpp提高性能之入门篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" data-id="cllszh65g00c6e2qe0qbhf9xx" data-title="使用Rcpp提高性能之入门篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -952,7 +1039,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" data-id="cllpwkjv8003je0p29vdn82he" data-title="Rcpp学习笔记之数据结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" data-id="cllszh62t003xe2qedjrxa8yp" data-title="Rcpp学习笔记之数据结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1038,87 +1125,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" data-id="cllpwkk2300j0e0p22co89umo" data-title="服务器上安装RStudio-server" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" data-id="cllszh66b00ele2qehv1chwuw" data-title="服务器上安装RStudio-server" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-Rcpp学习笔记之简化版table-Rcpp_learn_note_simplified_table" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" class="article-date">
-  <time class="dt-published" datetime="2019-10-14T13:53:46.564Z" itemprop="datePublished">2019-10-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/">Rcpp学习笔记之简化版table</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>R语言有一个自带的函数<code>table</code>能够统计输入变量中不同元素出现的次数，举个例子</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">d <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;A&quot;</span><span class="punctuation">,</span><span class="string">&quot;B&quot;</span><span class="punctuation">,</span><span class="string">&quot;C&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="number">10</span><span class="punctuation">)</span></span><br><span class="line">table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>果子老师曾写一篇推送，自己写了一个简化版的table，比R自带的table 运行的速度更快，如下</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">tableGZ <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="keyword">if</span><span class="punctuation">(</span><span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="operator">==</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x</span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> </span><br><span class="line">                 <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span> <span class="punctuation">&#123;</span><span class="built_in">sum</span><span class="punctuation">(</span>data<span class="operator">==</span>x<span class="punctuation">)</span><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>data<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span> <span class="keyword">else</span><span class="punctuation">&#123;</span></span><br><span class="line">    data <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">]</span></span><br><span class="line">    input <span class="operator">&lt;-</span> unique<span class="punctuation">(</span>x<span class="punctuation">,</span> fromLast <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> sapply<span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="built_in">sum</span><span class="punctuation">(</span>data <span class="operator">==</span> x<span class="punctuation">)</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line">    dd <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>dd<span class="punctuation">,</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    <span class="built_in">names</span><span class="punctuation">(</span>dd<span class="punctuation">)</span> <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>input<span class="punctuation">,</span> <span class="string">&#x27;NA&#x27;</span><span class="punctuation">)</span></span><br><span class="line">    dd</span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>我们通过运行1000次代码，来比较下两者的运行速度</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableGZ<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">42.9</span>ms  <span class="number">42.4</span>ms </span><br><span class="line"></span><br><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  table<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">107</span>ms   <span class="number">106</span>ms  </span><br></pre></td></tr></table></figure>
-
-<p>在我的电脑上，果子老师的代码运行速度比R自带的table快了将近3倍。当然这是有原因的，因为R的table的代码功能更加复杂，能够比较多个变量之间的关系，例如<code>table(d,d)</code>。</p>
-<p>既然是简单的统计每个元素的次数，那么我就想着能不能写出一个比果子老师速度更快的函数。 于是，我抽空写了下面的代码</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  out <span class="operator">&lt;-</span> vector<span class="punctuation">(</span><span class="built_in">length</span> <span class="operator">=</span> <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> <span class="built_in">rep</span><span class="punctuation">(</span><span class="literal">NA</span><span class="punctuation">,</span>  <span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> <span class="punctuation">(</span>i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>j <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="built_in">length</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">[</span>j<span class="punctuation">]</span><span class="punctuation">)</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">          out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span></span><br><span class="line">          out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="number">1</span></span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span> out_name<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">==</span> x<span class="punctuation">[</span>i<span class="punctuation">]</span> <span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">        out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">&lt;-</span> out<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="punctuation">&#125;</span> </span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    na_end <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span><span class="operator">!</span><span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">    out_name<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> <span class="string">&#x27;NA&#x27;</span></span><br><span class="line">    out<span class="punctuation">[</span>na_end <span class="operator">+</span> <span class="number">1</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> NA_num</span><br><span class="line">    </span><br><span class="line">  <span class="punctuation">&#125;</span> </span><br><span class="line">  na_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>out_name<span class="punctuation">)</span></span><br><span class="line">  out_name <span class="operator">&lt;-</span> out_name<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  out <span class="operator">&lt;-</span> out<span class="punctuation">[</span><span class="operator">!</span>na_pos<span class="punctuation">]</span></span><br><span class="line">  <span class="built_in">names</span><span class="punctuation">(</span>out<span class="punctuation">)</span> <span class="operator">&lt;-</span> out_name</span><br><span class="line"></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>out<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>虽然我的代码更长了，但是并没有让速度提高，反而比果子老师的代码慢，甚至还不如R自带的table。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">system.time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">process    real </span><br><span class="line">  <span class="number">148</span>ms   <span class="number">148</span>ms </span><br></pre></td></tr></table></figure>
-
-<p>当然那么一长串代码并不是白写的，因为我特意避免了使用R特有的内容，所以代码能够很容易改写成<code>C++</code>代码使用<code>Rcpp</code>调用，从而提高速度</p>
-<p>新建一个<code>tableC.cpp</code>文件，代码内容如下</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Rcpp.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> Rcpp;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">NumericVector <span class="title">tableC</span><span class="params">(CharacterVector cv)</span></span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// initialize variable</span></span><br><span class="line">  CharacterVector na = CharacterVector::<span class="built_in">create</span>(<span class="string">&quot;NA&quot;</span>);</span><br><span class="line">  NumericVector out = <span class="built_in">rep</span>(NumericVector::<span class="built_in">create</span>(<span class="number">0</span>), cv.<span class="built_in">size</span>());</span><br><span class="line">  CharacterVector out_name = <span class="built_in">rep</span>(na, cv.<span class="built_in">size</span>());</span><br><span class="line">  <span class="type">int</span> unique_num = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// </span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; cv.<span class="built_in">size</span>();i ++) &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; cv.<span class="built_in">size</span>(); j++)&#123;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == <span class="string">&quot;NA&quot;</span> )&#123;</span><br><span class="line">        out_name[j] = cv[i] ;</span><br><span class="line">        out[j] = <span class="number">1</span>;</span><br><span class="line">        unique_num += <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> ( out_name[j] == cv[i] )&#123;</span><br><span class="line">        out[j] = out[j] + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  out.<span class="built_in">attr</span>(<span class="string">&quot;names&quot;</span>) = out_name;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> out;</span><br><span class="line">  </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<p>然后在R里面用Rcpp这个C++代码，替换掉之前代码中的循环部分</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Rcpp<span class="operator">::</span>sourceCpp<span class="punctuation">(</span><span class="string">&quot;tableC.cpp&quot;</span><span class="punctuation">)</span></span><br><span class="line">tableZG <span class="operator">&lt;-</span> <span class="keyword">function</span><span class="punctuation">(</span>x<span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  </span><br><span class="line">  NA_pos <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  NA_num <span class="operator">&lt;-</span> <span class="built_in">sum</span><span class="punctuation">(</span>NA_pos<span class="punctuation">)</span></span><br><span class="line">  </span><br><span class="line">  x <span class="operator">&lt;-</span> <span class="built_in">as.character</span><span class="punctuation">(</span>x<span class="punctuation">[</span><span class="operator">!</span>NA_pos<span class="punctuation">]</span><span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> tableC<span class="punctuation">(</span>x<span class="punctuation">)</span></span><br><span class="line">  res <span class="operator">&lt;-</span> res<span class="punctuation">[</span><span class="operator">!</span><span class="built_in">names</span><span class="punctuation">(</span>res<span class="punctuation">)</span> <span class="operator">==</span> <span class="string">&quot;NA&quot;</span><span class="punctuation">]</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> <span class="punctuation">(</span>NA_num <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">    res <span class="operator">&lt;-</span> <span class="built_in">c</span><span class="punctuation">(</span>res<span class="punctuation">,</span> <span class="string">&quot;NA&quot;</span><span class="operator">=</span>NA_num<span class="punctuation">)</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="built_in">return</span><span class="punctuation">(</span>res<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>于是这一次在C++的加持下，我写的table函数速度超过了果子老师的代码。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bench<span class="operator">::</span>system_time<span class="punctuation">(</span><span class="keyword">for</span> <span class="punctuation">(</span> i <span class="keyword">in</span> <span class="number">1</span><span class="operator">:</span><span class="number">1000</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  tableZG<span class="punctuation">(</span>d<span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment">#结果</span></span><br><span class="line">process    real </span><br><span class="line"> <span class="number">30.1</span>ms  <span class="number">29.3</span>ms </span><br></pre></td></tr></table></figure>
-
-<p>最后总结一下：如果一个操作只需要做一次，那么速度可能并不是最重要的。因为即便是一个原本要花24小时的代码，提速10倍，只要2小时，你可能也会愿意等一等。但是如果这个操作需要重复很多次，上百次，上千次，甚至上万次，那么你就可能等不下去了。你就需要对代码中的一些限速步骤进行优化，比如说table这种多功能函数，你就可以自己用R写一个简化版的函数，替换掉原先的代码。</p>
-<p>如果对速度有更高的要求，那么就需要用到<code>C++</code>进行代码重写了。学习<code>C++</code>其实并不会特别难，因为有一个<code>Rcpp</code>简化了许多操作，你只需要掌握几个最基本的语言特性，比如说<code>C++</code>需要先定义变量才能使用变量。</p>
-<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><ul>
-<li><a href="/archives/C++_For_R_User">给R使用者的C++最少必要知识</a></li>
-<li><a href="/archives/Write_first_function_Using_Rcpp">Rcpp学习笔记之Hello World!</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/14/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E7%AE%80%E5%8C%96%E7%89%88table-Rcpp_learn_note_simplified_table/" data-id="cllpwkjv9003ne0p22smc9ri0" data-title="Rcpp学习笔记之简化版table" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
 
     </footer>
   </div>
@@ -1185,6 +1196,10 @@
       <ul>
         
           <li>
+            <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
+          </li>
+        
+          <li>
             <a href="/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/">关于申请OpenAI的API的几点补充</a>
           </li>
         
@@ -1198,10 +1213,6 @@
         
           <li>
             <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/">用Colab缓解我的GPU焦虑</a>
           </li>
         
       </ul>
