@@ -73,6 +73,89 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用RaGOO将基因组提升至染色体水平-ragoo-reference-guided-scaffolding-of-draft-genomes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/" class="article-date">
+  <time class="dt-published" datetime="2020-05-19T21:47:43.996Z" itemprop="datePublished">2020-05-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/">使用RaGOO将基因组提升至染色体水平</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-668b73a1f1a949f1ac5b4d867cdd05d2.png" alt="RaGOO"></p>
+<p>将染色体从contig&#x2F;scaffold水平提升到chromosome水平是组装的最终目标。我们通常使用遗传图谱，光学图谱，HiC这些技术提供的信息将contig进行排序连接。</p>
+<p>如果你组装的物种刚好有一个近源物种甚至说是同一物种，那其实我们可以直接将我们的contig比对到该基因组上，根据其提供的位置信息，将我们的contig&#x2F;scaffold提高到染色体水平。RaGOO就是其中一款软件，相对于其他同类型的工具，它有以下优势</p>
+<ul>
+<li>不错的性能（感谢minimap2）</li>
+<li>contig完整的排序和方向调整</li>
+<li>GFF lift-over</li>
+<li>结构变异检测，整合了Assemblytics</li>
+<li>对于每个contig都计算可信得分</li>
+</ul>
+<p>RaGOO使用minimap2将contig和reference进行比对，过滤低于1k的alignment，之后根据contig的覆盖度将contig聚类到最接近的染色体上，最后根据contig在染色体上的相对位置信息进行排序合并。</p>
+<p>RaGOO基于Python3以及预先安装的minimap2。 我们需要从Github上克隆该项目进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/malonge/RaGOO.git</span><br><span class="line"><span class="built_in">cd</span> RaGOO</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+
+<p>它的使用非常简单，就两个输入文件，contig和reference的FASTA文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ragoo.py contigs.fasta reference.fasta</span><br></pre></td></tr></table></figure>
+
+<p>一些可供修改的参数:</p>
+<ul>
+<li>e: 用于忽略reference一些序列</li>
+<li>-gff: 将之前contig注释的GFF文件调整为当前版本</li>
+<li>-b: 打断chimeric contig</li>
+<li>-R: 提供额外的fastq&#x2F;fasta序列辅助纠正错误组装</li>
+<li>-T: 对应-R参数提供序列的类型， sr表示short read, corr表示纠错后的long reads</li>
+<li>-t: 线程数</li>
+<li>-g: 两个contig之间的gap大小</li>
+<li>-s: 分析结构变异</li>
+<li>-i: 最低得分用于将contig分组，默认是0.2</li>
+<li>-j: 哪些contig序列需要忽略</li>
+<li>-C: 将无法锚定的contig单独成行，而非合并成一个Chr0</li>
+</ul>
+<p>几个建议: 默认线程是3，可以按照自己的需求进行提高。 如果对组装没有信心，可以加上<code>-b -R -T</code>参数用来纠正潜在的错误。我强烈推荐加上<code>-C</code>, 不然你会以为<code>Chr0</code>也是一个染色体。</p>
+<p>可能的输出文件如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ragoo_output/</span><br><span class="line">├── ctg_alignments: 错误纠正结果</span><br><span class="line">├── groupings     : 分组结果</span><br><span class="line">├── orderings     : 排序结果</span><br><span class="line">├── pm_alns       : 结构变异分析结果</span><br><span class="line">└── ragoo.fasta   : 你需要的输出文件</span><br></pre></td></tr></table></figure>
+
+<p>在ragoo.fasta中，默认参数下<code>Chr0_RaGOO</code>表示contig.fasta的序列无法在reference.fa中定位，直接前后相连成一个序列。</p>
+<p>个人主观评价： RaGOO使用容易，运行效率也很高，还能够分析结构变异。根据它的文章，有些时候表现还优于HiC组装结果，以后的一些基因组项目建议用上它。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2013053-50a162cda9432a11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="HiC搞不定的情况"></p>
+<p><a target="_blank" rel="noopener" href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1829-6">https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1829-6</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/" data-id="clm1xkn5w002ndpnie6lbfjzw" data-title="使用RaGOO将基因组提升至染色体水平" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用Purge_dups去冗余序列-remove-redundancy-using-purge-dups" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/" class="article-date">
@@ -145,7 +228,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/" data-id="cllszh65d00bze2qe1rbl5b6l" data-title="使用Purge_dups去冗余序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/18/%E4%BD%BF%E7%94%A8Purge_dups%E5%8E%BB%E5%86%97%E4%BD%99%E5%BA%8F%E5%88%97-remove-redundancy-using-purge-dups/" data-id="clm1xkn5w002jdpni6kv6052s" data-title="使用Purge_dups去冗余序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -223,7 +306,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" data-id="cllszh67w00jre2qe5jr8gnql" data-title="如何确定公共转录组数据集的来源性别" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/07/%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E5%85%AC%E5%85%B1%E8%BD%AC%E5%BD%95%E7%BB%84%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E6%9D%A5%E6%BA%90%E6%80%A7%E5%88%AB-a-male-and-female-rna-marker-to-infer-sex-in-public-data/" data-id="clm1xkn73007wdpni86n48a0c" data-title="如何确定公共转录组数据集的来源性别" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -336,7 +419,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="cllszh63o005ne2qe5w9xc1in" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/11/install.packages%E7%9A%84%E5%8F%82%E6%95%B0%E4%BB%8B%E7%BB%8D-the-parameter-of-installpackages/" data-id="clm1xkn9a00didpni1q9z5d2s" data-title="install.packages的参数介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -458,7 +541,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="cllszh60l000je2qe1hd9e62z" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/04/08/Apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-apollo%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0/" data-id="clm1xknae00hndpnihleu75am" data-title="Apollo安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -683,7 +766,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="cllszh66g00f9e2qe6el6f7vi" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/28/%E6%B7%B1%E5%85%A5%E8%A7%A3%E8%AF%BBKhash.h-khash-in-depth-reading/" data-id="clm1xkn7w00aqdpni2o462zcy" data-title="深入解读Khash.h" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -804,7 +887,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="cllszh649007ze2qeaikm3ny6" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/11/%E4%B8%80%E6%AC%A1%E7%94%B1%E7%88%AC%E6%A5%BC%E6%A2%AF%E5%92%8C%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2II%E5%BC%95%E8%B5%B7%E7%9A%84DP%E5%AD%90%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E6%80%9D%E8%80%83-difference-between-climb-stairs-and-coin-change-ii/" data-id="clm1xkn9t00fvdpnigfgk2lh7" data-title="一次由爬楼梯和零钱兑换II引起的DP子问题定义思考" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -878,7 +961,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="cllszh615001ue2qe0n51ebt1" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/10/LeetCode-045-%20%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII-leetcode-045-jump-game/" data-id="clm1xknb800ixdpnicyf0ay70" data-title="LeetCode-045- 跳跃游戏II" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -965,7 +1048,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="cllszh6180024e2qegyzq3lbg" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/03/09/LeetCode-322-%E9%9B%B6%E9%92%B1%E5%85%91%E6%8D%A2-leetcode-322-coin-changes/" data-id="clm1xknba00j6dpni0jls4ehy" data-title="LeetCode-322-零钱兑换" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1036,77 +1119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="cllszh6170020e2qeabdr0i26" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-LeetCode-042-接雨水-leetcode-042" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" class="article-date">
-  <time class="dt-published" datetime="2020-02-13T15:34:12.088Z" itemprop="datePublished">2020-02-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/">LeetCode-042-接雨水</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>题目地址: <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/trapping-rain-water">https://leetcode-cn.com/problems/trapping-rain-water</a></p>
-<p>给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-646f26318ab347c2a6e36106039affc6.png" alt="接雨水"></p>
-<p>上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 感谢 Marcos 贡献此图。</p>
-<p>第一种方法是暴力求解，对于给定的一个柱子，我们分别找到它的左右边界，然后其中的最小值减除当前柱子的高度，就是它能接的水</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-3f27532c20d4473389f248a0f044c86e.png" alt="i方法1"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">min</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a &gt; b ? b : a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">max</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a &lt; b ? b : a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">trap</span><span class="params">(<span class="type">int</span>* height, <span class="type">int</span> heightSize)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> left_max;</span><br><span class="line">    <span class="type">int</span> right_max;</span><br><span class="line">    <span class="type">int</span> ans=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//从1到n-1即可，因为第一个和最后一个不能有水</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; heightSize - <span class="number">1</span>; i++)&#123;</span><br><span class="line">        left_max = height[i];</span><br><span class="line">        right_max = height[i];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; i; j++)&#123;</span><br><span class="line">            left_max = max(left_max, height[j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = heightSize - <span class="number">1</span>; j &gt; i; j--)&#123;</span><br><span class="line">            right_max = max(right_max, height[j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//计算接水面积</span></span><br><span class="line">        ans += min(left_max, right_max) - height[i];</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这一种方法是两层循环，时间复杂度是O(n^2). 其中第二层的循环是<strong>实时</strong>计算当前柱子的左右边界。如果已知每个柱子的左右边界，我们就可以省掉嵌套循环，可以用<code> ans += min(left_max[i], right_max[i]) - height[i];</code>直接计算面积。问题就在于如何提前计算好<code>left_max[i]</code>和<code>right_max[i]</code>。我们只需要分别为左右遍历数组，在遍历过程中，比较当前值和前一个值，用其中较大值更新当前值。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">trap</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; height)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">    	    <span class="keyword">if</span>(height.<span class="built_in">size</span>() == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> size = height.<span class="built_in">size</span>();</span><br><span class="line">        <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">left_max</span><span class="params">(size)</span>, <span class="title">right_max</span><span class="params">(size)</span></span>;</span><br><span class="line">        left_max[<span class="number">0</span>] = height[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            left_max[i] = <span class="built_in">max</span>(height[i], left_max[i - <span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        right_max[size - <span class="number">1</span>] = height[size - <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = size - <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            right_max[i] = <span class="built_in">max</span>(height[i], right_max[i + <span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; size - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            ans += <span class="built_in">min</span>(left_max[i], right_max[i]) - height[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这里用了2个额外的数组，避免了嵌套循环，用空间换时间。</p>
-<p>方法3，前面是<strong>按列</strong>计算每一列的接水量，我们其实还可以<strong>按行</strong>计算每一行的接水量。</p>
-<p>我们依次遍历柱子，如果当前柱子比之前的小，那就说明它有可能和之前的柱子组成一个凹型空间，也就是说它的左边界就是它的前一个柱子，但是右边界我们暂时不清楚。如果当前柱子比上一个元素大，就说明前一个元素的右边界确定了。下面是两个特殊的例子，下图左直到第五个柱子才确定了第四根柱子的左右边界，而下图右则到头都没有找到有边界</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/2/image-099dd0f1ec9b4159a54849a73a315748.png" alt="方法3"><br>这种依次加入元素，然后从后往前取出元素的方式可以让我们联想到<strong>栈</strong>这种先进后出数据结构。具体算法逻辑如下</p>
-<ul>
-<li>读取最新元素，</li>
-<li>和栈顶元素对应的高度比较，</li>
-<li>如果低于栈顶元素对应高度，则直接入栈</li>
-<li>如果高于栈顶元素对应高度，则开始计算面积</li>
-</ul>
-<p>面积的计算公式为，凹型区间两边柱子的较低者减去凹形区间最低元素高度，乘以两边柱子的距离。</p>
-<p>代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">trap</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; height)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        stack&lt;<span class="type">int</span>&gt; st;</span><br><span class="line">        <span class="type">int</span> current = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>( current &lt; height.<span class="built_in">size</span>())&#123;</span><br><span class="line">            <span class="keyword">while</span>( !st.<span class="built_in">empty</span>() &amp;&amp;  height[current] &gt; height[st.<span class="built_in">top</span>()])&#123;</span><br><span class="line">                <span class="comment">//获取中间位置</span></span><br><span class="line">                <span class="type">int</span> mid = st.<span class="built_in">top</span>();</span><br><span class="line">                st.<span class="built_in">pop</span>();</span><br><span class="line">                <span class="comment">//获取左侧位置</span></span><br><span class="line">                <span class="keyword">if</span> ( st.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">int</span> left = st.<span class="built_in">top</span>();</span><br><span class="line">                <span class="comment">//左右间距</span></span><br><span class="line">                <span class="type">int</span> distance = current - left - <span class="number">1</span>;</span><br><span class="line">                <span class="comment">//面积=高度差 x 距离</span></span><br><span class="line">                <span class="type">int</span> bound_height = <span class="built_in">min</span>(height[left], height[current] ) - height[mid];</span><br><span class="line">                ans +=  distance * bound_height;</span><br><span class="line">            &#125;</span><br><span class="line">            st.<span class="built_in">push</span>(current++);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="cllszh614001qe2qe4n852o4n" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="clm1xknb900j3dpni65zl59b3" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1164,7 +1177,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -1175,6 +1188,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -1190,10 +1207,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

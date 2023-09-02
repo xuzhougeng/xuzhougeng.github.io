@@ -73,6 +73,82 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-MacOS原生Arm64架构的R解决依赖编译问题-how-to-compile-r-package-in-arm64-macos" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" class="article-date">
+  <time class="dt-published" datetime="2022-02-21T09:51:46.786Z" itemprop="datePublished">2022-02-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/">MacOS原生Arm64架构的R解决依赖编译问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>目前(截止到2022年2月份), Arm64架构的R能够直接安装CRAN绝大部分的R包，但是Bioconductor的R包都需要编译（这也就为什么我推荐用Intel架构的R，可以避免遇到要编译R包里的坑）。</p>
+<p>编译R包最怕遇到的问题，就是遇到R以外的底层库的依赖，比如说Rhtslib, 就要求编译htslib, 而htslib依赖lzma是MacOS默认没有安装，因此我们会因为缺少xz库的支持，导致htslib编译失败，从而导致Rhtslib安装失败，间接导致所有依赖于Rhtslib的R包无法使用。还有一些R包编译需要gsl库，就会因为找不到 <code>gsl-config</code> 而报错。</p>
+<p>经过我不断踩坑后，我整理了解决方案。后续，如果你也打算在Arm64的Mac上安装原生的R，就按照我的思路来配置</p>
+<p>首先，你需要安装homebrew, 国内用户推荐按照清华镜像里的方案来配置，<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/">https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/</a> , 能够避免网络问题导致的坑。在海外的朋友，就按照官方站点, brew.sh 的命令来配置。</p>
+<p>homebrew会安装在 <code>/opt/homebrew</code>下，该目录里面包括后续安装的软件(bin), 头文件(include)和动态链接库(lib). </p>
+<p>之后，我们需要为R配置相关环节，使得R能够调用到homebrew安装的环境。</p>
+<p>我们需要打开R，然后运行如下命令</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file.edit<span class="punctuation">(</span>file.path<span class="punctuation">(</span>Sys.getenv<span class="punctuation">(</span><span class="string">&quot;R_HOME&quot;</span><span class="punctuation">)</span><span class="punctuation">,</span> <span class="string">&quot;etc&quot;</span><span class="punctuation">,</span> <span class="string">&quot;Makeconf&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>如此就能打开R的Makeconf文件，R就通过该文件里面的参数来进行R包和底层依赖的编译。我们搜索搜索 CFLAG, 添加  <code>-I/opt/homebrew/inlucde</code>， 搜索LDFLAGS, 添加 <code>-L/opt/homebrew/lib</code>, 效果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS = -I/opt/homebrew/include -falign-functions=64 -Wall -g -O2 $(LTO)</span><br><span class="line">LDFLAGS = -L/opt/R/arm64/lib -L/opt/homebrew/lib</span><br></pre></td></tr></table></figure>
+
+<p>重启R&#x2F;RStudio之后，你就能编译安装Rhtslib（当然你需要先运行 <code>brew install xz</code>，把lzma.h 装好&#96;)</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;Rhtslib&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>此外你可能还会遇到<code>gsl-config not found</code>报错，尽管你明明用<code>brew install gsl</code>安装了软件，也能够在命令行中成功调用 <code>gsl-config</code>，但是R就是视而不见。 这是因为R读取的变量，默认<strong>就来自于</strong>MacOS的环境变量来自于 <code>/etc/path</code>文件和 <code>/ect/path.d</code>目录里。 因此，你即便在.zshrc, 或者.bashrc里面加入了 homebrew 的路径，R也是不认的。</p>
+<p>解决方案，打开R，然后运行如下命令,</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file.edit<span class="punctuation">(</span><span class="string">&quot;~/.Rprofile&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>添加如下内容，修改R启动时的环境变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Sys.setenv(&quot;PATH&quot;=paste0( &quot;/opt/homebrew/bin:/opt/homebrew/sbin:&quot;,  Sys.getenv(&quot;PATH&quot;)))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>重启R&#x2F;Rstudio之后，R就能够用到homebrew安装的程序了。</p>
+<p>或者，我们也可以下载到本地，用 <code>R CMD INSTALL</code>进行编译安装，以DirichletMultinomial为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.tuna.tsinghua.edu.cn/bioconductor/packages/3.14/bioc/src/contrib/DirichletMultinomial_1.36.0.tar.gz</span><br><span class="line">R CMD INSTALL DirichletMultinomial_1.36.0.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>总结一下:</p>
+<ol>
+<li>通过homebrew来安装依赖环境</li>
+<li>编译R的Makeconf使得R能够调用homebrew里的include和lib</li>
+<li>编译R的.Rprofile修改PATH，使得R能够用到hombrew的bin的程序</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" data-id="clm1xknbi00jrdpnibxw6e4pz" data-title="MacOS原生Arm64架构的R解决依赖编译问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-吐槽下biopython的SeqIO.write导出fasta-biopython-seqio-write-are-not-good" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" class="article-date">
@@ -120,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="cllszh66x00h1e2qegi8p7f66" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="clm1xkn6f004wdpnid8cw1c94" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -164,7 +240,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="cllszh68n00kqe2qeaygw5alv" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="clm1xkn7j0097dpnihfhadtnx" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -238,7 +314,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="cllszh62r003qe2qec7mi408m" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="clm1xknbm00k8dpni5rp86nw1" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -293,7 +369,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="cllszh62o003ee2qe0jno2oz6" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="clm1xknbj00jxdpni1vpb53jc" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -347,7 +423,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="cllszh637004pe2qefmaz4k7n" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="clm1xkn8z00chdpniaaag83v0" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -504,7 +580,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="cllszh6190027e2qefnzc0zit" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="clm1xknbb00j9dpni2uoh5ax4" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -570,7 +646,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="cllszh67c00hxe2qea0ckdeid" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="clm1xkn6m005xdpnifi072srm" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -656,7 +732,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="cllszh66g00f6e2qe6nxfh09b" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="clm1xkn7v00amdpni0c8p5xfh" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -711,77 +787,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="cllszh63r005xe2qebxg99pqx" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="clm1xkn9d00dwdpniaavs92os" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何绘制物理图谱和遗传图谱的对应关系-draw-match-between-physical-and-genetic-map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" class="article-date">
-  <time class="dt-published" datetime="2021-12-13T06:06:48.219Z" itemprop="datePublished">2021-12-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/">如何绘制物理图谱和遗传图谱的对应关系</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>唐海宝老师开发的JCVI有一个工具，叫做ALLMAPS， 能够展示遗传图谱和物理图谱的对应关系，如下所示</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/12/image-095b4255703740339a37cb6b768e356e.png" alt="alignment"></p>
-<p>但是这个图的目标是为了对ALLMAPS的scaffold结果进行可视化，并不是专门用于展示遗传图谱的标记和物理图谱的对应关系。尽管在allmaps这个组件下提供了plot函数，命令行输入只要求 input.bed 和 seqid， 但实际运行的时候还要求 allmaps path的中间文件, xxxx.lifted.bed, xxxx.agp, weight.txt等文件。</p>
-<p>为了解决这一问题，我阅读了allmaps.py的源代码，在plot的基础上增加了一个plot2函数，只需要用户输入 input.bed, 染色体编号和染色体的长度就能够画图。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python -m jcvi.assembly.allmaps plot2 input.bed 染色体编号 染色体长度</span></span><br><span class="line">python -m jcvi.assembly.allmaps plot2 input.bed chr1 123140023</span><br></pre></td></tr></table></figure>
-
-<p>其中input.bed的格式要求有6列，</p>
-<ul>
-<li>标记所在染色体名</li>
-<li>标记所在染色体的start</li>
-<li>标记所在染色体的end, 通常就是start+1</li>
-<li>标记对应的图谱位置， 要求输入为”图谱名-连锁图谱所在组:连锁图谱的遗传距离”</li>
-<li>标记名</li>
-</ul>
-<p>案例</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Chr1    68185909        68185910        male-14:48.470000        Chr1:68185910</span><br><span class="line">Chr1    68479621        68479622        male-14:49.380000        Chr1:68479622</span><br><span class="line">Chr1    68595299        68595300        male-14:48.440000        Chr1:68595300</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>可以先生成如下的csv文件，然后转换成bed</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/12/image-6dcf0d4e3efd45de994bfc1a7f646e97.png" alt="input.csv"></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.assembly.allmaps merge  male.csv male.bed</span><br></pre></td></tr></table></figure>
-
-<p>目前有plot2函数的代码还在我的项目下，<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/jcvi">xuzhougeng&#x2F;jcvi</a>, 待代码稳定了，再PR。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="cllszh67x00jue2qedj361w1r" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li></ul>
 
     </footer>
   </div>
@@ -835,7 +845,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -846,6 +856,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -861,10 +875,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

@@ -73,6 +73,132 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用ALLHiC基于HiC数据辅助基因组组装-Assemble-genome-using-ALLHiC-with-HiC-Data" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" class="article-date">
+  <time class="dt-published" datetime="2019-10-28T22:30:59.259Z" itemprop="datePublished">2019-10-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/">使用ALLHiC基于HiC数据辅助基因组组装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>基因组组装大致可以分为三步（1）根据序列之间的重叠情况构建出contig，（2）基于二代的mate pair文库或光学图谱将contig搭建成scaffold，（3）对scaffold进行排序和调整方向得到最终的准染色体级别的基因组。</p>
+<p>目前的三代测序组装能够搞定第一步和第二步。而在将contig&#x2F;scaffold提升至准染色体水平上，有4种方案可选。一种是基于遗传图谱，一种是利用BioNano DLS光学图谱，一种是利用近缘物种的染色体同源性，还有一种就是HiC。其中HiC技术是三者中较为简单的一个，不需要高质量的DNA文库，也不需要一个很大的群体，结果也比较准确可信。</p>
+<p>HiC的文库构建示意图如下，我们所需要的就是最终双端测序的两端序列之间的距离关系。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/hi-c-3c-seq-capture-c-9f0946eb49b74725af32b32e0e57bad5.png" alt="图片来自于Illumina"></p>
+<p>目前利用HiC数据进行组装软件有 LACHESIS, HiRise, SALSA1, 3D-DNA等，这些软件在动物基因组上和简单植物基因组上表现都不错，但是不太适合直接用于多倍体物种和高杂合物种的组装上。主要原因就是等位基因序列的相似性，使得不同套染色体之间的contig出现了假信号，最终错误地将不同套染色体的contig连在了一起。最近在Nature Plants发表的ALLHiC流程就是用来解决多倍体物种和高杂合度基因组的HiC组装难题。</p>
+<h2 id="ALLHiC流程一览"><a href="#ALLHiC流程一览" class="headerlink" title="ALLHiC流程一览"></a>ALLHiC流程一览</h2><p>ALLHiC一共分为五步(见下图，Zhang et al., 2019)，pruning, partition, rescue, optimization, building，要求的输入文件为HiC数据比对后的BAM和一个Allele.ctg.table。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028095337641-8e3338626c334a8cb9795cb96f020d62.png" alt="算法过程"></p>
+<p>其中pruning步骤是ALLHiC区别于其他软件的关键一步。因此我专门将其挑选出来进行介绍，红色实线是潜在的坍缩区域（组装时因为序列高度相似而没有拆分），而其他颜色实线则是不同的单倍型（我用浅灰色椭圆进行区分）。粉红色虚线指的是等位基因间的HiC信号，而黑色虚线则是坍缩区域和未坍缩区域的HiC信号。</p>
+<p>ALLHiC在这一步会根据提供的Allele.ctg.table过滤BAM文件中等位基因间的HiC信号，同时筛选出坍缩区域和未坍缩区域的HiC信号。这些信号会用于Rescue步骤，将未锚定contig分配到已分组的contigs群。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028132758309-53e1f2a9f127465ba8a902441cd69d02.png" alt="Pruning"></p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>ALLHiC的安装非常简单，按照习惯，我将软件安装在<code>~/opt/biosoft</code>下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/opt/biosoft &amp;&amp; <span class="built_in">cd</span> ~/opt/biosoft </span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tangerzhang/ALLHiC</span><br><span class="line"><span class="built_in">cd</span> ALLHiC</span><br><span class="line"><span class="built_in">mv</span> allhic.v0.9.8 bin/allhic</span><br><span class="line"><span class="built_in">chmod</span> +x bin/*</span><br><span class="line"><span class="built_in">chmod</span> +x scripts/*  </span><br><span class="line"><span class="comment"># 添加到环境变量</span></span><br><span class="line">PATH=<span class="variable">$HOME</span>/opt/biosoft/ALLHiC/scripts/:<span class="variable">$HOME</span>/opt/biosoft/ALLHiC/bin/:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">export</span> PATH</span><br></pre></td></tr></table></figure>
+
+<p>此外ALLHiC还依赖于samtools(v1.9), bedtools 和 Python 3环境的matplotlib(v2.0+)，这些可以通过conda一步搞定。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -y -n allhic python=3.7 samtools bedtools matplotlib</span><br></pre></td></tr></table></figure>
+
+<p>之后检查下是否成功安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ conda activate allhic</span><br><span class="line">$ allhic -v</span><br><span class="line">$ ALLHiC_prune</span><br></pre></td></tr></table></figure>
+
+<p>你可能会遇到如下的报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_prune: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21<span class="string">&#x27; not found (required by ALLHiC_prune)</span></span><br></pre></td></tr></table></figure>
+
+<p>这是GLIBC过低导致，但是不要尝试动手去升级GLIBC（你承担不起后果的），conda提供了一个比较新的动态库，因此可以通过如下方法来解决问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span>:~/opt/miniconda3/lib</span><br></pre></td></tr></table></figure>
+
+<h2 id="ALLHiC分析实战"><a href="#ALLHiC分析实战" class="headerlink" title="ALLHiC分析实战"></a>ALLHiC分析实战</h2><p>感谢张兴坦老师提供的测试数据，我将其中的BAM转成了原始FastQ格式，以便从头讲解。数据在<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1_7VI127eCmYaO_3ukfN67Q">百度网盘</a>,提取码：17yk</p>
+<p>输入文件需要有4个，contig序列，等位contig信息和两个双端测序数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> -1</span><br><span class="line">Allele.ctg.table</span><br><span class="line">draft.asm.fasta</span><br><span class="line">reads_R1.fastq.gz</span><br><span class="line">reads_R2.fastq.gz</span><br></pre></td></tr></table></figure>
+
+<p>第一步: 建立索引</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">samtools faidx draft.asm.fasta </span><br><span class="line">bwa index -a bwtsw draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>第二步: 序列回贴。这一步的限速步骤是<code>bwa sampe</code>，因为它没有多线程参数。如果数据量很大，可以先将原始的fastq数据进行拆分，分别比对后分别执行<code>bwa sampe</code>，最后合并成单个文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bwa aln -t 24 draft.asm.fasta reads_R1.fastq.gz &gt; reads_R1.sai  </span><br><span class="line">bwa aln -t 24 draft.asm.fasta reads_R2.fastq.gz &gt; reads_R2.sai  </span><br><span class="line">bwa sampe draft.asm.fasta reads_R1.sai reads_R2.sai reads_R1.fastq.gz reads_R2.fastq.gz &gt; sample.bwa_aln.sam  </span><br></pre></td></tr></table></figure>
+
+<p>第三步: SAM预处理，移除冗余和低质量信号，提高处理效率</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PreprocessSAMs.pl sample.bwa_aln.sam draft.asm.fasta MBOI</span><br><span class="line"><span class="comment"># 如果已有BAM文件</span></span><br><span class="line"><span class="comment"># PreprocessSAMs.pl sample.bwa_aln.bam draft.asm.fasta MBOI</span></span><br><span class="line">filterBAM_forHiC.pl sample.bwa_aln.REduced.paired_only.bam sample.clean.sam</span><br><span class="line">samtools view -bt draft.asm.fasta.fai sample.clean.sam &gt; sample.clean.bam</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>filterBAM_forHiC.pl</code>的过滤标准是比对质量高于30(MQ), 只保留唯一比对(XT:A:U), 编辑距离(NM)低于5, 错误匹配低于(XM)4,  不能有超过2个的gap(XO,XG)</p>
+<p>第四步(可选):  对于多倍体或者是高杂合的基因组，因为等位基因的序列相似性高，那么很有可能会在不同套基因组间出现假信号，因此需要<a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki/ALLHiC:-identify-allelic-contigs">构建Allele.ctg.table</a>, 用于过滤这种假信号。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_prune -i Allele.ctg.table -b sample.clean.bam -r draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>这一步生成<code>prunning.bam</code>用于后续分析</p>
+<p>第五步: 这一步是根据HiC信号将不同的contig进行分组，分组数目由<code>-k</code>控制。如果跳过了第四步，那么可以直接用第三步的结果<code>sample.clean.bam</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_partition -b prunning.bam -r draft.asm.fasta -e AAGCTT -k 16  </span><br></pre></td></tr></table></figure>
+
+<p>这一步会生成一系列以<code>prunning</code>开头的文件</p>
+<ul>
+<li>分组信息: prunning.clusters.txt</li>
+<li>每个分组对应的contig: prunning.counts_AAGCTT.XXgYY.txt: </li>
+<li>每个contig长度和count数: prunning.counts_AAGCTT.txt</li>
+</ul>
+<p>第六步: 将未锚定的contig分配已有的分组中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_rescue -b sample.clean.bam -r draft.asm.fasta \</span><br><span class="line">    -c prunning.clusters.txt \</span><br><span class="line">    -i prunning.counts_AAGCTT.txt</span><br></pre></td></tr></table></figure>
+
+<p>这一步根据之前prunning.counts_AAGCTT.XXgYY.txt对应的groupYY.txt</p>
+<p>第七步: 优化每一组中的contig的排序和方向</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成.clm文件</span></span><br><span class="line">allhic extract sample.clean.bam draft.asm.fasta --RE AAGCTT  </span><br><span class="line"><span class="comment"># 优化</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> group*.txt; <span class="keyword">do</span></span><br><span class="line">    allhic optimize <span class="variable">$i</span> sample.clean.clm</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>这一步会基于groupYY.txt生成对应的groupYY.tour</p>
+<p>第八步: 将tour格式转成fasta格式，并生成对应的agp。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLHiC_build draft.asm.fasta  </span><br></pre></td></tr></table></figure>
+
+<p>这一步生成两个文件，groups.asm.fasta和groups.agp。其中groups.asm.fasta就是我们需要的结果。</p>
+<p>第九步: 构建染色质交互矩阵，根据热图评估结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">samtools faidx groups.asm.fasta</span><br><span class="line"><span class="built_in">cut</span> -f 1,2 groups.asm.fasta.fai  &gt; chrn.list</span><br><span class="line">ALLHiC_plot sample.clean.bam groups.agp chrn.list 500k pdf</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/image-20191028191408460-bd640b324fbc49a5a1044e56970d664c.png" alt="heatmap"></p>
+<p>使用ALLHiC的几个注意事项:</p>
+<ol>
+<li>ALLHiC依赖于初始的contig，如果嵌合序列和坍缩序列比例过高，那么ALLHiC结果也会不准确。根据文章，ALLHiC能够处理<code>~10%</code>的嵌合比例，<code>~20%</code>的坍缩比例。因此最好是用类似于Canu这种能够区分单倍型的组装软件。</li>
+<li>单倍型之间序列相似度不能太高，否则会出现大量非唯一比对，降低可用的HiC信号</li>
+<li>构建Allele.ctg.table需要一个比较近缘的高质量基因组</li>
+<li>不要用过短的contig，因为短的contig信号少，很容易放到错误的区域</li>
+<li>K值的设置要根据实际的基因组数目设置，如果你发现输出结果中某些group过大，可以适当增大k值</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/tanghaibao/allhic">https://github.com/tanghaibao/allhic</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/tangerzhang/ALLHiC/wiki">https://github.com/tangerzhang/ALLHiC/wiki</a></li>
+<li>Zhang, X., Zhang, S., Zhao, Q., Ming, R., and Tang, H. (2019). Assembly of allele-aware, chromosomal-scale autopolyploid genomes based on Hi-C data. Nat. Plants <em>5</em>, 833–845.</li>
+<li>Zhang, J., Zhang, X., Tang, H., Zhang, Q., Hua, X., Ma, X., Zhu, F., Jones, T., Zhu, X., Bowers, J., et al. (2018). Allele-defined genome of the autopolyploid sugarcane Saccharum spontaneum L. Nature Genetics <em>50</em>, 1565.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/10/28/%E4%BD%BF%E7%94%A8ALLHiC%E5%9F%BA%E4%BA%8EHiC%E6%95%B0%E6%8D%AE%E8%BE%85%E5%8A%A9%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Assemble-genome-using-ALLHiC-with-HiC-Data/" data-id="clm1xkn560004dpniaqs6cwnp" data-title="使用ALLHiC基于HiC数据辅助基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85-Hi-C/" rel="tag">组装 | Hi-C</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用nextpolish对三代组装进行polish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" class="article-date">
@@ -146,7 +272,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="cllszh65r00d7e2qe2j833brr" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/25/%E4%BD%BF%E7%94%A8nextpolish%E5%AF%B9%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BF%9B%E8%A1%8Cpolish-Polish-Assembly-Generated-From-TGS-Assembler-with-NextPolish/" data-id="clm1xkn66003rdpni9fqbaxc1" data-title="使用nextpolish对三代组装进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -344,7 +470,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="cllszh644007ke2qe7cuq3gqk" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/24/%E3%80%8C%E7%83%AD%E5%9B%BE%E3%80%8DComplexHeatmap%E5%B1%95%E7%A4%BA%E5%8D%95%E7%BB%86%E8%83%9E%E8%81%9A%E7%B1%BB-ComplexHeatmap-for-single-cell-visualization/" data-id="clm1xkn9q00fhdpni465ba5vy" data-title="「热图」ComplexHeatmap展示单细胞聚类" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -405,7 +531,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" data-id="cllszh63w006je2qebno2hgrg" data-title="「LeetCode」递归题目之第N个Tribonacci数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/22/%E3%80%8CLeetCode%E3%80%8D%E9%80%92%E5%BD%92%E9%A2%98%E7%9B%AE%E4%B9%8B%E7%AC%ACN%E4%B8%AATribonacci%E6%95%B0-LeetCode-N-th%20Tribonacci%20Number/" data-id="clm1xkn9i00eidpnig193doda" data-title="「LeetCode」递归题目之第N个Tribonacci数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -517,7 +643,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" data-id="cllszh65900ble2qe5hv2ac5l" data-title="使用NextDenovo组装Nanopore数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E4%BD%BF%E7%94%A8NextDenovo%E7%BB%84%E8%A3%85Nanopore%E6%95%B0%E6%8D%AE-Assembly-nanopore-with-NextDenovo/" data-id="clm1xkn5t0025dpni1tqy92uy" data-title="使用NextDenovo组装Nanopore数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -582,7 +708,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" data-id="cllszh63r0060e2qe3v1l3elu" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/21/%E3%80%8CBioNano%E7%B3%BB%E5%88%97%E3%80%8D%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8Ccmap%E4%B9%8B%E9%97%B4%E7%9A%84%E6%AF%94%E5%AF%B9-BioNano-CMAP-Comparison/" data-id="clm1xkn9d00dzdpnif0qg488m" data-title="「BioNano系列」如何进行cmap之间的比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -733,7 +859,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" data-id="cllszh65i00cee2qehxt6h7hp" data-title="使用SCALE分析单细胞ATAC-seq数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/17/%E4%BD%BF%E7%94%A8SCALE%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE-Analysis-sc-ATAC-seq-with-SCALE/" data-id="clm1xkn5z002ydpni9n6v3lvi" data-title="使用SCALE分析单细胞ATAC-seq数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -793,7 +919,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" data-id="cllszh6420079e2qe3v22hglu" data-title="「文献」杂合基因组的策略思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/16/%E3%80%8C%E6%96%87%E7%8C%AE%E3%80%8D%E6%9D%82%E5%90%88%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E7%AD%96%E7%95%A5%E6%80%9D%E8%B7%AF-Assembly-heterozygous-genome-by-interspecific-hybrids/" data-id="clm1xkn9o00f8dpnieue171kj" data-title="「文献」杂合基因组的策略思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -918,7 +1044,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" data-id="cllszh65g00c6e2qe0qbhf9xx" data-title="使用Rcpp提高性能之入门篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/15/%E4%BD%BF%E7%94%A8Rcpp%E6%8F%90%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E5%85%A5%E9%97%A8%E7%AF%87-Import-R-performance-with-Rcpp/" data-id="clm1xkn5x002qdpnihiwr3ye2" data-title="使用Rcpp提高性能之入门篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1039,97 +1165,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" data-id="cllszh62t003xe2qedjrxa8yp" data-title="Rcpp学习笔记之数据结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/10/15/Rcpp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B9%8B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Rcpp_learn_note_data_structure/" data-id="clm1xknbo00kedpni4tpsf2vg" data-title="Rcpp学习笔记之数据结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-服务器上安装RStudio-server-Install-RStudio-server-in-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" class="article-date">
-  <time class="dt-published" datetime="2019-10-14T16:00:45.418Z" itemprop="datePublished">2019-10-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/">服务器上安装RStudio-server</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="服务器上安装RStudio-server"><a href="#服务器上安装RStudio-server" class="headerlink" title="服务器上安装RStudio-server"></a>服务器上安装RStudio-server</h1><p>如果想在服务器上安装一个RStudio-server，你需要先保证自己拥有管理员权限，之后参考<a href="/archives/Install-R-in-Linux">如何在服务器上安装最新的R</a>安装R语言，一定要<strong>注意</strong>在<code>./configure</code>的时候加上<code>--enable-R-shlib</code>，否则后续会出错。</p>
-<p>RStudio-server分为两种版本，一种是开源免费版，另一个是商业专业版本。个人觉得两者最大的区别在于，商业版支持在多个版本的R语言之间进行切换，而开源免费版不行。</p>
-<h2 id="CentOS篇"><a href="#CentOS篇" class="headerlink" title="CentOS篇"></a>CentOS篇</h2><p>如果服务器安装的是CentOS&#x2F;RedHat，那么需要保证它们的发行版本不等于6</p>
-<p>从官方上下载rpm文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
-
-<p>如果是第一次安装，那么就是运行如下命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
-
-<p>假如是需要升级RStudio-server，比如我原先的是<code>1.1.456</code>最新的是<code>1.2.5001</code>, 需要先暂停当前的服务并卸载</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/rstudio-server stop</span><br><span class="line">yum remove rstudio-server</span><br></pre></td></tr></table></figure>
-
-<p>之后才是安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install rstudio-server-rhel-1.2.5001-x86_64.rpm</span><br></pre></td></tr></table></figure>
-
-<p>安装完成之后，我们可以通过修改<code>/etc/rstudio/rserver.conf</code>更改端口和R所在路径</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">www-port=8080 <span class="comment"># 端口, 默认8787</span></span><br><span class="line">www-address=0.0.0.0</span><br><span class="line">rsession-which-r=/opt/sysoft/R-3.6.1/bin/R <span class="comment"># 安装R的路径</span></span><br></pre></td></tr></table></figure>
-
-<p>修改完成之后，用<code>rstudio-server restart</code>重启服务，没有任何信息就表示安装成功了。</p>
-<p>当然你要是不放心，你还可以用<code>rstudio-server verify-installation</code>来验证下，如果没有任何输出信息就表示安装成功，假如出现下面这条信息，意味着你需要先用<code>rstudio-server stop</code>先暂停服务。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Server is running and must be stopped before running verify-installation</span><br></pre></td></tr></table></figure>
-
-<p>其实最直接的方法就是直接访问”IP:端口”，能够出现RStudio的登陆界面就意味着安装成功了。</p>
-<h2 id="Ubuntu篇"><a href="#Ubuntu篇" class="headerlink" title="Ubuntu篇"></a>Ubuntu篇</h2><p>我没有一台Ubuntu系统的服务器，只有一台Windows 10电脑有一个Linux子系统安装的是 Ubuntu 16.04.6 LTS。</p>
-<p>下载Deb文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install gdebi-core</span><br><span class="line">wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.5001-amd64.deb</span><br></pre></td></tr></table></figure>
-
-<p>如果不是第一次安装，需要是升级已有的RStudio-server，那么也需要先停用并卸载已有的RStudio-server</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/sbin/rstudio-server stop</span><br><span class="line">sudo apt-get remove rstudio-server </span><br></pre></td></tr></table></figure>
-
-<p>然后安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gdebi rstudio-server-1.2.5001-amd64.deb</span><br></pre></td></tr></table></figure>
-
-<p>如果是在Windows的子系统下安装，会出现如下的警告，允许访问即可。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/10/1571039719464-278ec32cdcb94ca1ad185f592228e4e1.png" alt="Windows中警告"></p>
-<p>如果能够打开<a target="_blank" rel="noopener" href="http://127.0.0.1:8787/">http://127.0.0.1:8787</a>, 就说明安装成功了。</p>
-<p>如果想修改RStudio-server的端口和调用R版本，参考CentOS篇</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server/redhat-centos/">https://rstudio.com/products/rstudio/download-server/redhat-centos/</a></li>
-<li><a target="_blank" rel="noopener" href="https://rstudio.com/products/rstudio/download-server/debian-ubuntu/">https://rstudio.com/products/rstudio/download-server/debian-ubuntu/</a></li>
-<li><a target="_blank" rel="noopener" href="https://support.rstudio.com/hc/en-us/articles/216079967-Upgrading-RStudio-Server">https://support.rstudio.com/hc/en-us/articles/216079967-Upgrading-RStudio-Server</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/10/14/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85RStudio-server-Install-RStudio-server-in-Server/" data-id="cllszh66b00ele2qehv1chwuw" data-title="服务器上安装RStudio-server" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">服务器</a></li></ul>
 
     </footer>
   </div>
@@ -1183,7 +1223,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -1194,6 +1234,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -1209,10 +1253,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

@@ -73,6 +73,110 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-从零开始学Circos绘制圈图(一)-从零开始学Circos绘制圈图(一)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/07/26/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)/" class="article-date">
+  <time class="dt-published" datetime="2019-07-26T13:45:44.293Z" itemprop="datePublished">2019-07-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/07/26/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)/">从零开始学Circos绘制圈图(一)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>一般基因组文章都会有下面这种酷炫图，用来描述基因组的基因密度分布，转座子的密度分布，和其他物种或者多倍体的多套染色体间的共线性关系，以及其他各种你只要测序就能加上的信息，比如说你要是测了ATAC-seq，加上全基因组开放状态，要是测了多个组织，多个时期的RNA-seq，那就加上热图展现这种变化关系。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/1564118925560-3386fb85ab5a48d8b92b9635a30563e4.png" alt="circos绘制基因组"></p>
+<p>当然除了基因组文章，其他类型的文章也可以考虑这种图。接下来我将会写一些列教程（可能有视频），通过教别人学Circos的方式来自学Circos。</p>
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>建议在Linux环境下配置Circos，之后只要用conda就能配置好分析环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装</span></span><br><span class="line"><span class="comment">## circos</span></span><br><span class="line">conda create -c bioconda -n circos circos</span><br></pre></td></tr></table></figure>
+
+<p>测试软件安装结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试circos</span></span><br><span class="line">conda activate circos</span><br><span class="line"><span class="comment"># 确认安装</span></span><br><span class="line">circos -V</span><br><span class="line"><span class="comment"># 显示如下</span></span><br><span class="line"><span class="comment"># circos | v 0.69-8 | 15 Jun 2019 | Perl 5.026002</span></span><br></pre></td></tr></table></figure>
+
+<p>可以从<a target="_blank" rel="noopener" href="http://circos.ca/software/download/">http://circos.ca/software/download/</a>下载官方的教程文件，分别是</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://circos.ca/distribution/circos-course-2017.tgz">circos-course-2017.tgz</a> </li>
+<li><a target="_blank" rel="noopener" href="http://circos.ca/distribution/circos-tutorials-current.tgz">circos-tutorials-current.tgz</a></li>
+</ul>
+<h2 id="处理过程"><a href="#处理过程" class="headerlink" title="处理过程"></a>处理过程</h2><p>Circos依赖于一些列的配置文件，用来定义复杂图形的各个部分，最终加工成图形。</p>
+<p>因此，用Circos画图是一个不断增添内容的过程，你要不断根据输出结果来调整输入参数。</p>
+<p>并且整个分析中，你还要拥有过关的数据预处理的能力，这是因为Circos不是数据处理工具，它只是展示你已有的数据。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/1564114612076-b1639241644b45c8b802a39659340ed9.png" alt="处理过程"></p>
+<h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><p>不管怎么样，先快速绘制出一个Circos图再说。</p>
+<blockquote>
+<p>果子老师说过，我们不是先成为了老司机才开车，而是开车多了才成为了老司机。</p>
+</blockquote>
+<p>第一步，先新建一个文件夹，用于存放本次分析的所有数据和配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p my_first_circos &amp;&amp; <span class="built_in">cd</span> my_first_circos</span><br></pre></td></tr></table></figure>
+
+<p>然后用<code>vim karyotype.tair10.txt</code>编辑文本，新增如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">chr - chr1 chr1 0 30427617 black</span><br><span class="line">chr - chr2 chr2 0 19698289 black</span><br><span class="line">chr - chr3 chr3 0 23459830 black</span><br><span class="line">chr - chr4 chr4 0 18585056 black</span><br><span class="line">chr - chr5 chr5 0 26975502 black</span><br></pre></td></tr></table></figure>
+
+<p>之后创建一个<code>circos.conf</code>文件，用于增加各类配置参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">touch</span> circos.conf</span><br></pre></td></tr></table></figure>
+
+<p>用<code>vim circos.conf</code>，增加我们的第一条记录，染色体信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">karyotype = karyotype.tair10.txt</span><br></pre></td></tr></table></figure>
+
+<p>然而要想真正的出图，还需要增加至少以下配置语句才行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;ideogram&gt;</span><br><span class="line">&lt;spacing&gt;</span><br><span class="line">default = 0.005r</span><br><span class="line">&lt;/spacing&gt;</span><br><span class="line">radius           = 0.90r</span><br><span class="line">thickness        = 20p</span><br><span class="line">fill             = <span class="built_in">yes</span></span><br><span class="line">stroke_color     = dgrey</span><br><span class="line">stroke_thickness = 2p</span><br><span class="line">&lt;/ideogram&gt;</span><br><span class="line"></span><br><span class="line">&lt;image&gt;</span><br><span class="line">&lt;&lt;<span class="string">include etc/image.conf&gt;&gt;</span></span><br><span class="line"><span class="string">&lt;/image&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;&lt;include</span> etc/colors_fonts_patterns.conf&gt;&gt;</span><br><span class="line">&lt;&lt;<span class="string">include etc/housekeeping.conf&gt;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在当前路径下运行<code>circos -conf circos.conf</code>, 最终效果图如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/1564116740621-63c9fc5b9c0c4cddafd3eb7763653642.png" alt="第一张图"></p>
+<p>虽然图比较丑，但是至少我们成功运行了人生第一次的circos, 这就相当于买了一套毛坯房，后面要做的事情就是不断装修。</p>
+<p>比如说，我们至少可以让不同染色体拥有不同的颜色，修改之前的<code>karyotype.tair10.txt</code>中的最后一列</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">chr - chr1 chr1 0 30427617 chr1</span><br><span class="line">chr - chr2 chr2 0 19698289 chr2</span><br><span class="line">chr - chr3 chr3 0 23459830 chr3</span><br><span class="line">chr - chr4 chr4 0 18585056 chr4</span><br><span class="line">chr - chr5 chr5 0 26975502 chr5</span><br></pre></td></tr></table></figure>
+
+<p>在当前路径下运行<code>circos -conf circos.conf</code>, 最终效果图如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/7/1564117790558-25d1cec4a31e4dd1beecde09134b1c98.png" alt="1564117790558"></p>
+<p>这就引出了第一个知识点，<strong>配色</strong>。</p>
+<p>为了实现配色，需要<code>circos.conf</code>文件了有一个和配色有关的语句</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;<span class="string">include etc/colors_fonts_patterns.conf&gt;&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里<code>&lt;&lt;&gt;&gt;</code>表示通过<strong>相对路径</strong>的方式加载另外一个配置文件，它的实际路径是和<code>circos</code>所在目录同级的<code>etc</code>,可用下面语句看到<code>colors_fonts_patterns.conf</code>的内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">circos_path=$(<span class="built_in">dirname</span> `<span class="built_in">which</span> circos`)</span><br><span class="line">less <span class="variable">$&#123;circos_path%bin&#125;</span>/etc/colors_fonts_patterns.conf</span><br></pre></td></tr></table></figure>
+
+<p>你会发现，这个文件里还嵌套其他的配置文件。最终通过层层排查，你才知道<code>etc/colors.ucsc.conf</code>才是实际定义我们填写的颜色名的文件，而颜色的定义如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">chr1  = 153,102,0</span><br><span class="line">chr2  = 102,102,0</span><br><span class="line">chr3  = 153,153,30</span><br><span class="line">chr4  = 204,0,0</span><br><span class="line">chr5  = 255,0,0</span><br></pre></td></tr></table></figure>
+
+<p>还有一个问题，为什么这里用的是两个尖括号<code>&lt;&lt;</code>，而不是一个尖括号<code>&lt;</code>呢？这是因为<code>&lt;</code>已经被用于分隔不同的语句块，如下语句就表示<code>etc/image.conf</code>里的配置信息是用来调整和<code>image</code>有关的配置，而不是去调整<code>ideogram</code>的配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;image&gt;</span><br><span class="line">&lt;&lt;<span class="string">include etc/image.conf&gt;&gt;</span></span><br><span class="line"><span class="string">&lt;/image&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>以上是快速开始部分，后续将会在此基础上，做出发表级别的图。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/07/26/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6Circos%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%80)/" data-id="clm1xkn530001dpni8vlz4hjq" data-title="从零开始学Circos绘制圈图(一)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%AF%E8%A7%86%E5%8C%96-CIRCOS/" rel="tag">可视化 | CIRCOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何用软件模拟NGS数据-如何模拟NGS数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/07/26/%E5%A6%82%E4%BD%95%E7%94%A8%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE-%E5%A6%82%E4%BD%95%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE/" class="article-date">
@@ -131,7 +235,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/26/%E5%A6%82%E4%BD%95%E7%94%A8%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE-%E5%A6%82%E4%BD%95%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE/" data-id="cllszh67v00jne2qe544x7jgo" data-title="如何用软件模拟NGS数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/26/%E5%A6%82%E4%BD%95%E7%94%A8%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE-%E5%A6%82%E4%BD%95%E6%A8%A1%E6%8B%9FNGS%E6%95%B0%E6%8D%AE/" data-id="clm1xkn72007tdpni3cu58bvy" data-title="如何用软件模拟NGS数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -304,7 +408,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/25/%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-id="cllszh68s00l8e2qe6xp42gey" data-title="通过grep来学习正则表达式" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/25/%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E9%80%9A%E8%BF%87grep%E6%9D%A5%E5%AD%A6%E4%B9%A0%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-id="clm1xknc000lcdpnih4zvg151" data-title="通过grep来学习正则表达式" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -362,7 +466,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -373,6 +477,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -388,10 +496,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

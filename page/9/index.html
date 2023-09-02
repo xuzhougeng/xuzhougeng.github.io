@@ -73,6 +73,55 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-「小技巧」如何让IGV更快的加载GTF和GFF注释文件-trick-load-gtf-and-gff-to-igv-more-quickily" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/23/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E5%A6%82%E4%BD%95%E8%AE%A9IGV%E6%9B%B4%E5%BF%AB%E7%9A%84%E5%8A%A0%E8%BD%BDGTF%E5%92%8CGFF%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6-trick-load-gtf-and-gff-to-igv-more-quickily/" class="article-date">
+  <time class="dt-published" datetime="2021-01-23T19:03:03.850Z" itemprop="datePublished">2021-01-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/23/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E5%A6%82%E4%BD%95%E8%AE%A9IGV%E6%9B%B4%E5%BF%AB%E7%9A%84%E5%8A%A0%E8%BD%BDGTF%E5%92%8CGFF%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6-trick-load-gtf-and-gff-to-igv-more-quickily/">「小技巧」如何让IGV更快的加载GTF和GFF注释文件</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>很简单，就下面3行命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gff=</span><br><span class="line">(grep ^<span class="string">&quot;#&quot;</span> <span class="variable">$gff</span>; grep -v ^<span class="string">&quot;#&quot;</span> <span class="variable">$gff</span> | <span class="built_in">sort</span> -k1,1 -k4,4n) | bgzip &gt; sorted.gff.gz;</span><br><span class="line">tabix -p gff sorted.gff.gz;</span><br></pre></td></tr></table></figure>
+
+<p>第一行的gff是定义输入文件。第二行是对GFF文件进行排序。第三行是利用HTSLIB中的tabix工具建立索引，得到一个sorted.gff.gz.tbi 索引文件。</p>
+<p>后续IGV在加载文件时，会根据索引文件直接读取给定区域的信息，不但可以降低内存的占用，还可以提高加载速度。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/01/23/%E3%80%8C%E5%B0%8F%E6%8A%80%E5%B7%A7%E3%80%8D%E5%A6%82%E4%BD%95%E8%AE%A9IGV%E6%9B%B4%E5%BF%AB%E7%9A%84%E5%8A%A0%E8%BD%BDGTF%E5%92%8CGFF%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6-trick-load-gtf-and-gff-to-igv-more-quickily/" data-id="clm1xkn9m00eydpni738wb7oo" data-title="「小技巧」如何让IGV更快的加载GTF和GFF注释文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag">小技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何给bioconda贡献recipes-how-to-contribute-to-bioconda" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/" class="article-date">
@@ -195,7 +244,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/" data-id="cllszh67y00jxe2qee0ob2wuv" data-title="如何给bioconda贡献recipes" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/20/%E5%A6%82%E4%BD%95%E7%BB%99bioconda%E8%B4%A1%E7%8C%AErecipes-how-to-contribute-to-bioconda/" data-id="clm1xkn780083dpniftj78r59" data-title="如何给bioconda贡献recipes" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -258,7 +307,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/18/%E9%80%9A%E8%BF%87X11%E8%BD%AC%E5%8F%91%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%94%A8IGV-using-x11-in-server-by-x11-forwarding/" data-id="cllszh66w00gye2qecfw85hz2" data-title="通过X11转发在服务器上用IGV" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/18/%E9%80%9A%E8%BF%87X11%E8%BD%AC%E5%8F%91%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%94%A8IGV-using-x11-in-server-by-x11-forwarding/" data-id="clm1xknbz00ladpni8mgbfp4i" data-title="通过X11转发在服务器上用IGV" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -422,7 +471,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AB%A0)-shi-yong-a-r-c-h-r-fen-xi-dan-xi-bao-a-t-a-c---s-e-q-shu-ju--di-shi-liu-zhang-/" data-id="cllszh64z00aqe2qe20w594xo" data-title="使用ArchR分析单细胞ATAC-seq数据(第十六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AB%A0)-shi-yong-a-r-c-h-r-fen-xi-dan-xi-bao-a-t-a-c---s-e-q-shu-ju--di-shi-liu-zhang-/" data-id="clm1xkn5l0019dpnidwj73sr1" data-title="使用ArchR分析单细胞ATAC-seq数据(第十六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -588,7 +637,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter15/" data-id="cllszh64z00ame2qe4mrn6nu4" data-title="使用ArchR分析单细胞ATAC-seq数据(第十五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter15/" data-id="clm1xkn5k0015dpni4i6a9m2w" data-title="使用ArchR分析单细胞ATAC-seq数据(第十五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -687,7 +736,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" data-id="cllszh65000ate2qebzpgcmde" data-title="使用ArchR分析单细胞ATAC-seq数据(第十四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/01/17/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter14/" data-id="clm1xkn5m001ddpnihjpzdxjo" data-title="使用ArchR分析单细胞ATAC-seq数据(第十四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -728,7 +777,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/11/04/%E6%B5%8B%E8%AF%95%E4%B8%8B%E6%95%B0%E6%8D%AE%E5%85%AC%E5%BC%8F-ce-shi-xia-shu-ju-gong-shi/" data-id="cllszh66f00f2e2qe4lyn3vt2" data-title="测试下数据公式" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/11/04/%E6%B5%8B%E8%AF%95%E4%B8%8B%E6%95%B0%E6%8D%AE%E5%85%AC%E5%BC%8F-ce-shi-xia-shu-ju-gong-shi/" data-id="clm1xkn7u00akdpnie1ra88qh" data-title="测试下数据公式" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -786,7 +835,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/11/02/%E5%9F%BA%E4%BA%8Eigv.js%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%B7%A5%E5%85%B7-a-simple-wrapper-of-igv-js/" data-id="cllszh67200hke2qecbi3derb" data-title="基于igv.js的一个小工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/11/02/%E5%9F%BA%E4%BA%8Eigv.js%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%B7%A5%E5%85%B7-a-simple-wrapper-of-igv-js/" data-id="clm1xkn6j005hdpni1q2j5jks" data-title="基于igv.js的一个小工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -871,7 +920,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85JCVI-how-to-install-jcvi/" data-id="cllszh67l00ioe2qe391d9vd2" data-title="如何安装JCVI" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85JCVI-how-to-install-jcvi/" data-id="clm1xkn6t006sdpni5ihk6rfh" data-title="如何安装JCVI" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -939,123 +988,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" data-id="cllszh67i00ife2qefcqjd95h" data-title="如何在不使用root权限下安装Latex" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" data-id="clm1xkn6r006jdpni13t4f1fl" data-title="如何在不使用root权限下安装Latex" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何爬取微信公众号的所有文章-wechatarticleparseri" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" class="article-date">
-  <time class="dt-published" datetime="2020-08-25T01:17:41.200Z" itemprop="datePublished">2020-08-25</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Python/">Python</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/">如何爬取微信公众号的所有文章</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h2><p>为了实现该爬虫我们需要用到如下工具</p>
-<ul>
-<li>Chrome浏览器</li>
-<li>Python 3 语法知识</li>
-<li>Python的Requests库</li>
-</ul>
-<p>此外，这个爬取程序利用的是微信公众号后台编辑素材界面。原理是，当我们在插入超链接时，微信会调用专门的API（见下图），以获取指定公众号的文章列表。因此，我们还需要有一个公众号。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200817090022286-516f2abf9ee641638ed1315018eca56e.png" alt="image20200817090022286.png"></p>
-<h2 id="正式开始"><a href="#正式开始" class="headerlink" title="正式开始"></a>正式开始</h2><p>我们需要登录微信公众号，点击素材管理，点击新建图文消息，然后点击上方的超链接。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200825110724858-7684be606d6f4a629b037408487651b8.png" alt="image20200825110724858.png"></p>
-<p>接着，按F12，打开Chrome的开发者工具，选择Network</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200825110848472-7946debc2b5a45bb8046e1c33d7d895f.png" alt="image20200825110848472.png"></p>
-<p>此时在之前的超链接界面中，点击「选择其他公众号」，输入你需要爬取的公众号（例如中国移动）</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200825111108639-84afcf0c0ff74dc88aaa67f0c9b83dfa.png" alt="image20200825111108639.png"></p>
-<p>此时之前的Network就会刷新出一些链接，其中以”appmsg”开头的便是我们需要分析的内容</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200825111050522-9152fdd915004685ae49ca784746e6a4.png" alt="image20200825111050522.png"></p>
-<p>我们解析请求的URL</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&amp;begin=0&amp;count=5&amp;fakeid=MzI1MjU5MjMzNA==&amp;type=9&amp;query=&amp;token=143406284&amp;lang=zh_CN&amp;f=json&amp;ajax=1</span><br></pre></td></tr></table></figure>
-
-<p>它分为三个部分</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/cgi-bin/appmsg">https://mp.weixin.qq.com/cgi-bin/appmsg</a>: 请求的基础部分</li>
-<li><code>?action=list_ex</code>: 常用于动态网站，实现不同的参数值而生成不同的页面或者返回不同的结果</li>
-<li><code>&amp;begin=0&amp;count=5&amp;fakeid</code>: 用于设置<code>?</code>里的参数，即begin&#x3D;0, count&#x3D;5</li>
-</ul>
-<p>通过不断的浏览下一页，我们发现每次只有begin会发生变动，每次增加5，也就是count的值。</p>
-<p>接着，我们通过Python来获取同样的资源，但直接运行如下代码是无法获取资源的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url = <span class="string">&quot;https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&amp;begin=0&amp;count=5&amp;fakeid=MzI1MjU5MjMzNA==&amp;type=9&amp;query=&amp;token=1957521839&amp;lang=zh_CN&amp;f=json&amp;ajax=1&quot;</span></span><br><span class="line">requests.get(url).json() </span><br><span class="line"><span class="comment"># &#123;&#x27;base_resp&#x27;: &#123;&#x27;ret&#x27;: 200003, &#x27;err_msg&#x27;: &#x27;invalid session&#x27;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>我们之所以能在浏览器上获取资源，是因为我们登录了微信公众号后端。而Python并没有我们的登录信息，所以请求是无效的。我们需要在requests中设置headers参数，在其中传入Cookie和User-Agent，来模拟登陆</p>
-<p>由于每次头信息内容都会变动，因此我将这些内容放入在单独的文件中，即”wechat.yaml”，信息如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cookie:  ua_id=wuzWM9FKE14...</span><br><span class="line">user_agent: Mozilla/5.0...</span><br></pre></td></tr></table></figure>
-
-<p>之后只需要读取即可</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取cookie和user_agent</span></span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;wechat.yaml&quot;</span>, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file_data = file.read()</span><br><span class="line">config = yaml.safe_load(file_data) </span><br><span class="line"></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;Cookie&quot;</span>: config[<span class="string">&#x27;cookie&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: config[<span class="string">&#x27;user_agent&#x27;</span>] </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">requests.get(url, headers=headers, verify=<span class="literal">False</span>).json()</span><br></pre></td></tr></table></figure>
-
-<p>在返回的JSON中，我们就看到了每个文章的标题(title), 摘要(digest), 链接(link), 推送时间(update_time)和封面地址(cover)等信息。</p>
-<blockquote>
-<p>appmsgid是每一次推送的唯一标识符，aid则是每篇推文的唯一标识符。</p>
-</blockquote>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200817092802460-0f93a4ed28ae4c8abbf72a56e360f395.png" alt="image20200817092802460.png"></p>
-<blockquote>
-<p>实际上，除了Cookie外，URL中的token参数也会用来限制爬虫，因此上述代码很有可能输出会是<code>&#123;&#39;base_resp&#39;: &#123;&#39;ret&#39;: 200040, &#39;err_msg&#39;: &#39;invalid csrf token&#39;&#125;&#125;</code></p>
-</blockquote>
-<p>接着我们写一个循环，获取所有文章的JSON，并进行保存。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;wechat.yaml&quot;</span>, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file_data = file.read()</span><br><span class="line">config = yaml.safe_load(file_data) </span><br><span class="line"></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;Cookie&quot;</span>: config[<span class="string">&#x27;cookie&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: config[<span class="string">&#x27;user_agent&#x27;</span>] </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求参数</span></span><br><span class="line">url = <span class="string">&quot;https://mp.weixin.qq.com/cgi-bin/appmsg&quot;</span></span><br><span class="line">begin = <span class="string">&quot;0&quot;</span></span><br><span class="line">params = &#123;</span><br><span class="line">    <span class="string">&quot;action&quot;</span>: <span class="string">&quot;list_ex&quot;</span>,</span><br><span class="line">    <span class="string">&quot;begin&quot;</span>: begin,</span><br><span class="line">    <span class="string">&quot;count&quot;</span>: <span class="string">&quot;5&quot;</span>,</span><br><span class="line">    <span class="string">&quot;fakeid&quot;</span>: config[<span class="string">&#x27;fakeid&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;9&quot;</span>,</span><br><span class="line">    <span class="string">&quot;token&quot;</span>: config[<span class="string">&#x27;token&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;lang&quot;</span>: <span class="string">&quot;zh_CN&quot;</span>,</span><br><span class="line">    <span class="string">&quot;f&quot;</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="string">&quot;ajax&quot;</span>: <span class="string">&quot;1&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 存放结果</span></span><br><span class="line">app_msg_list = []</span><br><span class="line"><span class="comment"># 在不知道公众号有多少文章的情况下，使用while语句</span></span><br><span class="line"><span class="comment"># 也方便重新运行时设置页数</span></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    begin = i * <span class="number">5</span></span><br><span class="line">    params[<span class="string">&quot;begin&quot;</span>] = <span class="built_in">str</span>(begin)</span><br><span class="line">    <span class="comment"># 随机暂停几秒，避免过快的请求导致过快的被查到</span></span><br><span class="line">    time.sleep(random.randint(<span class="number">1</span>,<span class="number">10</span>))</span><br><span class="line">    resp = requests.get(url, headers=headers, params = params, verify=<span class="literal">False</span>)</span><br><span class="line">    <span class="comment"># 微信流量控制, 退出</span></span><br><span class="line">    <span class="keyword">if</span> resp.json()[<span class="string">&#x27;base_resp&#x27;</span>][<span class="string">&#x27;ret&#x27;</span>] == <span class="number">200013</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;frequencey control, stop at &#123;&#125;&quot;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(begin)))</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 如果返回的内容中为空则结束</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(resp.json()[<span class="string">&#x27;app_msg_list&#x27;</span>]) == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;all ariticle parsed&quot;</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">        </span><br><span class="line">    app_msg_list.append(resp.json())</span><br><span class="line">    <span class="comment"># 翻页</span></span><br><span class="line">    i += <span class="number">1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>在上面代码中，我将fakeid和token也存放在了”wechat.yaml”文件中，这是因为fakeid是每个公众号都特有的标识符，而token则会经常性变动，该信息既可以通过解析URL获取，也可以从开发者工具中查看</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200825123424376-fb3e888613d14acf8f376e25a8fcf882.png" alt="image20200825123424376.png"></p>
-<p>在爬取一段时间后，就会遇到如下的问题</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&#x27;base_resp&#x27;</span>: &#123;<span class="string">&#x27;err_msg&#x27;</span>: <span class="string">&#x27;freq control&#x27;</span>, <span class="string">&#x27;ret&#x27;</span>: <span class="number">200013</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时你在公众号后台尝试插入超链接时就能遇到如下这个提示</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/08/image-20200817102444104-00823a33ae2e4acd989de9fc7d6e9d5d.png" alt="image20200817102444104.png"></p>
-<p>这是公众号的流量限制，通常需要等上30-60分钟才能继续。为了完美处理这个问题，你可能需要申请多个公众号，可能需要和微信公众号的登录系统斗智斗勇，或许还需要设置代理池。</p>
-<p>但是我并不需要一个工业级别的爬虫，只想爬取自己公众号的信息，因此等个一小时，重新登录公众号，获取cookie和token，然后运行即可。我可不想用自己的兴趣挑战别人的饭碗。</p>
-<p>最后将结果以JSON格式保存。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保存结果为JSON</span></span><br><span class="line">json_name = <span class="string">&quot;mp_data_&#123;&#125;.json&quot;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(begin))</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(json_name, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file.write(json.dumps(app_msg_list, indent=<span class="number">2</span>, ensure_ascii=<span class="literal">False</span>))</span><br></pre></td></tr></table></figure>
-
-<p>或者提取文章标识符，标题，URL，发布时间这四列信息，保存成CSV。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">info_list = []</span><br><span class="line"><span class="keyword">for</span> msg <span class="keyword">in</span> app_msg_list:</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;app_msg_list&quot;</span> <span class="keyword">in</span> msg:</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> msg[<span class="string">&quot;app_msg_list&quot;</span>]:</span><br><span class="line">            info = <span class="string">&#x27;&quot;&#123;&#125;&quot;,&quot;&#123;&#125;&quot;,&quot;&#123;&#125;&quot;,&quot;&#123;&#125;&quot;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(item[<span class="string">&quot;aid&quot;</span>]), item[<span class="string">&#x27;title&#x27;</span>], item[<span class="string">&#x27;link&#x27;</span>], <span class="built_in">str</span>(item[<span class="string">&#x27;create_time&#x27;</span>]))</span><br><span class="line">            info_list.append(info)</span><br><span class="line"><span class="comment"># save as csv</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;app_msg_list.csv&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file.writelines(<span class="string">&quot;\n&quot;</span>.join(info_list))         </span><br></pre></td></tr></table></figure>
-
-<p>下一篇，将介绍如何根据每个文章的连接地址，来获取每篇文章的阅读量信息。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/kindred_joe/article/details/99289890">https://blog.csdn.net/kindred_joe/article/details/99289890</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_28804275/article/details/82150874">https://blog.csdn.net/qq_28804275/article/details/82150874</a></li>
-</ul>
-<p>最终代码如下，使用方法为<code>python wechat_parser.py wechat.yaml</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &lt; <span class="number">2</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;too few arguments&quot;</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">yaml_file = sys.argv[<span class="number">1</span>]</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(yaml_file):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;yaml_file is not exists&quot;</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(yaml_file, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file_data = file.read()</span><br><span class="line">config = yaml.safe_load(file_data)</span><br><span class="line"></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;Cookie&quot;</span>: config[<span class="string">&#x27;cookie&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: config[<span class="string">&#x27;user_agent&#x27;</span>] </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求参数</span></span><br><span class="line">url = <span class="string">&quot;https://mp.weixin.qq.com/cgi-bin/appmsg&quot;</span></span><br><span class="line">begin = <span class="string">&quot;0&quot;</span></span><br><span class="line">params = &#123;</span><br><span class="line">    <span class="string">&quot;action&quot;</span>: <span class="string">&quot;list_ex&quot;</span>,</span><br><span class="line">    <span class="string">&quot;begin&quot;</span>: begin,</span><br><span class="line">    <span class="string">&quot;count&quot;</span>: <span class="string">&quot;5&quot;</span>,</span><br><span class="line">    <span class="string">&quot;fakeid&quot;</span>: config[<span class="string">&#x27;fakeid&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;9&quot;</span>,</span><br><span class="line">    <span class="string">&quot;token&quot;</span>: config[<span class="string">&#x27;token&#x27;</span>],</span><br><span class="line">    <span class="string">&quot;lang&quot;</span>: <span class="string">&quot;zh_CN&quot;</span>,</span><br><span class="line">    <span class="string">&quot;f&quot;</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="string">&quot;ajax&quot;</span>: <span class="string">&quot;1&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 存放结果</span></span><br><span class="line"><span class="keyword">if</span> os.path.exists(<span class="string">&quot;mp_data.json&quot;</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;mp_data.json&quot;</span>, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">        app_msg_list = json.load(file)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    app_msg_list = []</span><br><span class="line"><span class="comment"># 在不知道公众号有多少文章的情况下，使用while语句</span></span><br><span class="line"><span class="comment"># 也方便重新运行时设置页数</span></span><br><span class="line">i = <span class="built_in">len</span>(app_msg_list) // <span class="number">5</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    begin = i * <span class="number">5</span></span><br><span class="line">    params[<span class="string">&quot;begin&quot;</span>] = <span class="built_in">str</span>(begin)</span><br><span class="line">    <span class="comment"># 随机暂停几秒，避免过快的请求导致过快的被查到</span></span><br><span class="line">    time.sleep(random.randint(<span class="number">1</span>,<span class="number">10</span>))</span><br><span class="line">    resp = requests.get(url, headers=headers, params = params, verify=<span class="literal">False</span>)</span><br><span class="line">    <span class="comment"># 微信流量控制, 退出</span></span><br><span class="line">    <span class="keyword">if</span> resp.json()[<span class="string">&#x27;base_resp&#x27;</span>][<span class="string">&#x27;ret&#x27;</span>] == <span class="number">200013</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;frequencey control, stop at &#123;&#125;&quot;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(begin)))</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 如果返回的内容中为空则结束</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(resp.json()[<span class="string">&#x27;app_msg_list&#x27;</span>]) == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;all ariticle parsed&quot;</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">        </span><br><span class="line">    app_msg_list.append(resp.json())</span><br><span class="line">    <span class="comment"># 翻页</span></span><br><span class="line">    i += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存结果为JSON</span></span><br><span class="line">json_name = <span class="string">&quot;mp_data.json&quot;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(json_name, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file.write(json.dumps(app_msg_list, indent=<span class="number">2</span>, ensure_ascii=<span class="literal">False</span>))</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" data-id="cllszh67r00j7e2qe5eaidrhz" data-title="如何爬取微信公众号的所有文章" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a></li></ul>
 
     </footer>
   </div>
@@ -1109,7 +1046,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -1120,6 +1057,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -1135,10 +1076,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

@@ -73,6 +73,77 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何让服务器不再龟速下载github的数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/" class="article-date">
+  <time class="dt-published" datetime="2023-09-02T18:57:44.000Z" itemprop="datePublished">2023-09-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>思路</p>
+<ol>
+<li>基于clash的代理，配置本地的代理转发</li>
+<li>配置环境变量，<code>http_proxy</code>和<code>https_proxy</code></li>
+</ol>
+<p>第一步：购买代理服务器，我推荐使用熊猫翻滚，即<a target="_blank" rel="noopener" href="https://pandafan.soccer/?r=185780/">PandaFan</a>, 注册的时候可以考虑填写邀请ID, 185780。</p>
+<p>第二步：安装clash，你可以考虑在服务器上直接下载，但是大概率会遇到龟速。百度网盘地址是，<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1ERVR7_Y2hEilhqLKB4Gtrg?pwd=zgnh">https://pan.baidu.com/s/1ERVR7_Y2hEilhqLKB4Gtrg?pwd=zgnh</a> 提取码：zgnh .解压密码是 xuzhougeng.top。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/Dreamacro/clash/releases/download/v1.18.0/clash-linux-amd64-v1.18.0.gz</span><br></pre></td></tr></table></figure>
+
+<p>在服务器上的家目录中，解压缩clash，并赋予可执行权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置clash</span></span><br><span class="line"><span class="built_in">mkdir</span> clash</span><br><span class="line"><span class="built_in">mv</span> clash-linux-amd64-v1.18.0.gz clash</span><br><span class="line"><span class="built_in">cd</span> clash</span><br><span class="line">gzip -d clash-linux-amd64-v1.18.0.gz</span><br><span class="line"><span class="built_in">chmod</span> +x clash-linux-amd64-v1.18.0</span><br></pre></td></tr></table></figure>
+
+<p>第三步，配置clash</p>
+<p>clash的运行需要一个Country.mmdb文件，虽然会自动下载。但是速度比较慢，所以我也放在了百度盘中。按照如下方法进行手动配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/.config/clash</span><br><span class="line"><span class="built_in">mv</span> ~/Country.mmdb ~/.config/clash</span><br></pre></td></tr></table></figure>
+
+<p>另外clash还需要一个yaml文件，配置代理规则，因此，你需要在clash的目录下新建一个config.yaml文件，内容如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span></span><br><span class="line"><span class="attr">allow-lan:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">Rule</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span></span><br><span class="line"><span class="attr">external-controller:</span> <span class="string">:9090</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;trojan&quot;</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">trojan</span></span><br><span class="line">  <span class="comment"># interface-name: eth0</span></span><br><span class="line">  <span class="comment"># routing-mark: 1234</span></span><br><span class="line">  <span class="attr">server:</span> <span class="string">服务器地址</span></span><br><span class="line">  <span class="attr">port:</span> <span class="string">服务器端口</span></span><br><span class="line">  <span class="attr">password:</span> <span class="string">密码</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">science</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">trojan</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">http://www.gstatic.com/generate_204</span></span><br><span class="line">    <span class="attr">interval:</span> <span class="number">300</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,amazonaws.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-KEYWORD,github,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.io,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubapp.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubassets.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubusercontent.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-KEYWORD,github,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.io,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubusercontent.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,rawgithub.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,github.io,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubapp.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubassets.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,githubusercontent.com,science</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">GEOIP,CN,DIRECT</span></span><br></pre></td></tr></table></figure>
+
+<p>注意上面的server, port, password都需要自己配置。我们可以从pandafan的账号后台中获取</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/9/image-ay9p295qjj.png1693653031272.png" alt="配置方法"></p>
+<p>第四步：在你需要从github上下载数据到时候， 我们先通过<code>./clash-linux-amd64-v1.18.0 -f config.yaml &amp;</code>启动代理，然后配置环境变量<code>http_proxy</code>和<code>https_proxy</code>，如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=http://127.0.0.1:7890</span><br><span class="line"><span class="built_in">export</span> https_proxy=http://127.0.0.1:7890</span><br></pre></td></tr></table></figure>
+
+<p>那么后续从github上获取数据就非常方便了。例如从github上克隆singularity</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recurse-submodules https://github.com/sylabs/singularity.git</span><br></pre></td></tr></table></figure>
+
+<p>速度如下</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/9/image-z4u68y52ab.png1693653372270.png" alt="git clone的速度"></p>
+<p>参考资料</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dreamacro.github.io/clash/">https://dreamacro.github.io/clash/</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/" data-id="clm1xkn7c008adpniaiyvee93" data-title="如何让服务器不再龟速下载github的数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-编译安装容器singularity" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/" class="article-date">
@@ -120,7 +191,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/" data-id="cllszh66n00fze2qe7500aznq" data-title="编译安装容器singularity" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/" data-id="clm1xkn8n00bqdpnihtw2c9ed" data-title="编译安装容器singularity" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -196,7 +267,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/" data-id="cllszh66200dse2qe3l3udjsh" data-title="关于申请OpenAI的API的几点补充" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/08/25/%E5%85%B3%E4%BA%8E%E7%94%B3%E8%AF%B7OpenAI%E7%9A%84API%E7%9A%84%E5%87%A0%E7%82%B9%E8%A1%A5%E5%85%85/" data-id="clm1xkn6b004cdpni41tqeco9" data-title="关于申请OpenAI的API的几点补充" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -248,7 +319,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/" data-id="cllszh64h008qe2qebcq0dijl" data-title="从halo迁移到hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/" data-id="clm1xkn9z00gjdpni3olzblga" data-title="从halo迁移到hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -318,7 +389,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" data-id="cllszh62q003me2qe5rq13gw8" data-title="Oatk：利用HiFi Read进行细胞器组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/" data-id="clm1xknbk00k3dpnicgwi8f60" data-title="Oatk：利用HiFi Read进行细胞器组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -463,7 +534,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" data-id="cllszh66z00h7e2qe7cp703tr" data-title="在Windows中搭建一个基于WSL的Python数据科学环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/" data-id="clm1xkn6g0052dpni6jiq35vh" data-title="在Windows中搭建一个基于WSL的Python数据科学环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -508,7 +579,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" data-id="cllszh66i00fge2qebjec5thu" data-title="用Colab缓解我的GPU焦虑" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/06/16/%E7%94%A8Colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84GPU%E7%84%A6%E8%99%91-%E7%94%A8colab%E7%BC%93%E8%A7%A3%E6%88%91%E7%9A%84gpu%E7%84%A6%E8%99%91/" data-id="clm1xkn8f00bfdpni59prexqu" data-title="用Colab缓解我的GPU焦虑" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -585,7 +656,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" data-id="cllszh68p00kye2qebrjmc5pg" data-title="掌握了一个关于Bcrypt加密的知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/05/31/%E6%8E%8C%E6%8F%A1%E4%BA%86%E4%B8%80%E4%B8%AA%E5%85%B3%E4%BA%8EBcrypt%E5%8A%A0%E5%AF%86%E7%9A%84%E7%9F%A5%E8%AF%86-acquired-a-knowledge-of-bcrypt-encryption/" data-id="clm1xkn7m009gdpnibisw9dvi" data-title="掌握了一个关于Bcrypt加密的知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -640,7 +711,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" data-id="cllszh68k00kie2qe1ruzds2x" data-title="我不知道说些什么" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/05/28/%E6%88%91%E4%B8%8D%E7%9F%A5%E9%81%93%E8%AF%B4%E4%BA%9B%E4%BB%80%E4%B9%88-what-to-say/" data-id="clm1xkn7h008wdpnigtbedee7" data-title="我不知道说些什么" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -740,93 +811,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="cllszh68t00lbe2qe7xb0eudr" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="clm1xknc000lgdpni2gouhecj" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-详解R语言的format函数-an-in-depth-explanation-of-the-format-function-in-rlanguage" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" class="article-date">
-  <time class="dt-published" datetime="2023-04-01T08:03:26.662Z" itemprop="datePublished">2023-04-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/">详解R语言的format函数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>先提一个问题，请问下面最后的两个逻辑语句的判断，结果是什么？</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">x &lt;- c(<span class="number">1234567.8</span>, <span class="number">12.12345</span>)</span><br><span class="line">x11 &lt;- <span class="built_in">format</span>(x, scientific = FALSE)</span><br><span class="line">x12 &lt;- <span class="built_in">format</span>(x, scientific = TRUE)</span><br><span class="line">x21 &lt;- <span class="keyword">as</span>.numeric(x11)</span><br><span class="line">x22 &lt;- <span class="keyword">as</span>.numeric(x12)</span><br><span class="line"></span><br><span class="line">x21 == x</span><br><span class="line">x22 == x</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>大家可以稍作思考。</p>
-<p>之所以给出开头的问题，还是因为之前讨论的apply函数。当apply应用到data.frame上时，中间会调用泛型函数as.matrix将数据进行转换，如果发现数据中存在非数值型，会调用format对数值型数据进行格式化。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">....</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span>non.numeric<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="keyword">for</span> <span class="punctuation">(</span>j <span class="keyword">in</span> pseq<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="comment"># 如果是字符串，不转换</span></span><br><span class="line">      <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.character</span><span class="punctuation">(</span>X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">        <span class="keyword">next</span></span><br><span class="line">      <span class="comment"># 如果是逻辑值，调用as.character</span></span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">is.logical</span><span class="punctuation">(</span>xj <span class="operator">&lt;-</span> X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">        xj <span class="operator">&lt;-</span> <span class="built_in">as.character</span><span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">      <span class="keyword">else</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="comment"># 如果有NA，先确定位置</span></span><br><span class="line">        miss <span class="operator">&lt;-</span> <span class="built_in">is.na</span><span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="comment"># 如果是因子，调用as.vector，否则调用format</span></span><br><span class="line">        xj <span class="operator">&lt;-</span> <span class="keyword">if</span> <span class="punctuation">(</span><span class="built_in">length</span><span class="punctuation">(</span>levels<span class="punctuation">(</span>xj<span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">)</span> </span><br><span class="line">          as.vector<span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="keyword">else</span> format<span class="punctuation">(</span>xj<span class="punctuation">)</span></span><br><span class="line">        <span class="comment"># 最后把NA放回</span></span><br><span class="line">        <span class="built_in">is.na</span><span class="punctuation">(</span>xj<span class="punctuation">)</span> <span class="operator">&lt;-</span> miss</span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">      X<span class="punctuation">[[</span>j<span class="punctuation">]</span><span class="punctuation">]</span> <span class="operator">&lt;-</span> xj</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line">....</span><br></pre></td></tr></table></figure>
-
-<p>这个format的描述只有一句，‘Format an <strong>R</strong> object for pretty printing.’即，格式化一个 R 对象用于<strong>漂亮</strong>的打印，</p>
-<p>问题出在这个“漂亮”上，R语言有自己的理解。</p>
-<p>比如说同样的 1234567.8在不同的环境下，会出现了不同的情况，</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">format</span>(c(<span class="number">1234567.8</span>, <span class="number">12.12345</span>))</span><br><span class="line"><span class="comment"># &quot;1.234568e+06&quot; &quot;1.212345e+01&quot;</span></span><br><span class="line"><span class="built_in">format</span>(c(<span class="number">1234567.8</span>, <span class="number">123.12345</span>))</span><br><span class="line"><span class="comment"># &quot;1234567.8000&quot; &quot;    123.1235&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>一个采取了科学计数法，并保留了7位有效数字，显示为1.234568e+06，一个则保持原状1234567.8000。</p>
-<p>为什么会出现这个情况呢？这和scientific参数有关，接受一个逻辑值或者一个整数。如果提供的逻辑值，行为非常简单，就是要么用科学计数法，要么不用科学计数法。</p>
-<p>而问题出在它默认值<strong>不是逻辑值</strong>，而是<strong>NA</strong>，此时他使用 <code>getOption(&quot;scipen&quot;)</code> 的结果作为输入，用于决定是以固定，还是以指数符号（科学计数法）打印数字。正值偏向于固定符号，负值则偏向于科学计数法。</p>
-<p>具体这个参数会触发R哪一行底代码呢？通过我刨根问底，最终确定源代码中src&#x2F;mian&#x2F;format.c 的formatReal函数，一个用于对double类型数据进行格式化的函数。</p>
-<p>代码有一段注释，含义是，在满足有效位数的前提下，<strong>固定表示</strong>使用的空间不超过<strong>指数表示</strong>时，优先使用固定显示。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/* F Format: use &quot;F&quot; format WHENEVER we use not more space than &#x27;E&#x27;</span></span><br><span class="line"><span class="comment">     *    and still satisfy &#x27;R_print.digits&#x27; &#123;but as if nsmall==0 !&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * E Format has the form   [S]X[.XXX]E+XX[X]</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * This is indicated by setting *e to non-zero (usually 1)</span></span><br><span class="line"><span class="comment">     * If the additional exponent digit is required *e is set to 2</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">     ...</span><br><span class="line">  *d = mxns - <span class="number">1</span>;</span><br><span class="line">  *w = neg + (*d &gt; <span class="number">0</span>) + *d + <span class="number">4</span> + *e; <span class="comment">/* width for E format */</span></span><br><span class="line">  <span class="keyword">if</span> (wF &lt;= *w + R_print.scipen) &#123; <span class="comment">/* Fixpoint if it needs less space */</span></span><br><span class="line">      *e = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (nsmall &gt; rgt) &#123;</span><br><span class="line">    rgt = nsmall;</span><br><span class="line">    wF = mxsl + rgt + (rgt != <span class="number">0</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      *d = rgt;</span><br><span class="line">      *w = wF;</span><br><span class="line">  &#125; <span class="comment">/* else : &quot;E&quot; Exponential format -- all done above */</span></span><br><span class="line">...       </span><br></pre></td></tr></table></figure>
-
-<p>代码中w是指数表示法的宽度, wF是固定表示的宽度，最后w会加上 scipen 得到最终的长度，默认是0，也就是公平决斗。</p>
-<p>回到数据<code>c(1234567.8, 12.12345)</code>中，我们来看它在固定表示和指数表示的结果。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">12.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1.234568e+06&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;1.212345e+01&quot;</span></span><br><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">12.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1234567.80000&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;     12.12345&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>在保证最小数字有7位有效数字的前提下（由digits参数控制），采用指数显示法时结果是12个字符，采取固定显示结果是13个字符。当scipen&#x3D;0时，指数显示<strong>比较窄</strong>，因此选择指数显示。</p>
-<p>而数据<code>c(1234567.8, 123.12345)</code>，在保证最小数字有7位有效数字时，结果都是12个字符，势均力敌的情况下，采取固定显示。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">123.12345</span><span class="punctuation">)</span><span class="punctuation">,</span> scientific <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1.234568e+06&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;1.231235e+02&quot;</span></span><br><span class="line"><span class="operator">&gt;</span> format<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="number">1234567.8</span><span class="punctuation">,</span> <span class="number">123.12345</span><span class="punctuation">)</span><span class="punctuation">,</span>scientific <span class="operator">=</span> <span class="literal">FALSE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="string">&quot;1234567.8000&quot;</span></span><br><span class="line"><span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span> <span class="string">&quot;    123.1235&quot;</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>有效数字的定义是，从第一位非0数字开始到最后一位，一共有多少位数字。例如100是3为有效数字，0.001是1位有效数字，0.00100是3位有效数字。</p>
-</blockquote>
-<p>最后帮助大家梳理下整体逻辑</p>
-<ol>
-<li>format函数作用是让打印结果更加美观</li>
-<li>在打印数字时，在保证最小数以一定有效数值展示的前提下，对比固定表示和指数表示两者的字符数目，选择占用字符最少的方法</li>
-<li>最终数值的展示效果会受到digits和scientific的影响</li>
-<li>digits和scientific默认值来自于getOption(“digits”)和getOption(“scipen”)</li>
-<li>如果想让结果都以固定显示，可以设置scipen为一个非常大的数。</li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="cllszh66t00gje2qedua2gos3" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag">源码解读</a></li></ul>
 
     </footer>
   </div>
@@ -880,7 +869,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -891,6 +880,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -906,10 +899,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

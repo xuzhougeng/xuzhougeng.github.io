@@ -73,6 +73,87 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Singularity和MPI应用-singularity-and-mpi-applications" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" class="article-date">
+  <time class="dt-published" datetime="2020-06-22T01:39:27.294Z" itemprop="datePublished">2020-06-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/">Singularity和MPI应用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>MPI(Message Passin Interface)广泛应用于高性能服务器中，可用于单系统多节点或者多个计算平台间通讯，目前主流的两个开源软件分别是OpenMPI和MPICH。Singularity同时支持这两个开源工具，本篇教程介绍如何在Singularity容器开发和运行MPI程序。</p>
+<p>在Singularity容器是执行MPI程序最常见的方法就是使用宿主机中的MPI。由于我们会同时使用宿主机的MPI和容器中的MPI，因此这被称为Host MPI或者混合模型。考虑到大部分高性能计算平台并不都支持宿主机和容器之间的文件系统共享，因此我们不讨论如何将存储盘挂载到容器，从而使用容器中宿主机MPI。</p>
+<p>混合途径的基本想法就是，当你要执行SIngularity容器的MPI代码时，你会使用<code>mpiexec</code>类似命令去调用<code>singularity</code>命令。容器外部的MPI进程会和容器内的MPI进行写作，容器后的MPI代码会实例化任务。</p>
+<p>Open MPI&#x2F;Singularity的工作流程如下</p>
+<ol>
+<li>用户在shell中启动MPI(mpirun, mpiexec)</li>
+<li>Open MPI接着调用进程管理守护进程(process management daemon, ORTED)</li>
+<li>ORTED进程启动所需的Singularity容器</li>
+<li>Singularity构建容器和命名空间环境</li>
+<li>Singularity启动容器内的MPI应用</li>
+<li>MPI进程启动，加载Open MPI库</li>
+<li>Open MPI库通过进程管理接口(Process Management, PMI)连接回ORTED进程</li>
+</ol>
+<p>此时在容器运行MPI就和直接宿主机运行MPI程序一样。优势在于它能够整合到Slurm等资源管理工具，并且和之前运行MPI应用一样。但是你需要保证容器中的MPI和宿主机的MPI版本兼容，也就是在构建MPI容器时保证和系统的MPI一致。</p>
+<p>我们举个简单的例子。假设我们已经有了一个叫做<code>mpitest.c</code>MPI应用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span> <span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span> &#123;</span><br><span class="line">        <span class="type">int</span> rc;</span><br><span class="line">        <span class="type">int</span> size;</span><br><span class="line">        <span class="type">int</span> myrank;</span><br><span class="line"></span><br><span class="line">        rc = MPI_Init (&amp;argc, &amp;argv);</span><br><span class="line">        <span class="keyword">if</span> (rc != MPI_SUCCESS) &#123;</span><br><span class="line">                <span class="built_in">fprintf</span> (<span class="built_in">stderr</span>, <span class="string">&quot;MPI_Init() failed&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        rc = MPI_Comm_size (MPI_COMM_WORLD, &amp;size);</span><br><span class="line">        <span class="keyword">if</span> (rc != MPI_SUCCESS) &#123;</span><br><span class="line">                <span class="built_in">fprintf</span> (<span class="built_in">stderr</span>, <span class="string">&quot;MPI_Comm_size() failed&quot;</span>);</span><br><span class="line">                <span class="keyword">goto</span> exit_with_error;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        rc = MPI_Comm_rank (MPI_COMM_WORLD, &amp;myrank);</span><br><span class="line">        <span class="keyword">if</span> (rc != MPI_SUCCESS) &#123;</span><br><span class="line">                <span class="built_in">fprintf</span> (<span class="built_in">stderr</span>, <span class="string">&quot;MPI_Comm_rank() failed&quot;</span>);</span><br><span class="line">                <span class="keyword">goto</span> exit_with_error;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">fprintf</span> (<span class="built_in">stdout</span>, <span class="string">&quot;Hello, I am rank %d/%d&quot;</span>, myrank, size);</span><br><span class="line"></span><br><span class="line">        MPI_Finalize();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> EXIT_SUCCESS;</span><br><span class="line"></span><br><span class="line"> exit_with_error:</span><br><span class="line">        MPI_Finalize();</span><br><span class="line">        <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>MPI只是一个库接口，里面的函数能够被其他编程语言所调用，所以支持Fortran, C, Python, R等。</p>
+</blockquote>
+<p>接下来根据宿主机的MPI版本，编写一个定义文件。假如我们宿主机的MPI是MPICH，那么定义文件(命名为mpitest)如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">Bootstrap: docker</span><br><span class="line">From: ubuntu:latest</span><br><span class="line"></span><br><span class="line">%files</span><br><span class="line">    mpitest.c /opt</span><br><span class="line"></span><br><span class="line">%environment</span><br><span class="line">    <span class="built_in">export</span> MPICH_DIR=/opt/mpich-3.3</span><br><span class="line">    <span class="built_in">export</span> SINGULARITY_MPICH_DIR=<span class="variable">$MPICH_DIR</span></span><br><span class="line">    <span class="built_in">export</span> SINGULARITYENV_APPEND_PATH=<span class="variable">$MPICH_DIR</span>/bin</span><br><span class="line">    <span class="built_in">export</span> SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=<span class="variable">$MPICH_DIR</span>/lib</span><br><span class="line"></span><br><span class="line">%post</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Installing required packages...&quot;</span></span><br><span class="line">    apt-get update &amp;&amp; apt-get install -y wget git bash gcc gfortran g++ make</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Information about the version of MPICH to use</span></span><br><span class="line">    <span class="built_in">export</span> MPICH_VERSION=3.3</span><br><span class="line">    <span class="built_in">export</span> MPICH_URL=<span class="string">&quot;http://www.mpich.org/static/downloads/<span class="variable">$MPICH_VERSION</span>/mpich-<span class="variable">$MPICH_VERSION</span>.tar.gz&quot;</span></span><br><span class="line">    <span class="built_in">export</span> MPICH_DIR=/opt/mpich</span><br><span class="line"></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Installing MPICH...&quot;</span></span><br><span class="line">    <span class="built_in">mkdir</span> -p /tmp/mpich</span><br><span class="line">    <span class="built_in">mkdir</span> -p /opt</span><br><span class="line">    <span class="comment"># Download</span></span><br><span class="line">    <span class="built_in">cd</span> /tmp/mpich &amp;&amp; wget -O mpich-<span class="variable">$MPICH_VERSION</span>.tar.gz <span class="variable">$MPICH_URL</span> &amp;&amp; tar xzf mpich-<span class="variable">$MPICH_VERSION</span>.tar.gz</span><br><span class="line">    <span class="comment"># Compile and install</span></span><br><span class="line">    <span class="built_in">cd</span> /tmp/mpich/mpich-<span class="variable">$MPICH_VERSION</span> &amp;&amp; ./configure --prefix=<span class="variable">$MPICH_DIR</span> &amp;&amp; make install</span><br><span class="line">    <span class="comment"># Set env variables so we can compile our application</span></span><br><span class="line">    <span class="built_in">export</span> PATH=<span class="variable">$MPICH_DIR</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">    <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$MPICH_DIR</span>/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line">    <span class="built_in">export</span> MANPATH=<span class="variable">$MPICH_DIR</span>/share/man:<span class="variable">$MANPATH</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Compiling the MPI application...&quot;</span></span><br><span class="line">    <span class="built_in">cd</span> /opt &amp;&amp; mpicc -o mpitest mpitest.c</span><br></pre></td></tr></table></figure>
+
+<p>如果是Open MPI,</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Bootstrap: docker</span><br><span class="line">From: ubuntu:latest</span><br><span class="line"></span><br><span class="line">%files</span><br><span class="line">    mpitest.c /opt</span><br><span class="line"></span><br><span class="line">%environment</span><br><span class="line">    <span class="built_in">export</span> OMPI_DIR=/opt/ompi</span><br><span class="line">    <span class="built_in">export</span> SINGULARITY_OMPI_DIR=<span class="variable">$OMPI_DIR</span></span><br><span class="line">    <span class="built_in">export</span> SINGULARITYENV_APPEND_PATH=<span class="variable">$OMPI_DIR</span>/bin</span><br><span class="line">    <span class="built_in">export</span> SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=<span class="variable">$OMPI_DIR</span>/lib</span><br><span class="line"></span><br><span class="line">%post</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Installing required packages...&quot;</span></span><br><span class="line">    apt-get update &amp;&amp; apt-get install -y wget git bash gcc gfortran g++ make file</span><br><span class="line"></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Installing Open MPI&quot;</span></span><br><span class="line">    <span class="built_in">export</span> OMPI_DIR=/opt/ompi</span><br><span class="line">    <span class="built_in">export</span> OMPI_VERSION=4.0.1</span><br><span class="line">    <span class="built_in">export</span> OMPI_URL=<span class="string">&quot;https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-<span class="variable">$OMPI_VERSION</span>.tar.bz2&quot;</span></span><br><span class="line">    <span class="built_in">mkdir</span> -p /tmp/ompi</span><br><span class="line">    <span class="built_in">mkdir</span> -p /opt</span><br><span class="line">    <span class="comment"># Download</span></span><br><span class="line">    <span class="built_in">cd</span> /tmp/ompi &amp;&amp; wget -O openmpi-<span class="variable">$OMPI_VERSION</span>.tar.bz2 <span class="variable">$OMPI_URL</span> &amp;&amp; tar -xjf openmpi-<span class="variable">$OMPI_VERSION</span>.tar.bz2</span><br><span class="line">    <span class="comment"># Compile and install</span></span><br><span class="line">    <span class="built_in">cd</span> /tmp/ompi/openmpi-<span class="variable">$OMPI_VERSION</span> &amp;&amp; ./configure --prefix=<span class="variable">$OMPI_DIR</span> &amp;&amp; make install</span><br><span class="line">    <span class="comment"># Set env variables so we can compile our application</span></span><br><span class="line">    <span class="built_in">export</span> PATH=<span class="variable">$OMPI_DIR</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">    <span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$OMPI_DIR</span>/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line">    <span class="built_in">export</span> MANPATH=<span class="variable">$OMPI_DIR</span>/share/man:<span class="variable">$MANPATH</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Compiling the MPI application...&quot;</span></span><br><span class="line">    <span class="built_in">cd</span> /opt &amp;&amp; mpicc -o mpitest mpitest.c</span><br></pre></td></tr></table></figure>
+
+<p>接着我们从定义文件中构建出sig文件, <code>singularity build mpitest.sig mpitest</code></p>
+<p>最后，执行Singularity容器的MPI应用的标准方法就是在host中运行<code>mpirun</code>命令，它会启动Singularity容器，并最终运行其中的MPI程序。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mpirun -n 4 singularity <span class="built_in">exec</span> mpitest.sig /opt/mpitest</span><br><span class="line"><span class="comment"># 输出信息如下</span></span><br><span class="line"><span class="comment"># Hello, I am rank 0/4Hello, I am rank 1/4Hello, I am rank 2/4Hello, I am rank 3/4</span></span><br></pre></td></tr></table></figure>
+
+<p>如果是在SLURM这类任务提交系统中，我们需要批处理脚本来执行MPI引用，举个例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#SBATCH --job-name singularity-mpi</span></span><br><span class="line"><span class="comment">#SBATCH -N $NNODES # total number of nodes</span></span><br><span class="line"><span class="comment">#SBATCH --time=00:05:00 # Max execution time</span></span><br><span class="line"></span><br><span class="line">mpirun -n <span class="variable">$NP</span> singularity <span class="built_in">exec</span> /var/nfsshare/gvallee/mpich.sif /opt/mpitest</span><br></pre></td></tr></table></figure>
+
+<p>执行方式如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbatch my_job.sh</span><br></pre></td></tr></table></figure>
+
+<p>参考资料: <a target="_blank" rel="noopener" href="https://sylabs.io/guides/3.3/user-guide/mpi.html">https://sylabs.io/guides/3.3/user-guide/mpi.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" data-id="clm1xkn9200crdpni94b9bxp6" data-title="Singularity和MPI应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用ArchR分析单细胞ATAC-seq数据(第九章)-analysis-sc-atac-seq-with-archr-chapter9" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" class="article-date">
@@ -144,7 +225,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" data-id="cllszh64q009ve2qeau9icwbo" data-title="使用ArchR分析单细胞ATAC-seq数据(第九章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" data-id="clm1xkn5c000fdpnieo8p204h" data-title="使用ArchR分析单细胞ATAC-seq数据(第九章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -329,7 +410,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/31/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AB%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter8/" data-id="cllszh64u00a5e2qe9o7bdjr5" data-title="使用ArchR分析单细胞ATAC-seq数据(第八章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/31/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AB%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter8/" data-id="clm1xkn5f000odpnihl71072x" data-title="使用ArchR分析单细胞ATAC-seq数据(第八章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -480,7 +561,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" data-id="cllszh64p009oe2qe3ydr0rzi" data-title="使用ArchR分析单细胞ATAC-seq数据(第七章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" data-id="clm1xkn5a000adpni3qau3x7f" data-title="使用ArchR分析单细胞ATAC-seq数据(第七章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -584,7 +665,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AD%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter6/" data-id="cllszh64u00a9e2qe90yp0uzz" data-title="使用ArchR分析单细胞ATAC-seq数据(第六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AD%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter6/" data-id="clm1xkn5g000sdpni346wgyqq" data-title="使用ArchR分析单细胞ATAC-seq数据(第六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -649,7 +730,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter5/" data-id="cllszh64r00a2e2qe9zle3l8q" data-title="使用ArchR分析单细胞ATAC-seq数据(第五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter5/" data-id="clm1xkn5e000mdpni4zp4c5u9" data-title="使用ArchR分析单细胞ATAC-seq数据(第五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -727,7 +808,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%9B%9B%E7%AB%A0)-sanalysis-sc-atac-seq-with-archr-chapter4/" data-id="cllszh65200b0e2qe7cjyf59k" data-title="使用ArchR分析单细胞ATAC-seq数据(第四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%9B%9B%E7%AB%A0)-sanalysis-sc-atac-seq-with-archr-chapter4/" data-id="clm1xkn5o001kdpnigjaz9iuw" data-title="使用ArchR分析单细胞ATAC-seq数据(第四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -897,7 +978,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" data-id="cllszh64p009re2qe0h35cy69" data-title="使用ArchR分析单细胞ATAC-seq数据(第三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" data-id="clm1xkn5b000bdpni2bqn2v0y" data-title="使用ArchR分析单细胞ATAC-seq数据(第三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -970,7 +1051,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/22/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter2/" data-id="cllszh64q009ye2qe1w7i3fzq" data-title="使用ArchR分析单细胞ATAC-seq数据(第二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/22/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter2/" data-id="clm1xkn5d000idpnifbbu9m8j" data-title="使用ArchR分析单细胞ATAC-seq数据(第二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1165,94 +1246,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/21/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter1/" data-id="cllszh64o009ke2qe1hslbdpv" data-title="使用ArchR分析单细胞ATAC-seq数据(第一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/21/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter1/" data-id="clm1xkn580006dpnid2b9e7zc" data-title="使用ArchR分析单细胞ATAC-seq数据(第一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用RaGOO将基因组提升至染色体水平-ragoo-reference-guided-scaffolding-of-draft-genomes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/" class="article-date">
-  <time class="dt-published" datetime="2020-05-19T21:47:43.996Z" itemprop="datePublished">2020-05-19</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1-%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">生信软件工具箱 | 基因组学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/">使用RaGOO将基因组提升至染色体水平</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-668b73a1f1a949f1ac5b4d867cdd05d2.png" alt="RaGOO"></p>
-<p>将染色体从contig&#x2F;scaffold水平提升到chromosome水平是组装的最终目标。我们通常使用遗传图谱，光学图谱，HiC这些技术提供的信息将contig进行排序连接。</p>
-<p>如果你组装的物种刚好有一个近源物种甚至说是同一物种，那其实我们可以直接将我们的contig比对到该基因组上，根据其提供的位置信息，将我们的contig&#x2F;scaffold提高到染色体水平。RaGOO就是其中一款软件，相对于其他同类型的工具，它有以下优势</p>
-<ul>
-<li>不错的性能（感谢minimap2）</li>
-<li>contig完整的排序和方向调整</li>
-<li>GFF lift-over</li>
-<li>结构变异检测，整合了Assemblytics</li>
-<li>对于每个contig都计算可信得分</li>
-</ul>
-<p>RaGOO使用minimap2将contig和reference进行比对，过滤低于1k的alignment，之后根据contig的覆盖度将contig聚类到最接近的染色体上，最后根据contig在染色体上的相对位置信息进行排序合并。</p>
-<p>RaGOO基于Python3以及预先安装的minimap2。 我们需要从Github上克隆该项目进行安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/malonge/RaGOO.git</span><br><span class="line"><span class="built_in">cd</span> RaGOO</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
-
-<p>它的使用非常简单，就两个输入文件，contig和reference的FASTA文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ragoo.py contigs.fasta reference.fasta</span><br></pre></td></tr></table></figure>
-
-<p>一些可供修改的参数:</p>
-<ul>
-<li>e: 用于忽略reference一些序列</li>
-<li>-gff: 将之前contig注释的GFF文件调整为当前版本</li>
-<li>-b: 打断chimeric contig</li>
-<li>-R: 提供额外的fastq&#x2F;fasta序列辅助纠正错误组装</li>
-<li>-T: 对应-R参数提供序列的类型， sr表示short read, corr表示纠错后的long reads</li>
-<li>-t: 线程数</li>
-<li>-g: 两个contig之间的gap大小</li>
-<li>-s: 分析结构变异</li>
-<li>-i: 最低得分用于将contig分组，默认是0.2</li>
-<li>-j: 哪些contig序列需要忽略</li>
-<li>-C: 将无法锚定的contig单独成行，而非合并成一个Chr0</li>
-</ul>
-<p>几个建议: 默认线程是3，可以按照自己的需求进行提高。 如果对组装没有信心，可以加上<code>-b -R -T</code>参数用来纠正潜在的错误。我强烈推荐加上<code>-C</code>, 不然你会以为<code>Chr0</code>也是一个染色体。</p>
-<p>可能的输出文件如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ragoo_output/</span><br><span class="line">├── ctg_alignments: 错误纠正结果</span><br><span class="line">├── groupings     : 分组结果</span><br><span class="line">├── orderings     : 排序结果</span><br><span class="line">├── pm_alns       : 结构变异分析结果</span><br><span class="line">└── ragoo.fasta   : 你需要的输出文件</span><br></pre></td></tr></table></figure>
-
-<p>在ragoo.fasta中，默认参数下<code>Chr0_RaGOO</code>表示contig.fasta的序列无法在reference.fa中定位，直接前后相连成一个序列。</p>
-<p>个人主观评价： RaGOO使用容易，运行效率也很高，还能够分析结构变异。根据它的文章，有些时候表现还优于HiC组装结果，以后的一些基因组项目建议用上它。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/2013053-50a162cda9432a11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="HiC搞不定的情况"></p>
-<p><a target="_blank" rel="noopener" href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1829-6">https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1829-6</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/19/%E4%BD%BF%E7%94%A8RaGOO%E5%B0%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%8F%90%E5%8D%87%E8%87%B3%E6%9F%93%E8%89%B2%E4%BD%93%E6%B0%B4%E5%B9%B3-ragoo-reference-guided-scaffolding-of-draft-genomes/" data-id="cllszh65e00c2e2qeg9ucccxo" data-title="使用RaGOO将基因组提升至染色体水平" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
 
     </footer>
   </div>
@@ -1306,7 +1304,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -1317,6 +1315,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -1332,10 +1334,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

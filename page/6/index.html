@@ -73,6 +73,72 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何绘制物理图谱和遗传图谱的对应关系-draw-match-between-physical-and-genetic-map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" class="article-date">
+  <time class="dt-published" datetime="2021-12-13T06:06:48.219Z" itemprop="datePublished">2021-12-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/">如何绘制物理图谱和遗传图谱的对应关系</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>唐海宝老师开发的JCVI有一个工具，叫做ALLMAPS， 能够展示遗传图谱和物理图谱的对应关系，如下所示</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/12/image-095b4255703740339a37cb6b768e356e.png" alt="alignment"></p>
+<p>但是这个图的目标是为了对ALLMAPS的scaffold结果进行可视化，并不是专门用于展示遗传图谱的标记和物理图谱的对应关系。尽管在allmaps这个组件下提供了plot函数，命令行输入只要求 input.bed 和 seqid， 但实际运行的时候还要求 allmaps path的中间文件, xxxx.lifted.bed, xxxx.agp, weight.txt等文件。</p>
+<p>为了解决这一问题，我阅读了allmaps.py的源代码，在plot的基础上增加了一个plot2函数，只需要用户输入 input.bed, 染色体编号和染色体的长度就能够画图。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python -m jcvi.assembly.allmaps plot2 input.bed 染色体编号 染色体长度</span></span><br><span class="line">python -m jcvi.assembly.allmaps plot2 input.bed chr1 123140023</span><br></pre></td></tr></table></figure>
+
+<p>其中input.bed的格式要求有6列，</p>
+<ul>
+<li>标记所在染色体名</li>
+<li>标记所在染色体的start</li>
+<li>标记所在染色体的end, 通常就是start+1</li>
+<li>标记对应的图谱位置， 要求输入为”图谱名-连锁图谱所在组:连锁图谱的遗传距离”</li>
+<li>标记名</li>
+</ul>
+<p>案例</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Chr1    68185909        68185910        male-14:48.470000        Chr1:68185910</span><br><span class="line">Chr1    68479621        68479622        male-14:49.380000        Chr1:68479622</span><br><span class="line">Chr1    68595299        68595300        male-14:48.440000        Chr1:68595300</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以先生成如下的csv文件，然后转换成bed</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/12/image-6dcf0d4e3efd45de994bfc1a7f646e97.png" alt="input.csv"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.assembly.allmaps merge  male.csv male.bed</span><br></pre></td></tr></table></figure>
+
+<p>目前有plot2函数的代码还在我的项目下，<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/jcvi">xuzhougeng&#x2F;jcvi</a>, 待代码稳定了，再PR。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="clm1xkn74007zdpnibr7u3mj2" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JCVI/" rel="tag">JCVI</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-「荐书」入门深度学习的必备数学知识-mathematics-basis-for-deep-learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" class="article-date">
@@ -117,7 +183,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="cllszh647007te2qe1qlcbjaz" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="clm1xkn9s00fpdpnifezb3mgb" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -175,7 +241,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="cllszh646007qe2qe4v9uevy9" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="clm1xkn9r00fodpnigjkwgvff" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -243,7 +309,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="cllszh67g00i9e2qefpf89lsy" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="clm1xkn6p006adpnidjm65qxk" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -288,7 +354,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="cllszh68i00kee2qe8mnx3k5r" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="clm1xkn7f008rdpni4rhn03k1" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -380,7 +446,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="cllszh6320049e2qe2mpmchaq" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="clm1xknbq00kqdpnicwa64wc5" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -444,7 +510,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="cllszh6310043e2qegmq95wy2" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="clm1xknbp00kkdpni644r65ik" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -517,7 +583,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="cllszh6320046e2qe4ptw9ptl" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="clm1xknbp00kndpnie2ureqkr" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -582,7 +648,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="cllszh63k0057e2qe6eky8xy0" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="clm1xkn9700d1dpniaenjejno" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -622,45 +688,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="cllszh67e00i4e2qe8j3h1zq9" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-【杂谈】说说编程语言学习的道与术-杂谈说说编程语言学习的道与术" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" class="article-date">
-  <time class="dt-published" datetime="2021-08-28T13:37:08.219Z" itemprop="datePublished">2021-08-28</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/">【杂谈】说说编程语言学习的道与术</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/28/%E3%80%90%E6%9D%82%E8%B0%88%E3%80%91%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF-%E6%9D%82%E8%B0%88%E8%AF%B4%E8%AF%B4%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%81%93%E4%B8%8E%E6%9C%AF/" data-id="cllszh648007we2qe4b8h3ocj" data-title="【杂谈】说说编程语言学习的道与术" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="clm1xkn6o0063dpni914x7s2b" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -716,7 +744,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -727,6 +755,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -742,10 +774,6 @@
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>

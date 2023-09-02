@@ -73,6 +73,106 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-利用k-mer进行基因组调查-genome-survey-using-kmers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" class="article-date">
+  <time class="dt-published" datetime="2020-01-17T15:38:28.446Z" itemprop="datePublished">2020-01-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/">利用k-mer进行基因组调查</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在组装基因组之前一定要先对要组装的物种有一个大致的了解，判断其复杂程度, 标准如下</p>
+<ul>
+<li>基因组大小：基因组越大，测序花的钱越多</li>
+<li>简单基因组: 杂合度低于0.5%, GC含量在35%~65%, 重复序列低于50%</li>
+<li>二倍体普通基因组: 杂合度在0.5%~1.2%中间，重复序列低于50%。或杂合度低于0.5%，重复序列低于65%</li>
+<li>高复杂基因组: 杂合度&gt;1.2% 或 重复率大于65%</li>
+</ul>
+<h2 id="k-mers估计法"><a href="#k-mers估计法" class="headerlink" title="k-mers估计法"></a>k-mers估计法</h2><p>最简单的策略就是基于k-mer对基因组做一个简单的了解, 使用jellyfish统计k-mers，然后作图</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">jellyfish count  -m 21 -s 20G -t 20 -o 21mer_out  -C  &lt;(zcat test_1.fq.gz) &lt;(zcat test_2.fq.gz)</span><br><span class="line"><span class="comment"># -m k-mers的K</span></span><br><span class="line"><span class="comment"># -s Hash大小, 根据文件大小确定</span></span><br><span class="line"><span class="comment"># -t 线程</span></span><br><span class="line"><span class="comment"># -o 输出前缀</span></span><br><span class="line"><span class="comment"># -C 统计正负链</span></span><br><span class="line">jellyfish histo -o 21mer_out.histo 21mer_out</span><br></pre></td></tr></table></figure>
+
+<p>一些注意事项：</p>
+<ol>
+<li>绝对不要用<code>--min-qual-char</code>或其他参数，它们会将低质量的碱基替换成N</li>
+<li>在测序时由于不知道测得到底是DNA的哪一条链，因此k-mer及其互补链其实是等价的，所以一定要用<code>-C</code>参数</li>
+</ol>
+<p>将数据导入R语言中，进行作图</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pdf<span class="punctuation">(</span><span class="string">&quot;21_mer.out.pdf&quot;</span><span class="punctuation">)</span></span><br><span class="line">dataframe19 <span class="operator">&lt;-</span> read.table<span class="punctuation">(</span><span class="string">&quot;21mer_out.histo&quot;</span><span class="punctuation">)</span></span><br><span class="line">plot<span class="punctuation">(</span>dataframe19<span class="punctuation">[</span><span class="number">1</span><span class="operator">:</span><span class="number">200</span><span class="punctuation">,</span><span class="punctuation">]</span><span class="punctuation">,</span> type<span class="operator">=</span><span class="string">&quot;l&quot;</span><span class="punctuation">)</span></span><br><span class="line">dev.off<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/1/image-580d398975ab4b4c974d8116a612d6ac.png" alt="k-mers作图"></p>
+<p>由于只有一个主峰，说明该物种的杂合度并不高，基本上也就是二倍体。如果图中出现多个峰，说明它可能是多倍体或者是基因组杂合度高。</p>
+<p>基因组大小(G)估计算法为:</p>
+<p>$$<br>G&#x3D; K_{num} &#x2F; K_{depth}<br>$$</p>
+<p>其中 $K_{depth}$ 为K-mer的期望测序深度, $K_{num}$ 为K-mer的总数。 通常将K-mer深度分布曲线的峰值作为其期望深度。</p>
+<blockquote>
+<p>基因组的杂合性和使得来自杂合片段的K-mer深度较纯合区段降低50%。如果目标基因组有一定的杂合性，会在k-mer深度分布曲线主峰位置(c)的1&#x2F;2处(c&#x2F;2)出现一个小峰。杂合度越高，该峰越明显。</p>
+</blockquote>
+<p>推荐文献: Genomic DNA k-mer spectra: models and modalities</p>
+<h2 id="基于组装"><a href="#基于组装" class="headerlink" title="基于组装"></a>基于组装</h2><p>基于K-mers可以较好的预测基因组大小，并定性的了解基因组的复杂情况，如果想更具体的了解基因组的复杂度，可以先将50X以上的段片段进行组装，然后进行分析。</p>
+<p>组装的工具比较多，推荐用SOAPdenovo，因为速度快。</p>
+<p>新建一个contig.config, 增加如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">max_rd_len=150</span><br><span class="line">[LIB]</span><br><span class="line">avg_ins=200</span><br><span class="line">reverse_seq=0</span><br><span class="line">asm_flags=3</span><br><span class="line">rd_len_cutoff=100</span><br><span class="line">rank=1</span><br><span class="line">pair_num_cutoff=3</span><br><span class="line">map_len=32</span><br><span class="line">q1=read_1.fq</span><br><span class="line">q2=read_2.fq</span><br></pre></td></tr></table></figure>
+
+<p>组装出参考序列</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/SOAPdenovo2/SOAPdenovo-63mer all -s contig.config -R -K 63 -p 30 -o assembly/graph</span><br></pre></td></tr></table></figure>
+
+<p>最后graph.scafSeq是拼接后的序列, 提取出大于300bp的序列.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># adjust format</span></span><br><span class="line">bioawk -c fastx -v name=1 <span class="string">&#x27;&#123;if(length($seq)&gt;300) print &quot;&gt;&quot;name &quot;\n&quot; $seq;name+=1&#125;&#x27;</span> assembly/graph.scafSeq &gt;contig.fa</span><br></pre></td></tr></table></figure>
+
+<h3 id="杂合度估计"><a href="#杂合度估计" class="headerlink" title="杂合度估计"></a>杂合度估计</h3><p>将原来的序列回贴到contig上，并用samtools+bcftools进行snp calling.统计变异的碱基占总体的比例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p index</span><br><span class="line">bwa index contig.fa -p index/contig</span><br><span class="line">bwa mem -v 2 -t 10 index/contig read_1.fq read_2.fq | samtools <span class="built_in">sort</span> -n &gt; align.bam</span><br><span class="line">samtools mpileup -f contig align.bam | bcftools call -<span class="built_in">mv</span> -Oz -o variants.gz</span><br></pre></td></tr></table></figure>
+
+<p>一方面由于SOAPdenovo组装过程中会出错, 另一方面samtools在变异检测上也存在很高的假阳性, 所以总得先按照深度和质量过滤一批假阳性。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bcftools view -i <span class="string">&#x27; DP &gt; 30 &amp;&amp; MQ &gt; 30&#x27;</span> -H variants.vcf.gz | <span class="built_in">wc</span> -l</span><br><span class="line"><span class="comment"># 325219, 无过滤是445113</span></span><br></pre></td></tr></table></figure>
+
+<p>变异数目占基因组大小的比例就是杂合度。我的contig大概是200M，找到0.3M左右的变异，也就是0.0015，即0.15%.</p>
+<h3 id="重复序列估计"><a href="#重复序列估计" class="headerlink" title="重复序列估计"></a>重复序列估计</h3><p>基于同源注释，用RepeatMasker寻找重复序列. 这里要注意分析的fasta的ID不能过长，也就是最好是<code>&gt;scaffold_1</code>这种形式，不然会报错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">~/opt/biosoft/RepeatMsker/RepeatMasker -e ncbi -species arabidopsis -pa 10 -gff -<span class="built_in">dir</span> ./ contig.fa</span><br><span class="line"><span class="comment"># -e ncbi</span></span><br><span class="line"><span class="comment"># -species 选择物种 用~/opt/biosoft/RepeatMasker/util/queryRepeatDatabase.pl -tree 了解</span></span><br><span class="line"><span class="comment"># -pa 并行计算</span></span><br><span class="line"><span class="comment"># -gff 输出gff注释</span></span><br><span class="line"><span class="comment"># -dir 输出路径</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果中主要关注如下三个</p>
+<ul>
+<li>output.fa.masked, 将重复序列用N代替</li>
+<li>output.fa.out.gff, 以gff2形式存放重复序列出现的位置</li>
+<li>output.fa.tbl, 该文件记录着分类信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">==================================================</span><br><span class="line">file name: anno.fasta</span><br><span class="line">sequences:         62027</span><br><span class="line">total length:  273135210 bp  (273135210 bp excl N/X-runs)</span><br><span class="line">GC level:         36.80 %</span><br><span class="line">bases masked:   79642191 bp ( 29.16 %)</span><br><span class="line">==================================================</span><br></pre></td></tr></table></figure>
+
+<p>也就是说我们的物种有30%的重复序列，作为参考，拟南芥125Mb 14%重复序列, 水稻389M，36%重复</p>
+<h2 id="附录：软件安装"><a href="#附录：软件安装" class="headerlink" title="附录：软件安装"></a>附录：软件安装</h2><p>安装RepeatMasker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget http://tandem.bu.edu/trf/downloadstrf409.linux64</span><br><span class="line"><span class="built_in">mv</span> trf409.linux64 ~/opt/bin/trf</span><br><span class="line"><span class="built_in">chmod</span> a+x ~/opt/bin/trf</span><br><span class="line"><span class="comment"># RMBlast</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-src.tar.gz</span><br><span class="line">wget http://www.repeatmasker.org/isb-2.6.0+-changes-vers2.patch.gz</span><br><span class="line">tar xf ncbi-blast-2.6.0+-src</span><br><span class="line">gunzip isb-2.6.0+-changes-vers2.patch.gz</span><br><span class="line"><span class="built_in">cd</span> ncbi-blast-2.6.0+-src</span><br><span class="line">patch -p1 &lt; ../isb-2.6.0+-changes-vers2.patch</span><br><span class="line"><span class="built_in">cd</span> c++</span><br><span class="line">./configure --with-mt --prefix=~/opt/biosoft/rmblast --without-debug &amp;&amp; make &amp;&amp; make install</span><br><span class="line"><span class="comment"># RepeatMasker</span></span><br><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget http://repeatmasker.org/RepeatMasker-open-4-0-7.tar.gz</span><br><span class="line">tar xf RepeatMasker-open-4-0-7.tar.gz</span><br><span class="line"><span class="built_in">mv</span> RepeatMasker ~/opt/biosoft/</span><br><span class="line"><span class="built_in">cd</span> ~/opt/biosoft/RepeatMasker</span><br><span class="line"><span class="comment">## 解压repbase数据到Libraries下</span></span><br><span class="line"><span class="comment">## 配置RepatMasker</span></span><br><span class="line">perl ./configure</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/01/17/%E5%88%A9%E7%94%A8k-mer%E8%BF%9B%E8%A1%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%B0%83%E6%9F%A5-genome-survey-using-kmers/" data-id="clm1xkn6d004ldpnic8yvdcsf" data-title="利用k-mer进行基因组调查" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-逃离dplyr_ 不使用group_by和arrange实现分组排序-sort-by-group-without-dplyr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" class="article-date">
@@ -144,7 +244,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="cllszh66w00gve2qef3sp97tw" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/09/%E9%80%83%E7%A6%BBdplyr_%20%E4%B8%8D%E4%BD%BF%E7%94%A8group_by%E5%92%8Carrange%E5%AE%9E%E7%8E%B0%E5%88%86%E7%BB%84%E6%8E%92%E5%BA%8F-sort-by-group-without-dplyr/" data-id="clm1xknby00l8dpni5znvc1v5" data-title="逃离dplyr:不使用group_by和arrange实现分组排序" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -257,7 +357,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="cllszh65400bbe2qe6cgi7b7v" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E4%BD%BF%E7%94%A8EDTA%E8%BF%9B%E8%A1%8CTE%E6%B3%A8%E9%87%8A-annotate-te-with-edta-pipeline/" data-id="clm1xkn5r001vdpnifp2lgisx" data-title="使用EDTA进行TE注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -323,7 +423,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="cllszh67f00i6e2qebdpifhjw" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/08/%E5%A6%82%E4%BD%95%E5%88%9B%E9%80%A0%E5%B9%B6%E5%B0%9D%E8%AF%95%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AAsegmentation%20fault%20(core%20dumped)-how-to-create-and-solve-segementation-fault/" data-id="clm1xkn6o0067dpnigoywef37" data-title="如何创造并尝试处理一个segmentation fault (core dumped)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -384,7 +484,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="cllszh68m00kne2qe8fpsfswo" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/31/%E6%88%91%E7%9A%842019%E5%B9%B4-my-2019/" data-id="clm1xkn7i0092dpni9ogzfxrr" data-title="我的2019年" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -499,7 +599,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="cllszh66c00ese2qe1w7wfl1l" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/27/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E9%85%8D%E9%A2%9D%E7%AE%A1%E7%90%86-server-quota/" data-id="clm1xkn7s00abdpni086y68tu" data-title="服务器磁盘配额管理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -562,7 +662,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="cllszh66e00eze2qecucycufu" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/19/%E6%B3%A8%E6%84%8F%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97-be-care-of-float-in-program-language/" data-id="clm1xkn7u00ahdpni08s6aukj" data-title="注意编程语言中浮点运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -649,7 +749,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="cllszh66600e6e2qe5pssf4i4" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/18/%E5%8D%95%E7%BB%86%E8%83%9E%E6%B5%8B%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%95%B4%E5%90%88%E4%B8%AD%E7%9A%84%E6%89%B9%E6%AC%A1%E6%95%88%E5%BA%94-batch-effect-in-single-cell-rna-seq/" data-id="clm1xkn6d004pdpni25ifajnd" data-title="单细胞测序数据整合中的批次效应" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -712,7 +812,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="cllszh63c004te2qe0i932rxa" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/Seurat%E7%9A%84normalization%E5%92%8Cscaling-seurat-normalization-and-scaling/" data-id="clm1xkn9000ckdpni1bsyh67b" data-title="Seurat的normalization和scaling" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -767,67 +867,10 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="cllszh66400dwe2qe7bdf8ap3" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/12/17/%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9-%E5%86%99%E5%9C%A82018%E5%B9%B4%E7%9A%84%E7%AC%AC%E4%B8%80%E5%A4%A9/" data-id="clm1xkn6b004edpnihd9zexa0" data-title="写在2018年的第一天" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-从typora转移到VNOTE-typora-to-vnote" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" class="article-date">
-  <time class="dt-published" datetime="2019-12-16T15:39:13.562Z" itemprop="datePublished">2019-12-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/">从typora转移到VNOTE</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>因为之前一直用的是Typora进行写作，笔记管理的方式就是新建文件夹，也是下图这种情况。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-254b1d8ed925480f9163a5c80f7cd0c1.png" alt="笔记本目录"></p>
-<p>从轻度写作而言，Typora基本上够用了，但是它并不是一个笔记管理工具。熊的原话是，就本地文件的管理而言，Typora和VNote之间相差一到两个印象笔记。并且从LTF(List, Tag, Filter)角度来看，我只有list，而没有tag，更不要说filter了，因此查找笔记全靠记忆或者靠搜索引擎（我的学习笔记基本上都发布在互联网了）。</p>
-<p>为了减少我转移笔记的手工操作，我分析了下VNOTE的笔记管理模式，发现核心文件就两个</p>
-<ul>
-<li>_v_imaes: 用于存放本地图片</li>
-<li>_vnote.json: 用于记录文件信息</li>
-</ul>
-<p>由于并且我的图片存储习惯和VNOTE一致，也就是为不同笔记本建立单独的图片目录，我的是assets，而VNote是<code>_v_images</code>，因此我在添加笔记本的时候，只做了如下简单的更改。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-6f2c53dfb35c4e31ab182b92590393de.png" alt="修改配置"></p>
-<p>最终结果如下</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/12/image-d7b5eabbe57d4bc598fbc110d2b1df94.png" alt="最终效果"></p>
-<p>因此，对于使用相对路径的我而言，我并不是从typora转移到VNote，而只是让我的之前的笔记本能够被VNote管理而已。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/12/16/%E4%BB%8Etypora%E8%BD%AC%E7%A7%BB%E5%88%B0VNOTE-typora-to-vnote/" data-id="cllszh64h008te2qehw27fhr0" data-title="从typora转移到VNOTE" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typora/" rel="tag">typora</a></li></ul>
-
     </footer>
   </div>
   
@@ -880,7 +923,7 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a></li></ul>
     </div>
   </div>
 
@@ -891,6 +934,10 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
+          </li>
         
           <li>
             <a href="/2023/08/27/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8singularity/">编译安装容器singularity</a>
@@ -906,10 +953,6 @@ my.group.by(iris, group.by = &quot;Species&quot;, sort.by = &quot;Sepal.Length&q
         
           <li>
             <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/22/%E5%9C%A8Windows%E4%B8%AD%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EWSL%E7%9A%84Python%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E7%8E%AF%E5%A2%83-building-a-wsl-based-python-data-science-environment-in-windows/">在Windows中搭建一个基于WSL的Python数据科学环境</a>
           </li>
         
       </ul>
