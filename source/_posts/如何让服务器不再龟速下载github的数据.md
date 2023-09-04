@@ -14,7 +14,7 @@ tags:
 
 第一步：购买代理服务器，我推荐使用熊猫翻滚，即[PandaFan](https://PandaFan.soccer?r=185780/), 注册的时候可以考虑填写邀请ID, 185780。
 
-第二步：安装clash，你可以考虑在服务器上直接下载，但是大概率会遇到龟速。百度网盘地址是，https://pan.baidu.com/s/1ERVR7_Y2hEilhqLKB4Gtrg?pwd=zgnh 提取码：zgnh .解压密码是 xuzhougeng.top。
+第二步：安装clash，你可以考虑在服务器上直接下载，但是大概率会遇到龟速。百度网盘链接: https://pan.baidu.com/s/1xErNbHOCsOeCnW44WfZQyg?pwd=zgnh 提取码: zgnh . 密码 xuzhougeng.top
 
 ```Bash
 wget https://github.com/Dreamacro/clash/releases/download/v1.18.0/clash-linux-amd64-v1.18.0.gz
