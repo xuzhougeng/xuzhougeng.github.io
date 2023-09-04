@@ -73,6 +73,73 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-MAKER的并行化初探-parallelization-of-maker" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" class="article-date">
+  <time class="dt-published" datetime="2020-06-29T04:28:13.909Z" itemprop="datePublished">2020-06-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/">MAKER的并行化初探</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>MAKER并行分为两种，一种基于MPI，运行方式为<code>mpiexec -n 线程数 maker</code>, 一种是在同一个项目中运行多次maker。前者需要在安装MAKER时进行设置，后者相当于你手动按照染色体数目进行拆分，然后分开运行MAKER。本片主要介绍基于MPI的并行策略。</p>
+<p>下图是MAKER是基于MPI的并行化流程。分为三个层次，contig水平，更小的片段水平，不同程序的并行。</p>
+<p>contig水平就是对每条contig进行分别注释。而由于每个contig的长度不一，当较短的contig运行结束后，我们还需要等待较长的contig结束。因此，我们还需要将contig继续拆分，让每条contig分成更小的片段，成为基本的分析单元。对于每个分析单元，还可以考虑将不同程序进行并行。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-5624eadd6cc346a4b93a63be53fea0fb.png" alt="Fig1"></p>
+<p>在MAKER实际运行时，如果用gotop进行查看你会发现系统中会出现很多maker进程(以<code>mpiexec -n 10</code>为例)</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-004af64038c349fb99dbb3ee58531b58.png" alt="Fig2"></p>
+<p>但是你发现只有少量的和注释有关的程序(如blastx)。如果用<code>ps aux | grep maker</code>查找和maker有关的进程，你会发现大量的<code>maintain.pl</code>进程，并且这些进程后面跟着一大串你不认识的符号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/perl /opt/biosoft/maker/bin/../lib/File/maintain.pl 46535 30 %04%09%08%31%3...</span><br></pre></td></tr></table></figure>
+
+<p>为了理解MAKER的并行，你需要通过<code>pstree -ap [mpiexec进程ID]</code>更细致的了解MAKER的进程树</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-e6e682747a3a443e9a2b0e9810f0177c.png" alt="Fig3"></p>
+<p>从中你可以发现，因为我们用<code>mpiexec</code>启动了10个maker进程，所以<code>hydra_pmi_proxy</code>有10个maker子进程。对于这10个maker子进程，每个进程都至少会有一个<code>maintain.pl</code>。通过阅读<code>maintain.pl</code>的源代码，我们可以得知该程序后接参数中的46535是PID(进程号), 30是sleep time, 最后一个是URI编码字符，是利用<code>Storable::freeze</code>持久化的数据结构，可以通过如下的代码进行解码（命名为decode.pl)</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env perl</span></span><br><span class="line"><span class="keyword">use</span> warnings;</span><br><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> URI::Escape;</span><br><span class="line"><span class="keyword">use</span> Storable;</span><br><span class="line"><span class="keyword">use</span> vars <span class="string">qw($LOCK)</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">my</span> $serial = <span class="keyword">shift</span>;</span><br><span class="line"></span><br><span class="line">$serial = uri_unescape($serial);</span><br><span class="line">$LOCK = Storable::thaw($serial);</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;$LOCK-&gt;&#123;lock_file&#125; \n&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以批量对<code>maintain.pl</code>里的信息进行解码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep maintain.pl | grep -v grep | awk <span class="string">&#x27;&#123;print $15&#125;&#x27;</span> | xargs -i perl decode.pl &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此，那么多的maker并不是在话说，而是在负责任务调度，差不多一个任务会有3个maker进程保驾护航。</p>
+<p>回到之前的进程数，这里有一些maker进程下会跟着一些正在运行的命令，blastx, exonerate</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-01a3786169a74d278d804a79c9e36e91.png" alt="Fig4"></p>
+<p>而有些只有maker和maintain.pl进程。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-6d38421ce79d4c129fe92e78d71a926d.png" alt="Fig5"></p>
+<p>如果等待一会，再次运行<code>pstree -ap [mpiexec进程ID]</code>，你会发现这两种状态会发生转换，这说明任务启动也需要一段时间。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" data-id="clm4a30pb00cfe6nke0ytcpj8" data-title="MAKER的并行化初探" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-Singularity和MPI应用-singularity-and-mpi-applications" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" class="article-date">
@@ -140,7 +207,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" data-id="clm1z22b7000vehn57anj7h27" data-title="Singularity和MPI应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/06/22/Singularity%E5%92%8CMPI%E5%BA%94%E7%94%A8-singularity-and-mpi-applications/" data-id="clm4a30tg00j7e6nkcuuxe7j4" data-title="Singularity和MPI应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -225,7 +292,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" data-id="clm1z22fm008vehn51bp551dv" data-title="使用ArchR分析单细胞ATAC-seq数据(第九章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/06/04/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B9%9D%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter9/" data-id="clm4a30i60025e6nkgwjk1owe" data-title="使用ArchR分析单细胞ATAC-seq数据(第九章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -410,7 +477,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/31/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AB%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter8/" data-id="clm1z22fo0095ehn59yysgzyn" data-title="使用ArchR分析单细胞ATAC-seq数据(第八章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/31/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AB%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter8/" data-id="clm4a30i9002fe6nk83ur71gt" data-title="使用ArchR分析单细胞ATAC-seq数据(第八章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -561,7 +628,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" data-id="clm1z22fk008oehn5dbe4bxcs" data-title="使用ArchR分析单细胞ATAC-seq数据(第七章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/25/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%83%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter7/" data-id="clm4a30i3001ye6nkayzv6cwg" data-title="使用ArchR分析单细胞ATAC-seq数据(第七章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -665,7 +732,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AD%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter6/" data-id="clm1z22fp0099ehn5gkvb8hqh" data-title="使用ArchR分析单细胞ATAC-seq数据(第六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%85%AD%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter6/" data-id="clm4a30ib002je6nk89b9bqdw" data-title="使用ArchR分析单细胞ATAC-seq数据(第六章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -730,7 +797,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter5/" data-id="clm1z22fn0092ehn5dw126nlz" data-title="使用ArchR分析单细胞ATAC-seq数据(第五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%94%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter5/" data-id="clm4a30i8002ce6nkf7px8ut4" data-title="使用ArchR分析单细胞ATAC-seq数据(第五章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -808,7 +875,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%9B%9B%E7%AB%A0)-sanalysis-sc-atac-seq-with-archr-chapter4/" data-id="clm1z22fv009xehn51q1bbvbm" data-title="使用ArchR分析单细胞ATAC-seq数据(第四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/24/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%9B%9B%E7%AB%A0)-sanalysis-sc-atac-seq-with-archr-chapter4/" data-id="clm4a30q300eee6nk52yt5h2d" data-title="使用ArchR分析单细胞ATAC-seq数据(第四章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -978,7 +1045,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" data-id="clm1z22fl008rehn54e4sc5jm" data-title="使用ArchR分析单细胞ATAC-seq数据(第三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/23/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter3/" data-id="clm4a30i50022e6nkf33a4411" data-title="使用ArchR分析单细胞ATAC-seq数据(第三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1051,202 +1118,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/22/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter2/" data-id="clm1z22fm008yehn5akhg1z22" data-title="使用ArchR分析单细胞ATAC-seq数据(第二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ATAC-seq-%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">ATAC-seq | 单细胞</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用ArchR分析单细胞ATAC-seq数据(第一章)-analysis-sc-atac-seq-with-archr-chapter1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/05/21/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter1/" class="article-date">
-  <time class="dt-published" datetime="2020-05-21T13:08:26.879Z" itemprop="datePublished">2020-05-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/05/21/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter1/">使用ArchR分析单细胞ATAC-seq数据(第一章)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="第1章-ArchR基础入门"><a href="#第1章-ArchR基础入门" class="headerlink" title="第1章: ArchR基础入门"></a>第1章: ArchR基础入门</h1><p>这一章将会介绍如何导入数据，如何构建Arrow文件，这是后续ArchR分析的基础。</p>
-<h2 id="1-1-ATAC-seq术语介绍"><a href="#1-1-ATAC-seq术语介绍" class="headerlink" title="1.1 ATAC-seq术语介绍"></a>1.1 ATAC-seq术语介绍</h2><p>“<strong>fragment</strong>“是ATAC-seq实验中的一个重要概念，它指的是通过Tn5转座酶对DNA分子进行酶切，然后经由双端测序得到的序列。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-6e2966763aa0479cb68b6157e1e6dd31.png" alt="fragment产生过程"></p>
-<p>我们会根据Tn5插入导致的偏移从read比对得到的位置推断出<strong>fragment</strong>的起始和结束位置。根据之前的报道，Tn5转座酶以同源二聚体的形式结合到DNA上，在两个Tn5分子间隔着9-bp的DNA序列。根据这个情况，每个Tn5同源二聚体的结合事件会产生2个<strong>Insertions</strong>，中间隔着9bp。因此，真实的”开放”位置的中心在Tn5二聚体的正中间，而不是Tn5的插入位置。为了尽可能的还原真实情况，我们对Tn5的<strong>Insertions</strong>进行了校正，即正链的插入结果往右移动4bp(+4 bp), 负链的插入结果往左偏移5bp(-5 bp)。这个和<a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/pubmed/24097267">最早提出的ATAC-seq</a>里的描述是一致的。因此，在<code>ArchR</code>中，”<strong>fragment</strong>“指的是一个<code>table</code>或<code>genomic ranges</code>对象, 记录在染色体上，经过偏移校正后的单碱基起始位置，以及经过偏移校正后单碱基结束位置，每个fragment都会对应唯一的细胞条形码。类似的，”Insertions”这得是偏移校正后的单碱基位置，它位于开放位置的正中心。</p>
-<blockquote>
-<p>“fragment”和”insertions”这两个词我并没有将其翻译成中文，我觉得这两个单词可能就和PCR一样，当说到它们的时候，脑中会有一个画面描述它们，而不是局限一个词。</p>
-</blockquote>
-<h2 id="1-2-为什么是用ArchR"><a href="#1-2-为什么是用ArchR" class="headerlink" title="1.2 为什么是用ArchR"></a>1.2 为什么是用ArchR</h2><p>现在其实已经有一些工具能够处理单细胞ATAC-seq数据，我们为什么要额外造一个轮子，开发一个新的项目呢？主要是ArchR提供了其他工具目前尚不能实现的功能</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-b7bbe4ff672b46e0992416e762c03fb6.png" alt="工具对比"></p>
-<p>不仅如此，ArchR通过优化数据结构降低了内存消耗，使用并行提高了运行速度，因此保证其性能优于其他同类型工具。在超过70,000个细胞的分析项目中，一些软件需要超过128G的可用内存。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-5fb674263af341d4a0c11339fcb982fb.png" alt="性能对比"></p>
-<p>ArchR最初就是根据Unix的笔记本进行设计（我觉得他说的是MacBook Pro），因此对于中等大小的实验（小于100,000个细胞），ArchR能够保证一些特殊分析的运行速度，并能实时的展示结果，让我们能够更深入的和数据进行互动，给出有意义的生物学解释。当然，如果细胞数更多，你最好使用服务器进行分析。ArchR提供了方便的图形导出功能，在服务器处理完项目之后，可以直接下载到本地进行使用。</p>
-<p><strong>目前，ArchR并没有针对Windows进行优化</strong>。这句话的意思是指，ArchR的并行策略是基于Unix系统而非Windows系统，因此上述说的性能提升不包括Windows。</p>
-<h2 id="1-3-什么是Arrow文件-ArchRProject"><a href="#1-3-什么是Arrow文件-ArchRProject" class="headerlink" title="1.3 什么是Arrow文件&#x2F;ArchRProject"></a>1.3 什么是Arrow文件&#x2F;ArchRProject</h2><p>正如开头所说，ArchR分析项目的基础是Arrow文件。每个Arrow文件记录着每个<strong>独立样本</strong>的所有相关信息（例如元信息、开放的fragment和数据矩阵）。这里说的<strong>独立样本</strong>最好是最详尽的分析单元（例如，一种特定条件下的单个重复）。在创建Arrow文件以及一些附加分析中，ArchR会编辑和更新相应的Arrow文件，在其中添加额外的信息层。值得注意的是，Arrow文件实际指的是磁盘上的文件路径。更确切的说，Arrow文件并不是一个存放在内存中的R语言对象，而是存放在磁盘上HDF5文件。正因如此，我们使用<code>ArchRProject</code>对象用来关联这些Arrow文件，将其关联到单个分析框架中，从而保证在R中能高效访问它们。而这个<code>ArchRProject</code>对象占用内存不多，因此才是存放在内存中的R语言对象。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-4a871115e6a84b64a4f393f6fc7107a8.png" alt="Arrow File"></p>
-<p>有一些操作会直接修改Arrow文件，而一些操作会先作用于<code>ArchRproject</code>，接着反过来更新每个相关Arrow文件。因为Arrow文件是以非常大的HDF5格式存放，所以ArchR的<code>get-er</code>函数通过和<code>ArchRProject</code>进行交互获取数据，而<code>add-er</code>函数既能直接在Arrow文件中添加数据，也能直接在<code>ArchRpoject</code>里添加数据，或者通过<code>ArchRpoject</code>向Arrow文件添加数据。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-ee747106c4aa4f5682afa1536819e170.png" alt="ArchRProject"></p>
-<h2 id="1-4-ArchR的输入文件类型"><a href="#1-4-ArchR的输入文件类型" class="headerlink" title="1.4 ArchR的输入文件类型"></a>1.4 ArchR的输入文件类型</h2><p>ArchR主要以scATAC-seq原始数据经上游处理后的两种常见输出文件(BAM, fragment)作为输入。Fragment文件记录着scATAC-seq的fragment以及对应的细胞ID，每一行都是一条记录，该文件需要是tabix(见注1)排序并建立索引保证能被高效读取。BAM文件则是二进制格式下的tabix排序文件，记录着scATAC-seq的fragment、原始数据、细胞条形码和其他信息。具体使用何种文件作为输入取决于你的上游处理流程。以10XGenomics的CellRanger软件为例，它的输出文件是fragments，而sci-ATAC-seq流程则输出BAM文件。</p>
-<p>ArchR使用<code>scanTabix</code>函数读取fragment文件，使用<code>scanBAM</code>读取BAM文件。输入过程并不会直接读取所有数据，而是每次读取一大块(chunks)，然后将这一块数据转换成fragment格式(见注2)，经过压缩先暂时以HDF5格式保存到本地磁盘上，避免消耗过多的内存。最后，等所有数据都加载完成之后，该数据相关的所有临时HDF5文件会被重新读取，经过组织之后以单个HDF5形式保存为Arrow文件。ArchR之所以能以较小的内存量高效地读取大文件，就是因为它采用的是这种分块处理的方法，由于每一块数据的处理都互不干扰，因此也就能够并行计算。</p>
-<ul>
-<li>注1: 当以制表符记录基因组位置信息时，我们可以通过压缩让其体积变小(bgzip&#x2F;gzip)，通过建立<a target="_blank" rel="noopener" href="http://www.htslib.org/doc/tabix.html">tabix</a>索引高效访问给定位置的信息。</li>
-<li>注2: fragments一共有5列，分别是chromosome, offset-adjusted chromosome <strong>start</strong> position, offset-adjusted chromosome <strong>end</strong> position, and cellular barcode <strong>ID</strong>, duplicate count</li>
-</ul>
-<h2 id="1-5-开始设置"><a href="#1-5-开始设置" class="headerlink" title="1.5 开始设置"></a>1.5 开始设置</h2><p>在后续分析之前，请先设置好我们的工作目录，设置将要使用的线程数，加载我们的基因和基因组注释。由于每个人的环境都不太一样，所以你后续可能需要用<code>addArchRThreads()</code>修改线程数。默认情况下，ArchR使用系统一半的可用线程，你可以手动进行调整。如果你用的是Windows，那么默认都是1，这是因为ArchR的多线程是基于Unix操作系统。</p>
-<p>第零步，安装ArchR。目前ArchR托管在GitHub上，因此无法直接用CRAN或者Bioconductor中直接下载安装。</p>
-<p>方法1：适用于网络状态好的情况</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;devtools&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span> install.packages<span class="punctuation">(</span><span class="string">&quot;devtools&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;BiocManager&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span> install.packages<span class="punctuation">(</span><span class="string">&quot;BiocManager&quot;</span><span class="punctuation">)</span></span><br><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;GreenleafLab/ArchR&quot;</span><span class="punctuation">,</span> ref<span class="operator">=</span><span class="string">&quot;master&quot;</span><span class="punctuation">,</span> repos <span class="operator">=</span> BiocManager<span class="operator">::</span>repositories<span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>方法2: 适用于上述方法多次失败的情况</p>
-<p>先从Github上下载项目到本地, 大约有262Mb</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/GreenleafLab/ArchR.git</span><br></pre></td></tr></table></figure>
-
-<p>然后在 R里面进行安装</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;nabor&quot;</span><span class="punctuation">,</span><span class="string">&quot;motifmatchr&quot;</span><span class="punctuation">,</span><span class="string">&quot;chromVAR&quot;</span><span class="punctuation">,</span><span class="string">&quot;ComplexHeatmap&quot;</span><span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;./ArchR&quot;</span><span class="punctuation">,</span> repo<span class="operator">=</span><span class="literal">NULL</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>接着安装一些额外包</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ArchR<span class="operator">::</span>installExtraPackages<span class="punctuation">(</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>如果安装失败，就手动安装 Seurat, immunogenomics&#x2F;harmony,  immunogenomics&#x2F;presto,  Cairo，shiny, shinythemes, rhandsontable</p>
-<p>第一步，我们加载ArchR包。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library<span class="punctuation">(</span>ArchR<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>第二步, 我们需要设置ArchR函数的默认线程数。你需要在每个新的R session中都设置该参数，线程多多益善，但是不要超过总线程的3&#x2F;4。因为线程会和内存挂钩，所以线程数越多，内存相应使用的也越多。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addArchRThreads<span class="punctuation">(</span>threads <span class="operator">=</span> <span class="number">16</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>第三步: 我们设置需要使用基因和基因组注释。同样，这也是每个新的R session需要设置的参数。当然，我们需要使用和序列比对阶段相同的基因组版本。对于本教程使用的数据，我们会使用hg19参考基因组。ArchR支持多种基因组注释，并且允许自定义基因组注释。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addArchRGenome<span class="punctuation">(</span><span class="string">&quot;hg19&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>基因和基因组注释信息是后续计算TSS富集得分，核小体含量和基因活跃度得分所必需的。同样，你得保证这里选择的基因组版本得和你上游数据处理时用到的基因组版本一致。我们这里设置”hg19”就是因为上数据处理用的是hg19作为参考基因组。除了hg19外，ArchR还提供了”hg38”, “mm9”, “mm10”, 并且允许用户使用<code>createGeneAnnotation</code>和<code>createGenomeAnnotation</code>函数创建其他物种注释。</p>
-<p>我们使用<code>addArchRGenome</code>函数无缝地为ArchR提供这些信息。该函数告诉ArchR，在之后的所有分析中，它应该使用定义在<code>ArchRgenome</code>的相关<code>genomeAnnotation</code>和<code>geneAnnotation</code>。每一个原生支持的基因组都包括四个对象(object)</p>
-<ul>
-<li>BSgenome: 记录 染色体坐标信息和染色体序列信息</li>
-<li>GRanges: 记录blacklist, 即对分析没有用设置可能产生干扰的区域</li>
-<li>TxDb: 定义所有基因的位置信息</li>
-<li>OrgDb: 提供基因编号，以及不同基因编号之间的转换</li>
-</ul>
-<p>如下是ArchR自带的物种注释的数据来源</p>
-<hr>
-<p>ArchR的预编译的<strong>hg19</strong>基因组用的是<code>BSgenome.Hsapiens.UCSC.hg19</code>, <code>TxDb.Hsapiens.UCSC.hg19.knownGene</code>, <code>org.Hs.eg.db</code>。而黑名单(记录着一直打开的区域，对后续分析没有帮助的位置）则来源于 <a target="_blank" rel="noopener" href="https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg19-blacklist.v2.bed.gz">hg19 v2 blacklist regions</a> 和<a target="_blank" rel="noopener" href="https://github.com/caleblareau/mitoblacklist/blob/master/peaks/hg19_peaks.narrowPeak">mitochondrial regions that show high mappability to the hg19 nuclear genome from  Caleb Lareau and Jason Buenrostro</a>，用<code>ArchR::mergeGR()</code>函数进行合并</p>
-<hr>
-<p>ArchR的预编译的<strong>hg38</strong>基因组用的是<code>BSgenome.Hsapiens.UCSC.hg38</code>, <code>TxDb.Hsapiens.UCSC.hg38.knownGene</code>, <code>org.Hs.eg.db</code>。而黑名单(记录着一直打开的区域，对后续分析没有帮助的位置）则来源于 <a target="_blank" rel="noopener" href="https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg38-blacklist.v2.bed.gz">hg19 v2 blacklist regions</a> 和<a target="_blank" rel="noopener" href="https://github.com/caleblareau/mitoblacklist/blob/master/peaks/hg38_peaks.narrowPeak">mitochondrial regions that show high mappability to the hg38 nuclear genome from  Caleb Lareau and Jason Buenrostro</a>，用<code>ArchR::mergeGR()</code>函数进行合并</p>
-<hr>
-<p>ArchR的预编译的<strong>mm9</strong>基因组用的是<code>BSgenome.Mmusculus.UCSC.mm9</code>, <code>TxDb.Mmusculus.UCSC.mm9.knownGene</code>, <code>org.Mm.eg.db</code>。而黑名单(记录着一直打开的区域，对后续分析没有帮助的位置）则来源于 <a target="_blank" rel="noopener" href="http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/mm9-mouse/mm9-blacklist.bed.gz">mm9 v1 blacklist regions</a> 和<a target="_blank" rel="noopener" href="https://github.com/caleblareau/mitoblacklist/blob/master/peaks/mm9_peaks.narrowPeak">mitochondrial regions that show high mappability to the mm9 nuclear genome from  Caleb Lareau and Jason Buenrostro</a>，用<code>ArchR::mergeGR()</code>函数进行合并</p>
-<hr>
-<p>ArchR的预编译的<strong>mm10</strong>基因组用的是<code>BSgenome.Mmusculus.UCSC.mm10</code>, <code>TxDb.Mmusculus.UCSC.mm10.knownGene</code>, <code>org.Mm.eg.db</code>。而黑名单(记录着一直打开的区域，对后续分析没有帮助的位置）则来源于 <a target="_blank" rel="noopener" href="https://github.com/Boyle-Lab/Blacklist/blob/master/lists/mm10-blacklist.v2.bed.gz">mm10 v2 blacklist regions</a> 和<a target="_blank" rel="noopener" href="https://github.com/caleblareau/mitoblacklist/blob/master/peaks/mm10_peaks.narrowPeak">mitochondrial regions that show high mappability to the mm10 nuclear genome from  Caleb Lareau and Jason Buenrostro</a>，用<code>ArchR::mergeGR()</code>函数进行合并</p>
-<h3 id="1-5-1-自定义ArchRGenome"><a href="#1-5-1-自定义ArchRGenome" class="headerlink" title="1.5.1: 自定义ArchRGenome"></a>1.5.1: 自定义ArchRGenome</h3><p>如上所述，一个<code>ArchRGenome</code>需要包括基因组注释和基因注释</p>
-<p>为了构建自定义的基因组注释，我们会使用<code>createGenomeAnnotation</code>. 他需要如下2个信息</p>
-<ul>
-<li>BSgenome: 包括基因组的序列信息，你可以通过谷歌查找指定物种的Bioconductor包</li>
-<li>GRanges: 记录基因组中的黑名单区域，用来过滤下游分析中不需要的区间。这不是必须的，毕竟不是所有物种都能有这个文件。 <a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/pubmed/31249361">publication on the ENCODE blacklists</a>提供黑名单列表的制作方法。</li>
-</ul>
-<p>例如，我们如果需要为Drosophila melanogaster创建一个基因组注释，那么我们需要先下载对应的BSgenome</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;BSgenome.Dmelanogaster.UCSC.dm6&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;BSgenome.Dmelanogaster.UCSC.dm6&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line">library<span class="punctuation">(</span>BSgenome.Dmelanogaster.UCSC.dm6<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>接着，我们从BSgenome对象中创建基因组注释</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">genomeAnnotation <span class="operator">&lt;-</span> createGenomeAnnotation<span class="punctuation">(</span>genome <span class="operator">=</span> BSgenome.Dmelanogaster.UCSC.dm6<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>查看这个对象，你可以看到一个ArchR基因组注释的组成内容</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">genomeAnnotation</span><br><span class="line"><span class="comment">## List of length 3</span></span><br><span class="line"><span class="comment">## names(3): genome chromSizes blacklist</span></span><br></pre></td></tr></table></figure>
-
-<p>为了构造一个自定义基因注释，我们需要用到<code>createGeneAnnotation()</code>，它需要你提供如下两个信息  </p>
-<ul>
-<li>TxDb: 记录gene&#x2F;transcript的坐标信息</li>
-<li>OrgDb: 用于基因名和其他基因编号的转换</li>
-</ul>
-<p>继续之前的Drosophila melanogaster案例，我们需要先安装并加载相关的<code>TxDb</code>和<code>OrgDb</code>对象</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;TxDb.Dmelanogaster.UCSC.dm6.ensGene&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;TxDb.Dmelanogaster.UCSC.dm6.ensGene&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="keyword">if</span> <span class="punctuation">(</span><span class="operator">!</span>requireNamespace<span class="punctuation">(</span><span class="string">&quot;org.Dm.eg.db&quot;</span><span class="punctuation">,</span> quietly <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">)</span><span class="punctuation">)</span><span class="punctuation">&#123;</span></span><br><span class="line">  BiocManager<span class="operator">::</span>install<span class="punctuation">(</span><span class="string">&quot;org.Dm.eg.db&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line">library<span class="punctuation">(</span>TxDb.Dmelanogaster.UCSC.dm6.ensGene<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>org.Dm.eg.db<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>记着，我们构建基因注释对象</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">geneAnnotation <span class="operator">&lt;-</span> createGeneAnnotation<span class="punctuation">(</span>TxDb <span class="operator">=</span> TxDb.Dmelanogaster.UCSC.dm6.ensGene<span class="punctuation">,</span> OrgDb <span class="operator">=</span> org.Dm.eg.db<span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>检查该对象，可以了解ArchR关于基因注释的存放形式</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">geneAnnotation</span><br><span class="line"><span class="comment">## List of length 3</span></span><br><span class="line"><span class="comment">## names(3): genes exons TSS</span></span><br></pre></td></tr></table></figure>
-
-<p>如果你没有TxDb和OrgDb对象，你也可以直接根据如下信息创建<code>geneAnnotation</code>对象</p>
-<ol>
-<li>“genes”: GRanges对象，记录基因的坐标信息，起始位置和结束。必须要有一列是和”exons”对象中其中一列匹配</li>
-<li>“exons”: 记录每个基因外显子的坐标。必须要有一列和”genes”对象中的一列匹配</li>
-<li>“GRanges”: 记录TSS(转录起始位点)的坐标</li>
-</ol>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">geneAnnotation <span class="operator">&lt;-</span> createGeneAnnotation<span class="punctuation">(</span></span><br><span class="line">  TSS <span class="operator">=</span> geneAnnotation<span class="operator">$</span>TSS<span class="punctuation">,</span></span><br><span class="line">  exons <span class="operator">=</span> geneAnnotation<span class="operator">$</span>exons<span class="punctuation">,</span></span><br><span class="line">  genes <span class="operator">=</span> geneAnnotation<span class="operator">$</span>genes</span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="1-5-2-使用非标准基因组"><a href="#1-5-2-使用非标准基因组" class="headerlink" title="1.5.2 使用非标准基因组"></a>1.5.2 使用非标准基因组</h3><p>ArchR会做一些必要的检查，来避免你做一些ArchR觉得”不符合常理”的操作。其中就是检查你的基因组注释的<code>seqnames</code>都需要以”chr”开头。大部分情况下这都没有问题，除了一些基因组的染色体并不都是以”chr”作为前缀（例如玉米）。如果用ArchR分析这些基因组，你需要告知ArchR忽略染色体名前缀，否则会报错停止。你需要在创建Arrow文件前，先运行<code>addArchRChrPrefix(chrPrefix = FALSE) </code>. 它会当前的R session里停止所有对染色体名前缀的检查操作。</p>
-<p>此外，ArchR默认会将染色体名&#x2F;seqnames转成字符串，因此如果你的<code>seqnames</code>都是数字，你需要以字符串形式提供这seqnames, 例如，你需要执行<code>useSeqnames = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;)</code>，而不是<code>useSeqnames = c(1, 2, 3)</code></p>
-<p>你可以用<code>getArchRChrPrefix</code>随时检查当前R session是否需要染色体前缀。</p>
-<h2 id="1-6-创建Arrow文件"><a href="#1-6-创建Arrow文件" class="headerlink" title="1.6 创建Arrow文件"></a>1.6 创建Arrow文件</h2><p>在本教程的后续部分，我们会使用<a target="_blank" rel="noopener" href="https://www.ncbi.nlm.nih.gov/pubmed/31792411">Granja* et al. Nature Biotechnology 2019</a>文章的数据进行展示，当然不是所有的数据集，我们会使用降抽样的造血细胞数据集，保证大部分人的电脑都能带动。该数据集包括了骨髓单核细胞(BMMC)和外周血单核细胞(PBMC)，以及CD34+造血干细胞和骨髓前体细胞(CD34 BMMC)。</p>
-<p>我们下载的数据以fragment格式存放，记录每个比对序列在基因组上的位置。Fragments文件是10X Genomics分析平台的其中一个输出文件，或者你也可以从BAM文件进</p>
-<p>一旦我们得到了fragment文件，我们将它们的路径记录在一个向量中，然后作为参数传给<code>createArrowFiles()</code>. 在构建过程中，一些基本的元信息和矩阵会增加到各个Arrow文件中，包括<code>TileMatrix</code>和<code>GeneScoreMatrix</code>. 其中TileMarix记录的以500-bp作为分窗统计染色体上各个位置上是否有insertion（具体见<code>addTileMatrix</code>）, GeneScoreMatrix则是基于邻近基因启动子的insetion数推断的基因表达量（见<code>addGeneScoreMatrix()</code>）。</p>
-<p>教程用到的数据，可以用<code>getTutorialData</code>进行下载，大约为0.5G。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inputFiles <span class="operator">&lt;-</span> getTutorialData<span class="punctuation">(</span><span class="string">&quot;Hematopoiesis&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>当然这一步实际是在本地建立一个HemeFragments目录，并下载指定数据，因此如果网络太差，可以自己尝试下载。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> HemeFragments &amp;&amp; <span class="built_in">cd</span> HemeFragments</span><br><span class="line">wget <span class="string">&#x27;https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_BMMC_R1.fragments.tsv.gz&#x27;</span></span><br><span class="line">wget <span class="string">&#x27;https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_CD34_BMMC_R1.fragments.tsv.gz&#x27;</span></span><br><span class="line">wget <span class="string">&#x27;https://jeffgranja.s3.amazonaws.com/ArchR/TestData/HemeFragments/scATAC_PBMC_R1.fragments.tsv.gz&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>在启动项目前，我们必须得设置<code>ArchRGenome</code>并设置线程数<code>threads</code></p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">addArchRGenome<span class="punctuation">(</span><span class="string">&quot;hg19&quot;</span><span class="punctuation">)</span> <span class="comment"># hg38, mm9, mm10</span></span><br><span class="line">addArchRThreads<span class="punctuation">(</span>threads <span class="operator">=</span> <span class="number">16</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>从现在开始，我们将会用10-15分钟的时间创建Arrow文件。对每一个样本，都会有如下操作</p>
-<ol>
-<li>从给定文件中读取开放信息(fragments)</li>
-<li>为每个细胞计算质控信息(TSS富集得分和核小体信息)</li>
-<li>根据质控参数过滤细胞</li>
-<li>以500bp为窗口构建全基因组范围的TileMatrix</li>
-<li>使用自定义的<code>geneAnnotaiton</code>创建GeneScoreMatrix, 其中<code>geneAnnotation</code>在我们调用<code>addArchRGenome</code>时定义</li>
-</ol>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrowFiles <span class="operator">&lt;-</span> createArrowFiles<span class="punctuation">(</span></span><br><span class="line">  inputFiles <span class="operator">=</span> inputFiles<span class="punctuation">,</span></span><br><span class="line">  sampleNames <span class="operator">=</span> <span class="built_in">names</span><span class="punctuation">(</span>inputFiles<span class="punctuation">)</span><span class="punctuation">,</span></span><br><span class="line">  filterTSS <span class="operator">=</span> <span class="number">4</span><span class="punctuation">,</span> <span class="comment"># 这个参数不需要过高，后续可以调整</span></span><br><span class="line">  filterFrags <span class="operator">=</span> <span class="number">1000</span><span class="punctuation">,</span></span><br><span class="line">  addTileMat <span class="operator">=</span> <span class="literal">TRUE</span><span class="punctuation">,</span></span><br><span class="line">  addGeneScoreMat <span class="operator">=</span> <span class="literal">TRUE</span></span><br><span class="line"><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>我们可以看下<code>ArrowFiles</code>对象，检查它是否真的是一个存放Arrow文件路径的向量</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArrowFiles</span><br><span class="line"><span class="comment"># [1] &quot;scATAC_BMMC_R1.arrow&quot;      &quot;scATAC_CD34_BMMC_R1.arrow&quot;</span></span><br><span class="line"><span class="comment"># [3] &quot;scATAC_PBMC_R1.arrow&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="1-7-细胞质控"><a href="#1-7-细胞质控" class="headerlink" title="1.7 细胞质控"></a>1.7 细胞质控</h2><p>scATAC-seq的严格质控对于剔除低质量细胞至关重要。在ArchR中，我们考虑数据的三种信息</p>
-<ol>
-<li>每个细胞中唯一比对数(number of unique nuclear fragments)，不包括比对到线粒体的部分(unique nuclear fragments, 类似于单细胞转录组数据的表达的基因量)</li>
-<li>信噪比(signal-to-background ratio)。如果是死细胞或者快死的细胞，那么DNA倾向于去染色质化，就会导致全局转座酶随机切割，体现出来就是信噪比低。</li>
-<li>fragment大小分布( fragment size distribution)。 由于核小体周期性，我们期望看到在147-bp附近出现一个低谷，因为缠绕一个核小体的DNA序列大约为147bp。</li>
-</ol>
-<p>第一个参数, 唯一比对数非常的直观，如果一个细胞中的唯一比对太少，显然在后续分析中也没有太多可用价值，可以直接剔除掉。</p>
-<p>第二个参数，信噪比是根据TSS富集分数进行计算。传统的混池ATAC-seq分析中，会使用TSS富集得分作为标准流程的一部分，用于确定信噪比（如 <a target="_blank" rel="noopener" href="https://www.encodeproject.org/atac-seq/">ENCODE计划</a>）。我们和其他人通过混池ATAC-seq和scATAC-seq分析发现，TSS富集得分在大部分的细胞类型中都具有代表性。TSS富集得分的背后思想是，由于大蛋白复合体会结合在启动子区域，ATAC-seq数据更多的富集在基因的TSS区域而不基因组其他区域。通过检查这些TSS区域中心的开放水平，我们发现中心相对于两侧(两边的1900-2000 bp处)存在富集现象。因此，我们定义富集中心(TSS中心)相对于两侧区域的比值为TSS富集得分(TSS enrichment score)</p>
-<p>传统上，我们会计算每个混池ATAC-seq样本中每个碱基的开放性，之后这个谱会被用于确定TSS富集得分。在scATAC-seq中通过该方法计算每个细胞的TSS富集得分速度较慢，并且需要很强的算力。为了提高计算效率，同时还能得到和传统计算接近的结果，我们以TSS位置为中心，以50-bp作为分窗计算两边的平均开放程度，之后该值除以TSS两侧位置(+-1900-200bp)的平均开放程度。 这种计算方法和原来相对比，两者的相关性大于0.99，并且结果几乎一样。</p>
-<p>第三个参数fragment大小分布并不是特别重要，最好是人工检查下。由于DNA缠绕核小体的模式，我们预期在fragment大小分布中看到核小体的周期性分布。这些山峰和低谷的出现正是由于DNA缠绕0，1，2个核小体的结果(Tn5无法切割缠绕在核小体的DNA序列，只能切割两边）</p>
-<p>ArchR默认会过滤TSS富集得分低于4或唯一比对数小于1000（也就是保留TSS富集得分大于4且唯一比对数大于1000的细胞）。<strong>切记</strong>，ArchR默认的参数最初是用于人类数据，不能直接用于其他物种。每个数据都有他的独特性，切勿生搬硬套，我们需要按照实际情况设置参数。一定要在<code>createArrowFiles()</code>运行前设置好该参数。</p>
-<hr>
-<p>创建Arrow文件会在当前目录下生成一个”QualityControl”目录，这里面包括2个和样本相关的图。第一个图展示<code>log10(unique nuclear fragments) vs TSS enrichment score</code>, 虚线表示过滤阈值。第二图注释fragment大小分布图。</p>
-<p>对我们的教程数据，我们的三个样本表现如下</p>
-<p>BMMC:</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-8391ec1c6ae54aadbe2d7412c7db903e.png" alt="BMMC"></p>
-<p>CD34+ BMMC:</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-1956fc3ef8a54484bd157729c3fdaccd.png" alt="CD34 BMMC"></p>
-<p>PBMC:</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/05/image-6619fa90e04a43d4926293283d6c77b5.png" alt="PBMC"></p>
-<p>我们现在整理完毕我们的Arrow文件，接下来就是创建<code>ArchRProject</code>了。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/05/21/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter1/" data-id="clm1z22ek004vehn5d1mb52hm" data-title="使用ArchR分析单细胞ATAC-seq数据(第一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/05/22/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter2/" data-id="clm4a30i70028e6nk855k8z6i" data-title="使用ArchR分析单细胞ATAC-seq数据(第二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1317,6 +1189,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1330,10 +1206,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

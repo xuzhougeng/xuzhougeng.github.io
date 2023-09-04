@@ -73,6 +73,77 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-LeetCode-105-前序和中序构建二叉树-leetcode-105" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" class="article-date">
+  <time class="dt-published" datetime="2020-02-17T20:20:14.481Z" itemprop="datePublished">2020-02-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/">LeetCode-105-前序和中序构建二叉树</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>给定一个二叉树前序遍历数组A 124367，中序遍历得到数组B, 421637。我们的任务是从这两个结果中构造出原来二叉树。</p>
+<p>根据前序遍历的顺序，可以知道数组是先存放根，然后是左子树，最后是右子树。</p>
+<p>根据中序遍历的顺序，可以知道数组是先放左子树，然后是根，最后是右子树。</p>
+<p>根据定义，前序遍历数组第一个位置是根节点，但左子树和右子树大小未知。而中序遍历一旦确定根的位置，就可以确定左右子树的大小。这两者刚好是互补关系。</p>
+<p>因此具体过程是</p>
+<ul>
+<li>用前序数组的第一个位置确定中序数组的根位置</li>
+<li>将中序数组分成两个部分，得到左右子树的大小。</li>
+<li>用左右子树的大小确定前序数组的左右子树位置</li>
+<li>对于新生成的左右子树，用上面方法确定新的根位置和左右子树大小。</li>
+</ul>
+<p>对于本问题，就是1将421637分成42和637,这意味着左子数大小为2，右子数大小为3.于是124367被分成1，24，367.</p>
+<p>24和42是新的左子树问题，367和637是新的右子树问题。</p>
+<p>理清思路之后，我们可以按照递归模版四步走起来</p>
+<p>第零步：思考函数名和传递的参数和全局变量。根据我们的分析，我们最重要的就是子问题对应数组的区间，也就是我们需要记录前序数组的左右子树开始和结束(pb, pe), 中序数组的开始和结束(ib, ie), 函数名的话，就写dc吧</p>
+<p>第一步：终止条件。这里终止条件是前序数组用完了（当然中序数组肯定也用完了）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (pb &gt; pe) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<p>第二步:  处理逻辑。每次用前序节点的第一个位置构建根节点，然后拆分中序节点，获取左右子树的大小，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TreeNode *root = new TreeNode(preorder[pb]);</span><br><span class="line"><span class="type">int</span> rootIndex = mp[root-&gt;val]; <span class="comment">//获取中序的位置</span></span><br><span class="line"><span class="type">int</span> leftSize = rootIndex - ib; <span class="comment">//左子树大小</span></span><br><span class="line"><span class="type">int</span> rightSize = ie - rootIndex; <span class="comment">//右</span></span><br></pre></td></tr></table></figure>
+
+<p>第三步，下潜一层, 新的一层要带新的参数过去。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root-&gt;left = dc(preorder,pb+<span class="number">1</span>,pb+leftSize, inorder,ib, rootIndex<span class="number">-1</span>);</span><br><span class="line">root-&gt;right = dc(preorder,pb+leftSize+<span class="number">1</span>, pe, inorder, rootIndex+<span class="number">1</span>, ie);</span><br></pre></td></tr></table></figure>
+
+<p>第四步：状态重置。此处不需要</p>
+<p>最终返回root即可。</p>
+<p>对应的完成代码见 <a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/algorithm006-class01/blob/master/Week_02/G20200343030533/LeetCode_105_533.cpp">https://github.com/xuzhougeng/algorithm006-class01/blob/master/Week_02/G20200343030533/LeetCode_105_533.cpp</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/02/17/LeetCode-105-%E5%89%8D%E5%BA%8F%E5%92%8C%E4%B8%AD%E5%BA%8F%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91-leetcode-105/" data-id="clm4a30p700c6e6nkgba70h53" data-title="LeetCode-105-前序和中序构建二叉树" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-C-C/" rel="tag">数据结构 | C&#x2F;C++</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-LeetCode-042-接雨水-leetcode-042" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" class="article-date">
@@ -129,7 +200,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="clm1z22f3006rehn598zg0pfb" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/13/LeetCode-042-%E6%8E%A5%E9%9B%A8%E6%B0%B4-leetcode-042/" data-id="clm4a30p300c3e6nkb1nseen9" data-title="LeetCode-042-接雨水" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -228,7 +299,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" data-id="clm1z22f4006yehn510q6fna2" data-title="LeetCode-084-最大面积" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/12/LeetCode-084-%E6%9C%80%E5%A4%A7%E9%9D%A2%E7%A7%AF-leetcode-084/" data-id="clm4a30p200bze6nk4pj6djm1" data-title="LeetCode-084-最大面积" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -297,7 +368,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" data-id="clm1z22el004yehn59gdt4hd6" data-title="0-1背包问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/07/0-1%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-0-1-bag-problem/" data-id="clm4a30of00a3e6nkdbqvcz0s" data-title="0-1背包问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -417,7 +488,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/02/02/%E7%94%A8C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E6%93%8D%E4%BD%9C-c-single-link-list/" data-id="clm1z22il00imehn53mffhmg3" data-title="用C语言实现单链表操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/02/02/%E7%94%A8C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E6%93%8D%E4%BD%9C-c-single-link-list/" data-id="clm4a30ts00jxe6nk9pcye5s4" data-title="用C语言实现单链表操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -504,7 +575,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" data-id="clm1z22f1006kehn5d6s753aq" data-title="Klib之khash学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/27/Klib%E4%B9%8Bkhash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-klib-khash/" data-id="clm4a30oy00bpe6nkc2qxcijn" data-title="Klib之khash学习笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -581,7 +652,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" data-id="clm1z22i800hbehn5bd5d4xa6" data-title="数据结构之堆(heap)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/27/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E5%A0%86(heap)-algo-heap/" data-id="clm4a30o6009ae6nkf2422jln" data-title="数据结构之堆(heap)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -665,7 +736,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" data-id="clm1z22ew005zehn510je5ooy" data-title="C语言实战课-klib库学习" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/24/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-klib%E5%BA%93%E5%AD%A6%E4%B9%A0-c-practice-learn-klib/" data-id="clm4a30os00b6e6nk77qteygd" data-title="C语言实战课-klib库学习" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -738,7 +809,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" data-id="clm1z22ey0066ehn53j5l9ufl" data-title="C语言实战课-让程序能够处理gz文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/23/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E8%AE%A9%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E5%A4%84%E7%90%86gz%E6%96%87%E4%BB%B6-c-practice-fastq-add-gz-support/" data-id="clm4a30ou00bce6nkecjg32s9" data-title="C语言实战课-让程序能够处理gz文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -829,88 +900,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" data-id="clm1z22ex0063ehn51sfu48w0" data-title="C语言实战课-将FASTQ转成FASTA" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-这一次我要真正学会C语言-journey-of-learning-c" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" class="article-date">
-  <time class="dt-published" datetime="2020-01-17T22:40:20.245Z" itemprop="datePublished">2020-01-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/">这一次我要真正学会C语言</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>不知道从什么时候开始，我的脑海里就植入了一个想法，“我要学会C语言”。虽然我在大学时学过C语言，还参加过C语言等级考试，但是我现在能写的代码也就是”hello world!”而已。你让我用C语言具体的完成一些事情，比如说读取一个FASTQ文件将其转成一个FASTA，我甚至都不会打开文件。</p>
-<p>我买过很多C语言相关的书，比如下面这些</p>
-<ul>
-<li>笨方法学C语言</li>
-<li>啊哈C</li>
-<li>C和指针</li>
-<li>C专家编程</li>
-<li>C陷阱和缺陷</li>
-<li>C语言程序设计</li>
-<li>C语言从入门到精通</li>
-<li>C程序设计语言</li>
-<li>C primer Plus</li>
-</ul>
-<p>有些书太难，我看着看着就困了，有些书自我感觉太简单，我看着看着就无聊了，到最后我一本书都没有看完，每当处理数据的时候，还是掏出我的Python和R吧。</p>
-<p>你说，Python库和R包，它不香吗？为啥要折腾地去学C语言，何苦呢，何必呢？</p>
-<p>但是我还是不甘心，还是会去看C语言相关的书，忍不住点开bwa的源代码（然后自闭）。每次都感觉自己啥都没有学进去，但其实这些内容都在潜意识中不断的加工积累。终于在不久前，我有一种感觉，我站到了C语言的目前。</p>
-<p>这感觉就像多年前我刚开始接触RNA-seq，看书都是似懂非懂（就是那本「RNA-seq best practice」)。就跟段子写的一样，打开书，马冬梅，关上书，马什么梅？打开书，马冬梅，关上书，什么冬梅？考试，孙红雷。直到某一次生物统计课后，我在回去的路上，突然感觉一切都连接在一起，整个大脑都兴奋了起来。那一天，我才感觉自己站到了生物信息学的大门前。</p>
-<p>当然光看到门是不够的，我还需要不断强化这种知识的联结，最好的方式就是通过写作的方式倒闭自己输入。因此，我将会更新一系列和C语言有关的内容，把自己对C语言的理解写下来。</p>
-<p>最后，不是所有人都需要学C语言。我学C语言是为了让自己心安，只不过在学习过程中，我开始思考如何编写更高效的Python和R代码，也能解决和C语言相关的报错（比如说段错误和编译失败）。</p>
-<p>以下，是我本次学习C语言的一些计划</p>
-<ul>
-<li>掌握文件的读写</li>
-<li>彻底掌握指针</li>
-<li>学会对C语言代码进行调试</li>
-<li>学会使用结构体</li>
-<li>学会使用动态内存</li>
-<li>在实际项目中使用C语言编写小工具</li>
-<li>学习C语言库，包括不限于<ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/antirez/sds">sds</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/attractivechaos/klib">klib</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/samtools/htslib">htslib</a></li>
-</ul>
-</li>
-<li>学习使用C处理生信数据</li>
-<li>学会使用多线程</li>
-<li>学会和R&#x2F;Python进行交互</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/01/17/%E8%BF%99%E4%B8%80%E6%AC%A1%E6%88%91%E8%A6%81%E7%9C%9F%E6%AD%A3%E5%AD%A6%E4%BC%9AC%E8%AF%AD%E8%A8%80-journey-of-learning-c/" data-id="clm1z22iy00jpehn58sza5unn" data-title="这一次我要真正学会C语言" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/01/20/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E6%88%98%E8%AF%BE-%E5%B0%86FASTQ%E8%BD%AC%E6%88%90FASTA-c-practice-fastq-fasta-program/" data-id="clm4a30ot00b9e6nk5tep3be2" data-title="C语言实战课-将FASTQ转成FASTA" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -981,6 +971,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -994,10 +988,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

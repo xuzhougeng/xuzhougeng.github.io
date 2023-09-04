@@ -73,6 +73,108 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-配置pytorch(gpu)分析环境-setting-up-pytorch-gpu-analysis-environment" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" class="article-date">
+  <time class="dt-published" datetime="2023-04-04T15:01:51.528Z" itemprop="datePublished">2023-04-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/">配置pytorch(gpu)分析环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Pytorch是目前最火的深度学习框架之一，另一个是TensorFlow。不过我之前一直用到是CPU版本，几个月前买了一台3070Ti的笔记本（是的，我在40系显卡出来的时候，买了30系，这确实一言难尽），同时我也有一台M1芯片Macbook Pro，目前也支持了pytorch的GPU加速，所以我就想着，在这两个电脑上装个Pytorch，浅度学习深度学习。</p>
+<h2 id="Apple-silicon"><a href="#Apple-silicon" class="headerlink" title="Apple silicon"></a>Apple silicon</h2><p>首先是M1芯片，这个就特别简单了。先装一个conda，只不过是内置mamba包管理器，添加conda-forge频道，arm64版本。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-MacOSX-arm64.sh</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">bash Mambaforge-MacOSX-arm64.sh</span><br></pre></td></tr></table></figure>
+
+<p>然后我们用mamba创建一个环境，用的是开发版的pytorch，所以频道指定pytorch-nightly</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mamba create -n pytorch \</span><br><span class="line">   jupyterlab jupyterhub pytorch torchvision torchaudio </span><br><span class="line">   -c pytorch-nightly</span><br></pre></td></tr></table></figure>
+
+<p>最后，用<code>conda activate pytorch</code>,然后测试是否正确识别到GPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">torch.has_mps</span><br><span class="line"><span class="comment"># True</span></span><br><span class="line"><span class="comment"># 配置device</span></span><br><span class="line">device = torch.device(<span class="string">&quot;mps&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>参考资料: <a target="_blank" rel="noopener" href="https://developer.apple.com/metal/pytorch/">https://developer.apple.com/metal/pytorch/</a></p>
+<h2 id="Windows-NVIDIA"><a href="#Windows-NVIDIA" class="headerlink" title="Windows NVIDIA"></a>Windows NVIDIA</h2><p>首先，需要确保你的电脑安装的是NVIDIA的显卡，以及有了相应的CUDA驱动。</p>
+<blockquote>
+<p>CUDA的显卡架构要求: <a target="_blank" rel="noopener" href="https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html">https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html</a></p>
+</blockquote>
+<p>新一代的电脑上基本都自带CUDA驱动。可以通过打开NVIDIA控制面板的系统信息</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-27e6491eb3c34d939394609b4b9568bb.png" alt="NVIDIA控制面板"></p>
+<p>在组件中查看你已经安装的CUDA驱动，例如我的是11.7.89 。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-b34dc82e6453448aa0491d82b95f504a.png" alt="image.png"></p>
+<p>也可以通过命令行的方式查看，</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-65f42a95ed3344c392daa31d66c2efe5.png" alt="image.png"></p>
+<p>接下来，我们来安装pytorch。同样也是推荐conda的方法，我们先从清华镜像源中下载Miniconda。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-3a497035e53345b3a5a7da4c671c1635.png" alt="image.png"></p>
+<p>选择Windows的安装包</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-74bbb2435e92471c87739555b22764e5.png" alt="image.png"></p>
+<p>安装完之后，我们就可以通过Anaconda Prompt进入命令行，根据pytorch网站上的推荐进行安装。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2023/04/image-19ca614082fc41888e3ae5b252bd4d72.png" alt="image.png"></p>
+<p>但是有一点不同，为了避免环境冲突，最好是单独创建一个环境，所以代码如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n pytorch pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia</span><br></pre></td></tr></table></figure>
+
+<p>接着用 <code>conda activate pytorch</code>启动环境，然后在python环境中测试</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">torch.has_cuda</span><br><span class="line"><span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+
+<p>几个常见的问题（至少我在写文章想到的问题）：</p>
+<p>Q: 使用conda和pip安装的区别是什么？</p>
+<p>A: conda是pytorch官方推荐的安装方式，因为conda会一并帮你装好pytorch运行所需要的CUDA驱动和相关工具集。这意味着为conda所占用的空间会更多一些。</p>
+<p>Q: 既然conda那么强，是不是让conda帮我在非常老的硬件上安装最新的pytorch吗？</p>
+<p>A: 我觉得这个跟装游戏类似，你虽然能装上游戏，但是不满足游戏的最低配置需求，照样跑不动。放在conda上，conda虽然能给你配置好cuda驱动，但是cuda驱动本身对系统的显卡驱动有要求。如果你的显卡驱动不满足，那么就算装好了，也会报错。<code>RuntimeError: The NVIDIA driver on your system is too old </code></p>
+<p>Q: 电脑上必须要安装CUDA驱动和安装CUDA toolkit吗？</p>
+<p>A: 其实我个人不是很确定如何回答，如下是我目前的一些见解。如果你用的conda，那么他会帮你解决一些依赖问题。如果你是用pip，那么就需要你自己动手配置。其中，CUDA驱动是必须要安装的，因为CUDA驱动负责将GPU硬件与计算机操作系统相连接，不装驱动，操作系统就不识别CUDA核心，相当你没装NVIDIA显卡。而CUDA toolkit是方便我们调用CUDA核心的各种开发工具集合，你装CUDA toolkit的同时会配套安装CUDA驱动。除非你要做底层开发，或者你需要从源码编译一个pytorch，否则我们大可不装CUDA toolkit。</p>
+<p>Q: 如果我电脑上的CUDA驱动版本比较旧怎么办？或者说我CUDA的驱动版本是11.7，但是我安装了cuda&#x3D;11.8的pytorch，或者版本不一样的pytorch会怎么样？</p>
+<p>A: 我们在安装cuda&#x3D;11.7的pytorch，本质上安装的是在CUDA Toolkit版本为11.7环境下编译好的pytorch版本。当cuda版本之间的差异不是特别的大，或者说不是破坏性的升级的情况下，那么理论上也是能运行的。</p>
+<h2 id="手写数据性能测试"><a href="#手写数据性能测试" class="headerlink" title="手写数据性能测试"></a>手写数据性能测试</h2><p>下面用的是GPT3.5给我提供一段手写字识别（MNIST)案例代码，用来测试不同的平台的速度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 转换数据格式并且加载数据</span></span><br><span class="line">transform = transforms.Compose(</span><br><span class="line">    [transforms.ToTensor(),</span><br><span class="line">     transforms.Normalize((<span class="number">0.5</span>,), (<span class="number">0.5</span>,))])</span><br><span class="line"></span><br><span class="line">trainset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data&#x27;</span>, train=<span class="literal">True</span>,</span><br><span class="line">                                        download=<span class="literal">True</span>, transform=transform)</span><br><span class="line">trainloader = torch.utils.data.DataLoader(trainset, batch_size=<span class="number">64</span>,</span><br><span class="line">                                          shuffle=<span class="literal">True</span>, num_workers=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">testset = torchvision.datasets.MNIST(root=<span class="string">&#x27;./data&#x27;</span>, train=<span class="literal">False</span>,</span><br><span class="line">                                       download=<span class="literal">False</span>, transform=transform)</span><br><span class="line">testloader = torch.utils.data.DataLoader(testset, batch_size=<span class="number">64</span>,</span><br><span class="line">                                         shuffle=<span class="literal">False</span>, num_workers=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义网络模型</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Net</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Net, self).__init__()</span><br><span class="line">        self.conv1 = torch.nn.Conv2d(<span class="number">1</span>, <span class="number">6</span>, <span class="number">5</span>)</span><br><span class="line">        self.pool = torch.nn.MaxPool2d(<span class="number">2</span>, <span class="number">2</span>)</span><br><span class="line">        self.conv2 = torch.nn.Conv2d(<span class="number">6</span>, <span class="number">16</span>, <span class="number">5</span>)</span><br><span class="line">        self.fc1 = torch.nn.Linear(<span class="number">16</span> * <span class="number">4</span> * <span class="number">4</span>, <span class="number">120</span>)</span><br><span class="line">        self.fc2 = torch.nn.Linear(<span class="number">120</span>, <span class="number">84</span>)</span><br><span class="line">        self.fc3 = torch.nn.Linear(<span class="number">84</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = self.pool(torch.nn.functional.relu(self.conv1(x)))</span><br><span class="line">        x = self.pool(torch.nn.functional.relu(self.conv2(x)))</span><br><span class="line">        x = x.view(-<span class="number">1</span>, <span class="number">16</span> * <span class="number">4</span> * <span class="number">4</span>)</span><br><span class="line">        x = torch.nn.functional.relu(self.fc1(x))</span><br><span class="line">        x = torch.nn.functional.relu(self.fc2(x))</span><br><span class="line">        x = self.fc3(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line">net = Net()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里的代码比较随意，就是用哪个平台运行哪个</span></span><br><span class="line"><span class="comment"># CPU</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="comment"># CUDA</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda:0&quot;</span>)</span><br><span class="line"><span class="comment"># MPS</span></span><br><span class="line">device = torch.device(<span class="string">&quot;mps&quot;</span>)</span><br><span class="line"></span><br><span class="line">net.to(device)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义损失函数和优化器</span></span><br><span class="line">criterion = torch.nn.CrossEntropyLoss()</span><br><span class="line">optimizer = torch.optim.SGD(net.parameters(), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 训练网络</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">start_time = time.time()  <span class="comment"># 记录开始时间</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):  <span class="comment"># 进行10次迭代训练</span></span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(trainloader, <span class="number">0</span>):</span><br><span class="line">        inputs, labels = data[<span class="number">0</span>].to(device), data[<span class="number">1</span>].to(device)</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        outputs = net(inputs)</span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        running_loss += loss.item()</span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;[%d, %5d] loss: %.3f&#x27;</span> %</span><br><span class="line">                  (epoch + <span class="number">1</span>, i + <span class="number">1</span>, running_loss / <span class="number">100</span>))</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">end_time = time.time()  <span class="comment"># 记录结束时间</span></span><br><span class="line">training_time = end_time - start_time  <span class="comment"># 计算训练时间</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Training took %.2f seconds.&#x27;</span> % training_time)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Finished Training&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试网络</span></span><br><span class="line">correct = <span class="number">0</span></span><br><span class="line">total = <span class="number">0</span></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> testloader:</span><br><span class="line">        images, labels = data[<span class="number">0</span>].to(device), data[<span class="number">1</span>].to(device)</span><br><span class="line">        outputs = net(images)</span><br><span class="line">        _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">        total += labels.size(<span class="number">0</span>)</span><br><span class="line">        correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Accuracy of the network on the 10000 test images: %d %%&#x27;</span> % (</span><br><span class="line">      ))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后统计下来的结果为</p>
+<p>Windows平台</p>
+<ul>
+<li>3070Ti Training took 45.02 seconds.</li>
+<li>i9 12900H Training took CPU 75.65</li>
+</ul>
+<p>Mac平台</p>
+<ul>
+<li>M1 Max Training took 50.79 seconds.</li>
+<li>M1 MAX CPU Training took 109.61 seconds.</li>
+</ul>
+<p>总体上来说，GPU加速很明显，无论是mac还是Windows。其次是GPU加速效果对比，M1 max芯片比3070Ti差个10%？。</p>
+<p>不过目前测试都是小数据集，等我学一段时间，试试大数据集的效果。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2023/04/04/%E9%85%8D%E7%BD%AEpytorch(gpu)%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83-setting-up-pytorch-gpu-analysis-environment/" data-id="clm4a30ux00lde6nk4ij4duka" data-title="配置pytorch(gpu)分析环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-详解R语言的format函数-an-in-depth-explanation-of-the-format-function-in-rlanguage" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" class="article-date">
@@ -141,7 +243,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="clm1z22iw00jjehn5fdkxgs0c" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/04/01/%E8%AF%A6%E8%A7%A3R%E8%AF%AD%E8%A8%80%E7%9A%84format%E5%87%BD%E6%95%B0-an-in-depth-explanation-of-the-format-function-in-rlanguage/" data-id="clm4a30uf00kse6nk13s6e1hy" data-title="详解R语言的format函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -188,7 +290,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" data-id="clm1z22hv00grehn5d6gi4q59" data-title="我如何使用GPT" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/04/01/%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GPT-%E6%88%91%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8gpt/" data-id="clm4a30j20037e6nkdqz22egl" data-title="我如何使用GPT" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -267,7 +369,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" data-id="clm1z22i500h1ehn51ywxf1um" data-title="我跟GPT合作写了一个genbank文件处理的脚本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/03/28/%E6%88%91%E8%B7%9FGPT%E5%90%88%E4%BD%9C%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AAgenbank%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86%E7%9A%84%E8%84%9A%E6%9C%AC-write-genebank-process-script-with-gpt/" data-id="clm4a30o30091e6nk3y67hemx" data-title="我跟GPT合作写了一个genbank文件处理的脚本" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -383,7 +485,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" data-id="clm1z22gv00djehn5g2fvbynn" data-title="基于SpringBoot和React的一个文件上传案例" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/02/22/%E5%9F%BA%E4%BA%8ESpringBoot%E5%92%8CReact%E7%9A%84%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%A1%88%E4%BE%8B-springboot-and-react-file-upload/" data-id="clm4a30m0007te6nkevxfg0np" data-title="基于SpringBoot和React的一个文件上传案例" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -477,7 +579,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" data-id="clm1z22gp00czehn5g5g6b02c" data-title="又快又好的Hi-C辅助组装流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2023/01/27/%E5%8F%88%E5%BF%AB%E5%8F%88%E5%A5%BD%E7%9A%84Hi-C%E8%BE%85%E5%8A%A9%E7%BB%84%E8%A3%85%E6%B5%81%E7%A8%8B-hic-scaffolding-with-chromap-yahs/" data-id="clm4a30ls0079e6nk8sdu0txr" data-title="又快又好的Hi-C辅助组装流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -535,7 +637,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" data-id="clm1z22es005lehn5b84i7uly" data-title="Bioconductor安装的网络问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/31/Bioconductor%E5%AE%89%E8%A3%85%E7%9A%84%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98-the-network-problem-when-using-bioconductor/" data-id="clm4a30oo00ase6nk9xhoghhv" data-title="Bioconductor安装的网络问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -725,7 +827,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" data-id="clm1z22ia00hiehn551j33uw9" data-title="无root权限下解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/11/%E6%97%A0root%E6%9D%83%E9%99%90%E4%B8%8B%E8%A7%A3%E5%86%B3%E7%BC%96%E8%AF%91%E6%97%B6%E7%9A%84%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98-compile-as-normal-user/" data-id="clm4a30o8009ge6nk43h2hs7p" data-title="无root权限下解决编译时的依赖问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -779,7 +881,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" data-id="clm1z22bc0018ehn525l1159f" data-title="chatGPT会替代我们吗？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/12/06/chatGPT%E4%BC%9A%E6%9B%BF%E4%BB%A3%E6%88%91%E4%BB%AC%E5%90%97%EF%BC%9F-is-chatgpt-going-to-replace-us/" data-id="clm4a30jg003le6nk6zen37m8" data-title="chatGPT会替代我们吗？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -839,52 +941,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" data-id="clm1z22h800erehn5gpjbbr3e" data-title="如何在脚本中调用conda创建环境的命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/11/21/%E5%A6%82%E4%BD%95%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8conda%E5%88%9B%E5%BB%BA%E7%8E%AF%E5%A2%83%E7%9A%84%E5%91%BD%E4%BB%A4-activate-conda-environment-in-shell-script/" data-id="clm4a30s500h2e6nk9ttb2jft" data-title="如何在脚本中调用conda创建环境的命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/conda/" rel="tag">conda</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-MacOS原生Arm64架构的R语言环境配置-简明版-macos原生arm64架构的r语言环境配置-简明版" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" class="article-date">
-  <time class="dt-published" datetime="2022-11-14T02:08:02.722Z" itemprop="datePublished">2022-11-14</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/">MacOS原生Arm64架构的R语言环境配置-简明版</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>在很早之前，我出过一期视频，介绍过如何在Arm64架构下（即M系列的芯片，包括M1，M2等）的Mac电脑上配置R语言分析环节。当时采用的是intel转译方案。只所以那样子做，是避免在环境配置上浪费不必要的时间，耽误了真正的学习过程。同时，我也写了<a href="https://xuzhougeng.top/archives/how-to-compile-r-package-in-arm64-macos">MacOS原生Arm64架构的R解决依赖编译问题</a>给那些需要折腾的人。</p>
-<p>不过，自从R进入了4.2, Bioconductor发布3.16之后，现阶段的M1&#x2F;M2等用户就可以开始用原生的Arm版本的R了，因为无论是CRAN，还是Bioconductor都提供了预编译的arm版本的R包。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/11/14/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88-macos%E5%8E%9F%E7%94%9Farm64%E6%9E%B6%E6%9E%84%E7%9A%84r%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-%E7%AE%80%E6%98%8E%E7%89%88/" data-id="clm1z22fd007wehn5f3m63q9x" data-title="MacOS原生Arm64架构的R语言环境配置-简明版" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
     </footer>
   </div>
   
@@ -950,6 +1012,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -963,10 +1029,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

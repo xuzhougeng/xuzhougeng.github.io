@@ -73,6 +73,81 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何安装perl模块-How-to-install-perl-module" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" class="article-date">
+  <time class="dt-published" datetime="2019-08-23T12:57:37.759Z" itemprop="datePublished">2019-08-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/">如何安装perl模块</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>由于生物信息早期最多用的语言是perl，因此不可避免就要用别人的perl脚本或者基于perl的项目来处理数据。</p>
+<p>使用perl脚本和使用其他编程语言的脚本没啥不同，毕竟你只要传入参数，它就能给你结果。因此对于我们这些不用perl写脚本，只需要调用的人而言，唯一要学会的事情就是**如何安装perl的模块”。</p>
+<p>关于perl模块安装，最古老的方法就是使用<code>perl -MCPAN -e shell</code>或者是<code>cpan</code>（两者等价），这也是我最先接触的方法，这里介绍如何使用<code>local::lib</code>和<code>cpanm</code>实现非root权限安装perl模块。</p>
+<h2 id="使用系统自带的perl"><a href="#使用系统自带的perl" class="headerlink" title="使用系统自带的perl"></a>使用系统自带的perl</h2><p>安装任何软件最怕遇到的问题就是权限问题，因此我们需要先安装<code>local::lib</code>，使得我们能够将perl模块安装到任何地方，简单的说就是安装到我们的家目录下</p>
+<p>第一步，下载源代码进行编译安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000024.tar.gz</span><br><span class="line">tar xf local-lib-2.000024.tar.gz</span><br><span class="line"><span class="built_in">cd</span> local-lib-2.000024</span><br><span class="line">perl Makefile.PL --bootstrap=~/opt</span><br><span class="line">make <span class="built_in">test</span> &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>第二步：<strong>设置环境变量</strong>，使得perl在安装模块的时候会优先使用我们指定的路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;eval &quot;$(perl -I$HOME/opt/lib/perl5 -Mlocal::lib=$HOME/opt)&quot;&#x27;</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<p>先用<code>perl -I$HOME/opt/lib/perl5 -Mlocal::lib=$HOME/opt</code>表示运行前先添加<code>$HOME/opt/lib/perl5</code>到自己的搜索路径<code>@INC</code>中，然后传入参数<code>$HOME/opt</code>执行模块<code>local::lob</code>，这个模块的执行结果会输出如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Attempting to create directory /home6/wangjw/opt</span><br><span class="line">PATH=<span class="string">&quot;/home/zgxu/opt/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PATH;</span><br><span class="line">PERL5LIB=<span class="string">&quot;/home/zgxu/opt/lib/perl5<span class="variable">$&#123;PERL5LIB:+:<span class="variable">$&#123;PERL5LIB&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PERL5LIB;</span><br><span class="line">PERL_LOCAL_LIB_ROOT=<span class="string">&quot;/home/zgxu/opt<span class="variable">$&#123;PERL_LOCAL_LIB_ROOT:+:<span class="variable">$&#123;PERL_LOCAL_LIB_ROOT&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PERL_LOCAL_LIB_ROOT;</span><br><span class="line">PERL_MB_OPT=<span class="string">&quot;--install_base \&quot;/home/zgxu/opt\&quot;&quot;</span>; <span class="built_in">export</span> PERL_MB_OPT;</span><br><span class="line">PERL_MM_OPT=<span class="string">&quot;INSTALL_BASE=/home/zgxu/opt&quot;</span>; <span class="built_in">export</span> PERL_MM_OPT;</span><br></pre></td></tr></table></figure>
+
+<p>这些就作为<code>eval</code>的参数进行执行，也就是说你重启终端后后，<code>PERL5LIB</code> <code>PERL_LOCAL_LIB_ROOT</code>,<code>PERL_MB_OPT</code>,<code>PERL_MM_OPT</code>这几个变量就会重新设置，以此保证你后续安装perl模块时，会优先安装到自己的选择的目录</p>
+<p>第三步：安装cpam. 由于之前已经配置了<code>local::lib</code>，因此perl编译的工具都会默认安装到<code>~/opt</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/App-cpanminus-1.7043.tar.gz</span><br><span class="line">tar xf App-cpanminus-1.7043.tar.gz</span><br><span class="line"><span class="built_in">cd</span> App-cpanminus-1.7043</span><br><span class="line">perl Makefile.PL</span><br><span class="line">make <span class="built_in">test</span> &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>第四步：使用国内镜像提高下载速度，可以通过别名的方式实现</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;alias cpanm=&quot;cpanm --mirror http://mirrors.163.com/cpan --mirror-only&quot;&#x27;</span> &gt;&gt;~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<p>之后便可以使用<code>cpanm Module::Name</code>安装任意的软件了。</p>
+<h2 id="自己编译一个perl"><a href="#自己编译一个perl" class="headerlink" title="自己编译一个perl"></a>自己编译一个perl</h2><p>自己编译Perl的好处就在于之后的perl模块都会安装到自己的Perl目录下，而不会对系统造成影响。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget -4 http://www.cpan.org/src/5.0/perl-5.26.1.tar.gz</span><br><span class="line">tar xf perl-5.26.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> perl-5.26.1</span><br><span class="line">./Configure -des -Dprefix=<span class="variable">$HOME</span>/opt/sysoft/perl-5.26.1</span><br><span class="line">make <span class="built_in">test</span></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>然后用<code>perl -e &#39;&#123;print &quot;$_\n&quot; foreach @INC&#125;&#39;</code>会发现perl只会在自己的目录<code>~/opt/sysoft/perl-5.26.1</code>下查找模块。那么使用<code>cpanm Module::Name</code>安装的任何包都只会安装到<code>~/opt/sysoft/perl-5.26.1</code>下，你也不需要安装<code>local::lib</code>了</p>
+<h2 id="conda的perl和系统的perl冲突"><a href="#conda的perl和系统的perl冲突" class="headerlink" title="conda的perl和系统的perl冲突"></a>conda的perl和系统的perl冲突</h2><p>有一次我遇到这个问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl: symbol lookup error: /home/wangjw/perl5/lib/perl5/x86_64-linux-thread-multi/auto/Cwd/Cwd.so: undefined symbol</span><br></pre></td></tr></table></figure>
+
+<p>这个问题是因为用系统perl安装的软件被conda的perl优先查找到导致，用<code>perl -V</code>和<code>perl -e &#39;&#123;print &quot;$_\n&quot; foreach @INC&#125;&#39;</code>可以发现conda的perl查找路径低于我为系统perl安装的路径，解决方案如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PERL5LIB=<span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" data-id="clm4a30s700h6e6nkck4y82bd" data-title="如何安装perl模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-3分的水稻转录组分析实战-Rice-RNA-seq-analysis" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" class="article-date">
@@ -307,7 +382,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" data-id="clm1z22eo0057ehn5h5cn7m13" data-title="3分的水稻转录组分析实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/22/3%E5%88%86%E7%9A%84%E6%B0%B4%E7%A8%BB%E8%BD%AC%E5%BD%95%E7%BB%84%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98-Rice-RNA-seq-analysis/" data-id="clm4a30oi00ade6nkgkxkcf3r" data-title="3分的水稻转录组分析实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -370,7 +445,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/22/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84GitHub%E8%83%BD%E8%A2%AB%E5%BC%95%E7%94%A8-How-to-citate-my-GitHub-repository/" data-id="clm1z22hn00g7ehn5hx8df977" data-title="如何让你的GitHub能被引用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/22/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84GitHub%E8%83%BD%E8%A2%AB%E5%BC%95%E7%94%A8-How-to-citate-my-GitHub-repository/" data-id="clm4a30sq00ide6nkcz4ifdfj" data-title="如何让你的GitHub能被引用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -497,7 +572,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" data-id="clm1z22fb007pehn5a2wq402l" data-title="MECAT2:三代高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/21/MECAT2_%20%E4%B8%89%E4%BB%A3%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-MECAT2-genome-assembly-tools/" data-id="clm4a30pf00cse6nkay4pc3id" data-title="MECAT2:三代高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -610,7 +685,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" data-id="clm1z22j900koehn5fqyebawm" data-title="「三代组装」使用新版Falcon进行三代测序基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/20/%E3%80%8C%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E3%80%8D%E4%BD%BF%E7%94%A8%E6%96%B0%E7%89%88Falcon%E8%BF%9B%E8%A1%8C%E4%B8%89%E4%BB%A3%E6%B5%8B%E5%BA%8F%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BB%84%E8%A3%85-Falcon-genome-assembly-tools/" data-id="clm4a30l30053e6nkhm8n5kxp" data-title="「三代组装」使用新版Falcon进行三代测序基因组组装" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -798,7 +873,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" data-id="clm1z22ev005wehn5a7sj87e5" data-title="Cicero:单细胞共开放分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/18/Cicero_%20%E5%8D%95%E7%BB%86%E8%83%9E%E5%85%B1%E5%BC%80%E6%94%BE%E5%88%86%E6%9E%90-%20Cicero-single-cell-ATAC-seq-analyzing-tools/" data-id="clm4a30or00b2e6nk49971kez" data-title="Cicero:单细胞共开放分析" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -885,7 +960,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/17/motifmatchr_%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%88%86%E6%9E%90peak%E4%B8%AD%E9%87%8C%E6%98%AF%E5%90%A6%E6%9C%89motif%E5%8C%B9%E9%85%8D-motifmatchr-peak-motif-search-in-R/" data-id="clm1z22bk001wehn58c210xxt" data-title="motifmatchr:在R语言中分析peak中里是否有motif匹配" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/17/motifmatchr_%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%88%86%E6%9E%90peak%E4%B8%AD%E9%87%8C%E6%98%AF%E5%90%A6%E6%9C%89motif%E5%8C%B9%E9%85%8D-motifmatchr-peak-motif-search-in-R/" data-id="clm4a30ke0045e6nk4hj3e4o0" data-title="motifmatchr:在R语言中分析peak中里是否有motif匹配" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -963,7 +1038,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/17/R%E8%AF%AD%E8%A8%80%E7%9A%84%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95-R-Sparse-Matrix-Note/" data-id="clm1z22b0000eehn5d0sjgwyq" data-title="R语言的稀疏矩阵学习记录" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/17/R%E8%AF%AD%E8%A8%80%E7%9A%84%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95-R-Sparse-Matrix-Note/" data-id="clm4a30t200ire6nk8dwi4ogb" data-title="R语言的稀疏矩阵学习记录" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1088,7 +1163,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/16/chromVAR_%20%E4%BB%8E%E5%8D%95%E7%BB%86%E8%83%9E%E8%A1%A8%E8%A7%82%E6%95%B0%E6%8D%AE%E4%B8%AD%E6%8E%A8%E6%96%AD%E8%BD%AC%E5%BD%95%E5%9B%A0%E5%AD%90%E7%9B%B8%E5%85%B3%E5%BC%80%E6%94%BE%E5%8C%BA%E5%9F%9F-chromVAR-inferring-transcription-factor-associated-accessibility-from-single-cell-epigenomic-data/" data-id="clm1z22bd001behn59kh5facy" data-title="chromVAR:从单细胞表观数据中推断转录因子相关开放区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/16/chromVAR_%20%E4%BB%8E%E5%8D%95%E7%BB%86%E8%83%9E%E8%A1%A8%E8%A7%82%E6%95%B0%E6%8D%AE%E4%B8%AD%E6%8E%A8%E6%96%AD%E8%BD%AC%E5%BD%95%E5%9B%A0%E5%AD%90%E7%9B%B8%E5%85%B3%E5%BC%80%E6%94%BE%E5%8C%BA%E5%9F%9F-chromVAR-inferring-transcription-factor-associated-accessibility-from-single-cell-epigenomic-data/" data-id="clm4a30jp003pe6nke71ugtq6" data-title="chromVAR:从单细胞表观数据中推断转录因子相关开放区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1137,92 +1212,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/15/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86-%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E6%95%B4%E7%90%86/" data-id="clm1z22ik00ihehn585ht46bs" data-title="生物信息学格式和转换工具整理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/15/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86-%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%BD%AC%E6%8D%A2%E6%95%B4%E7%90%86/" data-id="clm4a30tq00jre6nkcii382rl" data-title="生物信息学格式和转换工具整理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-实现Seurat 2 和 Seurat3 在同一个环境下共存-Seuarat2-Seurat3-together" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" class="article-date">
-  <time class="dt-published" datetime="2019-08-14T10:31:49.412Z" itemprop="datePublished">2019-08-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/">实现Seurat 2 和 Seurat3 在同一个环境下共存</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>软件升级虽然是一件值得高兴的是，但是代码变化太大却不是一件好消息。比如说Seurat，这个单细胞分析最常用的R包，它的2.x版本和3.x版本的变化就是翻天覆地。</p>
-<p>为了能够重现别人的代码，你可能需要重装2.3.4版本的Seurat，官方提供了安装脚本</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source<span class="punctuation">(</span><span class="string">&quot;https://gist.githubusercontent.com/satijalab/beb9bb50dedc75ee023bd5d9be5fe684/raw/e103577735a2fba9da2ccca14ce1ac33e46c1bc4/old_seurat.R&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>但是在window下安装会出一个报错, 提示无法在Windows下安装MacOS的版本</p>
-<p>这个时候需要手动安装Seurat，注意，这里要求有Rtools才能进行编译</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&#x27;Seurat&#x27;</span><span class="punctuation">,</span> repos <span class="operator">=</span> <span class="string">&#x27;https://satijalab.org/ran&#x27;</span><span class="punctuation">,</span> type <span class="operator">=</span> <span class="string">&quot;source&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>可以设置<code>install.packages</code>里的参数lib.loc，让Seurat安装到其他的文件加，就不会替换原来的Seurat，同时用<code>library</code>加载的时候，也需要设置<code>lib.loc</code>.</p>
-<p>上面是简单可行易操作的方法，唯一的问题是你不能同时加载两个Seurat版本，当然你也不会想这样子做，所以这是一个伪需求。</p>
-<p>下面就是瞎折腾环节， 我要将Seurat的2.3.4版本单独搞出一个R包，Seurat2，这样子就可以同时加载这两个R包。</p>
-<p>下载Seurat 2.3.4</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://satijalab.org/ran/src/contrib/Seurat_2.3.4.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>解压缩它</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar xf Seurat_2.3.4.tar.gz</span><br><span class="line"><span class="built_in">cd</span> Seurat</span><br></pre></td></tr></table></figure>
-
-<p>删除MD5文件，因为它会做文件检验</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> MD5</span><br></pre></td></tr></table></figure>
-
-<p>修改里面所有的Seurat替换成Seurat2, seurat替换成seurat2</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -print0 | xargs -0 sed -i <span class="string">&quot;s/Seurat/Seurat2/g&quot;</span></span><br><span class="line">find . -<span class="built_in">type</span> f -print0 | xargs -0 sed -i <span class="string">&quot;s/seurat/seurat2/g&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这种无差别的替换会有一个问题，会把一些这类<code>http://www.satijalab.org/seurat</code>非代码信息中的seurat替换成seurat2，不过这并不影响实际函数的使用。</p>
-<p>将<code>R/seurat.R</code>重名为<code>R/seurat2.R</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> R/seurat.R R/seurat2.R</span><br></pre></td></tr></table></figure>
-
-<p>之后打包修改后的文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -czf Seurat2.tar.gz Seurat</span><br></pre></td></tr></table></figure>
-
-<p>于是我们就可以安装我们自己修改后的R包了</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;Seurat2.tar.gz&quot;</span><span class="punctuation">,</span> repos<span class="operator">=</span><span class="literal">NULL</span><span class="punctuation">,</span> type<span class="operator">=</span><span class="string">&quot;source&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>注意</strong>: 目前未修改测试数据集的对象，所以不能用Seurat2来运行pbmc_small的例子</p>
-<p>由于我已经修改好了，所以你们也不需要自己再去修改了。我将其上传到GitHub，所以可以用devtools进行安装。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;xuzhougeng/Seurat2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
-
-<p>由于代码只是简单修改，存在bug，其实不建议尝试使用。而且安装完Seurat2之后，我<strong>定性</strong>的评估了下Seurat2和Seurat3，发现两者在聚类分析上并没有太大区别, 所以更推荐大家使用最新的<code>Seurat</code>.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" data-id="clm1z22hs00gjehn5er2n1mxe" data-title="实现Seurat 2 和 Seurat3 在同一个环境下共存" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li></ul>
-
     </footer>
   </div>
   
@@ -1288,6 +1281,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1301,10 +1298,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

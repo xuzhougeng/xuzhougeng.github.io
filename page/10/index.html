@@ -73,6 +73,74 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-如何在不使用root权限下安装Latex-install-latex-without-root" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" class="article-date">
+  <time class="dt-published" datetime="2020-10-22T02:20:57.903Z" itemprop="datePublished">2020-10-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/">如何在不使用root权限下安装Latex</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>LaTex的安装并不需要管理员权限</p>
+<blockquote>
+<p>You do not need to be root (administrator on Windows) to install, use, or manage TeX Live. Indeed, we recommend installing it as a normal user, except perhaps on MacOSX, where it’s conventional to install as administrator.</p>
+</blockquote>
+<p>下面是Ubuntu的安装方法</p>
+<p>第一步: 下载ISO文件(清华镜像源)</p>
+<p>下载地址: <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/CTAN/systems/texlive/Images/texlive2020-20200406.iso">https://mirrors.tuna.tsinghua.edu.cn/CTAN/systems/texlive/Images/texlive2020-20200406.iso</a></p>
+<blockquote>
+<p>其他镜像站点，可以在 <a target="_blank" rel="noopener" href="https://ctan.org/mirrors">https://ctan.org/mirrors</a> 进行选择</p>
+</blockquote>
+<p>第二步: 在Windows上解压缩ISO文件，然后上传到服务器, 我们假设上传到家目录下的texlive </p>
+<p>第三步: 运行安装命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> texlive</span><br><span class="line">perl install-t </span><br></pre></td></tr></table></figure>
+
+<p>输出信息如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">======================&gt; TeX Live installation procedure &lt;=====================</span><br><span class="line"></span><br><span class="line">======&gt;   Letters/digits <span class="keyword">in</span> &lt;angle brackets&gt; indicate   &lt;=======</span><br><span class="line">======&gt;   menu items <span class="keyword">for</span> actions or customizations      &lt;=======</span><br><span class="line"></span><br><span class="line"> Detected platform: GNU/Linux on x86_64</span><br><span class="line"> </span><br><span class="line"> &lt;B&gt; <span class="built_in">set</span> binary platforms: 1 out of 6</span><br><span class="line"></span><br><span class="line"> &lt;S&gt; <span class="built_in">set</span> installation scheme: scheme-full</span><br><span class="line"></span><br><span class="line"> &lt;C&gt; <span class="built_in">set</span> installation collections:</span><br><span class="line">     40 collections out of 41, disk space required: 6516 MB</span><br><span class="line"></span><br><span class="line"> &lt;D&gt; <span class="built_in">set</span> directories:</span><br><span class="line">   TEXDIR (the main TeX directory):</span><br><span class="line">     !! default location: /usr/local/texlive/2020</span><br><span class="line">     !! is not writable or not allowed, please <span class="keyword">select</span> a different one!</span><br><span class="line">   TEXMFLOCAL (directory <span class="keyword">for</span> site-wide <span class="built_in">local</span> files):</span><br><span class="line">     /usr/local/texlive/texmf-local</span><br><span class="line">   TEXMFSYSVAR (directory <span class="keyword">for</span> variable and automatically generated data):</span><br><span class="line">     /usr/local/texlive/2020/texmf-var</span><br><span class="line">   TEXMFSYSCONFIG (directory <span class="keyword">for</span> <span class="built_in">local</span> config):</span><br><span class="line">     /usr/local/texlive/2020/texmf-config</span><br><span class="line">   TEXMFVAR (personal directory <span class="keyword">for</span> variable and automatically generated data):</span><br><span class="line">     ~/.texlive2020/texmf-var</span><br><span class="line">   TEXMFCONFIG (personal directory <span class="keyword">for</span> <span class="built_in">local</span> config):</span><br><span class="line">     ~/.texlive2020/texmf-config</span><br><span class="line">   TEXMFHOME (directory <span class="keyword">for</span> user-specific files):</span><br><span class="line">     ~/texmf</span><br><span class="line"></span><br><span class="line"> &lt;O&gt; options:</span><br><span class="line">   [ ] use letter size instead of A4 by default</span><br><span class="line">   [X] allow execution of restricted list of programs via \write18</span><br><span class="line">   [X] create all format files</span><br><span class="line">   [X] install macro/font doc tree</span><br><span class="line">   [X] install macro/font <span class="built_in">source</span> tree</span><br><span class="line">   [ ] create symlinks to standard directories</span><br><span class="line">   [X] after install, <span class="built_in">set</span> CTAN as <span class="built_in">source</span> <span class="keyword">for</span> package updates</span><br><span class="line"></span><br><span class="line"> &lt;V&gt; <span class="built_in">set</span> up <span class="keyword">for</span> portable installation</span><br><span class="line"></span><br><span class="line">Actions:</span><br><span class="line"> &lt;I&gt; start installation to hard disk</span><br><span class="line"> &lt;P&gt; save installation profile to <span class="string">&#x27;texlive.profile&#x27;</span> and <span class="built_in">exit</span></span><br><span class="line"> &lt;H&gt; <span class="built_in">help</span></span><br><span class="line"> &lt;Q&gt; quit</span><br><span class="line"></span><br><span class="line">Enter <span class="built_in">command</span>: </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们需要输入D进入更改界面，然后输入1，输入我们目标安装路径，输入R回到主目录，最后输入I进行安装。</p>
+<p>最后安装结果之后会有如下提示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Add /home/xzg/opt/texlive/texmf-dist/doc/man to MANPATH.</span><br><span class="line">Add /home/xzg/opt/texlive/texmf-dist/doc/info to INFOPATH.</span><br><span class="line">Most importantly, add /home/xzg/opt/texlive/bin/x86_64-linux</span><br><span class="line">to your PATH <span class="keyword">for</span> current and future sessions.</span><br><span class="line">Logfile: /home/xzg/opt/texlive/install-tl.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>即在 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 这些配置文件下添加如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> MANPATH=<span class="variable">$MANPATH</span>:/home/xzg/opt/texlive/texmf-dist/doc/man</span><br><span class="line"><span class="built_in">export</span> INFOPATH=<span class="variable">$INFOPATH</span>:/home/xzg/opt/texlive/texmf-dist/doc/info</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/xzg/opt/texlive/bin/x86_64-linux</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2020/10/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E4%BD%BF%E7%94%A8root%E6%9D%83%E9%99%90%E4%B8%8B%E5%AE%89%E8%A3%85Latex-install-latex-without-root/" data-id="clm4a30rf00gte6nkcefg2x07" data-title="如何在不使用root权限下安装Latex" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">软件安装</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何爬取微信公众号的所有文章-wechatarticleparseri" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" class="article-date">
@@ -171,7 +239,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" data-id="clm1z22he00fdehn524tz1wai" data-title="如何爬取微信公众号的所有文章" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/08/25/%E5%A6%82%E4%BD%95%E7%88%AC%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E7%AB%A0-wechatarticleparseri/" data-id="clm4a30sb00hje6nk9vqp44h7" data-title="如何爬取微信公众号的所有文章" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -303,7 +371,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" data-id="clm1z22da003oehn55jlkg1c1" data-title="三代转录组系列：使用Cogent重建基因组编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/30/%E4%B8%89%E4%BB%A3%E8%BD%AC%E5%BD%95%E7%BB%84%E7%B3%BB%E5%88%97%EF%BC%9A%E4%BD%BF%E7%94%A8Cogent%E9%87%8D%E5%BB%BA%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%BC%96%E7%A0%81%E5%8C%BA-cogent-coding-genome-reconstruction-tool/" data-id="clm4a30h8000me6nkd84ef4kc" data-title="三代转录组系列：使用Cogent重建基因组编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -463,7 +531,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/20/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter13/" data-id="clm1z22fr009fehn5hs6d53wm" data-title="使用ArchR分析单细胞ATAC-seq数据(第十三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/20/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter13/" data-id="clm4a30ip002qe6nkd3h862jg" data-title="使用ArchR分析单细胞ATAC-seq数据(第十三章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -626,7 +694,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter12/" data-id="clm1z22fs009iehn513wn2g8r" data-title="使用ArchR分析单细胞ATAC-seq数据(第十二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter12/" data-id="clm4a30iq002te6nke9sm6wos" data-title="使用ArchR分析单细胞ATAC-seq数据(第十二章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -741,7 +809,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter11/" data-id="clm1z22fq009cehn5dc4g0tcy" data-title="使用ArchR分析单细胞ATAC-seq数据(第十一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/19/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter11/" data-id="clm4a30ih002me6nkf9vi0d08" data-title="使用ArchR分析单细胞ATAC-seq数据(第十一章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -862,7 +930,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/12/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter10/" data-id="clm1z22fv009uehn5e4xfa4xs" data-title="使用ArchR分析单细胞ATAC-seq数据(第十章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/12/%E4%BD%BF%E7%94%A8ArchR%E5%88%86%E6%9E%90%E5%8D%95%E7%BB%86%E8%83%9EATAC-seq%E6%95%B0%E6%8D%AE(%E7%AC%AC%E5%8D%81%E7%AB%A0)-analysis-sc-atac-seq-with-archr-chapter10/" data-id="clm4a30q200ebe6nk3foqb9au" data-title="使用ArchR分析单细胞ATAC-seq数据(第十章)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -942,7 +1010,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/07/MAKER%E9%81%BF%E5%85%8D%E9%87%8D%E5%A4%8D%E8%BF%90%E7%AE%97-maker-redue-redundant-computations/" data-id="clm1z22f9007iehn56p0b49bf" data-title="MAKER避免重复运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/07/MAKER%E9%81%BF%E5%85%8D%E9%87%8D%E5%A4%8D%E8%BF%90%E7%AE%97-maker-redue-redundant-computations/" data-id="clm4a30pd00cme6nk9a23gd9w" data-title="MAKER避免重复运算" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1038,7 +1106,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/06/MAKER%E8%AE%AD%E7%BB%83SNAP%E5%9F%BA%E5%9B%A0%E6%A8%A1%E5%9E%8B-maker-train-snap-model/" data-id="clm1z22f9007fehn52jdz75jt" data-title="MAKER训练SNAP基因模型" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/06/MAKER%E8%AE%AD%E7%BB%83SNAP%E5%9F%BA%E5%9B%A0%E6%A8%A1%E5%9E%8B-maker-train-snap-model/" data-id="clm4a30pc00cie6nk9jaladam" data-title="MAKER训练SNAP基因模型" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1202,78 +1270,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/07/01/MAKER%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3-explain-maker-control-files/" data-id="clm1z22fa007mehn55cnib4ce" data-title="MAKER配置文件详解" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2020/07/01/MAKER%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3-explain-maker-control-files/" data-id="clm4a30pe00cpe6nkfx24085s" data-title="MAKER配置文件详解" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-MAKER/" rel="tag">注释 | MAKER</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-MAKER的并行化初探-parallelization-of-maker" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" class="article-date">
-  <time class="dt-published" datetime="2020-06-29T04:28:13.909Z" itemprop="datePublished">2020-06-29</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/">MAKER的并行化初探</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>MAKER并行分为两种，一种基于MPI，运行方式为<code>mpiexec -n 线程数 maker</code>, 一种是在同一个项目中运行多次maker。前者需要在安装MAKER时进行设置，后者相当于你手动按照染色体数目进行拆分，然后分开运行MAKER。本片主要介绍基于MPI的并行策略。</p>
-<p>下图是MAKER是基于MPI的并行化流程。分为三个层次，contig水平，更小的片段水平，不同程序的并行。</p>
-<p>contig水平就是对每条contig进行分别注释。而由于每个contig的长度不一，当较短的contig运行结束后，我们还需要等待较长的contig结束。因此，我们还需要将contig继续拆分，让每条contig分成更小的片段，成为基本的分析单元。对于每个分析单元，还可以考虑将不同程序进行并行。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-5624eadd6cc346a4b93a63be53fea0fb.png" alt="Fig1"></p>
-<p>在MAKER实际运行时，如果用gotop进行查看你会发现系统中会出现很多maker进程(以<code>mpiexec -n 10</code>为例)</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-004af64038c349fb99dbb3ee58531b58.png" alt="Fig2"></p>
-<p>但是你发现只有少量的和注释有关的程序(如blastx)。如果用<code>ps aux | grep maker</code>查找和maker有关的进程，你会发现大量的<code>maintain.pl</code>进程，并且这些进程后面跟着一大串你不认识的符号</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/perl /opt/biosoft/maker/bin/../lib/File/maintain.pl 46535 30 %04%09%08%31%3...</span><br></pre></td></tr></table></figure>
-
-<p>为了理解MAKER的并行，你需要通过<code>pstree -ap [mpiexec进程ID]</code>更细致的了解MAKER的进程树</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-e6e682747a3a443e9a2b0e9810f0177c.png" alt="Fig3"></p>
-<p>从中你可以发现，因为我们用<code>mpiexec</code>启动了10个maker进程，所以<code>hydra_pmi_proxy</code>有10个maker子进程。对于这10个maker子进程，每个进程都至少会有一个<code>maintain.pl</code>。通过阅读<code>maintain.pl</code>的源代码，我们可以得知该程序后接参数中的46535是PID(进程号), 30是sleep time, 最后一个是URI编码字符，是利用<code>Storable::freeze</code>持久化的数据结构，可以通过如下的代码进行解码（命名为decode.pl)</p>
-<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env perl</span></span><br><span class="line"><span class="keyword">use</span> warnings;</span><br><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> URI::Escape;</span><br><span class="line"><span class="keyword">use</span> Storable;</span><br><span class="line"><span class="keyword">use</span> vars <span class="string">qw($LOCK)</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">my</span> $serial = <span class="keyword">shift</span>;</span><br><span class="line"></span><br><span class="line">$serial = uri_unescape($serial);</span><br><span class="line">$LOCK = Storable::thaw($serial);</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;$LOCK-&gt;&#123;lock_file&#125; \n&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以批量对<code>maintain.pl</code>里的信息进行解码</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep maintain.pl | grep -v grep | awk <span class="string">&#x27;&#123;print $15&#125;&#x27;</span> | xargs -i perl decode.pl &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>因此，那么多的maker并不是在话说，而是在负责任务调度，差不多一个任务会有3个maker进程保驾护航。</p>
-<p>回到之前的进程数，这里有一些maker进程下会跟着一些正在运行的命令，blastx, exonerate</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-01a3786169a74d278d804a79c9e36e91.png" alt="Fig4"></p>
-<p>而有些只有maker和maintain.pl进程。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2020/06/image-6d38421ce79d4c129fe92e78d71a926d.png" alt="Fig5"></p>
-<p>如果等待一会，再次运行<code>pstree -ap [mpiexec进程ID]</code>，你会发现这两种状态会发生转换，这说明任务启动也需要一段时间。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2020/06/29/MAKER%E7%9A%84%E5%B9%B6%E8%A1%8C%E5%8C%96%E5%88%9D%E6%8E%A2-parallelization-of-maker/" data-id="clm1z22f8007cehn52ze67jei" data-title="MAKER的并行化初探" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7-MAKER/" rel="tag">注释 | 流程工具 | MAKER</a></li></ul>
 
     </footer>
   </div>
@@ -1340,6 +1341,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1353,10 +1358,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

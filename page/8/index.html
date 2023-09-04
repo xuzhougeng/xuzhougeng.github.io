@@ -73,6 +73,78 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Windows中Visual studio使用Qt5的中文乱码问题-windows-visual-studio-qt-jibberish" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" class="article-date">
+  <time class="dt-published" datetime="2021-06-19T11:47:26.754Z" itemprop="datePublished">2021-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/">Windows中Visual studio使用Qt5的中文乱码问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Qt的中文输入至少包括如下两类：</p>
+<ol>
+<li>代码编辑器中的中文</li>
+<li>通过文件选择框打开的中文路径</li>
+</ol>
+<p>对于第一种情况，代码编辑器中的中文跟<strong>编辑器的编码</strong>有关，因此可能会出现在编辑器中能够显示的中文，但是到了Qt的UI界面中就出现了乱码，例如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QString status = <span class="string">&quot;echo 测试 &amp;&amp; pause&quot;</span>;</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-855e0b5aeba9497eb5b5cc56ddaa8ab2.png" alt="文本框中出现乱码"></p>
+<p>原因: Visual Studio中对中文的默认编码和QT对中文的默认编码不一样。也就是说，我们输入了X编码方案的中文，但是在编译阶段，Qt用了Y编码方案进行解码，从而导致源码阶段的乱码。</p>
+<p>解决方案，就是设置好编码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明来源是local 8bit</span></span><br><span class="line">QString status = QString::<span class="built_in">fromLocal8Bit</span>(<span class="string">&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);</span><br><span class="line"><span class="comment">//用unicode字面量</span></span><br><span class="line">QString status = <span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">ui.textEdit-&gt;<span class="built_in">setText</span>(status);</span><br></pre></td></tr></table></figure>
+
+<p>对于第二种情况，QString获取到的中文就是它默认的编码方式，因此通过文件选择框获取的文件路径，如果包含中文，它也能够在Qt的UI界面正常展示。</p>
+<p>但是如果直接转成string，然后调用system就会出现乱码，如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//乱码</span></span><br><span class="line">QString status = QString::<span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line">string test = status.<span class="built_in">toStdString</span>();</span><br><span class="line"><span class="built_in">system</span>(test.<span class="built_in">c_str</span>());</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/06/image-8e931980dca649a48e02ae1c05285a0b.png" alt="cmd中的乱码"></p>
+<p>即，QString转string的时候存在编码上的问题。</p>
+<p>解决方案, 将QString转成Loal8Bit才行，而不是直接使用toStdString，之后在构建成string，转成const char*才能避免乱码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QString status = QString::<span class="built_in">fromUtf16</span>(<span class="string">u&quot;echo 测试 &amp;&amp; pause&quot;</span>);</span><br><span class="line"><span class="function">string <span class="title">test</span><span class="params">(status.toLocal8Bit())</span></span>;</span><br><span class="line"><span class="built_in">system</span>(test.<span class="built_in">c_str</span>());</span><br></pre></td></tr></table></figure>
+
+<p>参考资料</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1464366">https://cloud.tencent.com/developer/article/1464366</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/libaineu2004/article/details/19245205">彻底解决Qt中文乱码以及汉字编码的问题(UTF-8&#x2F;GBK)</a></li>
+<li><a target="_blank" rel="noopener" href="https://durant35.github.io/2016/02/02/programPearls_Qt_%E5%80%9FQt%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E8%B0%88%E8%B0%88Coding%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/">借Qt中文乱码谈谈Coding中的编码问题</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/06/19/Windows%E4%B8%ADVisual%20studio%E4%BD%BF%E7%94%A8Qt5%E7%9A%84%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98-windows-visual-studio-qt-jibberish/" data-id="clm4a30jd003ee6nk7a9c0tz1" data-title="Windows中Visual studio使用Qt5的中文乱码问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/QT-MSVC/" rel="tag">QT | MSVC</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针-c名词解析指针常量指针指向常量的指针指向常量的常量指针" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" class="article-date">
@@ -109,7 +181,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="clm1z22bo0027ehn56ps3e3tb" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/05/29/%E3%80%8CC++%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E3%80%8D%E6%8C%87%E9%92%88%E3%80%81%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E3%80%81%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88-c%E5%90%8D%E8%AF%8D%E8%A7%A3%E6%9E%90%E6%8C%87%E9%92%88%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E6%8C%87%E9%92%88%E6%8C%87%E5%90%91%E5%B8%B8%E9%87%8F%E7%9A%84%E5%B8%B8%E9%87%8F%E6%8C%87%E9%92%88/" data-id="clm4a30ki004ie6nkb3z48kmx" data-title="「C++名词解析」指针、常量指针、指向常量的指针、指向常量的常量指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -198,7 +270,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="clm1z22h500ejehn57yktfoid" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/05/26/%E5%A6%82%E4%BD%95%E5%9C%A8Visual%20Studio%E4%B8%8A%E9%85%8D%E7%BD%AEOpenCV%204.5.2%E7%94%A8%E4%BA%8EC++%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91-visual-studio-configuration-of-opencv-for-cpp-development/" data-id="clm4a30re00gre6nk5rdcdpts" data-title="如何在Visual Studio上配置OpenCV 4.5.2用于C++项目开发" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -322,7 +394,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" data-id="clm1z22eu005sehn59om11x14" data-title="Centos的Slurm安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/04/21/Centos%E7%9A%84Slurm%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0-install-slurm-in-centos/" data-id="clm4a30oq00aze6nk89k0b7lo" data-title="Centos的Slurm安装笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -383,7 +455,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/04/14/%E4%BD%BF%E7%94%A8Biopython%E8%B0%83%E7%94%A8EMBOSS%E7%9A%84needle-biopython-emboss-needle/" data-id="clm1z22fx00a3ehn57kuugjme" data-title="使用Biopython调用EMBOSS的needle" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/04/14/%E4%BD%BF%E7%94%A8Biopython%E8%B0%83%E7%94%A8EMBOSS%E7%9A%84needle-biopython-emboss-needle/" data-id="clm4a30qa00eke6nk6ssx99sv" data-title="使用Biopython调用EMBOSS的needle" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -424,7 +496,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/04/06/%E5%B0%86%E5%8D%9A%E5%AE%A2%E6%90%AC%E8%87%B3CSDN-backuptocsdn/" data-id="clm1z22ht00goehn514uf1rev" data-title="将博客搬至CSDN" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/04/06/%E5%B0%86%E5%8D%9A%E5%AE%A2%E6%90%AC%E8%87%B3CSDN-backuptocsdn/" data-id="clm4a30iw0030e6nkbrxk9axe" data-title="将博客搬至CSDN" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -483,7 +555,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/04/06/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98Github%E7%9A%84%E8%AE%BF%E9%97%AE%E9%80%9F%E5%BA%A6-how-to-accelerate-access-to-github/" data-id="clm1z22hd00faehn5fw7p2212" data-title="如何提高Github的访问速度" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/04/06/%E5%A6%82%E4%BD%95%E6%8F%90%E9%AB%98Github%E7%9A%84%E8%AE%BF%E9%97%AE%E9%80%9F%E5%BA%A6-how-to-accelerate-access-to-github/" data-id="clm4a30sb00hhe6nk4a9e3qet" data-title="如何提高Github的访问速度" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -589,7 +661,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/02/23/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%B8%89)-comparative-genome-analysis-with-wgdi-3/" data-id="clm1z22hg00fkehn50rlza7y5" data-title="如何用WGDI进行共线性分析(三)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/02/23/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%B8%89)-comparative-genome-analysis-with-wgdi-3/" data-id="clm4a30sd00hqe6nk9ave0t2e" data-title="如何用WGDI进行共线性分析(三)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -694,7 +766,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/02/20/WGDI%E4%B9%8B%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3blockinfo%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C-wgdi-explaining-blockinfo-result/" data-id="clm1z22b8000yehn54cjo5ixw" data-title="WGDI之深入理解blockinfo输出结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/02/20/WGDI%E4%B9%8B%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3blockinfo%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C-wgdi-explaining-blockinfo-result/" data-id="clm4a30jc003be6nk5th416bm" data-title="WGDI之深入理解blockinfo输出结果" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -788,175 +860,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/02/02/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%BA%8C)-comparative-genome-analysis-with-wgdi-2/" data-id="clm1z22hh00fnehn5fdoqffb2" data-title="如何用WGDI进行共线性分析(二)" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%81%E7%A8%8B%E5%B7%A5%E5%85%B7/" rel="tag">流程工具</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何用WGDI进行共线性分析(一)-comparative-genome-analysis-with-wgdi-1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/01/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%B8%80)-comparative-genome-analysis-with-wgdi-1/" class="article-date">
-  <time class="dt-published" datetime="2021-02-01T13:57:32.701Z" itemprop="datePublished">2021-02-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%AD%A6/">基因组学</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/01/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%B8%80)-comparative-genome-analysis-with-wgdi-1/">如何用WGDI进行共线性分析(一)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>多倍化以及后续的基因丢失和二倍化现象存在于大部分的物种中, 是物种进化的重要动力。如果一个物种在演化过程中发生过多倍化，那么在基因组上就会存在一些共线性区域（即两个区域之间的基因是旁系同源基因，其基因的排布顺序基本一致）。</p>
-<p>例如拟南芥经历了3次古多倍化，包括2次二倍化，一次3倍化 (Tang. et.al 2008 Science).  </p>
-<blockquote>
-<p>..For example,  Arabidopsis thaliana (thale cress) has undergone   three paleo-polyploidies, including two doublings  (5) and one tripling (12), resulting in ~12 copies of  its ancestral chromosome set in a ~160-Mb genome…</p>
-</blockquote>
-<p>当然之前只是记住了结论，现在我想的是，如何复现出这个分析结果呢？</p>
-<h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>首先，我们需要使用conda安装wgdi。 我一般会新建一个环境避免新装软件和其他软件产生冲突</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装软件</span></span><br><span class="line">conda create -c bioconda -c conda-forge -n wgdi wgdi</span><br><span class="line"><span class="comment"># 启动环境</span></span><br><span class="line">conda activate wgdi </span><br></pre></td></tr></table></figure>
-
-<p>之后，我们从ENSEMBL上下载基因组，CDS, 蛋白和GFF文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Athaliana</span></span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-44/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz</span><br><span class="line">gunzip Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz</span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-44/fasta/arabidopsis_thaliana/cds/Arabidopsis_thaliana.TAIR10.cds.all.fa.gz</span><br><span class="line">gunzip Arabidopsis_thaliana.TAIR10.cds.all.fa.gz</span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-44/fasta/arabidopsis_thaliana/pep/Arabidopsis_thaliana.TAIR10.pep.all.fa.gz</span><br><span class="line">gunzip Arabidopsis_thaliana.TAIR10.pep.all.fa.gz</span><br><span class="line">wget ftp://ftp.ensemblgenomes.org/pub/plants/release-44/gff3/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.44.gff3.gz</span><br><span class="line">gunzip Arabidopsis_thaliana.TAIR10.44.gff3.gz</span><br></pre></td></tr></table></figure>
-
-<p>注意: cDNA和CDS并不相同，CDS只包括起始密码子到终止密码子之间的序列，而cDNA还会包括UTR.</p>
-<h2 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h2><p>数据的预处理是用时最长的步骤，因为软件要求的输入格式并非是你手头所拥有的格式，你通常都需要进行一些转换才能得到它所需的形式。</p>
-<p>wgdi需要三种信息，分别是BLAST, 基因的位置信息和染色体长度信息，要求格式如下</p>
-<ol>
-<li><p>BLAST 的 <code>-outfmt 6</code>输出的文件</p>
-</li>
-<li><p>基因的位置信息: 以tab分隔，分别为chr，id，start，end，strand，order，old_id。（并非真正意义上的GFF格式）</p>
-</li>
-<li><p>染色体长度信息和染色体上的基因个数，格式为 chr, length, gene number</p>
-</li>
-</ol>
-<p>同时，对于每个基因我们只需要一个转录本，我通常使用最长的转录本作为该基因的代表。之前我写过一个脚本 (get_the_longest_transcripts.py) 提取每个基因的最长转录本，我在此处上写了一个新的脚本用来根据参考基因组和注释的GFF文件生成wgdi的两个输入文件，脚本地址为<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/myscripts/blob/master/comparative/generate_conf.py">https://github.com/xuzhougeng/myscripts/blob/master/comparative/generate_conf.py</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pytho generate_conf.py -p ath Arabidopsis_thaliana.TAIR10.dna.toplevel.fa Arabidopsis_thaliana.TAIR10.44.gff3</span><br></pre></td></tr></table></figure>
-
-<p>输出文件是ath.gff 和 ath.len.</p>
-<p>由于ENSEMBL上GFF的ID编号和pep.fa 和cds.fa 不太一致，简单的说就是，编号之前中有一个 “gene:” 和 “transcript:” . 如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">head</span> ath.gff </span><br><span class="line">1  gene:AT1G01010  3631  5899  +  1  transcript:AT1G01010.1</span><br><span class="line">1  gene:AT1G01020  6788  9130  -  2  transcript:AT1G01020.1</span><br><span class="line">1  gene:AT1G01030  11649  13714  -  3  transcript:AT1G01030.1</span><br><span class="line">1  gene:AT1G01040  23416  31120  +  4  transcript:AT1G01040.2</span><br><span class="line">1  gene:AT1G01050  31170  33171  -  5  transcript:AT1G01050.1</span><br><span class="line">1  gene:AT1G01060  33379  37757  -  6  transcript:AT1G01060.3</span><br><span class="line">1  gene:AT1G01070  38444  41017  -  7  transcript:AT1G01070.1</span><br><span class="line">1  gene:AT1G01080  45296  47019  -  8  transcript:AT1G01080.2</span><br><span class="line">1  gene:AT1G01090  47234  49304  -  9  transcript:AT1G01090.1</span><br><span class="line">1  gene:AT1G01100  49909  51210  -  10  transcript:AT1G01100.2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>于是我用 sed 删除了这些信息</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i -e <span class="string">&#x27;s/gene://&#x27;</span> -e <span class="string">&#x27;s/transcript://&#x27;</span> ath.gff</span><br></pre></td></tr></table></figure>
-
-<p>另外，pep.fa, cds.fa里面包含所有的基因，且命名特别的长， 同时我们也不需要基因中的 “.1”, “.2” 这部分信息</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">head</span> -n 5 Arabidopsis_thaliana.TAIR10.cds.all.fa </span><br><span class="line">&gt;AT3G05780.1 cds chromosome:TAIR10:3:1714941:1719608:-1 gene:AT3G05780 gene_biotype:protein_coding transcript_biotype:protein_coding gene_symbol:LON3 description:Lon protease homolog 3, mitochondrial [Source:UniProtKB/Swiss-Prot;Acc:Q9M9L8]</span><br><span class="line">ATGATGCCTAAACGGTTTAACACGAGTGGCTTTGACACGACTCTTCGTCTACCTTCGTAC</span><br><span class="line">TACGGTTTCTTGCATCTTACACAAAGCTTAACCCTAAATTCCCGCGTTTTCTACGGTGCC</span><br><span class="line">CGCCATGTGACTCCTCCGGCTATTCGGATCGGATCCAATCCGGTTCAGAGTCTACTACTC</span><br><span class="line">TTCAGGGCACCGACTCAGCTTACCGGATGGAACCGGAGTTCTCGCGATTTATTGGGTCGTb</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>借助于seqkit,  我对原来的数据进行了筛选和重命名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">seqkit grep -f &lt;(<span class="built_in">cut</span> -f 7 ath.gff ) Arabidopsis_thaliana.TAIR10.cds.all.fa | seqkit <span class="built_in">seq</span> --id-regexp <span class="string">&quot;^(.*?)\\.\\d&quot;</span> -i &gt; ath.cds.fa</span><br><span class="line">seqkit grep -f &lt;(<span class="built_in">cut</span> -f 7 ath.gff ) Arabidopsis_thaliana.TAIR10.pep.all.fa | seqkit <span class="built_in">seq</span> --id-regexp <span class="string">&quot;^(.*?)\\.\\d&quot;</span> -i &gt; ath.pep.fa  </span><br></pre></td></tr></table></figure>
-
-<p>通过NCBI的BLASTP 或者DIAMOND 进行蛋白之间相互比对，输出格式为 <code>-outfmt 6</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">makeblastdb -<span class="keyword">in</span> ath.pep.fa -dbtype prot</span><br><span class="line">blastp -num_threads 50 -db ath.pep.fa -query ath.pep.fa -outfmt 6 -evalue 1e-5 -num_alignments 20  -out ath.blastp.txt &amp; </span><br></pre></td></tr></table></figure>
-
-<h2 id="共线性分析"><a href="#共线性分析" class="headerlink" title="共线性分析"></a>共线性分析</h2><h3 id="绘制点阵图"><a href="#绘制点阵图" class="headerlink" title="绘制点阵图"></a>绘制点阵图</h3><p>在上面步骤结束后，其实绘制点阵图就非常简单了，只需要创建配置文件，然后修改配置文件，最后运行wgdi。</p>
-<blockquote>
-<p>基本wgdi的其他分析也都是三部曲，创建配置，修改配置，运行程序。</p>
-</blockquote>
-<p>第一步，创建配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wgdi -d \? &gt; ath.conf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>配置文件的信息如下，</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[dotplot]</span></span><br><span class="line"><span class="attr">blast</span> = blast file</span><br><span class="line"><span class="attr">gff1</span> =  gff1 file</span><br><span class="line"><span class="attr">gff2</span> =  gff2 file</span><br><span class="line"><span class="attr">lens1</span> = lens1 file</span><br><span class="line"><span class="attr">lens2</span> = lens2 file</span><br><span class="line"><span class="attr">genome1_name</span> =  Genome1 name</span><br><span class="line"><span class="attr">genome2_name</span> =  Genome2 name</span><br><span class="line"><span class="attr">multiple</span>  = <span class="number">1</span>   <span class="comment"># 最好的同源基因数, 用输出结果中会用红点表示</span></span><br><span class="line"><span class="attr">score</span> = <span class="number">100</span>     <span class="comment"># blast输出的score 过滤 </span></span><br><span class="line"><span class="attr">evalue</span> = <span class="number">1</span>e-<span class="number">5</span>   <span class="comment"># blast输出的evalue 过滤 </span></span><br><span class="line"><span class="attr">repeat_number</span> = <span class="number">20</span>  <span class="comment"># genome2相对于genome1的最多同源基因数</span></span><br><span class="line"><span class="attr">position</span> = order</span><br><span class="line"><span class="attr">blast_reverse</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">ancestor_left</span> = none</span><br><span class="line"><span class="attr">ancestor_top</span> = none</span><br><span class="line"><span class="attr">markersize</span> = <span class="number">0.5</span>  <span class="comment"># 点的大小</span></span><br><span class="line"><span class="attr">figsize</span> = <span class="number">10</span>,<span class="number">10</span>   <span class="comment"># 图片大小</span></span><br><span class="line"><span class="attr">savefig</span> = savefile(.png,.pdf)</span><br></pre></td></tr></table></figure>
-
-<p>第二步，修改配置文件。因为是自我比对，所以 gff1和gff2内容一样， lens1和lens2内容一样</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[dotplot]</span><br><span class="line">blast = ath.blastp.txt</span><br><span class="line">gff1 =  ath.gff</span><br><span class="line">gff2 =  ath.gff</span><br><span class="line">lens1 = ath.len</span><br><span class="line">lens2 = ath.len</span><br><span class="line">genome1_name =  A. thaliana</span><br><span class="line">genome2_name =  A. thaliana</span><br><span class="line">multiple  = 1</span><br><span class="line">score = 100</span><br><span class="line">evalue = 1e-5</span><br><span class="line">repeat_number = 5 </span><br><span class="line">position = order</span><br><span class="line">blast_reverse = <span class="literal">false</span></span><br><span class="line">ancestor_left = none</span><br><span class="line">ancestor_top = none</span><br><span class="line">markersize = 0.5</span><br><span class="line">figsize = 10,10</span><br><span class="line">savefig = ath.dot.png</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>最后运行如下命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wgdi -d ath.conf</span><br></pre></td></tr></table></figure>
-
-<p>输出的png如下所示</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/02/image-aca03c4f647d421a9523c285ff8752c6.png" alt="点阵图"></p>
-<p>从图中，我们很容易地就能观察到三种颜色，分别是红色，蓝色，和灰色。在WGDI中，红色表示genome2的基因在genome1中的最优同源（相似度最高）的匹配，次好的四个基因是蓝色，而剩余部分是为灰色。图中对角线出现的片段并非是自身比对，因为WGDI已经过滤掉自身比自身的结果。那么问题来了，这些基因是什么呢？这个问题会在后续的分析中进行解答。</p>
-<p>如果基因组存在加倍事件，那么对于一个基因组的某个区域可能会存在另一个区域与其有着相似的基因（同源基因），并且这些基因的排布顺序较为一致。反应到点阵图上，就是能够观察到有多个点所组成的”线”。这里的线需要有一个引号，因为当你放大之后，你会发现其实还是点而已。</p>
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/02/image-799f63357317488d98484b761446b1ea.png" alt="部分区域放大"></p>
-<p>由于进一步鉴定共线性区域就建立在这些”点”的基础上，那么影响这些点是否为同源基因的参数就非常重要了，即配置文件中的score,evalue,repeat_number。</p>
-<h3 id="共线性分析和Ks计算"><a href="#共线性分析和Ks计算" class="headerlink" title="共线性分析和Ks计算"></a>共线性分析和Ks计算</h3><p>对于同线性(synteny)和共线性(collinearity)，一般认为同线性指的是两个区域有一定数量的同源基因，对基因顺序排布无要求。共线性是同线性的特殊形式，要求同源基因的排布顺序也相似。</p>
-<p>wgdi开发了<code>-icl</code>模块（<strong>I</strong>mproved version of <strong>C</strong>olinear<strong>S</strong>can）用于进行共线性分析，使用起来非常简单，也是先建立配置文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wgdi -icl \? &gt;&gt; ath.conf</span><br></pre></td></tr></table></figure>
-
-<p>然后对配置文件进行修改.</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[collinearity]</span></span><br><span class="line"><span class="attr">gff1</span> = ath.gff</span><br><span class="line"><span class="attr">gff2</span> = ath.gff</span><br><span class="line"><span class="attr">lens1</span> = ath.len</span><br><span class="line"><span class="attr">lens2</span> = ath.len</span><br><span class="line"><span class="attr">blast</span> = ath.blastp.txt</span><br><span class="line"><span class="attr">blast_reverse</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">multiple</span>  = <span class="number">1</span></span><br><span class="line"><span class="attr">process</span> = <span class="number">8</span></span><br><span class="line"><span class="attr">evalue</span> = <span class="number">1</span>e-<span class="number">5</span></span><br><span class="line"><span class="attr">score</span> = <span class="number">100</span></span><br><span class="line"><span class="attr">grading</span> = <span class="number">50</span>,<span class="number">40</span>,<span class="number">25</span></span><br><span class="line"><span class="attr">mg</span> = <span class="number">40</span>,<span class="number">40</span></span><br><span class="line"><span class="attr">pvalue</span> = <span class="number">0.2</span></span><br><span class="line"><span class="attr">repeat_number</span> = <span class="number">10</span></span><br><span class="line"><span class="attr">positon</span> = order</span><br><span class="line"><span class="attr">savefile</span> = ath.collinearity.txt</span><br></pre></td></tr></table></figure>
-
-<p>其中的evalue, score和BLAST文件的过滤有关，用于筛选同源基因对。multiple确定最佳比对基因，repeat_number表示最多允许多少基因是潜在的同源基因, grading根据同源基因的匹配程度进行打分, mg 指的是共线性区域中所允许最大空缺基因数。</p>
-<p>运行结果后，会得到ath.collinearity.txt，记录共线性区域。以 # 起始的行记录共线性区域的元信息，例如得分(score)，显著性(pvalue)，基因对数(N)等。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">&#x27;^#&#x27;</span> ath.collinearity.txt | <span class="built_in">tail</span> -n 1</span><br><span class="line"><span class="comment"># Alignment 959: score=778.0 pvalue=0.0003 N=16 Pt&amp;Pt minus </span></span><br></pre></td></tr></table></figure>
-
-<p>紧接着，我们就可以根据共线性结果来计算Ks。</p>
-<p>同样的也是先生成配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wgdi -ks \? &gt;&gt; ath.conf</span><br></pre></td></tr></table></figure>
-
-<p>然后修改配置文件。我们需要提供cds和pep文件，共线性分析输出文件(支持MCScanX的共线性分析结果）。WGDI会用muscle根据蛋白序列进行联配，然后使用pal2pal.pl 基于cds序列将蛋白联配转成密码子联配，最后用paml中的yn00计算ka和ks。</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[ks]</span></span><br><span class="line"><span class="attr">cds_file</span> =   ath.cds.fa</span><br><span class="line"><span class="attr">pep_file</span> =   ath.pep.fa</span><br><span class="line"><span class="attr">align_software</span> = muscle</span><br><span class="line"><span class="attr">pairs_file</span> = ath.collinearity.txt</span><br><span class="line"><span class="attr">ks_file</span> = ath.ks</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>ks计算需要一段时间，那么不妨在计算时了解下Ka和Ks。Ka和Ks分别指的是非同义替换位点数，和同义替换位点数。根据中性演化假说，基因的变化大多是中性突变，不会影响生物的生存，那么当一对同源基因分开的时间越早，不影响生存的碱基替换数就越多(Ks)，反之越多。</p>
-<p>运行结果后，输出的Ks文件共有6列，对应的是每个基因对的Ka和Ks值。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">head</span> ath.ks</span><br><span class="line">id1  id2  ka_NG86  ks_NG86  ka_YN00  ks_YN00</span><br><span class="line">AT1G72300  AT1G17240  0.1404  0.629  0.1467  0.5718</span><br><span class="line">AT1G72330  AT1G17290  0.0803  0.5442  0.079  0.6386</span><br><span class="line">AT1G72350  AT1G17310  0.3709  0.9228  0.3745  1.071</span><br><span class="line">AT1G72410  AT1G17360  0.2636  0.875  0.2634  1.1732</span><br><span class="line">AT1G72450  AT1G17380  0.2828  1.1068  0.2857  1.5231</span><br><span class="line">AT1G72490  AT1G17400  0.255  1.2113  0.2597  2.0862</span><br><span class="line">AT1G72520  AT1G17420  0.1006  0.9734  0.1025  1.0599</span><br><span class="line">AT1G72620  AT1G17430  0.1284  0.7328  0.1375  0.603</span><br><span class="line">AT1G72630  AT1G17455  0.0643  0.7608  0.0613  1.2295</span><br></pre></td></tr></table></figure>
-
-<p>鉴于共线性和Ks值输出结果信息量太大，不方便使用，更好的方法是将两者进行聚合，得到关于各个共线性区的汇总信息。</p>
-<p>WGDI提供 <code>-bi</code> 参数帮助我们进行数据整合。同样也是生成配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wgdi -bi ? &gt;&gt; ath.conf</span><br></pre></td></tr></table></figure>
-
-<p>修改配置文件. 其中collinearity 和ks是我们前两步的输出文件，而 ks_col 则是声明使用ks文件里的哪一列。</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[blockinfo]</span></span><br><span class="line"><span class="attr">blast</span> = ath.blastp.txt</span><br><span class="line"><span class="attr">gff1</span> =  ath.gff</span><br><span class="line"><span class="attr">gff2</span> =  ath.gff</span><br><span class="line"><span class="attr">lens1</span> = ath.len</span><br><span class="line"><span class="attr">lens2</span> = ath.len</span><br><span class="line"><span class="attr">collinearity</span> = ath.collinearity.txt</span><br><span class="line"><span class="attr">score</span> = <span class="number">100</span></span><br><span class="line"><span class="attr">evalue</span> = <span class="number">1</span>e-<span class="number">5</span></span><br><span class="line"><span class="attr">repeat_number</span> = <span class="number">20</span></span><br><span class="line"><span class="attr">position</span> = order</span><br><span class="line"><span class="attr">ks</span> = ath.ks</span><br><span class="line"><span class="attr">ks_col</span> = ks_NG86</span><br><span class="line"><span class="attr">savefile</span> = ath_block_information.csv</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>运行即可</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wgdi -bi ath.conf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>输出文件以csv格式进行存放，因此可以用EXCEL直接打开，共11列。</p>
-<ol>
-<li><code>id</code> 即共线性的结果的唯一标识</li>
-<li><code>chr1</code>,<code>start1</code>,<code>end1</code> 即参考基因组（点图的左边）的共线性范围</li>
-<li><code>chr2</code>,<code>start2</code>,<code>end2</code> 即参考基因组（点图的上边）的共线性范围</li>
-<li><code>pvalue</code> 即共线性结果评估，常常认为小于0.01的更合理些</li>
-<li><code>length</code> 即共线性片段长度</li>
-<li><code>ks_median</code> 即共线性片段上所有基因对<code>ks</code>的中位数（主要用来评判ks分布的）</li>
-<li><code>ks_average</code> 即共线性片段上所有基因对<code>ks</code>的平均值</li>
-<li><code>homo1</code>,<code>homo2</code>,<code>homo3</code>,<code>homo4</code>,<code>homo5</code>与<code>multiple</code>参数有关，即一共有homo+multiple列</li>
-</ol>
-<p>  主要规则是：基因对如果在点图中为红色，赋值为1，蓝色赋值为0，灰色赋值为-1（颜色参考前述 <code>wgdi</code> 点图 相关推文）。共线性片段上所有基因对赋值后求平均值，这样就赋予该共线性一个-1,1的值。如果共线性的点大部分为红色，那么该值接近于1。可以作为共线性片段的筛选。</p>
-<ol>
-<li><code>block1</code>,<code>block2</code>分别为共线性片段上基因<code>order</code>的位置。</li>
-<li><code>ks</code>共线性片段的上基因对的<code>ks</code>值</li>
-<li><code>density1</code>,<code>density2</code> 共线性片段的基因分布密集程度。值越小表示稀疏</li>
-</ol>
-<p>这个表格是后续探索分析的一个重点，比如说我们可以用它来分析我们点图中出现在对角线上的基因。下面的代码就是提取了第一个共线性区域的所有基因，然后进行富集分析，绘制了一个气泡图。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">df <span class="operator">&lt;-</span> read.csv<span class="punctuation">(</span><span class="string">&quot;ath_block_information.csv&quot;</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">tandem_length <span class="operator">&lt;-</span> 200</span><br><span class="line"></span><br><span class="line">df<span class="operator">$</span>start <span class="operator">&lt;-</span> df<span class="operator">$</span>start2 <span class="operator">-</span> df<span class="operator">$</span>start1</span><br><span class="line">df<span class="operator">$</span>end <span class="operator">&lt;-</span> df<span class="operator">$</span>end2 <span class="operator">-</span> df<span class="operator">$</span>end1</span><br><span class="line"></span><br><span class="line">df_tandem <span class="operator">&lt;-</span> df<span class="punctuation">[</span><span class="built_in">abs</span><span class="punctuation">(</span>df<span class="operator">$</span>start<span class="punctuation">)</span> <span class="operator">&lt;=</span> tandem_length <span class="operator">|</span></span><br><span class="line">     <span class="built_in">abs</span><span class="punctuation">(</span>df<span class="operator">$</span>end<span class="punctuation">)</span> <span class="operator">&lt;=</span> tandem_length<span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">gff <span class="operator">&lt;-</span> read.table<span class="punctuation">(</span><span class="string">&quot;ath.gff&quot;</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">syn_block1 <span class="operator">&lt;-</span>  df_tandem<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span><span class="built_in">c</span><span class="punctuation">(</span><span class="string">&quot;block1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;block2&quot;</span><span class="punctuation">)</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line">gene_order <span class="operator">&lt;-</span> unlist<span class="punctuation">(</span></span><br><span class="line">  lapply<span class="punctuation">(</span>syn_block1<span class="punctuation">,</span> strsplit<span class="punctuation">,</span> split<span class="operator">=</span><span class="string">&quot;_&quot;</span><span class="punctuation">,</span> fixed<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">,</span> useBytes<span class="operator">=</span><span class="literal">TRUE</span><span class="punctuation">)</span></span><br><span class="line"><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">gene_order <span class="operator">&lt;-</span> unique<span class="punctuation">(</span><span class="built_in">as.numeric</span><span class="punctuation">(</span>gene_order<span class="punctuation">)</span><span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">syn_block1_gene <span class="operator">&lt;-</span> gff<span class="punctuation">[</span> gff<span class="operator">$</span>V6 <span class="operator">%in%</span> gene_order<span class="punctuation">,</span> <span class="string">&quot;V2&quot;</span><span class="punctuation">]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#BiocManager::install(&quot;org.At.tair.db&quot;)</span></span><br><span class="line">library<span class="punctuation">(</span>org.At.tair.db<span class="punctuation">)</span></span><br><span class="line">library<span class="punctuation">(</span>clusterProfiler<span class="punctuation">)</span></span><br><span class="line"></span><br><span class="line">ego <span class="operator">&lt;-</span> enrichGO<span class="punctuation">(</span>syn_block1_gene<span class="punctuation">,</span> </span><br><span class="line">                OrgDb <span class="operator">=</span> org.At.tair.db<span class="punctuation">,</span> </span><br><span class="line">                keyType <span class="operator">=</span> <span class="string">&quot;TAIR&quot;</span><span class="punctuation">,</span>ont <span class="operator">=</span> <span class="string">&quot;BP&quot;</span></span><br><span class="line">                <span class="punctuation">)</span></span><br><span class="line">dotplot<span class="punctuation">(</span>ego<span class="punctuation">)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2021/02/image-4a707a066ab745c2b566d55ab28b765d.png" alt="气泡图"></p>
-<p>进一步观察这些基因，可以发现这些基因的编号都是前后相连，说明这个基因簇和花粉识别有一定关系。</p>
-<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> as.data.frame<span class="punctuation">(</span>ego<span class="punctuation">)</span><span class="punctuation">[</span><span class="number">1</span><span class="punctuation">,</span><span class="punctuation">]</span></span><br><span class="line">                   ID           Description GeneRatio  BgRatio       pvalue</span><br><span class="line">GO<span class="operator">:</span><span class="number">0048544</span> GO<span class="operator">:</span><span class="number">0048544</span> recognition of pollen    <span class="number">11</span><span class="operator">/</span><span class="number">560</span> <span class="number">43</span><span class="operator">/</span><span class="number">21845</span> <span class="number">7.794138e-09</span></span><br><span class="line">               p.adjust      qvalue</span><br><span class="line">GO<span class="operator">:</span><span class="number">0048544</span> <span class="number">8.121073e-06</span> <span class="number">7.95418e-06</span></span><br><span class="line">                                                                                                                  geneID</span><br><span class="line">GO<span class="operator">:</span><span class="number">0048544</span> AT1G61360<span class="operator">/</span>AT1G61370<span class="operator">/</span>AT1G61380<span class="operator">/</span>AT1G61390<span class="operator">/</span>AT1G61400<span class="operator">/</span>AT1G61420<span class="operator">/</span>AT1G61440<span class="operator">/</span>AT1G61480<span class="operator">/</span>AT1G61490<span class="operator">/</span>AT1G61500<span class="operator">/</span>AT1G61550</span><br><span class="line">           Count</span><br><span class="line">GO<span class="operator">:</span><span class="number">0048544</span>    <span class="number">11</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>A <strong>gene cluster</strong> is a group of two or more genes found within an organism’s DNA that encode similar polypeptides, or proteins, which collectively share a generalized function and are **often located within a few thousand base pairs **of each other. –<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Gene_cluster">维基百科</a></p>
-</blockquote>
-<p>接下来，我们还可以根据这个表格中的Ks对点阵图进行上色， 以及正确的计算Ks峰值。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/02/01/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%B8%80)-comparative-genome-analysis-with-wgdi-1/" data-id="clm1z22hf00fgehn517kmb5eu" data-title="如何用WGDI进行共线性分析(一)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/02/02/%E5%A6%82%E4%BD%95%E7%94%A8WGDI%E8%BF%9B%E8%A1%8C%E5%85%B1%E7%BA%BF%E6%80%A7%E5%88%86%E6%9E%90(%E4%BA%8C)-comparative-genome-analysis-with-wgdi-2/" data-id="clm4a30se00hte6nkcbog4n5f" data-title="如何用WGDI进行共线性分析(二)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1027,6 +931,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1040,10 +948,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

@@ -73,6 +73,88 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-实现Seurat 2 和 Seurat3 在同一个环境下共存-Seuarat2-Seurat3-together" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" class="article-date">
+  <time class="dt-published" datetime="2019-08-14T10:31:49.412Z" itemprop="datePublished">2019-08-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/R/">R</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/">实现Seurat 2 和 Seurat3 在同一个环境下共存</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>软件升级虽然是一件值得高兴的是，但是代码变化太大却不是一件好消息。比如说Seurat，这个单细胞分析最常用的R包，它的2.x版本和3.x版本的变化就是翻天覆地。</p>
+<p>为了能够重现别人的代码，你可能需要重装2.3.4版本的Seurat，官方提供了安装脚本</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source<span class="punctuation">(</span><span class="string">&quot;https://gist.githubusercontent.com/satijalab/beb9bb50dedc75ee023bd5d9be5fe684/raw/e103577735a2fba9da2ccca14ce1ac33e46c1bc4/old_seurat.R&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>但是在window下安装会出一个报错, 提示无法在Windows下安装MacOS的版本</p>
+<p>这个时候需要手动安装Seurat，注意，这里要求有Rtools才能进行编译</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&#x27;Seurat&#x27;</span><span class="punctuation">,</span> repos <span class="operator">=</span> <span class="string">&#x27;https://satijalab.org/ran&#x27;</span><span class="punctuation">,</span> type <span class="operator">=</span> <span class="string">&quot;source&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>可以设置<code>install.packages</code>里的参数lib.loc，让Seurat安装到其他的文件加，就不会替换原来的Seurat，同时用<code>library</code>加载的时候，也需要设置<code>lib.loc</code>.</p>
+<p>上面是简单可行易操作的方法，唯一的问题是你不能同时加载两个Seurat版本，当然你也不会想这样子做，所以这是一个伪需求。</p>
+<p>下面就是瞎折腾环节， 我要将Seurat的2.3.4版本单独搞出一个R包，Seurat2，这样子就可以同时加载这两个R包。</p>
+<p>下载Seurat 2.3.4</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://satijalab.org/ran/src/contrib/Seurat_2.3.4.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>解压缩它</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar xf Seurat_2.3.4.tar.gz</span><br><span class="line"><span class="built_in">cd</span> Seurat</span><br></pre></td></tr></table></figure>
+
+<p>删除MD5文件，因为它会做文件检验</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> MD5</span><br></pre></td></tr></table></figure>
+
+<p>修改里面所有的Seurat替换成Seurat2, seurat替换成seurat2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -print0 | xargs -0 sed -i <span class="string">&quot;s/Seurat/Seurat2/g&quot;</span></span><br><span class="line">find . -<span class="built_in">type</span> f -print0 | xargs -0 sed -i <span class="string">&quot;s/seurat/seurat2/g&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这种无差别的替换会有一个问题，会把一些这类<code>http://www.satijalab.org/seurat</code>非代码信息中的seurat替换成seurat2，不过这并不影响实际函数的使用。</p>
+<p>将<code>R/seurat.R</code>重名为<code>R/seurat2.R</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> R/seurat.R R/seurat2.R</span><br></pre></td></tr></table></figure>
+
+<p>之后打包修改后的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -czf Seurat2.tar.gz Seurat</span><br></pre></td></tr></table></figure>
+
+<p>于是我们就可以安装我们自己修改后的R包了</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install.packages<span class="punctuation">(</span><span class="string">&quot;Seurat2.tar.gz&quot;</span><span class="punctuation">,</span> repos<span class="operator">=</span><span class="literal">NULL</span><span class="punctuation">,</span> type<span class="operator">=</span><span class="string">&quot;source&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>: 目前未修改测试数据集的对象，所以不能用Seurat2来运行pbmc_small的例子</p>
+<p>由于我已经修改好了，所以你们也不需要自己再去修改了。我将其上传到GitHub，所以可以用devtools进行安装。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devtools<span class="operator">::</span>install_github<span class="punctuation">(</span><span class="string">&quot;xuzhougeng/Seurat2&quot;</span><span class="punctuation">)</span></span><br></pre></td></tr></table></figure>
+
+<p>由于代码只是简单修改，存在bug，其实不建议尝试使用。而且安装完Seurat2之后，我<strong>定性</strong>的评估了下Seurat2和Seurat3，发现两者在聚类分析上并没有太大区别, 所以更推荐大家使用最新的<code>Seurat</code>.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/14/%E5%AE%9E%E7%8E%B0Seurat%202%20%E5%92%8C%20Seurat3%20%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%85%B1%E5%AD%98-Seuarat2-Seurat3-together/" data-id="clm4a30t200ipe6nk8ne8egkj" data-title="实现Seurat 2 和 Seurat3 在同一个环境下共存" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Seurat/" rel="tag">Seurat</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-用rtracklayer读取和输出BigWig-rtracklayer-BigWig" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/13/%E7%94%A8rtracklayer%E8%AF%BB%E5%8F%96%E5%92%8C%E8%BE%93%E5%87%BABigWig-rtracklayer-BigWig/" class="article-date">
@@ -133,7 +215,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/13/%E7%94%A8rtracklayer%E8%AF%BB%E5%8F%96%E5%92%8C%E8%BE%93%E5%87%BABigWig-rtracklayer-BigWig/" data-id="clm1z22im00ipehn57leu0ynk" data-title="用rtracklayer读取和输出BigWig" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/13/%E7%94%A8rtracklayer%E8%AF%BB%E5%8F%96%E5%92%8C%E8%BE%93%E5%87%BABigWig-rtracklayer-BigWig/" data-id="clm4a30tu00jze6nk235tasuv" data-title="用rtracklayer读取和输出BigWig" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -380,7 +462,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/10/%E3%80%8C%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0%E3%80%8D2019%E5%8F%91%E8%A1%A8%E5%9C%A8NBT%E7%9A%8410x%20sc-ATAC-seq%E5%88%86%E6%9E%90%E9%87%8D%E7%8E%B0-2019-NBT-10x-sc-ATAC-seq-analysis/" data-id="clm1z22je00l6ehn565ph1hhh" data-title="「文章重现」2019发表在NBT的10x sc-ATAC-seq分析重现" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/10/%E3%80%8C%E6%96%87%E7%AB%A0%E9%87%8D%E7%8E%B0%E3%80%8D2019%E5%8F%91%E8%A1%A8%E5%9C%A8NBT%E7%9A%8410x%20sc-ATAC-seq%E5%88%86%E6%9E%90%E9%87%8D%E7%8E%B0-2019-NBT-10x-sc-ATAC-seq-analysis/" data-id="clm4a30l9005oe6nkgg48dcih" data-title="「文章重现」2019发表在NBT的10x sc-ATAC-seq分析重现" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -514,7 +596,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/07/%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9-%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/" data-id="clm1z22d30033ehn5d88tb5t3" data-title="「生信基础课」初学者入门Linux最少必要的知识点" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/07/%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9-%E3%80%8C%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80%E8%AF%BE%E3%80%8D%E5%88%9D%E5%AD%A6%E8%80%85%E5%85%A5%E9%97%A8Linux%E6%9C%80%E5%B0%91%E5%BF%85%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/" data-id="clm4a30gk0005e6nk6amw0vzq" data-title="「生信基础课」初学者入门Linux最少必要的知识点" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -582,7 +664,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/31/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%94)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%94)/" data-id="clm1z22eg004gehn53hjq5856" data-title="从零开始学CIRCOS绘制圈图(五)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/31/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%94)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%94)/" data-id="clm4a30hp001ge6nk74ymbjpd" data-title="从零开始学CIRCOS绘制圈图(五)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -698,7 +780,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/31/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E5%9B%9B)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E5%9B%9B)/" data-id="clm1z22eh004jehn53l66070v" data-title="从零开始学CIRCOS绘制圈图(四)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/31/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E5%9B%9B)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E5%9B%9B)/" data-id="clm4a30hq001ke6nk4u3q756c" data-title="从零开始学CIRCOS绘制圈图(四)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -805,7 +887,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)/" data-id="clm1z22ed004behn5at6l6ndv" data-title="从零开始学CIRCOS绘制圈图(三)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%B8%89)/" data-id="clm4a30hk0019e6nk31lta1pz" data-title="从零开始学CIRCOS绘制圈图(三)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -903,7 +985,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)/" data-id="clm1z22ee004dehn52gqo9yhc" data-title="从零开始学CIRCOS绘制圈图(二)" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/30/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%AD%A6CIRCOS%E7%BB%98%E5%88%B6%E5%9C%88%E5%9B%BE(%E4%BA%8C)/" data-id="clm4a30ho001ee6nkbw6o73j1" data-title="从零开始学CIRCOS绘制圈图(二)" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -967,7 +1049,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/29/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq-%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq/" data-id="clm1z22hp00gdehn544pkfw26" data-title="如何高效地从BAM文件中提取fastq" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/29/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq-%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E5%9C%B0%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq/" data-id="clm4a30ss00ije6nkhj8490db" data-title="如何高效地从BAM文件中提取fastq" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1037,228 +1119,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/29/%E5%A6%82%E4%BD%95%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq-%E5%A6%82%E4%BD%95%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq/" data-id="clm1z22gy00duehn58a8f8rbc" data-title="如何从BAM文件中提取fastq" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/07/29/%E5%A6%82%E4%BD%95%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq-%E5%A6%82%E4%BD%95%E4%BB%8EBAM%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96fastq/" data-id="clm4a30qu00g2e6nk4p88fj2i" data-title="如何从BAM文件中提取fastq" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-R语言的字符串操作-R语言的字符串操作" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/07/28/R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C-R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" class="article-date">
-  <time class="dt-published" datetime="2019-07-28T10:25:03.264Z" itemprop="datePublished">2019-07-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/R/">R</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/07/28/R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C-R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/">R语言的字符串操作</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>R语言主要擅长于数值向量和矩阵操作，但是让他去做字符串操作也可以。</p>
-<p>字符串的基本操作类型：</p>
-<ul>
-<li>查找和替换</li>
-<li>大小写转换</li>
-<li>字符数统计</li>
-<li>字符串连接和拆分</li>
-</ul>
-<p>就我所知，有两套处理函数，一套是Hadley大神的stringr,一套是R自带的。</p>
-<h2 id="stringr使用指南"><a href="#stringr使用指南" class="headerlink" title="stringr使用指南"></a>stringr使用指南</h2><p>stringr函数主要分为四类：</p>
-<p>1. 字符操作：操作字符向量中的单个符 str_length, str_sub, str_dup</p>
-<p>2. 添加，移除和操作空白符 str_pad, str_trim, str_wrap</p>
-<p>3. 大小写转换处理 str_to_lower, str_to_upper, str_to_title</p>
-<p>4. 模式匹配函数 str_detect, str_subset, str_count, str_locate, str_locate_all, str_match, str_match_all, str_replace, str_replace_all, str_split_fix, str_split, str_extract, str_extract_all </p>
-<h3 id="单个字符的处理"><a href="#单个字符的处理" class="headerlink" title="单个字符的处理"></a>单个字符的处理</h3><p>字符长度<code>str_length</code>，等价于<code>nchar</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_length(&quot;abc&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>根据位置信息提取或替换字符, 类似于substr()</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- c(&quot;abcdef&quot;,&quot;ghijk&quot;)</span><br><span class="line"># 第三个</span><br><span class="line">str_sub(x,3,3)</span><br><span class="line"># 第二个到倒数第二个</span><br><span class="line">str_sub(x,2, -2)</span><br><span class="line"># 替换</span><br><span class="line">str_sub(x,3,3) &lt;- X</span><br></pre></td></tr></table></figure>
-
-<p>重复字符串，不同于rep</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_dup(x,c(2,3))</span><br></pre></td></tr></table></figure>
-
-<h3 id="空白符"><a href="#空白符" class="headerlink" title="空白符"></a>空白符</h3><p>前后增加空白字符, str_pad()</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- c(&quot;abc&quot;, &quot;defghi&quot;)</span><br><span class="line">str_pad(x, 10)</span><br><span class="line">str_pad(x, 10, &quot;both&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>移除空白字符, str_trim()</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- c(&quot;   b   &quot;, &quot;c   &quot;, &quot;   d&quot;)</span><br><span class="line">str_trim(x)</span><br><span class="line">str_trim(x,left)</span><br></pre></td></tr></table></figure>
-
-<p>更好的排版，让每一行的看起来一样长， str_wrap()</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nature &lt;- c(&quot;Nature Methods&#x27; Points of Significance column &quot;,</span><br><span class="line">&quot;on statistics explains many key statistical and &quot;,&quot;experimental design concepts. Other resources include an online&quot;,</span><br><span class="line">&quot; plotting tool and links to statistics guides from other publishers.&quot;)</span><br><span class="line">cat(str_wrap(nature, width=40))</span><br></pre></td></tr></table></figure>
-
-<h3 id="大小写转换"><a href="#大小写转换" class="headerlink" title="大小写转换"></a>大小写转换</h3><ul>
-<li>全部大写 str_to_upper, 类似于基础R的toupper()</li>
-<li>全部小写 str_to_lower, 类似于基础R的tolower()</li>
-<li>title形式 str_to_title</li>
-</ul>
-<h3 id="模式匹配"><a href="#模式匹配" class="headerlink" title="模式匹配"></a>模式匹配</h3><p>功能： decect, locate, extract, match, replace, split</p>
-<p>测试数据：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">strings &lt;- c(</span><br><span class="line">    &quot;apple&quot;,</span><br><span class="line">    &quot;219 733 8965&quot;,</span><br><span class="line">    &quot;329-293-8753&quot;,</span><br><span class="line">    &quot;Work: 579-499-7527; Home: 543.355.3679&quot;</span><br><span class="line">)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>号码的正则形式:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">phone &lt;- &quot;([2-9][0-9]&#123;2&#125;)[- .]([0-9]&#123;3&#125;)[- .]([0-9]&#123;4&#125;)&quot;</span><br></pre></td></tr></table></figure>
-
-<p>检测字符串是否符合特定模式， str_detect</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_detect(strings, phone)</span><br></pre></td></tr></table></figure>
-
-<p>提取字符串(全部内容）， str_subset</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_subset(strings, phone)</span><br></pre></td></tr></table></figure>
-
-<p>统计匹配次数，str_count</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_count(strings, phone)</span><br></pre></td></tr></table></figure>
-
-<p>定位首个匹配的位置,str_locate(返回matrix), 或所有匹配的位置, str_locate_all（返回list）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str_locate(strings, phone)</span><br><span class="line">str_locate_all(strings, phone)</span><br></pre></td></tr></table></figure>
-
-<p>str_extract提取首个匹配，返回字符串向量, str_extract_all()提取所有匹配，返回list</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">str_extract(strings, phone)</span><br><span class="line">str_extract_all(strings,phone)</span><br><span class="line">str_extract_all(strings, phone, simplify=TRUE)</span><br></pre></td></tr></table></figure>
-
-<p>str_match提取首个匹配中()分组内的内容， str_match_all()则是全部，因此是list</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str_match(strings, phone)</span><br><span class="line">str_match_all(strings, phone)</span><br></pre></td></tr></table></figure>
-
-<p>str_replace()替代第一个匹配， str_replace_all替代所有匹配</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str_replace(strings, phone, &quot;XXX-XXX-XXXX&quot;)</span><br><span class="line">str_replace_all(strings, phone, &quot;XXX-XXX-XXXX&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>str_split_fixed()返回固定数目，全部拆分，str_split（)可变拆分</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str_split_fixed(&quot;a-b-c&quot;, &quot;-&quot;)</span><br><span class="line">str_spilt(&quot;a-b-c&quot;,&quot;-&quot;, n=2)</span><br></pre></td></tr></table></figure>
-
-<h3 id="4类字符串描述引擎"><a href="#4类字符串描述引擎" class="headerlink" title="4类字符串描述引擎"></a>4类字符串描述引擎</h3><p>1. 默认是正则表达式&#96;vignette(“regular-expression”)</p>
-<p>2. 逐byte固定匹配, fixed()</p>
-<p>3. locale-sensive 字符匹配, coll()</p>
-<p>4. 字符边界分析， boundary()</p>
-<h2 id="正则表达式练习"><a href="#正则表达式练习" class="headerlink" title="正则表达式练习"></a>正则表达式练习</h2><h3 id="基本匹配"><a href="#基本匹配" class="headerlink" title="基本匹配"></a>基本匹配</h3><p>最简单的模式就是匹配某个完整的字符</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- c(&quot;apple&quot;, &quot;banana&quot;, &quot;pear&quot;)</span><br><span class="line">str_extract(x, &quot;an&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>如果需要忽略大小写, ignore_case &#x3D;TRUE</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bananas &lt;- c(&quot;banana&quot;, &quot;Banana&quot;, &quot;BANANA&quot;)</span><br><span class="line">str_dectect(bananas, regrex(&quot;banana&quot;, ignore_case=TRUE))</span><br></pre></td></tr></table></figure>
-
-<p>可以用点<code>.</code>匹配任意字符，但是默认不包括<code>\n</code>,需要用dotall&#x3D;TURE开启</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">str_detect(&quot;\nX\n&quot;, &quot;.X.&quot;)</span><br><span class="line">str_detect(&quot;\nX\n&quot;, regex(&quot;.X.&quot;, dotall=TRUE))</span><br></pre></td></tr></table></figure>
-
-<h3 id="转义（R中一坑）"><a href="#转义（R中一坑）" class="headerlink" title="转义（R中一坑）"></a>转义（R中一坑）</h3><p>正则表达式中有一些是特殊字符，比如说刚才的顿号，因此为了匹配这些特殊字符，我们需要对其转义。在Linux命令行里，转义用的是<code>\</code>, 所以可以直接用<code>\.</code>.</p>
-<p>但是R里面的坑就出现了，我们用字符表示正则表达式，<code>\</code> 在字符里被用作转义符号。然后我们需要先把<code>\</code>转义成字符，然后才能进一步转义,<code>\\.</code></p>
-<p>如果要匹配<code>\</code> ,就需要<code>\\\\</code>，不可以思议，难以释怀，不知道被坑了多少次。</p>
-<p>或者你用<code>\Q...\E</code> 类似于Python的 r’….’， 原意匹配</p>
-<h3 id="特殊字符"><a href="#特殊字符" class="headerlink" title="特殊字符"></a>特殊字符</h3><p>一些比较常用的字符匹配</p>
-<ul>
-<li>\d: 任意数字， \D：任意非数字.</li>
-<li>\s: 任意空白字符，\S：任意非空白字符</li>
-<li>\w: 匹配单词</li>
-<li>\b: 匹配字符边界， \B：非字符边界</li>
-<li>[abc], [a-z], [^abc], [^-]：匹配字母，和不匹配</li>
-</ul>
-<p>在R里面，需要对”&quot;进行转义，所以上面的\在R里都要写成，\<br>下面是一些预编译好的字符集，顾名思义</p>
-<ul>
-<li>[:punct:]</li>
-<li>[:alpha:]</li>
-<li>[:lower:]</li>
-<li>[:upper:]</li>
-<li>[:digit:]</li>
-<li>[:xdigit:]</li>
-<li>[:alnum:]</li>
-<li>[:cntrl:]</li>
-<li>[:graph:]</li>
-<li>[:print:]</li>
-<li>[:space:]</li>
-<li>[:blank:]</li>
-</ul>
-<h3 id="或"><a href="#或" class="headerlink" title="或"></a>或</h3><p>匹配abc或def</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_detect(c(&quot;abc&quot;,&quot;def&quot;,&quot;ghi&quot;), &quot;abc|def&quot;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h3><p>匹配grey或gray</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_extract(c(&quot;grey&quot;,&quot;gray&quot;), &quot;gr(e|a)y&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>分组可以用\1, \2进行提取，</p>
-<h3 id="定位"><a href="#定位" class="headerlink" title="定位"></a>定位</h3><ul>
-<li><code>^</code>: 字符串开始， 如<code>^a</code></li>
-<li><code>$</code>: 字符串结束， 如<code>a$</code></li>
-</ul>
-<p>如果字符串有多行，那么就需要regex(multiline&#x3D;TRUE)。此时，</p>
-<ul>
-<li>\A: 输入开头</li>
-<li>\z: 输入结尾</li>
-<li>\Z: 头尾</li>
-</ul>
-<h3 id="重复"><a href="#重复" class="headerlink" title="重复"></a>重复</h3><ul>
-<li>?: 0或1</li>
-<li>+: 大于等于1</li>
-<li>*： 大于等于0</li>
-<li>{n}: n次</li>
-<li>{n,m}： n到m次</li>
-<li>{n,}: 大于那次</li>
-</ul>
-<p>默认是贪婪模式， 在上述字符后添加”?” 则为非贪婪模式。</p>
-<p>PS: 下面是R语言自带的字符处理函数，我已经放弃他们了。</p>
-<h2 id="基础R包函数"><a href="#基础R包函数" class="headerlink" title="基础R包函数"></a>基础R包函数</h2><p><code>nchar()</code>: 函数返回字符串长度<br><code>paste()</code>, <code>paste0()</code>: 连接若干个字符串<br><code>sprintf()</code>：格式化输出，下面举例</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sprintf(&quot;%f&quot;, pi)</span><br><span class="line">sprintf(&quot;%.3f&quot;, pi)</span><br><span class="line">sprintf(&quot;%1.0f&quot;, pi)</span><br><span class="line">sprintf(&quot;%5.1f&quot;, pi)</span><br><span class="line">sprintf(&quot;%05.1f&quot;, pi)</span><br><span class="line">sprintf(&quot;%+f&quot;, pi)</span><br><span class="line">sprintf(&quot;% f&quot;, pi)</span><br><span class="line">sprintf(&quot;%-10f&quot;, pi) # left justified</span><br><span class="line">sprintf(&quot;%e&quot;, pi)</span><br><span class="line">sprintf(&quot;%E&quot;, pi)</span><br><span class="line">sprintf(&quot;%g&quot;, pi)</span><br><span class="line">sprintf(&quot;%g&quot;,   1e6 * pi) # -&gt; exponential</span><br><span class="line">sprintf(&quot;%.9g&quot;, 1e6 * pi) # -&gt; &quot;fixed&quot;</span><br><span class="line">sprintf(&quot;%G&quot;, 1e-6 * pi)</span><br></pre></td></tr></table></figure>
-
-<p><code>toupper()</code>: 大写转换<br><code>tolower()</code>: 小写转换<br><code>substr()</code>: 提取或替换一个字符串向量的子串</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- &quot;abcde&quot;</span><br><span class="line">substr(x,1,2)</span><br><span class="line"># ab</span><br><span class="line">substr(x,1,2) &lt;- 2333</span><br><span class="line"># 233cde</span><br></pre></td></tr></table></figure>
-
-<p>上面都是一些普通的函数，很好理解，下面都是一些和正则表达式相关的函数，如grep, grepl, regexpr, gregexpr, sub, gsub, strsplit<br>因此必须介绍一下R语言的正则表达式写法了。</p>
-<ul>
-<li>R语言是用的扩展正则表达式（Extended Regular Expressions)</li>
-<li>元字符：\ | ( ) [ { ^ $ * + ?</li>
-<li>非元字符转义后：\a as BEL, \e as ESC, \f as FF, \n as LF, \r as CR and \t as TAB</li>
-<li>一些定义字符集合[:alnum:], [:alpha:], [:blank:], [:cntrl:], [:digit:], [:graph:], [:lower:], [:print:], [:punct:], [:space:], [:upper:],[:xdigit:]</li>
-<li>找出“组”字符串 </li>
-<li>默认是贪婪模式，可以通过用?改变为非贪婪模式</li>
-</ul>
-<p>这些是基本知识，可以百度到每个字符的具体解释，或者看文档<code>?regexp</code><br>不说基础知识了，看下应用吧。我常用的操作一般是找到某个字符串，或者对字符串进行替换</p>
-<p>比如说，我想找到所有以P开头，且不是P结尾的字符，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">test &lt;- c(&quot;Python&quot;, &quot;Perl&quot;, &quot;PHP&quot;, &quot;JAVA&quot;, &quot;C&quot;, &quot;C++&quot;)</span><br><span class="line">grep(&quot;^P.*?[^P]$&quot;, test)</span><br><span class="line">[1] 1 2</span><br><span class="line">grep(&quot;^P.*?[^P]$&quot;, test,value=TRUE)</span><br><span class="line">[1] &quot;Python&quot; &quot;Perl&quot;</span><br><span class="line">grepl(&quot;^P.*?[^P]$&quot;, test)</span><br><span class="line">[1]  TRUE  TRUE FALSE FALSE FALSE FALSE</span><br><span class="line">regexpr(&quot;^P.*?[^P]$&quot;, test)</span><br><span class="line">[1]  1  1 -1 -1 -1 -1</span><br><span class="line">attr(,&quot;match.length&quot;)</span><br><span class="line">[1]  6  4 -1 -1 -1 -1</span><br><span class="line">attr(,&quot;useBytes&quot;)</span><br><span class="line">&gt; gregexpr(&quot;^P.*?[^P]$&quot;, test)</span><br><span class="line">[[1]]</span><br><span class="line">[1] 1</span><br><span class="line">attr(,&quot;match.length&quot;)</span><br><span class="line">[1] 6</span><br><span class="line">attr(,&quot;useBytes&quot;)</span><br><span class="line">[1] TRUE</span><br><span class="line"></span><br><span class="line">[[2]]</span><br><span class="line">[1] 1</span><br><span class="line">attr(,&quot;match.length&quot;)</span><br><span class="line">[1] 4</span><br><span class="line">attr(,&quot;useBytes&quot;)</span><br><span class="line">[1] TRUE</span><br></pre></td></tr></table></figure>
-
-<p>其中<code>grep()</code>默认是返回下标，如果设置value&#x3D;TRUE，则返回字符串，<code>grepl()</code>返回是否配对的逻辑判断， <code>regexpr</code>则是返回匹配范围，如果不匹配结果是-1，<code>gregexpr</code>和前者功能一致，只不过返回的是列表形式。<br><strong>注</strong>：忽略大小写ignore.case &#x3D; TRUE</p>
-<p>现在我想把<code>C++</code>替换成<code>C--</code>。我先试着找到<code>C++</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; grep(&quot;\+\+&quot;,test)</span><br><span class="line">错误: 由&quot;&quot;\+&quot;开头的字符串中存在&#x27;\+&#x27;，但没有这种逸出号</span><br></pre></td></tr></table></figure>
-
-<p>什么情况，为什么<code>\+</code>不能把<code>+</code>这个元字符转义？难不成<code>+</code>在R里面不是元字符？我测试下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">grep(&quot;++&quot;,test,value=TRUE)</span><br><span class="line">Error in grep(&quot;++&quot;, test, value = TRUE) : </span><br><span class="line">  正规表现’++&#x27;不对，原因是&#x27;Invalid use of repetition operators&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>啊！看来<code>+</code>还是元字符，难道是<code>\</code> 叛变革命了，我试试看。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; grep(&quot;\23&quot;,&quot;test\23&quot;,value=TRUE)</span><br><span class="line">[1] &quot;test\023&quot;</span><br><span class="line">&gt; grep(&quot;\\23&quot;,&quot;test\23&quot;,value=TRUE)</span><br><span class="line">Error in grep(&quot;\\23&quot;, &quot;test\023&quot;, value = TRUE) : </span><br><span class="line">  正规表现’\23&#x27;不对，原因是&#x27;Invalid back reference&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>看来<code>\</code> 是主要任务是把非元字符转义，如果想把元字符转义成普通字符，只能是<code>\\</code>元字符</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grep(&quot;\\+\\+&quot;,test,value=TRUE)</span><br><span class="line">[1] &quot;C++&quot;</span><br></pre></td></tr></table></figure>
-
-<p>回到我们之前的替换任务sub只对第一个匹配进行替换，gsub对所有匹配替换。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> sub(&quot;\\+\\+&quot;,&quot;--&quot;,test)</span><br><span class="line">[1] &quot;Python&quot; &quot;Perl&quot;   &quot;PHP&quot;    &quot;JAVA&quot;   &quot;C&quot;      &quot;C--&quot; </span><br></pre></td></tr></table></figure>
-
-<p>最后还可以用<code>strsplit</code>对字符串进行分割，返回的是一个列表</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x &lt;- c(as = &quot;asfef&quot;, qu = &quot;qwerty&quot;, &quot;yuiop[&quot;, &quot;b&quot;, &quot;stuff.blah.yech&quot;)</span><br><span class="line">strsplit(x, &quot;e&quot;)</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/07/28/R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C-R%E8%AF%AD%E8%A8%80%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" data-id="clm1z22az000behn59l6l9u47" data-title="R语言的字符串操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86/" rel="tag">正则表达式 | 字符串处理</a></li></ul>
-
     </footer>
   </div>
   
@@ -1324,6 +1188,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1337,10 +1205,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

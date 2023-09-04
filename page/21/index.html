@@ -73,6 +73,82 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用Swiss-Prot根据同源基因进行注释-Function-anotation-with-swiss-prot-database" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/09/02/%E4%BD%BF%E7%94%A8Swiss-Prot%E6%A0%B9%E6%8D%AE%E5%90%8C%E6%BA%90%E5%9F%BA%E5%9B%A0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-Function-anotation-with-swiss-prot-database/" class="article-date">
+  <time class="dt-published" datetime="2019-09-02T10:22:20.408Z" itemprop="datePublished">2019-09-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/09/02/%E4%BD%BF%E7%94%A8Swiss-Prot%E6%A0%B9%E6%8D%AE%E5%90%8C%E6%BA%90%E5%9F%BA%E5%9B%A0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-Function-anotation-with-swiss-prot-database/">使用Swiss-Prot根据同源基因进行注释</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>第一步: 在<a href="ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/">uniprot</a>下载UniProt 上植物dat格式的注释文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_plants.dat.gz</span><br><span class="line">wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_plants.dat.gz</span><br></pre></td></tr></table></figure>
+
+<p>将两个dat合并到成一个文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zcat uniprot_sprot_plants.dat.gz uniprot_trembl_plants.dat.gz &gt; uniprot_plants.dat</span><br></pre></td></tr></table></figure>
+
+<p>第二步: 从dat中提取fasta序列</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dat=uniprot_plants.dat</span><br><span class="line">awk <span class="string">&#x27;&#123;if (/^ /) &#123;gsub(/ /, &quot;&quot;); print&#125; else if (/^AC/) print &quot;&gt;&quot; $2&#125;&#x27;</span> <span class="variable">$1</span> &gt; <span class="variable">$&#123;1%%.dat&#125;</span>_AC.fasta</span><br></pre></td></tr></table></figure>
+
+<p>第三步: 建立DIAMOND或NCBI BLAST+索引</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diamond makedb --<span class="keyword">in</span> uniprot_plants_AC.fasta -d uniprot_plants_AC</span><br></pre></td></tr></table></figure>
+
+<p>第四步: 使用DIAMOND或NCBI BLAST+进行比对</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diamond blastp -d /data/database/UniProt-Plant/uniprot_plants_AC.dmnd -q proteins.fasta --evalue 1e-5 &gt; blastp.outfmt6</span><br></pre></td></tr></table></figure>
+
+<p>第五步: 从DIMAMOND或NCBI BLAST+的比对结果中筛选每个query的最佳subject</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m jcvi.formats.blast best -n 1 blastp.outfmt6</span><br></pre></td></tr></table></figure>
+
+<p>第六步: 使用add_annotation_from_dat.py(代码在<a target="_blank" rel="noopener" href="https://github.com/xuzhougeng/myscripts">GitHub</a>上)根据blastp输出从dat中提取GO&#x2F;KEGG&#x2F;同源基因。运行在Python2&#x2F;3环境中，需要安装BioPython</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python ~/myscripts/add_annotation_from_dat.py blastp.outfmt6.best /data/database/UniProt-Plant/uniprot_plants.dat</span><br></pre></td></tr></table></figure>
+
+<p>之后会输出swiss_annotation.tsv， 输出信息包括如下几列</p>
+<ul>
+<li>gene id</li>
+<li>uniprot accession</li>
+<li>identity</li>
+<li>homology species</li>
+<li>EnsemblPlants</li>
+<li>GO ID</li>
+<li>GO component, CC&#x2F;MF&#x2F;BP</li>
+<li>evidence</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/09/02/%E4%BD%BF%E7%94%A8Swiss-Prot%E6%A0%B9%E6%8D%AE%E5%90%8C%E6%BA%90%E5%9F%BA%E5%9B%A0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A-Function-anotation-with-swiss-prot-database/" data-id="clm4a30qr00fve6nk7i4hfaik" data-title="使用Swiss-Prot根据同源基因进行注释" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A/" rel="tag">注释</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-NECAT_ Nanopore数据的高效组装工具-assembly-nanopore-with-necat" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/" class="article-date">
@@ -227,7 +303,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/" data-id="clm1z22ff0083ehn51kf42qya" data-title="NECAT:Nanopore数据的高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/31/NECAT_%20Nanopore%E6%95%B0%E6%8D%AE%E7%9A%84%E9%AB%98%E6%95%88%E7%BB%84%E8%A3%85%E5%B7%A5%E5%85%B7-assembly-nanopore-with-necat/" data-id="clm4a30pl00d6e6nkctr4hnxw" data-title="NECAT:Nanopore数据的高效组装工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -383,7 +459,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/" data-id="clm1z22b6000sehn5g0fie96b" data-title="Seurat的scATAC-seq分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/31/Seurat%E7%9A%84scATAC-seq%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-Analysis-scATAC-seq-with-scRNA-seq-in-Seurat/" data-id="clm4a30t700j5e6nkd1hqgf8b" data-title="Seurat的scATAC-seq分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -470,7 +546,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" data-id="clm1z22df003vehn540un6rhi" data-title="为ChIPseeker增加了一个subset函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/30/%E4%B8%BAChIPseeker%E5%A2%9E%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AAsubset%E5%87%BD%E6%95%B0-Add-subset-for-ChIPseeker/" data-id="clm4a30hc000te6nk3ezrb1ep" data-title="为ChIPseeker增加了一个subset函数" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -560,7 +636,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="clm1z22d9003lehn532v25rvl" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6miniasm%E7%AC%94%E8%AE%B0-Assemble-nanopore-using-minimap-and-miniasm/" data-id="clm4a30h7000ke6nk29m7az8t" data-title="三代组装软件miniasm笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -695,7 +771,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="clm1z22gg00c1ehn53man6uqa" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/29/%E4%BD%BF%E7%94%A8purge_haplogs%E5%A4%84%E7%90%86%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%9D%82%E5%90%88%E5%8C%BA%E5%9F%9F-purge_haplotigs-allelic-contig-reassignment-for-third-gen-diploid-genome-assemblies/" data-id="clm4a30lh006be6nkhql5cz4a" data-title="使用purge_haplogs处理基因组杂合区域" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -793,7 +869,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="clm1z22gb00bkehn57os5a7e6" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8TransDecoder%E5%AF%BB%E6%89%BE%E8%BD%AC%E5%BD%95%E6%9C%AC%E4%B8%AD%E7%9A%84%E7%BC%96%E7%A0%81%E5%8C%BA-Find-ORF-in-transcripts-using-TransDecoder/" data-id="clm4a30lc005xe6nk6bf369zx" data-title="使用TransDecoder寻找转录本中的编码区" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -875,7 +951,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="clm1z22ez006aehn590tshrp1" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/DIAMOND_%20%E8%B6%85%E5%BF%AB%E7%9A%84%E8%9B%8B%E7%99%BD%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9%E8%BD%AF%E4%BB%B6-Fast-and-sensitive-protein-alignment-using-diamond/" data-id="clm4a30ov00bfe6nkfx0eaicg" data-title="DIAMOND:超快的蛋白序列比对软件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -960,7 +1036,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="clm1z22g000adehn5d1u24opg" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%BD%BF%E7%94%A8MAKER%E8%BF%9B%E8%A1%8C%E5%85%A8%E5%9F%BA%E5%9B%A0%E7%BB%84%E5%9F%BA%E5%9B%A0%E6%B3%A8%E9%87%8A-%E5%9F%BA%E7%A1%80%E7%AF%87-whole-genome-gene-annotation-using-maker/" data-id="clm4a30qe00eue6nk0fpk7mxk" data-title="使用MAKER进行全基因组基因注释-基础篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1074,111 +1150,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="clm1z22d8003jehn5cymzbb97" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/28/%E4%B8%89%E4%BB%A3%E7%BB%84%E8%A3%85%E8%BD%AF%E4%BB%B6Canu%E4%BD%BF%E7%94%A8-Assembly-PacBio-Nanopore-Using-Canu/" data-id="clm4a30gw000ge6nkbjxl4c9c" data-title="三代组装软件Canu使用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E8%A3%85/" rel="tag">组装</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-使用TEclass对TE一致性序列进行分类-classify-te-consensus-sequence-by-teclass" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" class="article-date">
-  <time class="dt-published" datetime="2019-08-27T21:56:48.413Z" itemprop="datePublished">2019-08-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/">使用TEclass对TE一致性序列进行分类</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>软件地址在<a target="_blank" rel="noopener" href="http://www.compgen.uni-muenster.de/tools/teclass/index.hbi">http://www.compgen.uni-muenster.de/tools/teclass/index.hbi?</a>, 由于TEclass这个软件已经许久没有更新了，因此还要讲解下安装步骤。</p>
-<blockquote>
-<p>最近更新了一个2.1.3c, 经过我测试发现，应该就是把之前无法下载URL做了更新。classifiers.tar.gz无更新。</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.compgen.uni-muenster.de/tools/teclass/download/TEclass-2.1.3.tar.gz</span><br><span class="line">tar xf TEclass-2.1.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> TEclass-2.1.3</span><br></pre></td></tr></table></figure>
-
-<p>下载依赖的软件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh Download_dependencies.sh</span><br></pre></td></tr></table></figure>
-
-<p> 由于代码老旧，部分内容无法自动下载，需要手动下载， 例如librf, blast.  最终要保证文件夹下有如下文件</p>
-<ul>
-<li>libsvm.tar.gz: <a target="_blank" rel="noopener" href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">http://www.csie.ntu.edu.tw/~cjlin/libsvm/</a></li>
-<li>glimmer.tar.gz:  <a target="_blank" rel="noopener" href="http://ccb.jhu.edu/software/glimmer/">http://ccb.jhu.edu/software/glimmer/</a></li>
-<li>librf.tar.gz: <a target="_blank" rel="noopener" href="http://mtv.ece.ucsb.edu/benlee/librf.html">http://mtv.ece.ucsb.edu/benlee/librf.html</a></li>
-<li>lvq_pak.tar: <a target="_blank" rel="noopener" href="http://www.cis.hut.fi/research/som-research/nnrc-programs.shtml">http://www.cis.hut.fi/research/som-research/nnrc-programs.shtml</a></li>
-<li>blast.tar.gz: <a href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED">ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED</a></li>
-</ul>
-<p>例如blast</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o <span class="string">&#x27;blast.tar.gz&#x27;</span> ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>编译依赖的软件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh Compile_dependencies.sh</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-3885005894b4ac70-0f20bdb0eaad4826a9dd4fdf81c587bc.png" alt="安装过程"></p>
-<p>安装TEclass, 这一步可以跳过 RepBase的配置。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl Configure.pl</span><br></pre></td></tr></table></figure>
-
-<p>安装预编译的分类器，这一步在TEclass的目录下运行，并解压缩</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.compgen.uni-muenster.de/tools/teclass/download/classifiers.tar.gz</span><br><span class="line"><span class="built_in">mv</span> classifiers.tar.gz classifiers/</span><br><span class="line"><span class="built_in">cd</span> classifiers</span><br><span class="line">tar xf classifiers.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>测试运行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./TEclassTest.pl ./testfile.fa</span><br></pre></td></tr></table></figure>
-
-<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><h3 id="构建分类器"><a href="#构建分类器" class="headerlink" title="构建分类器"></a>构建分类器</h3><p>如果你想使用最新的RepBase，那么就需要自己从<a target="_blank" rel="noopener" href="http://www.girinst.org/repbase/index.html">RepBase</a>下载数据进行构建。</p>
-<p>如果是单核处理器，可能要花费数周的时间，所以建议用上你的所有线程。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/TEclassBuild.pl -x 0  -o new_classifiers -p 99</span><br></pre></td></tr></table></figure>
-
-<h3 id="重复序列分类"><a href="#重复序列分类" class="headerlink" title="重复序列分类"></a>重复序列分类</h3><p>在RepeatModeler建模后，提取Unknown序列使用<code>TEclassTest</code>进行归类，假如输入文件命名为Modelerunknown.lib</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TEclassTest Modelerunknown.lib</span><br></pre></td></tr></table></figure>
-
-<p>结果在<code>Modelerunknown.lib_xxxx</code>, <code>xxxx</code>是你运行日期。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Modelerunknown.lib <span class="comment"># 输入文件</span></span><br><span class="line">Modelerunknown.lib.html </span><br><span class="line">Modelerunknown.lib.lib <span class="comment"># 输出结果</span></span><br><span class="line">Modelerunknown.lib.stat <span class="comment">#结果统计</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Modelerunknown.lib.lib</code>中的fasta会有分类信息，如</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;rnd-1_family-12<span class="comment">#Unknown ( RepeatScout Family Size = 705, Final Multiple Alignment Size = 88, Localized to 114 out of 117 contigs )|TEclass result: LTR|forward|ORFs: 583..2355:+1</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>需要注意的是，TEclass的输出结果是不被RepeatMasker所识别的，需要你更改原来的#Unknown为你的预测结果才行。</p>
-</blockquote>
-<p>其他参数:</p>
-<ul>
-<li><code>-c</code>: 训练的分类器所在路径, 默认是<code>TEclass-2.1classifiers</code></li>
-<li><code>-o</code>: 输出结果路径，默认在当前文件下新建</li>
-<li><code>-r</code>: 预测输入序列的反向互补序列</li>
-</ul>
-<p>参考文献:  TEclass: a tool for automated classification of unknown eukaryotic transposable elements</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="clm1z22ga00bgehn5fkiddoic" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li></ul>
 
     </footer>
   </div>
@@ -1245,6 +1221,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1258,10 +1238,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

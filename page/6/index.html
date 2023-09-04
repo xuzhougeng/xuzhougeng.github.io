@@ -73,6 +73,61 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-snapATAC使用后的主观评测-snapatac-subjective-evaluation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" class="article-date">
+  <time class="dt-published" datetime="2021-12-30T06:05:11.034Z" itemprop="datePublished">2021-12-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/">snapATAC使用后的主观评测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>2019年，一篇发表在Genome Biology上题为「Assessment of computational methods for the analysis of single-cell ATAC-seq data」的文章对目前一些常见的单细胞ATAC-seq分析工具进行了评测，其中SnapATAC是当时文章认为比较好的工具</p>
+<blockquote>
+<p>Despite variation across methods and datasets, SnapATAC, Cusanovich2018, and cisTopic outperform other methods in separating cell populations of different coverages and noise levels in both synthetic and real datasets. Notably, SnapATAC is the only method able to analyze a large dataset (&gt; 80,000 cells).</p>
+</blockquote>
+<p>我曾经测试过这个工具，发现了其中的一个bug，后面就没有继续在用了。在2021年的最后几天，我又尝试使用了这个工具。如果你也在分析single cell ATAC-seq数据，想尝试snapATAC的话，希望这篇文章对你有所帮助。</p>
+<ol>
+<li>snapATAC有一个配套的工具, snapTools, 它能够将fastq文件处理成所需的snap文件，或者将CellRanger-ATAC输出BAM&#x2F;TSV文件转成snap文件。对于CellRanger-ATAC的数据转换，我不推荐使用BAM文件，因为他需要先给bam文件里read name添加barcode信息，然后按照read name进行排序，消耗的时间非常惊人。</li>
+<li>snapATAC虽然能够处理大于80k的细胞，但是这和你选择的bin-size有关。snapATAC在分析的时候还是会将bin-by-cell的矩阵加载到内存中，因此内存还是一个比较重要的因素。我分析的时候，当bin-size比较小时，就会因为内存占用过多被kill。</li>
+<li>snapATAC的可视化基于plot3D, 而不是ggplot2, 如果想要在原先图基础上进行修改，不如ggplot2那么方便。</li>
+<li>snapATAC的聚类分析默认用的是R-igraph, leiden算法需要安装Python模块。R-igraph无法通过修改resolution来改变类群的数目，而leiden可以。不过，我好奇，为什么snapATAC不考虑使用Seurat的聚类算法？</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="clm4a30kf0049e6nkdnhg69d9" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-如何绘制物理图谱和遗传图谱的对应关系-draw-match-between-physical-and-genetic-map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" class="article-date">
@@ -125,7 +180,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="clm1z22hl00g0ehn597zsbdwi" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/12/13/%E5%A6%82%E4%BD%95%E7%BB%98%E5%88%B6%E7%89%A9%E7%90%86%E5%9B%BE%E8%B0%B1%E5%92%8C%E9%81%97%E4%BC%A0%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB-draw-match-between-physical-and-genetic-map/" data-id="clm4a30sn00i6e6nk7wh6gksp" data-title="如何绘制物理图谱和遗传图谱的对应关系" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -183,7 +238,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="clm1z22d40036ehn5bm5o0fs7" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/24/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8D%E5%85%A5%E9%97%A8%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86-mathematics-basis-for-deep-learning/" data-id="clm4a30go0009e6nk57vwce8i" data-title="「荐书」入门深度学习的必备数学知识" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -241,7 +296,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="clm1z22d40035ehn59co71rwc" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/20/%E3%80%8C%E8%8D%90%E4%B9%A6%E3%80%8DPython%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%85%A5%E9%97%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%84%BF%E7%AB%A5%E8%AF%BB%E6%9C%AC-a-good-book-for-who-want-to-learn-deep-learning/" data-id="clm4a30gm0006e6nk3cumcs97" data-title="「荐书」Python神经网络编程，入门神经网络的儿童读本" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -309,7 +364,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="clm1z22h300eeehn5cnwwhr7q" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/11/18/%E5%A6%82%E4%BD%95%E5%90%91GitHub%E4%B8%8A%E4%BC%A0%E8%B6%85%E8%BF%87100MB%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B6-upload-large-file-to-github/" data-id="clm4a30rc00gne6nk2dt6b0m6" data-title="如何向GitHub上传超过100MB的大文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -354,7 +409,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="clm1z22hs00glehn5cin1brjx" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/26/%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E3%80%90%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E3%80%91%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5-%E5%AF%B9%E5%87%A0%E4%B8%AA%E6%9C%88%E5%89%8D%E7%9C%8B%E7%9A%84%E5%8A%A8%E6%BC%AB%E6%97%A0%E8%81%8C%E8%BD%AC%E7%94%9F%E7%9A%84%E7%A2%8E%E7%A2%8E%E5%BF%B5/" data-id="clm4a30ir002xe6nk4cglex36" data-title="对几个月前看的动漫【无职转生】的碎碎念" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -446,7 +501,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="clm1z22aw0006ehn50iiy5ui0" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/23/Rust%E7%AC%AC%E5%9B%9B%E8%AF%BE_%20%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3-rust%E7%AC%AC%E5%9B%9B%E8%AF%BE%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%A1%88%E4%BE%8B%E8%AE%A4%E8%AF%86%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%8D%E8%B6%B3/" data-id="clm4a30pv00dye6nkcp031yfy" data-title="Rust第四课:通过一个案例认识自己的不足" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -510,7 +565,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="clm1z22at0003ehn52ek4771j" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/13/Rust%E7%AC%AC%E4%B8%89%E8%AF%BE_%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95-rust%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8Dmatch%E8%AF%AD%E6%B3%95/" data-id="clm4a30pt00dse6nkcj0m3whd" data-title="Rust第三课:模式匹配match语法" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -583,7 +638,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="clm1z22av0005ehn58bnzao2h" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/10/12/Rust%E7%AC%AC%E4%BA%8C%E8%AF%BE_%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E7%9A%84Rust%E6%AF%94Python%E6%85%A2%EF%BC%81-rust-slower-than-python-in-parse-file/" data-id="clm4a30pu00dve6nk10uk4pcj" data-title="Rust第二课:为什么我的Rust比Python慢！" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -648,50 +703,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="clm1z22bb0015ehn516nrcna4" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2021/09/16/bwa-index-file-amb-ann-pac-format/" data-id="clm4a30je003ie6nk25mg1wkz" data-title="bwa索引文件amb/ann/pac格式说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何使用allmaps-如何使用allmaps" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" class="article-date">
-  <time class="dt-published" datetime="2021-08-30T06:06:06.858Z" itemprop="datePublished">2021-08-30</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/">如何使用allmaps</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/08/30/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8allmaps/" data-id="clm1z22h200e8ehn5bofcacb7" data-title="如何使用allmaps" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
     </footer>
   </div>
   
@@ -757,6 +774,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -770,10 +791,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

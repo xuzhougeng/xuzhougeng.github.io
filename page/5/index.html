@@ -73,6 +73,63 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-macOS的configd占了我好多内存-macos-configd-use-too-much-memory" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/" class="article-date">
+  <time class="dt-published" datetime="2022-02-27T02:03:28.200Z" itemprop="datePublished">2022-02-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/">macOS的configd占了我好多内存</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在我没有启动多少应用的时候，macOS已经显示它使用了22.09GB内存。其中App内存是15.81GB, 我并没有打开那么多App.</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/02/image-acb7830d509c43618a863043d689420e.png" alt="内存状态1"></p>
+<p>这估计跟configd有关，因为configd占用了20.55G内存。那么configd是真的占用了内存，还是就是声明自己会用到那么多内存呢？</p>
+<p>我尝试着调用了比较多的内存，直接用了29.3Gb内存</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cols <span class="operator">&lt;-</span> 8189</span><br><span class="line">rows <span class="operator">&lt;-</span> 320127</span><br><span class="line">mat1 <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span>data <span class="operator">=</span> <span class="number">0</span><span class="punctuation">,</span> nrow<span class="operator">=</span><span class="number">320127</span><span class="punctuation">,</span> ncol <span class="operator">=</span> <span class="number">8189</span><span class="punctuation">)</span></span><br><span class="line">print<span class="punctuation">(</span>object.size<span class="punctuation">(</span>mat1<span class="punctuation">)</span><span class="punctuation">,</span> unit<span class="operator">=</span><span class="string">&quot;GB&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 19.5 Gb</span></span><br><span class="line">mat2 <span class="operator">&lt;-</span> matrix<span class="punctuation">(</span>data <span class="operator">=</span> <span class="number">0L</span><span class="punctuation">,</span> nrow<span class="operator">=</span><span class="number">320127</span><span class="punctuation">,</span> ncol <span class="operator">=</span> <span class="number">8189</span><span class="punctuation">)</span></span><br><span class="line">print<span class="punctuation">(</span>object.size<span class="punctuation">(</span>mat2<span class="punctuation">)</span><span class="punctuation">,</span> unit<span class="operator">=</span><span class="string">&quot;GB&quot;</span><span class="punctuation">)</span></span><br><span class="line"><span class="comment"># 9.8 Gb</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>此时看内存，发现rsession-arm64内存到了29.55GB, 而configd还是20.55GB，<strong>已使用内存</strong>仅仅比之前多了不到4GB。</p>
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2022/02/image-4c6c151de883487486c74b189992c246.png" alt="内存状态2"></p>
+<p>在我操作的前后，内存压力始终是绿色，说明系统没啥压力，那看来，有压力的显然是我。</p>
+<p>我显然是之前用Windows系统，被某些软件的绿色气泡给吓到了，当气泡变红时，我就压力变大，就得点这个球释放内存。</p>
+<p>而Unix系统的思路是调度所有内存，所有内存都要尽可能去干活，不要空着。</p>
+<p>通过查阅文档，我们也可以知道configd是macOS特有的系统配置的后台驻留程序(System Configuration Daemon).configd管理本地系统的各类配置，维持数据映射到目标位置和当前系统状态，当数据发生改变时给应用程序发送信息，同时以  loadable bundles 形式托管一组配置代理。</p>
+<p>最后，既然内存没压力，就不要自己给自己找压力，想着释放内存了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2022/02/27/macOS%E7%9A%84configd%E5%8D%A0%E4%BA%86%E6%88%91%E5%A5%BD%E5%A4%9A%E5%86%85%E5%AD%98-macos-configd-use-too-much-memory/" data-id="clm4a30kd0042e6nkf2y17tzd" data-title="macOS的configd占了我好多内存" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MacOS/" rel="tag">MacOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-MacOS原生Arm64架构的R解决依赖编译问题-how-to-compile-r-package-in-arm64-macos" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" class="article-date">
@@ -135,7 +192,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" data-id="clm1z22fc007tehn56kzeh949" data-title="MacOS原生Arm64架构的R解决依赖编译问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/21/MacOS%E5%8E%9F%E7%94%9FArm64%E6%9E%B6%E6%9E%84%E7%9A%84R%E8%A7%A3%E5%86%B3%E4%BE%9D%E8%B5%96%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98-how-to-compile-r-package-in-arm64-macos/" data-id="clm4a30pg00cwe6nk9knughzw" data-title="MacOS原生Arm64架构的R解决依赖编译问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -196,7 +253,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="clm1z22gq00d3ehn550jnec8t" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/17/%E5%90%90%E6%A7%BD%E4%B8%8Bbiopython%E7%9A%84SeqIO.write%E5%AF%BC%E5%87%BAfasta-biopython-seqio-write-are-not-good/" data-id="clm4a30lt007ce6nkdetmezjk" data-title="吐槽下biopython的SeqIO.write导出fasta" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -240,7 +297,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="clm1z22hy00gxehn56c8u3yc5" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/16/%E6%88%91%E7%9A%84%E7%94%9F%E4%BF%A1%E8%87%AA%E5%AD%A6%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB-my-experience-bioinformatic-learning/" data-id="clm4a30o0008we6nk4em5gat7" data-title="我的生信自学心得分享" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -314,7 +371,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="clm1z22fh008dehn5f4yrh57q" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/14/RAP-DB%E7%89%88%E6%9C%AC%E7%9A%84%E6%B0%B4%E7%A8%BB%E6%B3%A8%E9%87%8A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BC%98%E5%8C%96-optimizeannotationgffofrice/" data-id="clm4a30pp00dfe6nkcex9349z" data-title="RAP-DB版本的水稻注释文件的优化" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -369,7 +426,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="clm1z22fe0080ehn546zc33nj" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/Mac%E9%94%AE%E7%9B%98%E4%B8%8A%E7%AC%A6%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89%EF%BC%9F-mac-jian-pan-shang-fu-hao-shi-shen-me-han-yi-/" data-id="clm4a30pk00d3e6nk7nyghkbz" data-title="Mac键盘上符号是什么含义？" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -423,7 +480,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="clm1z22b4000lehn5e3oth65k" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/10/SSH%E7%99%BB%E5%BD%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B0%8F%E6%8A%80%E5%B7%A7-ssh-small-trick/" data-id="clm4a30t500ize6nkg0yuhstn" data-title="SSH登录服务器小技巧" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -580,7 +637,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="clm1z22f70078ehn5a5it0u4j" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/02/01/M1%E8%8A%AF%E7%89%87%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AER%E5%88%86%E6%9E%90%E7%8E%AF%E5%A2%83%E3%80%8CIntel%E7%89%88%E3%80%8D-configure-r-analysis-environment-in-m1-macos/" data-id="clm4a30p900cce6nk80e8d9oa" data-title="M1芯片如何配置R分析环境「Intel版」" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -646,7 +703,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="clm1z22h000e0ehn5ee49hdn3" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/18/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8GMAP%E5%92%8CGSNAP%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E7%BB%84%E5%BA%8F%E5%88%97%E6%AF%94%E5%AF%B9-align-transcript-with-gmap/" data-id="clm4a30r100g8e6nkadzz7t9p" data-title="如何使用GMAP/GSNAP进行转录组序列比对" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -732,66 +789,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="clm1z22ii00iaehn5hpbe9b1u" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2022/01/02/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2biopython%E7%9A%84%E9%85%8D%E5%AF%B9%E5%BA%8F%E5%88%97%E8%81%94%E9%85%8D%E6%A8%A1%E5%9D%97-explore-biopythonpairwise-alignment/" data-id="clm4a30tm00jke6nkhf98ahn5" data-title="深入探索biopython的配对序列联配模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-snapATAC使用后的主观评测-snapatac-subjective-evaluation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" class="article-date">
-  <time class="dt-published" datetime="2021-12-30T06:05:11.034Z" itemprop="datePublished">2021-12-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/">snapATAC使用后的主观评测</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>2019年，一篇发表在Genome Biology上题为「Assessment of computational methods for the analysis of single-cell ATAC-seq data」的文章对目前一些常见的单细胞ATAC-seq分析工具进行了评测，其中SnapATAC是当时文章认为比较好的工具</p>
-<blockquote>
-<p>Despite variation across methods and datasets, SnapATAC, Cusanovich2018, and cisTopic outperform other methods in separating cell populations of different coverages and noise levels in both synthetic and real datasets. Notably, SnapATAC is the only method able to analyze a large dataset (&gt; 80,000 cells).</p>
-</blockquote>
-<p>我曾经测试过这个工具，发现了其中的一个bug，后面就没有继续在用了。在2021年的最后几天，我又尝试使用了这个工具。如果你也在分析single cell ATAC-seq数据，想尝试snapATAC的话，希望这篇文章对你有所帮助。</p>
-<ol>
-<li>snapATAC有一个配套的工具, snapTools, 它能够将fastq文件处理成所需的snap文件，或者将CellRanger-ATAC输出BAM&#x2F;TSV文件转成snap文件。对于CellRanger-ATAC的数据转换，我不推荐使用BAM文件，因为他需要先给bam文件里read name添加barcode信息，然后按照read name进行排序，消耗的时间非常惊人。</li>
-<li>snapATAC虽然能够处理大于80k的细胞，但是这和你选择的bin-size有关。snapATAC在分析的时候还是会将bin-by-cell的矩阵加载到内存中，因此内存还是一个比较重要的因素。我分析的时候，当bin-size比较小时，就会因为内存占用过多被kill。</li>
-<li>snapATAC的可视化基于plot3D, 而不是ggplot2, 如果想要在原先图基础上进行修改，不如ggplot2那么方便。</li>
-<li>snapATAC的聚类分析默认用的是R-igraph, leiden算法需要安装Python模块。R-igraph无法通过修改resolution来改变类群的数目，而leiden可以。不过，我好奇，为什么snapATAC不考虑使用Seurat的聚类算法？</li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2021/12/30/snapATAC%E4%BD%BF%E7%94%A8%E5%90%8E%E7%9A%84%E4%B8%BB%E8%A7%82%E8%AF%84%E6%B5%8B-snapatac-subjective-evaluation/" data-id="clm1z22bl001zehn52mzfctw5" data-title="snapATAC使用后的主观评测" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%95%E7%BB%86%E8%83%9E/" rel="tag">单细胞</a></li></ul>
 
     </footer>
   </div>
@@ -858,6 +860,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -871,10 +877,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>

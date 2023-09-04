@@ -73,6 +73,106 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-使用TEclass对TE一致性序列进行分类-classify-te-consensus-sequence-by-teclass" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" class="article-date">
+  <time class="dt-published" datetime="2019-08-27T21:56:48.413Z" itemprop="datePublished">2019-08-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%94%9F%E4%BF%A1%E8%BD%AF%E4%BB%B6%E5%B7%A5%E5%85%B7%E7%AE%B1/">生信软件工具箱</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/">使用TEclass对TE一致性序列进行分类</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p>软件地址在<a target="_blank" rel="noopener" href="http://www.compgen.uni-muenster.de/tools/teclass/index.hbi">http://www.compgen.uni-muenster.de/tools/teclass/index.hbi?</a>, 由于TEclass这个软件已经许久没有更新了，因此还要讲解下安装步骤。</p>
+<blockquote>
+<p>最近更新了一个2.1.3c, 经过我测试发现，应该就是把之前无法下载URL做了更新。classifiers.tar.gz无更新。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.compgen.uni-muenster.de/tools/teclass/download/TEclass-2.1.3.tar.gz</span><br><span class="line">tar xf TEclass-2.1.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> TEclass-2.1.3</span><br></pre></td></tr></table></figure>
+
+<p>下载依赖的软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh Download_dependencies.sh</span><br></pre></td></tr></table></figure>
+
+<p> 由于代码老旧，部分内容无法自动下载，需要手动下载， 例如librf, blast.  最终要保证文件夹下有如下文件</p>
+<ul>
+<li>libsvm.tar.gz: <a target="_blank" rel="noopener" href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">http://www.csie.ntu.edu.tw/~cjlin/libsvm/</a></li>
+<li>glimmer.tar.gz:  <a target="_blank" rel="noopener" href="http://ccb.jhu.edu/software/glimmer/">http://ccb.jhu.edu/software/glimmer/</a></li>
+<li>librf.tar.gz: <a target="_blank" rel="noopener" href="http://mtv.ece.ucsb.edu/benlee/librf.html">http://mtv.ece.ucsb.edu/benlee/librf.html</a></li>
+<li>lvq_pak.tar: <a target="_blank" rel="noopener" href="http://www.cis.hut.fi/research/som-research/nnrc-programs.shtml">http://www.cis.hut.fi/research/som-research/nnrc-programs.shtml</a></li>
+<li>blast.tar.gz: <a href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED">ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED</a></li>
+</ul>
+<p>例如blast</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o <span class="string">&#x27;blast.tar.gz&#x27;</span> ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>编译依赖的软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh Compile_dependencies.sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://halo-1252249331.cos.ap-shanghai.myqcloud.com/upload/2019/8/2013053-3885005894b4ac70-0f20bdb0eaad4826a9dd4fdf81c587bc.png" alt="安装过程"></p>
+<p>安装TEclass, 这一步可以跳过 RepBase的配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl Configure.pl</span><br></pre></td></tr></table></figure>
+
+<p>安装预编译的分类器，这一步在TEclass的目录下运行，并解压缩</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.compgen.uni-muenster.de/tools/teclass/download/classifiers.tar.gz</span><br><span class="line"><span class="built_in">mv</span> classifiers.tar.gz classifiers/</span><br><span class="line"><span class="built_in">cd</span> classifiers</span><br><span class="line">tar xf classifiers.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>测试运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./TEclassTest.pl ./testfile.fa</span><br></pre></td></tr></table></figure>
+
+<h2 id="软件使用"><a href="#软件使用" class="headerlink" title="软件使用"></a>软件使用</h2><h3 id="构建分类器"><a href="#构建分类器" class="headerlink" title="构建分类器"></a>构建分类器</h3><p>如果你想使用最新的RepBase，那么就需要自己从<a target="_blank" rel="noopener" href="http://www.girinst.org/repbase/index.html">RepBase</a>下载数据进行构建。</p>
+<p>如果是单核处理器，可能要花费数周的时间，所以建议用上你的所有线程。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/TEclassBuild.pl -x 0  -o new_classifiers -p 99</span><br></pre></td></tr></table></figure>
+
+<h3 id="重复序列分类"><a href="#重复序列分类" class="headerlink" title="重复序列分类"></a>重复序列分类</h3><p>在RepeatModeler建模后，提取Unknown序列使用<code>TEclassTest</code>进行归类，假如输入文件命名为Modelerunknown.lib</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TEclassTest Modelerunknown.lib</span><br></pre></td></tr></table></figure>
+
+<p>结果在<code>Modelerunknown.lib_xxxx</code>, <code>xxxx</code>是你运行日期。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Modelerunknown.lib <span class="comment"># 输入文件</span></span><br><span class="line">Modelerunknown.lib.html </span><br><span class="line">Modelerunknown.lib.lib <span class="comment"># 输出结果</span></span><br><span class="line">Modelerunknown.lib.stat <span class="comment">#结果统计</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Modelerunknown.lib.lib</code>中的fasta会有分类信息，如</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;rnd-1_family-12<span class="comment">#Unknown ( RepeatScout Family Size = 705, Final Multiple Alignment Size = 88, Localized to 114 out of 117 contigs )|TEclass result: LTR|forward|ORFs: 583..2355:+1</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要注意的是，TEclass的输出结果是不被RepeatMasker所识别的，需要你更改原来的#Unknown为你的预测结果才行。</p>
+</blockquote>
+<p>其他参数:</p>
+<ul>
+<li><code>-c</code>: 训练的分类器所在路径, 默认是<code>TEclass-2.1classifiers</code></li>
+<li><code>-o</code>: 输出结果路径，默认在当前文件下新建</li>
+<li><code>-r</code>: 预测输入序列的反向互补序列</li>
+</ul>
+<p>参考文献:  TEclass: a tool for automated classification of unknown eukaryotic transposable elements</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8TEclass%E5%AF%B9TE%E4%B8%80%E8%87%B4%E6%80%A7%E5%BA%8F%E5%88%97%E8%BF%9B%E8%A1%8C%E5%88%86%E7%B1%BB-classify-te-consensus-sequence-by-teclass/" data-id="clm4a30qs00fye6nk020rhegb" data-title="使用TEclass对TE一致性序列进行分类" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E9%87%8A-%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97/" rel="tag">注释 | 重复序列</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-使用Pilon对基因组进行polish-Polish-genome-assembly-by-pilon" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" class="article-date">
@@ -179,7 +279,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="clm1z22aj0000ehn554401967" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Pilon%E5%AF%B9%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%BF%9B%E8%A1%8Cpolish-Polish-genome-assembly-by-pilon/" data-id="clm4a30qi00f7e6nk0sjmc8ee" data-title="使用Pilon对基因组进行polish" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -336,7 +436,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" data-id="clm1z22h100e4ehn53v1p5k0h" data-title="如何使用MUMmer比对大片段序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8MUMmer%E6%AF%94%E5%AF%B9%E5%A4%A7%E7%89%87%E6%AE%B5%E5%BA%8F%E5%88%97-Using-MUMmer-to-align-genome/" data-id="clm4a30r200gce6nkf6nogz0t" data-title="如何使用MUMmer比对大片段序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -540,7 +640,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" data-id="clm1z22b3000jehn5c3ti5h1d" data-title="SAMtools:SAM格式的处理利器" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/SAMtools_%20SAM%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%A4%84%E7%90%86%E5%88%A9%E5%99%A8-samtools-usage-documents/" data-id="clm4a30t400iwe6nk3uifhek6" data-title="SAMtools:SAM格式的处理利器" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -767,7 +867,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Snakemake%E6%90%AD%E5%BB%BA%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-using-snakemake-to-build-pipeline/" data-id="clm1z22g900baehn59lpz7ols" data-title="使用Snakemake搭建分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/%E4%BD%BF%E7%94%A8Snakemake%E6%90%AD%E5%BB%BA%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B-using-snakemake-to-build-pipeline/" data-id="clm4a30qq00fse6nkgfnw1vyu" data-title="使用Snakemake搭建分析流程" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -931,7 +1031,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/27/LTR_retriever_%20%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E5%87%86%E7%9A%84LTR%E6%95%B4%E5%90%88%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-LTR_retriever-accurate-identification-of-LTR-retrotransposons/" data-id="clm1z22f2006nehn594or4etl" data-title="LTR_retriever:一个更加准的LTR整合分析工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/27/LTR_retriever_%20%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E5%87%86%E7%9A%84LTR%E6%95%B4%E5%90%88%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-LTR_retriever-accurate-identification-of-LTR-retrotransposons/" data-id="clm4a30oz00bse6nk95fweddp" data-title="LTR_retriever:一个更加准的LTR整合分析工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1052,7 +1152,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/26/HiC-Pro_%20Hi-C%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E9%AB%98%E6%95%88%E5%B7%A5%E5%85%B7-hic-pro-an-optimized-and-flexible-pipeline-for-hi-c-data-processing/" data-id="clm1z22f0006gehn566p36qam" data-title="HiC-Pro:Hi-C数据预处理高效工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/26/HiC-Pro_%20Hi-C%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E9%AB%98%E6%95%88%E5%B7%A5%E5%85%B7-hic-pro-an-optimized-and-flexible-pipeline-for-hi-c-data-processing/" data-id="clm4a30ox00bme6nkfz21hwib" data-title="HiC-Pro:Hi-C数据预处理高效工具" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1143,7 +1243,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/26/%E3%80%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A%E3%80%8D%E4%BD%BF%E7%94%A8RepeatModeler%E4%BB%8E%E5%A4%B4%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Repeat-annotation-with-RepeatModeler/" data-id="clm1z22ja00krehn52ww0fjl5" data-title="「基因组注释」使用RepeatModeler从头注释基因组的重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/26/%E3%80%8C%E5%9F%BA%E5%9B%A0%E7%BB%84%E6%B3%A8%E9%87%8A%E3%80%8D%E4%BD%BF%E7%94%A8RepeatModeler%E4%BB%8E%E5%A4%B4%E6%B3%A8%E9%87%8A%E5%9F%BA%E5%9B%A0%E7%BB%84%E7%9A%84%E9%87%8D%E5%A4%8D%E5%BA%8F%E5%88%97-Repeat-annotation-with-RepeatModeler/" data-id="clm4a30l40056e6nkaq0j1eij" data-title="「基因组注释」使用RepeatModeler从头注释基因组的重复序列" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1325,7 +1425,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/25/%E5%88%A9%E7%94%A83D-DNA%E6%B5%81%E7%A8%8B%E7%BB%84%E8%A3%85%E5%9F%BA%E5%9B%A0%E7%BB%84-scaffolding-genome-using-3d-dna-workflow/" data-id="clm1z22gm00cpehn5gi0i9hok" data-title="利用3D-DNA流程组装基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/25/%E5%88%A9%E7%94%A83D-DNA%E6%B5%81%E7%A8%8B%E7%BB%84%E8%A3%85%E5%9F%BA%E5%9B%A0%E7%BB%84-scaffolding-genome-using-3d-dna-workflow/" data-id="clm4a30lp006ze6nkaykx547z" data-title="利用3D-DNA流程组装基因组" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1400,86 +1500,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/25/%E6%A0%B7%E6%9C%AC%E8%B6%B3%E5%A4%9F%E5%A4%9A%E6%97%B6%E5%88%AB%E7%94%A8DESeq2%EF%BC%8C%E7%94%A8%E9%9D%9E%E5%8F%82%E6%95%B0%E6%A3%80%E9%AA%8C%E9%83%BD%E8%A1%8C-DESeq2-vs-wilcox-in-DE-analysis/" data-id="clm1z22if00i1ehn57n6q40dj" data-title="样本足够多时别用DESeq2，用非参数检验都行" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://xuzhougeng.top/2019/08/25/%E6%A0%B7%E6%9C%AC%E8%B6%B3%E5%A4%9F%E5%A4%9A%E6%97%B6%E5%88%AB%E7%94%A8DESeq2%EF%BC%8C%E7%94%A8%E9%9D%9E%E5%8F%82%E6%95%B0%E6%A3%80%E9%AA%8C%E9%83%BD%E8%A1%8C-DESeq2-vs-wilcox-in-DE-analysis/" data-id="clm4a30th00jbe6nk719he2na" data-title="样本足够多时别用DESeq2，用非参数检验都行" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E5%BD%95%E7%BB%84-%E5%B7%AE%E5%BC%82%E5%88%86%E6%9E%90-TCGA/" rel="tag">转录组 | 差异分析 | TCGA</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-如何安装perl模块-How-to-install-perl-module" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" class="article-date">
-  <time class="dt-published" datetime="2019-08-23T12:57:37.759Z" itemprop="datePublished">2019-08-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/">如何安装perl模块</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>由于生物信息早期最多用的语言是perl，因此不可避免就要用别人的perl脚本或者基于perl的项目来处理数据。</p>
-<p>使用perl脚本和使用其他编程语言的脚本没啥不同，毕竟你只要传入参数，它就能给你结果。因此对于我们这些不用perl写脚本，只需要调用的人而言，唯一要学会的事情就是**如何安装perl的模块”。</p>
-<p>关于perl模块安装，最古老的方法就是使用<code>perl -MCPAN -e shell</code>或者是<code>cpan</code>（两者等价），这也是我最先接触的方法，这里介绍如何使用<code>local::lib</code>和<code>cpanm</code>实现非root权限安装perl模块。</p>
-<h2 id="使用系统自带的perl"><a href="#使用系统自带的perl" class="headerlink" title="使用系统自带的perl"></a>使用系统自带的perl</h2><p>安装任何软件最怕遇到的问题就是权限问题，因此我们需要先安装<code>local::lib</code>，使得我们能够将perl模块安装到任何地方，简单的说就是安装到我们的家目录下</p>
-<p>第一步，下载源代码进行编译安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000024.tar.gz</span><br><span class="line">tar xf local-lib-2.000024.tar.gz</span><br><span class="line"><span class="built_in">cd</span> local-lib-2.000024</span><br><span class="line">perl Makefile.PL --bootstrap=~/opt</span><br><span class="line">make <span class="built_in">test</span> &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<p>第二步：<strong>设置环境变量</strong>，使得perl在安装模块的时候会优先使用我们指定的路径</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;eval &quot;$(perl -I$HOME/opt/lib/perl5 -Mlocal::lib=$HOME/opt)&quot;&#x27;</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<p>先用<code>perl -I$HOME/opt/lib/perl5 -Mlocal::lib=$HOME/opt</code>表示运行前先添加<code>$HOME/opt/lib/perl5</code>到自己的搜索路径<code>@INC</code>中，然后传入参数<code>$HOME/opt</code>执行模块<code>local::lob</code>，这个模块的执行结果会输出如下内容</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Attempting to create directory /home6/wangjw/opt</span><br><span class="line">PATH=<span class="string">&quot;/home/zgxu/opt/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PATH;</span><br><span class="line">PERL5LIB=<span class="string">&quot;/home/zgxu/opt/lib/perl5<span class="variable">$&#123;PERL5LIB:+:<span class="variable">$&#123;PERL5LIB&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PERL5LIB;</span><br><span class="line">PERL_LOCAL_LIB_ROOT=<span class="string">&quot;/home/zgxu/opt<span class="variable">$&#123;PERL_LOCAL_LIB_ROOT:+:<span class="variable">$&#123;PERL_LOCAL_LIB_ROOT&#125;</span>&#125;</span>&quot;</span>; <span class="built_in">export</span> PERL_LOCAL_LIB_ROOT;</span><br><span class="line">PERL_MB_OPT=<span class="string">&quot;--install_base \&quot;/home/zgxu/opt\&quot;&quot;</span>; <span class="built_in">export</span> PERL_MB_OPT;</span><br><span class="line">PERL_MM_OPT=<span class="string">&quot;INSTALL_BASE=/home/zgxu/opt&quot;</span>; <span class="built_in">export</span> PERL_MM_OPT;</span><br></pre></td></tr></table></figure>
-
-<p>这些就作为<code>eval</code>的参数进行执行，也就是说你重启终端后后，<code>PERL5LIB</code> <code>PERL_LOCAL_LIB_ROOT</code>,<code>PERL_MB_OPT</code>,<code>PERL_MM_OPT</code>这几个变量就会重新设置，以此保证你后续安装perl模块时，会优先安装到自己的选择的目录</p>
-<p>第三步：安装cpam. 由于之前已经配置了<code>local::lib</code>，因此perl编译的工具都会默认安装到<code>~/opt</code>目录下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/App-cpanminus-1.7043.tar.gz</span><br><span class="line">tar xf App-cpanminus-1.7043.tar.gz</span><br><span class="line"><span class="built_in">cd</span> App-cpanminus-1.7043</span><br><span class="line">perl Makefile.PL</span><br><span class="line">make <span class="built_in">test</span> &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<p>第四步：使用国内镜像提高下载速度，可以通过别名的方式实现</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;alias cpanm=&quot;cpanm --mirror http://mirrors.163.com/cpan --mirror-only&quot;&#x27;</span> &gt;&gt;~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<p>之后便可以使用<code>cpanm Module::Name</code>安装任意的软件了。</p>
-<h2 id="自己编译一个perl"><a href="#自己编译一个perl" class="headerlink" title="自己编译一个perl"></a>自己编译一个perl</h2><p>自己编译Perl的好处就在于之后的perl模块都会安装到自己的Perl目录下，而不会对系统造成影响。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/src</span><br><span class="line">wget -4 http://www.cpan.org/src/5.0/perl-5.26.1.tar.gz</span><br><span class="line">tar xf perl-5.26.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> perl-5.26.1</span><br><span class="line">./Configure -des -Dprefix=<span class="variable">$HOME</span>/opt/sysoft/perl-5.26.1</span><br><span class="line">make <span class="built_in">test</span></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p>然后用<code>perl -e &#39;&#123;print &quot;$_\n&quot; foreach @INC&#125;&#39;</code>会发现perl只会在自己的目录<code>~/opt/sysoft/perl-5.26.1</code>下查找模块。那么使用<code>cpanm Module::Name</code>安装的任何包都只会安装到<code>~/opt/sysoft/perl-5.26.1</code>下，你也不需要安装<code>local::lib</code>了</p>
-<h2 id="conda的perl和系统的perl冲突"><a href="#conda的perl和系统的perl冲突" class="headerlink" title="conda的perl和系统的perl冲突"></a>conda的perl和系统的perl冲突</h2><p>有一次我遇到这个问题</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl: symbol lookup error: /home/wangjw/perl5/lib/perl5/x86_64-linux-thread-multi/auto/Cwd/Cwd.so: undefined symbol</span><br></pre></td></tr></table></figure>
-
-<p>这个问题是因为用系统perl安装的软件被conda的perl优先查找到导致，用<code>perl -V</code>和<code>perl -e &#39;&#123;print &quot;$_\n&quot; foreach @INC&#125;&#39;</code>可以发现conda的perl查找路径低于我为系统perl安装的路径，解决方案如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PERL5LIB=<span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://xuzhougeng.top/2019/08/23/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85perl%E6%A8%A1%E5%9D%97-How-to-install-perl-module/" data-id="clm1z22ha00eyehn56iypapzc" data-title="如何安装perl模块" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Perl-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="tag">Perl | 软件安装</a></li></ul>
 
     </footer>
   </div>
@@ -1546,6 +1571,10 @@
       <ul>
         
           <li>
+            <a href="/2023/09/04/%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%BD%AC%E5%BD%95%E7%BB%84%E6%B5%8B%E5%BA%8F%E6%98%AF%E5%90%A6%E4%B8%BA%E9%93%BE%E7%89%B9%E5%BC%82%E6%80%A7%E5%BB%BA%E5%BA%93/">如何判断转录组测序是否为链特异性建库</a>
+          </li>
+        
+          <li>
             <a href="/2023/09/02/%E5%A6%82%E4%BD%95%E8%AE%A9%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8D%E5%86%8D%E9%BE%9F%E9%80%9F%E4%B8%8B%E8%BD%BDgithub%E7%9A%84%E6%95%B0%E6%8D%AE/">如何让服务器不再龟速下载github的数据</a>
           </li>
         
@@ -1559,10 +1588,6 @@
         
           <li>
             <a href="/2023/08/18/%E4%BB%8Ehalo%E8%BF%81%E7%A7%BB%E5%88%B0hexo/">从halo迁移到hexo</a>
-          </li>
-        
-          <li>
-            <a href="/2023/06/24/Oatk%EF%BC%9A%E5%88%A9%E7%94%A8HiFi%20Read%E8%BF%9B%E8%A1%8C%E7%BB%86%E8%83%9E%E5%99%A8%E7%BB%84%E8%A3%85-oatk-assembly-of-organelles-using-hifi-read/">Oatk：利用HiFi Read进行细胞器组装</a>
           </li>
         
       </ul>
